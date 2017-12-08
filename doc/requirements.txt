@@ -1,8 +1,3 @@
-# Requirements for building documentation
-
-# Import main project requirements
--r ../requirements.txt
-
-# Documentation-specific requirements
+# Additional requirements for building documentation
 sphinx
 sphinx_rtd_theme

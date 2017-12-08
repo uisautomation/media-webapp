@@ -5,8 +5,6 @@ setup(
     packages=find_packages(),
     install_requires=[
         'django>=2.0',
-    ],
-    test_requires=[
-        'coverage',
+        'psycopg2',
     ],
 )
