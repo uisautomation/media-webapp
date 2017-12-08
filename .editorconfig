@@ -1,0 +1,9 @@
+root=true
+
+[*.ini]
+indent_style=space
+indent_size=4
+
+[*.{yml,yaml}]
+indent_style=space
+indent_size=4
