@@ -1,2 +1,3 @@
 # Requirements for the webapp itself
 django>=2.0
+psycopg2
