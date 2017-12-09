@@ -33,8 +33,10 @@ jobs:
           command: |
             . venv/bin/activate
             tox
-      # FIXME: we currently do not generate any test reports
       - store_artifacts:
-          path: test-reports/
-          destination: tr1
+          path: build/doc
+          destination: doc
+      - store_artifacts:
+          path: build/htmlcov
+          destination: cov
 
