@@ -10,4 +10,5 @@ developer documentation for the web control panel.
     :caption: Contents:
 
     gettingstarted
+    developer
     configuration

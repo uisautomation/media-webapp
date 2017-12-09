@@ -43,14 +43,21 @@ Sometimes you'll want to ``push`` or ``pull`` from it.
 
     $ git remote add $USER git@bitbucket.org:$USER/sms-webapp.git
 
-Run the test suite
-``````````````````
+Install any requirements
+````````````````````````
 
-The `tox <https://tox.readthedocs.io/>`_ automation tool is used to run tests
-inside their own virtualenv. This way we can be sure that we know which packages
-are required to run the tests. By default tests are run in a sqlite database
-within a per-environment temporary directory. Other databases can be used by
-setting the ``DJANGO_DB_...`` environment variables. See :any:`database-config`.
+Usually you'll want to use the `tox <https://tox.readthedocs.io/>`_ automation
+tool to run tests, etc but you can install the application within your
+virtualenv which will also install any dependencies:
+
+.. code:: bash
+
+    $ pip install -r requirements.txt
+    $ pip install -e .
+
+The ``-e`` flag to ``pip`` will cause the install to use symlinks rather than
+copying which allows for in-place modification of the source without having to
+re-install.
 
 Perform initial migration
 `````````````````````````
@@ -62,12 +69,7 @@ performed as usual:
 
     $ ./manage.py migrate
 
-Run the development server
-``````````````````````````
+Next steps
+``````````
 
-The development web server may now be run:
-
-.. code:: bash
-
-    $ ./manage.py runserver
-
+See the :any:`developer` for what to do next.
