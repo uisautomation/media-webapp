@@ -11,7 +11,7 @@ personal repository into the main repository.
 
 .. seealso::
 
-    Bitbucket has `documentation on hot to fork a repository
+    Bitbucket has `documentation on how to fork a repository
     <https://confluence.atlassian.com/bitbucket/forking-a-repository-221449527.html>`_
     which can be followed.
 

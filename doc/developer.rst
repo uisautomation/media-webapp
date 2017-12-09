@@ -23,7 +23,7 @@ setting the ``DJANGO_DB_...`` environment variables. See :any:`database-config`.
 Run the development server
 ``````````````````````````
 
-The development web server may now be run:
+Django comes with a development web server which can be run via:
 
 .. code:: bash
 
