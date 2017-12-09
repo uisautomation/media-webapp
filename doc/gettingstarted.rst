@@ -30,6 +30,19 @@ repository.
     $ cd sms-webapp
     $ git remote set-url origin --push git@bitbucket.org:$USER/sms-webapp.git
 
+.. note::
+
+    Make sure to replace ``$USER`` with your bitbucket user name. If your
+    bitbucket user name happens to be the same as your local user name, on
+    Unix-y systems this will be done by magic!
+
+It is also worth setting up an explicit remote for your personal repository.
+Sometimes you'll want to ``push`` or ``pull`` from it.
+
+.. code:: bash
+
+    $ git remote add $USER git@bitbucket.org:$USER/sms-webapp.git
+
 Run the test suite
 ``````````````````
 
