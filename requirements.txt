@@ -1,3 +1,12 @@
 # Requirements for the webapp itself
 django>=2.0
 psycopg2
+
+# For an improved ./manage.py shell experience
+ipython
+
+# So that tests may be run within the container
+tox
+
+# Serving
+gunicorn

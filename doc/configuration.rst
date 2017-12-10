@@ -1,6 +1,9 @@
 Configuration
 -------------
 
+This section describes any settings which are specific to the Streaming Media
+Service application.
+
 .. _database-config:
 
 Specifying the database

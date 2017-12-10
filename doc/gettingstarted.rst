@@ -1,6 +1,10 @@
 Getting started
 ===============
 
+This section is a guide to checking out the source and getting a development
+machine configured. More information on development is found in the
+:any:`Developer's guide <developer>`.
+
 Fork the upstream repository
 ````````````````````````````
 
@@ -9,12 +13,27 @@ to disallow opening new branches by default. You'll need to *fork* the
 repository into your personal account and then open pull requests from your
 personal repository into the main repository.
 
+.. note::
+
+    For some cloud integrations to work, your fork will need to be public.
+
 .. seealso::
 
     Bitbucket has `documentation on how to fork a repository
     <https://confluence.atlassian.com/bitbucket/forking-a-repository-221449527.html>`_
     which can be followed.
 
+Set up cloud integrations
+`````````````````````````
+
+Visit the following cloud tool sites, sign in with Bitbucket and add your new
+fork:
+
+1. Add your repository to `Coveralls <https://coveralls.io/>`_ and make a note
+   of the repository token which is generated.
+2. Add your repository to  `CircleCI <https://circleci.com/>`_ and configure the
+   environment variable ``COVERALLS_REPO_TOKEN`` with the coveralls repository
+   token noted earlier.
 
 Clone the repository locally
 ````````````````````````````
@@ -24,7 +43,7 @@ your local user fork. This means that ``git push`` commands will modify your
 local fork but ``git pull`` commands will automatically fetch from the upstream
 repository.
 
-.. code:: bash
+.. code-block:: bash
 
     $ git clone git@bitbucket.org:uisautomation/sms-webapp.git
     $ cd sms-webapp
@@ -39,7 +58,7 @@ repository.
 It is also worth setting up an explicit remote for your personal repository.
 Sometimes you'll want to ``push`` or ``pull`` from it.
 
-.. code:: bash
+.. code-block:: bash
 
     $ git remote add $USER git@bitbucket.org:$USER/sms-webapp.git
 
@@ -50,7 +69,7 @@ Usually you'll want to use the `tox <https://tox.readthedocs.io/>`_ automation
 tool to run tests, etc but you can install the application within your
 virtualenv which will also install any dependencies:
 
-.. code:: bash
+.. code-block:: bash
 
     $ pip install -r requirements.txt
     $ pip install -e .
@@ -65,7 +84,7 @@ Perform initial migration
 Before running for the first time, an initial database migration must be
 performed as usual:
 
-.. code:: bash
+.. code-block:: bash
 
     $ ./manage.py migrate
 
