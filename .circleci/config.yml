@@ -17,7 +17,7 @@ jobs:
           command: |
             python3 -m venv venv
             . venv/bin/activate
-            pip install tox
+            pip install tox coveralls
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "setup.py" }}
           paths:
@@ -33,6 +33,7 @@ jobs:
           command: |
             . venv/bin/activate
             tox
+            coveralls
       - store_artifacts:
           path: build/doc
           destination: doc
