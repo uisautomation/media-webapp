@@ -13,12 +13,24 @@ to disallow opening new branches by default. You'll need to *fork* the
 repository into your personal account and then open pull requests from your
 personal repository into the main repository.
 
+.. note::
+
+    For some cloud integrations to work, your fork will need to be public.
+
 .. seealso::
 
     Bitbucket has `documentation on how to fork a repository
     <https://confluence.atlassian.com/bitbucket/forking-a-repository-221449527.html>`_
     which can be followed.
 
+Set up cloud integrations
+`````````````````````````
+
+Visit the following cloud tool sites, sign in with Bitbucket and add your new
+fork:
+
+* `CircleCI <https://circleci.com/>`_
+* `Coveralls <https://coveralls.io/>`_
 
 Clone the repository locally
 ````````````````````````````
