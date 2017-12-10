@@ -18,11 +18,6 @@ jobs:
             python3 -m venv venv
             . venv/bin/activate
             pip install tox coveralls
-      - save_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "setup.py" }}
-          paths:
-            - "venv"
-            - ".tox"
       - run:
           environment:
               DJANGO_DB_ENGINE: django.db.backends.postgresql
@@ -34,6 +29,11 @@ jobs:
             . venv/bin/activate
             tox
             coveralls
+      - save_cache:
+          key: deps1-{{ .Branch }}-{{ checksum "setup.py" }}
+          paths:
+            - "venv"
+            - ".tox"
       - store_artifacts:
           path: build/doc
           destination: doc
