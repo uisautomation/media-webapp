@@ -1,0 +1,51 @@
+# docker-compose file for local development and testing with container image.
+version: '3.2'
+services:
+  devserver: &devserver
+    build:
+      context: .
+    expose:
+      - "8000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - "db"
+      - "debugsmtp"
+    # For devserver, mount the local directory inside the container as a volume
+    # to allow local changes to be reflected without having to re-build the
+    # container.
+    volumes:
+      - type: volume
+        source: ./
+        target: /app/
+        read_only: true
+    environment:
+      - PORT=8000
+      - DJANGO_SETTINGS_MODULE=smswebapp.settings_developer
+      - DJANGO_DB_ENGINE=django.db.backends.postgresql
+      - DJANGO_DB_HOST=db
+      - DJANGO_DB_NAME=mediaservice
+      - DJANGO_DB_USER=mediaservice
+      - DJANGO_DB_PASSWORD=databasePass
+      - DJANGO_EMAIL_HOST=debugsmtp
+      - DJANGO_EMAIL_PORT=1025
+  tox:
+    <<: *devserver
+    entrypoint: ["tox"]
+  migrate:
+    <<: *devserver
+    entrypoint: ["./manage.py", "migrate"]
+  shell:
+    <<: *devserver
+    entrypoint: ["./manage.py", "shell"]
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_DB=mediaservice
+      - POSTGRES_USER=mediaservice
+      - POSTGRES_PASSWORD=databasePass
+  debugsmtp:
+    image: mailhog/mailhog
+    ports:
+      - "8025:8025"
+

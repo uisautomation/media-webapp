@@ -7,8 +7,9 @@ developer documentation for the web control panel.
 
 .. toctree::
     :maxdepth: 2
-    :caption: Contents:
+    :caption: Contents
 
     gettingstarted
     developer
+    deployment
     configuration
