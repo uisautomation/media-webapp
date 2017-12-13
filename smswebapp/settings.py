@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'ucamwebauth',
 ]
 
 MIDDLEWARE = [
@@ -134,3 +135,23 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Authentication backends
+
+AUTHENTICATION_BACKENDS = [
+    'ucamwebauth.backends.RavenAuthBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+
+# Raven login configuration
+
+# Allow the autocreation of users who have been successfully authenticated by
+# Raven but do not exist in the local database.
+UCAMWEBAUTH_CREATE_USER = True
+
+# Redirect to this URL on log out
+UCAMWEBAUTH_LOGOUT_REDIRECT = 'https://raven.cam.ac.uk/auth/logout.html'
+
+# Allow members who are not current members to log in?
+UCAMWEBAUTH_NOT_CURRENT = False

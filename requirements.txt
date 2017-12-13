@@ -1,6 +1,7 @@
 # Requirements for the webapp itself
 django>=2.0
 psycopg2
+https://github.com/abrahammartin/django-ucamwebauth/archive/1.4.5.tar.gz#egg=django-ucamwebauth
 
 # For an improved ./manage.py shell experience
 ipython
