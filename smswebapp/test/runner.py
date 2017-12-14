@@ -25,8 +25,8 @@ class BufferedTextTestRunner(unittest.TextTestRunner):
 class BufferedDiscoverRunner(django.test.runner.DiscoverRunner):
     """
     A sub-class of :py:class:`django.test.runner.DiscoverRunner` which has
-    exactly the same behaviour except that the :py:attr:`.test_runner` attribute
-    is set to :py:class:`.BufferedTextTestRunner`.
+    exactly the same behaviour except that the :py:attr:`.test_runner`
+    attribute is set to :py:class:`.BufferedTextTestRunner`.
 
     The upshot of this is that output to stdout and stderror is captured and
     only reported on test failure.
