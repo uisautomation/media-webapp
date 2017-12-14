@@ -164,6 +164,3 @@ texinfo_documents = [
      author, 'StreamingMediaServiceWebapp', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-
-
