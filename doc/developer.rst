@@ -171,6 +171,22 @@ pull request. Some items to note:
     using the PostgreSQL database and *not* sqlite. If you only run unit tests
     locally with sqlite then it is possible that some tests may fail.
 
+Code-style
+``````````
+
+The ``tox`` test runner will automatically check the code with `flake8
+<http://flake8.pycqa.org/>`_ to ensure PEP8 compliance. Sometimes, however,
+rules are made to be broken and so you may find yourself needing to use the
+`noqa in-line comment
+<http://flake8.pycqa.org/en/latest/user/violations.html#in-line-ignoring-errors>`_
+mechanism to silence individual errors.
+
+To run the flake8 tests manually, specify the tox environment:
+
+.. code:: bash
+
+    $ tox -e flake8
+
 Documentation
 `````````````
 
