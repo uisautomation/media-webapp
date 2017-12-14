@@ -16,14 +16,14 @@ the main repository.
 Set up cloud integrations
 `````````````````````````
 
-Visit the following cloud tool sites, sign in with Bitbucket and add your new
+Visit the following cloud tool sites, sign in with GitHub and add your new
 fork:
 
 1. Add your repository to `Coveralls <https://coveralls.io/>`_ and make a note
    of the repository token which is generated.
-2. Add your repository to  `CircleCI <https://circleci.com/>`_ and configure the
-   environment variable ``COVERALLS_REPO_TOKEN`` with the coveralls repository
-   token noted earlier.
+2. Add your repository to  `CircleCI <https://circleci.com/>`_. Make sure to
+   configure the environment variable ``COVERALLS_REPO_TOKEN`` with the
+   coveralls repository token noted earlier.
 
 Clone the repository locally
 ````````````````````````````
