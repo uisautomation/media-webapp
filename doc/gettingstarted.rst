@@ -8,32 +8,22 @@ machine configured. More information on development is found in the
 Fork the upstream repository
 ````````````````````````````
 
-The repository at https://bitbucket.org/uisautomation/sms-webapp is configured
-to disallow opening new branches by default. You'll need to *fork* the
-repository into your personal account and then open pull requests from your
-personal repository into the main repository.
-
-.. note::
-
-    For some cloud integrations to work, your fork will need to be public.
-
-.. seealso::
-
-    Bitbucket has `documentation on how to fork a repository
-    <https://confluence.atlassian.com/bitbucket/forking-a-repository-221449527.html>`_
-    which can be followed.
+The repository at https://github.com/uisautomation/sms-webapp is configured to
+disallow pushing to master. You'll need to *fork* the repository into your
+personal account and then open pull requests from your personal repository into
+the main repository.
 
 Set up cloud integrations
 `````````````````````````
 
-Visit the following cloud tool sites, sign in with Bitbucket and add your new
+Visit the following cloud tool sites, sign in with GitHub and add your new
 fork:
 
 1. Add your repository to `Coveralls <https://coveralls.io/>`_ and make a note
    of the repository token which is generated.
-2. Add your repository to  `CircleCI <https://circleci.com/>`_ and configure the
-   environment variable ``COVERALLS_REPO_TOKEN`` with the coveralls repository
-   token noted earlier.
+2. Add your repository to  `CircleCI <https://circleci.com/>`_. Make sure to
+   configure the environment variable ``COVERALLS_REPO_TOKEN`` with the
+   coveralls repository token noted earlier.
 
 Clone the repository locally
 ````````````````````````````
@@ -45,13 +35,13 @@ repository.
 
 .. code-block:: bash
 
-    $ git clone git@bitbucket.org:uisautomation/sms-webapp.git
+    $ git clone git@github.com:uisautomation/sms-webapp.git
     $ cd sms-webapp
-    $ git remote set-url origin --push git@bitbucket.org:$USER/sms-webapp.git
+    $ git remote set-url origin --push git@github.com:$USER/sms-webapp.git
 
 .. note::
 
-    Make sure to replace ``$USER`` with your bitbucket user name. If your
+    Make sure to replace ``$USER`` with your GitHub user name. If your
     bitbucket user name happens to be the same as your local user name, on
     Unix-y systems this will be done by magic!
 
@@ -60,7 +50,7 @@ Sometimes you'll want to ``push`` or ``pull`` from it.
 
 .. code-block:: bash
 
-    $ git remote add $USER git@bitbucket.org:$USER/sms-webapp.git
+    $ git remote add $USER git@github.com:$USER/sms-webapp.git
 
 Install any requirements
 ````````````````````````

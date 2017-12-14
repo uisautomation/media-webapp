@@ -139,14 +139,12 @@ This section provides a brief outline of cloud infrastructure for development.
 Source control
 ``````````````
 
-The panel is hosted on bitbucket at
-https://bitbucket.org/uisautomation/sms-webapp. The repository has all branches
-set up to be writeable only via pull request. It is intended that local
-development happens in `personal forks
-<https://confluence.atlassian.com/bitbucket/forking-a-repository-221449527.html>`_
-and is merged via pull request. The main rationale for this is a) it guards
-against accidentally ``git push``-ing the wrong branch and b) it reduces the
-number of "dangling" branches in the main repository.
+The panel is hosted on GitHub at https://github.com/uisautomation/sms-webapp.
+The repository has ``master`` set up to be writeable only via pull request. It
+is intended that local development happens in personal forks and is merged via
+pull request. The main rationale for this is a) it guards against accidentally
+``git push``-ing the wrong branch and b) it reduces the number of "dangling"
+branches in the main repository.
 
 .. _circleci:
 
@@ -163,7 +161,7 @@ pull request. Some items to note:
 * Individual builds save two artifacts: a HTML code-coverage report and a build
   copy of the documentation. Both may be viewed from the "artifacts" tab on an
   individual build's page.
-* By logging into CircleCI via bitbucket, you can enable CircleCI for your
+* By logging into CircleCI via GitHub, you can enable CircleCI for your
   personal fork. This is **highly recommended** as you'll get rapid feedback via
   email if you push a commit to a branch which does not pass the test suite.
 
