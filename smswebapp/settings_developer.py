@@ -1,5 +1,6 @@
 # Import settings from the base settings file
-from .settings import *
+from .settings import *  # noqa: F401, F403
+
 
 # Use Demo Raven server
 UCAMWEBAUTH_LOGIN_URL = 'https://demo.raven.cam.ac.uk/auth/authenticate.html'
@@ -31,3 +32,15 @@ wOq24EIbX5LquL9w+uvnfXw=
 -----END CERTIFICATE-----
 """
 }
+
+DEBUG = True
+
+INSTALLED_APPS = INSTALLED_APPS + [  # noqa: F405
+    'debug_toolbar',
+]
+
+MIDDLEWARE = MIDDLEWARE + [  # noqa: F405
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+]
+
+STATIC_URL = '/static/'
