@@ -17,11 +17,9 @@ services:
     volumes:
       - type: volume
         source: ./
-        target: /app/
+        target: /usr/src/app
         read_only: true
     environment:
-      - PORT=8000
-      - DJANGO_SETTINGS_MODULE=smswebapp.settings_developer
       - DJANGO_DB_ENGINE=django.db.backends.postgresql
       - DJANGO_DB_HOST=db
       - DJANGO_DB_NAME=mediaservice
@@ -32,12 +30,13 @@ services:
   tox:
     <<: *devserver
     entrypoint: ["tox"]
+    command: [""]
   migrate:
     <<: *devserver
-    entrypoint: ["./manage.py", "migrate"]
+    command: ["migrate"]
   shell:
     <<: *devserver
-    entrypoint: ["./manage.py", "shell"]
+    command: ["shell"]
   db:
     image: postgres
     environment:
