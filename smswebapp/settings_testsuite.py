@@ -5,7 +5,7 @@ uses this settings module when running the test suite.
 
 """
 # Import settings from the base settings file
-from .settings import *  # noqa: F401
+from .settings import *  # noqa: F401, F403
 
 
 #: The default test runner is changed to one which captures stdout and stderr
