@@ -2,7 +2,7 @@
 Test that the admin pages are available and protected.
 
 """
-from urllib.parse import urlparse
+from urllib.parse import urljoin
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.test import TestCase
@@ -17,8 +17,12 @@ class AdminTests(TestCase):
     def test_unauthenticated(self):
         """Unauthenticated log in to admin redirects to login."""
         r = self.client.get(reverse('admin:index'))
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(urlparse(r['Location']).path, reverse('admin:login'))
+        # We really should use urlencode here to escape "/" characters in the
+        # admin:index view URL. However, it would appear that the admin doesn't
+        # so if we do, the test fails :(.
+        expected_url = urljoin(reverse('admin:login'),
+                               '?next=' + reverse('admin:index'))
+        self.assertRedirects(r, expected_url, target_status_code=200)
 
     def test_authenticated(self):
         """Authenticated log in to admin as superuser succeeds."""
