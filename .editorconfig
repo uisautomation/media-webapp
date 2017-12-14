@@ -1,13 +1,5 @@
+# Editorconfig file for cross-platform configuration of editors.
 root=true
 
-[*.ini]
-indent_style=space
-indent_size=4
-
-[*.{yml,yaml}]
-indent_style=space
-indent_size=2
-
-[*.rst]
-indent_style=space
-indent_size=4
+[*.py]
+max_line_length=79
