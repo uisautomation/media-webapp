@@ -5,9 +5,9 @@ uses this settings module when running the test suite.
 
 """
 # Import settings from the base settings file
-from .settings import *
+from .settings import *  # noqa: F401
 
 
 #: The default test runner is changed to one which captures stdout and stderr
 #: when running tests.
-TEST_RUNNER='smswebapp.test.runner.BufferedDiscoverRunner'
+TEST_RUNNER = 'smswebapp.test.runner.BufferedDiscoverRunner'
