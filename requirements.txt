@@ -1,6 +1,7 @@
 # Requirements for the webapp itself
 django>=2.0
 psycopg2
+django-ucamwebauth>=1.4.5
 
 # For an improved ./manage.py shell experience
 ipython

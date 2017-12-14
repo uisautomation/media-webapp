@@ -13,3 +13,4 @@ developer documentation for the web control panel.
     developer
     deployment
     configuration
+    smswebapp
