@@ -1,8 +1,3 @@
-"""
-The default :py:mod:`smswebapp.settings` module contains settings which are
-common to most deployment environments.
-
-"""
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
