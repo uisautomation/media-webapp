@@ -91,7 +91,7 @@ To run the development server:
 
     $ docker-compose up devserver
 
-This makes use of the :py:class:`smswebapp.settings_developer` settings,
+This makes use of the :py:class:`smswebapp.settings.developer` settings,
 launches a PostgreSQL container for the development server and a `MailHog
 <https://github.com/mailhog/MailHog>`_ server to monitor outgoing email. The web
 app is available at http://localhost:8000/ and the MailHog instance at

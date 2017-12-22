@@ -22,7 +22,7 @@ Generic settings
 Test-suite specific settings
 ````````````````````````````
 
-.. automodule:: smswebapp.settings_testsuite
+.. automodule:: smswebapp.settings.tox
     :members:
 
 .. _settings_developer:
@@ -30,7 +30,7 @@ Test-suite specific settings
 Developer specific settings
 ```````````````````````````
 
-.. automodule:: smswebapp.settings_developer
+.. automodule:: smswebapp.settings.developer
     :members:
 
 Custom test suite runner
