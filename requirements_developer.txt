@@ -1,0 +1,10 @@
+# Install the main set of requirements
+-r requirements.txt
+
+# Additional requirements useful for developers of the webapp
+
+# Django debugging
+django-debug-toolbar
+
+# Testing
+tox

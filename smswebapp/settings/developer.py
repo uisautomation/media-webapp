@@ -31,3 +31,15 @@ wOq24EIbX5LquL9w+uvnfXw=
 -----END CERTIFICATE-----
 """
 }
+
+DEBUG = True
+
+INSTALLED_APPS = INSTALLED_APPS + [  # noqa: F405
+    'debug_toolbar',
+]
+
+MIDDLEWARE = MIDDLEWARE + [  # noqa: F405
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+]
+
+STATIC_URL = '/static/'
