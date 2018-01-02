@@ -1,32 +1,26 @@
-#	Copyright 2015, Google, Inc.
-#	Copyright 2017, University of Cambridge
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+FROM python:3.6
+
+# Do everything relative to /usr/src/app which is where we install our
+# application.
+WORKDIR /usr/src/app
+
+# Install any explicit requirements
+ADD requirements*.txt ./
+RUN pip install -r ./requirements_developer.txt
+
+# Copy the webapp source into the application root.
+ADD . .
+
+# We use "-e" here so that we may mount /usr/src/app as a volume and replace the
+# python code with our own. This is useful when running this container as a
+# developer, for example. See also the bundled docker-compose.yml and
+# https://uis-smswebapp.readthedocs.io/en/latest/developer.html#docker-images
+RUN pip install -e .
+
+# By default, use the Django development server to serve the application and use
+# developer-specific settings.
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# [START docker]
-
-# The Google App Engine python runtime is Debian Jessie with Python installed
-# and various os-level packages to allow installation of popular Python
-# libraries. The source is on github at:
-# https://github.com/GoogleCloudPlatform/python-docker
-FROM gcr.io/google_appengine/python
-
-# Create a virtualenv for the application dependencies.
-RUN virtualenv -p python3.6 /env
-ENV PATH /env/bin:$PATH
-
-ADD requirements.txt /app/requirements.txt
-RUN /env/bin/pip install -r /app/requirements.txt
-ADD . /app
-
-CMD gunicorn -b :$PORT smswebapp.wsgi
-# [END docker]
+# *DO NOT DEPLOY THIS TO PRODUCTION*
+ENV DJANGO_SETTINGS_MODULE smswebapp.settings_developer
+ENTRYPOINT ["./manage.py"]
+CMD ["runserver", "0.0.0.0:8000"]

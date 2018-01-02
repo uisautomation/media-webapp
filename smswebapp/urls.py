@@ -13,14 +13,29 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
 
 # Project views
 from . import views
 
+# Django debug toolbar is only installed in developer builds
+try:
+    import debug_toolbar.urls
+    HAVE_DDT = True
+except ImportError:
+    HAVE_DDT = False
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('ucamwebauth.urls')),
     path('', views.index),
 ]
+
+# Selectively enable django debug toolbar URLs. Only if the toolbar is
+# installed *and* DEBUG is True.
+if HAVE_DDT and settings.DEBUG:
+    urlpatterns = [
+        path(r'^__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns
