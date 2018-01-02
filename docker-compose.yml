@@ -20,6 +20,8 @@ services:
         target: /usr/src/app
         read_only: true
     environment:
+      - PORT=8000
+      - DJANGO_SETTINGS_MODULE=smswebapp.settings.developer
       - DJANGO_DB_ENGINE=django.db.backends.postgresql
       - DJANGO_DB_HOST=db
       - DJANGO_DB_NAME=mediaservice
