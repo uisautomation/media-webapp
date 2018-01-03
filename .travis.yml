@@ -6,6 +6,10 @@ services:
 
 language: python
 
+# This should match the version run by tox.
+python:
+  - "3.6"
+
 env:
   global:
     - DJANGO_DB_ENGINE=django.db.backends.postgresql
