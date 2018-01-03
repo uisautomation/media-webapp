@@ -17,6 +17,8 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
 
+import automationcommon.views
+
 # Django debug toolbar is only installed in developer builds
 try:
     import debug_toolbar.urls
@@ -27,6 +29,7 @@ except ImportError:
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('ucamwebauth.urls')),
+    path('status', automationcommon.views.status, name='status'),
 ]
 
 # Selectively enable django debug toolbar URLs. Only if the toolbar is
