@@ -25,14 +25,13 @@ before_install:
   - docker ps -a
 
 install:
-  - pip install tox coveralls codecov
+  - pip install tox codecov
 
 script:
   - tox
 
 after_success:
   - codecov
-  - coveralls
 
 # From: https://docs.travis-ci.com/user/deployment/pages/
 deploy:
