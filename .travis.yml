@@ -32,3 +32,14 @@ script:
 
 after_success:
   - codecov
+
+# From: https://docs.travis-ci.com/user/deployment/pages/
+deploy:
+    provider: pages
+    skip_cleanup: true
+    github_token: $GITHUB_TOKEN
+    local_dir: build/doc/
+    email: automation@uis.cam.ac.uk
+    name: Automation Bot
+    on:
+      branch: master

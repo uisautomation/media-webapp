@@ -1,11 +1,8 @@
 # Streaming Media Service Webapp
 
-[![Documentation
-Status](https://readthedocs.org/projects/uis-smswebapp/badge/?version=latest)](http://uis-smswebapp.readthedocs.io/en/latest/?badge=latest)
 [![Build
 Status](https://travis-ci.org/uisautomation/sms-webapp.svg?branch=master)](https://travis-ci.org/uisautomation/sms-webapp)
-[![Coverage
-Status](https://coveralls.io/repos/github/uisautomation/sms-webapp/badge.svg?branch=master)](https://coveralls.io/github/uisautomation/sms-webapp?branch=master)
+[![codecov](https://codecov.io/gh/uisautomation/sms-webapp/branch/master/graph/badge.svg)](https://codecov.io/gh/uisautomation/sms-webapp)
 
 Documentation for developers, including a "getting started" guide, can be found
-at https://uis-smswebapp.readthedocs.org/.
+at https://uisautomation.github.io/sms-webapp.
