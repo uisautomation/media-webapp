@@ -25,10 +25,11 @@ before_install:
   - docker ps -a
 
 install:
-  - pip install tox coveralls
+  - pip install tox coveralls codecov
 
 script:
   - tox
 
 after_success:
+  - codecov
   - coveralls
