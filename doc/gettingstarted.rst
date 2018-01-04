@@ -21,9 +21,7 @@ fork:
 
 1. Add your repository to `Coveralls <https://coveralls.io/>`_ and make a note
    of the repository token which is generated.
-2. Add your repository to  `CircleCI <https://circleci.com/>`_. Make sure to
-   configure the environment variable ``COVERALLS_REPO_TOKEN`` with the
-   coveralls repository token noted earlier.
+2. Add your repository to  `Travis C <https://travis-ci.org/>`_.
 
 Clone the repository locally
 ````````````````````````````

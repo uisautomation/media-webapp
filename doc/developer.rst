@@ -35,7 +35,7 @@ build only the documentation:
 
 .. note::
 
-    The CircleCI job runs tox configured with a PostgreSQL database to match
+    The Travis CI job runs tox configured with a PostgreSQL database to match
     that deployed in production. To replicate this, either run a PostgreSQL
     instance on the local machine, use the Google Cloud SQL proxy or :any:`run
     the tests via docker-compose <docker-tox>`.
@@ -146,30 +146,25 @@ pull request. The main rationale for this is a) it guards against accidentally
 ``git push``-ing the wrong branch and b) it reduces the number of "dangling"
 branches in the main repository.
 
-.. _circleci:
+.. _travisci:
 
 Unit tests
 ``````````
 
-The project is set up on `CircleCI <https://circleci.com/>`_ to automatically
+The project is set up on `Travis CI <https://travis-ci.org/>`_ to automatically
 run unit tests and build documentation on each commit to a branch and on each
-pull request. Some items to note:
-
-* The `project dashboard
-  <https://circleci.com/bb/uisautomation/sms-webapp>`_ on CircleCI lists all
-  builds.
-* Individual builds save two artifacts: a HTML code-coverage report and a build
-  copy of the documentation. Both may be viewed from the "artifacts" tab on an
-  individual build's page.
-* By logging into CircleCI via GitHub, you can enable CircleCI for your
-  personal fork. This is **highly recommended** as you'll get rapid feedback via
-  email if you push a commit to a branch which does not pass the test suite.
+pull request.
 
 .. note::
 
-    In order to better match production, CircleCI is set up to run unit tests
-    using the PostgreSQL database and *not* sqlite. If you only run unit tests
-    locally with sqlite then it is possible that some tests may fail.
+    By logging into Travis CI via GitHub, you can enable Travis CI for your
+    personal fork. This is **highly recommended** as you'll get rapid feedback
+    via email if you push a commit to a branch which does not pass the test
+    suite.
+
+In order to better match production, Travis CI is set up to run unit tests using
+the PostgreSQL database and *not* sqlite. If you only run unit tests locally
+with sqlite then it is possible that some tests may fail.
 
 Code-style
 ``````````

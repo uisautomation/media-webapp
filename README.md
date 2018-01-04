@@ -2,7 +2,8 @@
 
 [![Documentation
 Status](https://readthedocs.org/projects/uis-smswebapp/badge/?version=latest)](http://uis-smswebapp.readthedocs.io/en/latest/?badge=latest)
-[![CircleCI](https://circleci.com/gh/uisautomation/sms-webapp.svg?style=svg)](https://circleci.com/gh/uisautomation/sms-webapp)
+[![Build
+Status](https://travis-ci.org/uisautomation/sms-webapp.svg?branch=master)](https://travis-ci.org/rjw57/sms-webapp)
 [![Coverage
 Status](https://coveralls.io/repos/github/uisautomation/sms-webapp/badge.svg?branch=master)](https://coveralls.io/github/uisautomation/sms-webapp?branch=master)
 
