@@ -166,6 +166,27 @@ In order to better match production, Travis CI is set up to run unit tests using
 the PostgreSQL database and *not* sqlite. If you only run unit tests locally
 with sqlite then it is possible that some tests may fail.
 
+Code-coverage
+`````````````
+
+Going to `CodeCov <https://codecov.io/>`_, logging in with GitHub and adding the
+``sms-webapp`` repository will start code coverage reporting on pull-requests.
+
+Documentation
+`````````````
+
+Travis CI has been set up so that when the master branch is built, the
+documentation is deployed to https://uisautomation.github.io/sms-webapp via
+GitHub pages. The `UIS robot <https://github.com/bb9e/>_` machine account's
+personal token is set up in Travis via the ``GITHUB_TOKEN`` environment
+variable.
+
+.. seealso::
+
+    Travis CI's `documentation
+    <https://docs.travis-ci.com/user/deployment/pages/>`_ on deploying to GitHub
+    pages.
+
 Code-style
 ``````````
 
