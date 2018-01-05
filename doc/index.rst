@@ -14,3 +14,4 @@ developer documentation for the web control panel.
     deployment
     configuration
     smswebapp
+    smsjwplatform

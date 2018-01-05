@@ -28,6 +28,8 @@ INSTALLED_APPS = [
 
     'automationcommon',
     'ucamwebauth',
+
+    'smsjwplatform',
 ]
 
 MIDDLEWARE = [
@@ -145,3 +147,12 @@ UCAMWEBAUTH_LOGOUT_REDIRECT = 'https://raven.cam.ac.uk/auth/logout.html'
 
 # Allow members who are not current members to log in?
 UCAMWEBAUTH_NOT_CURRENT = False
+
+
+# jwplatform API credentials
+
+#: JWPlatform API key. Loaded from the ``JWPLATFORM_API_KEY`` environment variable.
+JWPLATFORM_API_KEY = os.environ.get('JWPLATFORM_API_KEY', '')
+
+#: JWPlatform API secret. Loaded from the ``JWPLATFORM_API_SECRET`` environment variable.
+JWPLATFORM_API_SECRET = os.environ.get('JWPLATFORM_API_SECRET', '')

@@ -28,3 +28,11 @@ for v in _db_copy.values():
         v['PASSWORD'] = '<redacted>'
 print('Databases:')
 print(json.dumps(_db_copy, indent=2))
+
+#: When running the test suite, we do not call any external APIs but we *do* check that the
+#: ``JWPLATFORM_...`` settings must be set.
+JWPLATFORM_API_KEY = 'xxx-not-a-key-xxx'
+JWPLATFORM_API_SECRET = '+++-not-a-secret-+++'
+
+#: Use a fake player key for embedding.
+JWPLATFORM_EMBED_PLAYER_KEY = 'someplayer'
