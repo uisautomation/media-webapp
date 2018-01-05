@@ -3,7 +3,7 @@ Getting started
 
 This section is a guide to checking out the source and getting a development
 machine configured. More information on development is found in the
-:any:`Developer's guide <developer>`.
+:doc:`Developer's guide <developer>`.
 
 Fork the upstream repository
 ````````````````````````````
@@ -20,7 +20,7 @@ Visit the following cloud tool sites, sign in with GitHub and add your new
 fork:
 
 1. Add your repository to  `Travis CI <https://travis-ci.org/>`_.
-1. Go to `Codecov <https://codecov.io/>`_ and add your fork as a watched repo.
+2. Go to `Codecov <https://codecov.io/>`_ and add your fork as a watched repo.
    Make sure to enable the Codecov integration.
 
 Clone the repository locally
@@ -79,4 +79,4 @@ performed as usual:
 Next steps
 ``````````
 
-See the :any:`developer` for what to do next.
+See the :doc:`developer` for what to do next.
