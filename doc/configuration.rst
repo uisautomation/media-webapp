@@ -16,3 +16,11 @@ setting. So, for example, one could set the location of the sqlite database by
 setting the ``DJANGO_DB_NAME`` environment variable or one could change the
 backend by setting ``DJANGO_DB_BACKEND``.
 
+Default settings
+````````````````
+
+The default settings are given in the :py:mod:`smswebapp.settings.base` module:
+
+.. automodule:: smswebapp.settings.base
+    :members:
+    :member-order: bysource
