@@ -66,6 +66,19 @@ The ``-e`` flag to ``pip`` will cause the install to use symlinks rather than
 copying which allows for in-place modification of the source without having to
 re-install.
 
+Set up local configuration
+``````````````````````````
+
+The developer settings are configured to load some settings from the
+environment. These are settings which are either sensitive or dependent on
+third-party sources.
+
+It is recommended that you create a file names ``setupenv.sh`` in the root
+directory of the application and add contents similar to the following:
+
+.. literalinclude:: ../setupenv.example.sh
+    :language: bash
+
 Perform initial migration
 `````````````````````````
 
