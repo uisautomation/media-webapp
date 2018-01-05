@@ -8,6 +8,9 @@ psycopg2
 git+https://git.uis.cam.ac.uk/uis/automation/django-automationcommon.git@master#egg=django-automationcommon
 django-ucamwebauth>=1.4.5
 
+# To interact with the jwplatform API
+jwplatform
+
 # For an improved ./manage.py shell experience
 ipython
 
