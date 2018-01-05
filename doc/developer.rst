@@ -56,7 +56,7 @@ The server should now be browsable at http://localhost:8000/.
 Docker images
 -------------
 
-The application is :any:`deployed <deployment>` using `Docker
+The application is deployed using `Docker
 <https://docker.com/>`_ containers on the Google Container Engine. Usually one
 can just use the :any:`local development server <devserver>` to develop the
 application but occasionally one needs to test the container or make use of the
@@ -133,8 +133,6 @@ Cloud infrastructure
 --------------------
 
 This section provides a brief outline of cloud infrastructure for development.
-:any:`deployment` provides a discussion of the cloud infrastructure used for
-*deployment*.
 
 Source control
 ``````````````

@@ -11,6 +11,5 @@ developer documentation for the web control panel.
 
     gettingstarted
     developer
-    deployment
     configuration
     smswebapp
