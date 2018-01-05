@@ -29,10 +29,21 @@ services:
       - DJANGO_DB_PASSWORD=databasePass
       - DJANGO_EMAIL_HOST=debugsmtp
       - DJANGO_EMAIL_PORT=1025
+      - JWPLATFORM_API_KEY=${JWPLATFORM_API_KEY}
+      - JWPLATFORM_API_SECRET=${JWPLATFORM_API_SECRET}
+      - JWPLATFORM_EMBED_PLAYER_KEY=${JWPLATFORM_EMBED_PLAYER_KEY}
   tox:
     <<: *devserver
     entrypoint: ["tox"]
     command: [""]
+    # DANGER, WILL ROBINSON! Making the application non-read only means that tox
+    # can write its output but will do so as "root" so you may find yourself
+    # having to remove .tox/ and build/ via sudo.
+    volumes:
+      - type: volume
+        source: ./
+        target: /usr/src/app
+        read_only: false
   migrate:
     <<: *devserver
     command: ["migrate"]
