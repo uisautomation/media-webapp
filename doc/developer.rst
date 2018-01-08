@@ -49,9 +49,9 @@ Django comes with a development web server which can be run via:
 
 .. code-block:: bash
 
-    $ ./manage.py runserver
+    $ ./manage.py runserver 0.0.0.0:8080
 
-The server should now be browsable at http://localhost:8000/.
+The server should now be browsable at http://localhost:8080/.
 
 Docker images
 -------------
@@ -94,7 +94,7 @@ To run the development server:
 This makes use of the :py:class:`smswebapp.settings.developer` settings,
 launches a PostgreSQL container for the development server and a `MailHog
 <https://github.com/mailhog/MailHog>`_ server to monitor outgoing email. The web
-app is available at http://localhost:8000/ and the MailHog instance at
+app is available at http://localhost:8080/ and the MailHog instance at
 http://localhost:8025/.
 
 .. note::
