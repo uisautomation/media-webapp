@@ -197,7 +197,5 @@ To run the flake8 tests manually, specify the tox environment:
 Documentation
 `````````````
 
-This documentation is re-built on each commit to master by
-`Read the Docs <https://readthedocs.org/>`_. It is hosted at
-https://uis-smswebapp.readthedocs.io/en/latest/.
-
+This documentation is re-built on each commit to master by Travis and posted to
+GitHub pages at https://uisautomation.github.io/sms-webapp/.
