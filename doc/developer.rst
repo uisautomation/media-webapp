@@ -122,13 +122,6 @@ the following way:
 
     $ docker-compose tox
 
-.. note::
-
-    Unlike the other docker-compose services, the tox service mounts the local
-    repository as writable instead of read-only. This is because tox needs to
-    write to the filesystem. Consequently, these files will appear to have been
-    created as the "root" user outside of the container.
-
 Cloud infrastructure
 --------------------
 
