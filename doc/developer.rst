@@ -49,14 +49,14 @@ Django comes with a development web server which can be run via:
 
 .. code-block:: bash
 
-    $ ./manage.py runserver
+    $ ./manage.py runserver 0.0.0.0:8080
 
-The server should now be browsable at http://localhost:8000/.
+The server should now be browsable at http://localhost:8080/.
 
 Docker images
 -------------
 
-The application is :any:`deployed <deployment>` using `Docker
+The application is deployed using `Docker
 <https://docker.com/>`_ containers on the Google Container Engine. Usually one
 can just use the :any:`local development server <devserver>` to develop the
 application but occasionally one needs to test the container or make use of the
@@ -94,7 +94,7 @@ To run the development server:
 This makes use of the :py:class:`smswebapp.settings.developer` settings,
 launches a PostgreSQL container for the development server and a `MailHog
 <https://github.com/mailhog/MailHog>`_ server to monitor outgoing email. The web
-app is available at http://localhost:8000/ and the MailHog instance at
+app is available at http://localhost:8080/ and the MailHog instance at
 http://localhost:8025/.
 
 .. note::
@@ -122,19 +122,10 @@ the following way:
 
     $ docker-compose tox
 
-.. note::
-
-    Unlike the other docker-compose services, the tox service *does not* mount
-    the local repository as a volume. This is because tox needs to write to the
-    filesystem. Make sure that the container build is up to date via
-    ``docker-compose build`` before running tests.
-
 Cloud infrastructure
 --------------------
 
 This section provides a brief outline of cloud infrastructure for development.
-:any:`deployment` provides a discussion of the cloud infrastructure used for
-*deployment*.
 
 Source control
 ``````````````
@@ -177,7 +168,7 @@ Documentation
 
 Travis CI has been set up so that when the master branch is built, the
 documentation is deployed to https://uisautomation.github.io/sms-webapp via
-GitHub pages. The `UIS robot <https://github.com/bb9e/>_` machine account's
+GitHub pages. The `UIS robot <https://github.com/bb9e/>`_ machine account's
 personal token is set up in Travis via the ``GITHUB_TOKEN`` environment
 variable.
 
@@ -206,7 +197,5 @@ To run the flake8 tests manually, specify the tox environment:
 Documentation
 `````````````
 
-This documentation is re-built on each commit to master by
-`Read the Docs <https://readthedocs.org/>`_. It is hosted at
-https://uis-smswebapp.readthedocs.io/en/latest/.
-
+This documentation is re-built on each commit to master by Travis and posted to
+GitHub pages at https://uisautomation.github.io/sms-webapp/.

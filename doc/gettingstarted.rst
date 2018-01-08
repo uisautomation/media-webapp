@@ -3,7 +3,7 @@ Getting started
 
 This section is a guide to checking out the source and getting a development
 machine configured. More information on development is found in the
-:any:`Developer's guide <developer>`.
+:doc:`Developer's guide <developer>`.
 
 Fork the upstream repository
 ````````````````````````````
@@ -20,7 +20,7 @@ Visit the following cloud tool sites, sign in with GitHub and add your new
 fork:
 
 1. Add your repository to  `Travis CI <https://travis-ci.org/>`_.
-1. Go to `Codecov <https://codecov.io/>`_ and add your fork as a watched repo.
+2. Go to `Codecov <https://codecov.io/>`_ and add your fork as a watched repo.
    Make sure to enable the Codecov integration.
 
 Clone the repository locally
@@ -40,7 +40,7 @@ repository.
 .. note::
 
     Make sure to replace ``$USER`` with your GitHub user name. If your
-    bitbucket user name happens to be the same as your local user name, on
+    GitHub user name happens to be the same as your local user name, on
     Unix-y systems this will be done by magic!
 
 It is also worth setting up an explicit remote for your personal repository.
@@ -54,13 +54,12 @@ Install any requirements
 ````````````````````````
 
 Usually you'll want to use the `tox <https://tox.readthedocs.io/>`_ automation
-tool to run tests, etc but you can install the application within your
-virtualenv which will also install any dependencies:
+tool to run tests, etc but you can run the application within your virtualenv by
+installing the default requirements:
 
 .. code-block:: bash
 
     $ pip install -r requirements.txt
-    $ pip install -e .
 
 The ``-e`` flag to ``pip`` will cause the install to use symlinks rather than
 copying which allows for in-place modification of the source without having to
@@ -92,4 +91,4 @@ performed as usual:
 Next steps
 ``````````
 
-See the :any:`developer` for what to do next.
+See the :doc:`developer` for what to do next.

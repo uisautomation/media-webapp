@@ -8,14 +8,8 @@ WORKDIR /usr/src/app
 ADD requirements*.txt ./
 RUN pip install -r ./requirements_developer.txt
 
-# Copy the webapp source into the application root.
-ADD . .
-
-# We use "-e" here so that we may mount /usr/src/app as a volume and replace the
-# python code with our own. This is useful when running this container as a
-# developer, for example. See also the bundled docker-compose.yml and
-# https://uis-smswebapp.readthedocs.io/en/latest/developer.html#docker-images
-RUN pip install -e .
+# The webapp source will be mounted here as a volume
+VOLUME /usr/src/app
 
 # By default, use the Django development server to serve the application and use
 # developer-specific settings.
@@ -23,4 +17,4 @@ RUN pip install -e .
 # *DO NOT DEPLOY THIS TO PRODUCTION*
 ENV DJANGO_SETTINGS_MODULE smswebapp.settings_developer
 ENTRYPOINT ["./manage.py"]
-CMD ["runserver", "0.0.0.0:8000"]
+CMD ["runserver", "0.0.0.0:8080"]

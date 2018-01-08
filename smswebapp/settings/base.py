@@ -1,23 +1,20 @@
 import os
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+#: Base directory containing the project. Build paths inside the project via
+#: ``os.path.join(BASE_DIR, ...)``.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
+#: SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'ex561uglj%!8oh*umt3-@2-4yj*&dc8cznob*vmb0!9bryoc-$'
 
-# SECURITY WARNING: don't run with debug turned on in production!
+#: SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+#: By default, no hosts are allowed.
 ALLOWED_HOSTS = []
 
-
-# Application definition
-
+#: Installed applications
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -32,6 +29,7 @@ INSTALLED_APPS = [
     'smsjwplatform',
 ]
 
+#: Installed middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -42,8 +40,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+#: Root URL patterns
 ROOT_URLCONF = 'smswebapp.urls'
 
+#: Template loading
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -60,12 +60,13 @@ TEMPLATES = [
     },
 ]
 
+#: WSGI
 WSGI_APPLICATION = 'smswebapp.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/2.0/ref/settings/#databases
-
+#: Database configuration. The default settings allow configuration of the database from
+#: environment variables. An environment variable named ``DJANGO_DB_<key>`` will override the
+#: ``DATABASES['default'][<key>]`` setting.
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -73,9 +74,6 @@ DATABASES = {
     }
 }
 
-# Allow configuration of test-suite database from environment variables. A
-# variable DJANGO_DB_<key> will override the DATABASES['default'][<key>]
-# setting.
 
 _db_envvar_prefix = 'DJANGO_DB_'
 for name, value in os.environ.items():
@@ -90,9 +88,9 @@ for name, value in os.environ.items():
     DATABASES['default'][name] = value
 
 
-# Password validation
-# https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
-
+#: Password validation
+#:
+#: .. seealso:: https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -109,27 +107,29 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/2.0/topics/i18n/
-
+#: Internationalization
+#:
+#: .. seealso:: https://docs.djangoproject.com/en/2.0/topics/i18n/
 LANGUAGE_CODE = 'en-us'
 
+#: Internationalization
 TIME_ZONE = 'UTC'
 
+#: Internationalization
 USE_I18N = True
 
+#: Internationalization
 USE_L10N = True
 
+#: Internationalization
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.0/howto/static-files/
-
+#: Static files (CSS, JavaScript, Images)
+#:
+#: .. seealso:: https://docs.djangoproject.com/en/2.0/howto/static-files/
 STATIC_URL = '/static/'
 
-# Authentication backends
-
+#: Authentication backends
 AUTHENTICATION_BACKENDS = [
     'ucamwebauth.backends.RavenAuthBackend',
     'django.contrib.auth.backends.ModelBackend',
@@ -138,14 +138,14 @@ AUTHENTICATION_BACKENDS = [
 
 # Raven login configuration
 
-# Allow the autocreation of users who have been successfully authenticated by
-# Raven but do not exist in the local database.
+#: Allow the autocreation of users who have been successfully authenticated by
+#: Raven but do not exist in the local database.
 UCAMWEBAUTH_CREATE_USER = True
 
-# Redirect to this URL on log out
+#: Redirect to this URL on log out
 UCAMWEBAUTH_LOGOUT_REDIRECT = 'https://raven.cam.ac.uk/auth/logout.html'
 
-# Allow members who are not current members to log in?
+#: Allow members who are not current members to log in?
 UCAMWEBAUTH_NOT_CURRENT = False
 
 
