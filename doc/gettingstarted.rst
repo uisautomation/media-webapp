@@ -54,13 +54,12 @@ Install any requirements
 ````````````````````````
 
 Usually you'll want to use the `tox <https://tox.readthedocs.io/>`_ automation
-tool to run tests, etc but you can install the application within your
-virtualenv which will also install any dependencies:
+tool to run tests, etc but you can run the application within your virtualenv by
+installing the default requirements:
 
 .. code-block:: bash
 
     $ pip install -r requirements.txt
-    $ pip install -e .
 
 The ``-e`` flag to ``pip`` will cause the install to use symlinks rather than
 copying which allows for in-place modification of the source without having to
