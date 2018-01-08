@@ -168,7 +168,7 @@ Documentation
 
 Travis CI has been set up so that when the master branch is built, the
 documentation is deployed to https://uisautomation.github.io/sms-webapp via
-GitHub pages. The `UIS robot <https://github.com/bb9e/>_` machine account's
+GitHub pages. The `UIS robot <https://github.com/bb9e/>`_ machine account's
 personal token is set up in Travis via the ``GITHUB_TOKEN`` environment
 variable.
 
