@@ -4,10 +4,11 @@ services:
   devserver: &devserver
     build:
       context: .
+      dockerfile: compose/Dockerfile
     expose:
-      - "8000"
+      - "8080"
     ports:
-      - "8000:8000"
+      - "8080:8080"
     depends_on:
       - "db"
       - "debugsmtp"
@@ -19,20 +20,23 @@ services:
         source: ./
         target: /usr/src/app
         read_only: true
-    environment:
-      - PORT=8000
-      - DJANGO_SETTINGS_MODULE=smswebapp.settings.developer
-      - DJANGO_DB_ENGINE=django.db.backends.postgresql
-      - DJANGO_DB_HOST=db
-      - DJANGO_DB_NAME=mediaservice
-      - DJANGO_DB_USER=mediaservice
-      - DJANGO_DB_PASSWORD=databasePass
-      - DJANGO_EMAIL_HOST=debugsmtp
-      - DJANGO_EMAIL_PORT=1025
+    env_file:
+      - compose/base.env
   tox:
     <<: *devserver
     entrypoint: ["tox"]
-    command: [""]
+    command: []
+    env_file:
+      - compose/base.env
+      - compose/tox.env
+    volumes:
+      - type: volume
+        source: ./
+        target: /usr/src/app
+        read_only: true
+      - type: volume
+        source: tox-data
+        target: /tmp/tox-data
   migrate:
     <<: *devserver
     command: ["migrate"]
@@ -41,12 +45,14 @@ services:
     command: ["shell"]
   db:
     image: postgres
-    environment:
-      - POSTGRES_DB=mediaservice
-      - POSTGRES_USER=mediaservice
-      - POSTGRES_PASSWORD=databasePass
+    env_file:
+      - compose/base.env
   debugsmtp:
     image: mailhog/mailhog
     ports:
       - "8025:8025"
 
+volumes:
+  # A persistent volume for tox to store its stuff. This allows caching of
+  # virtualenvs between runs.
+  tox-data:
