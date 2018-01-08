@@ -40,7 +40,7 @@ repository.
 .. note::
 
     Make sure to replace ``$USER`` with your GitHub user name. If your
-    bitbucket user name happens to be the same as your local user name, on
+    GitHub user name happens to be the same as your local user name, on
     Unix-y systems this will be done by magic!
 
 It is also worth setting up an explicit remote for your personal repository.
