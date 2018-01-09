@@ -5,8 +5,9 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-#: SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'ex561uglj%!8oh*umt3-@2-4yj*&dc8cznob*vmb0!9bryoc-$'
+#: The Django secret key is by default set from the environment. If omitted, a system check will
+#: complain.
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 #: SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
