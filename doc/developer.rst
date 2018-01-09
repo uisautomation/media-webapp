@@ -111,7 +111,7 @@ migration:
 
 .. code-block:: bash
 
-    $ docker-compose run migrate
+    $ docker-compose run --rm migrate
 
 To run the development server:
 
@@ -136,7 +136,7 @@ can launch such a shell via:
 
 .. code-block:: bash
 
-    $ docker-compose run shell
+    $ docker-compose run --rm shell
 
 .. _docker-tox:
 
@@ -148,7 +148,7 @@ the following way:
 
 .. code-block:: bash
 
-    $ docker-compose tox
+    $ docker-compose run --rm tox
 
 Cloud infrastructure
 --------------------
