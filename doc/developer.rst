@@ -75,6 +75,12 @@ Django comes with a development web server which can be run via:
 
 The server should now be browsable at http://localhost:8080/.
 
+Building the documentation
+``````````````````````````
+
+This documentation may be built using the "doc" :any:`tox environment
+<toxenvs>`.
+
 Docker images
 -------------
 
