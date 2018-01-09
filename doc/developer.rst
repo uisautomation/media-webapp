@@ -40,6 +40,28 @@ build only the documentation:
     instance on the local machine, use the Google Cloud SQL proxy or :any:`run
     the tests via docker-compose <docker-tox>`.
 
+.. _toxenvs:
+
+tox environments
+````````````````
+
+The following tox environments are available.
+
+py36
+    Run by default. Launch the test suite under Python 3.6. Generate a
+    code-coverage report and display a summary coverage report.
+
+doc
+    Run by default. Build documentation and write it to the ``build/doc/``
+    directory.
+
+flake8
+    Run by default. Check for code-style violations using the `flake8
+    <http://flake8.pycqa.org/>`_ linter.
+
+collectstatic
+    Collect static files used by Django to the ``build/static/`` directory.
+
 .. _devserver:
 
 Run the development server
