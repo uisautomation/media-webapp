@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body { margin: 0; padding: 0; }
+      .video-wrapper {
+        background-color: black;
+        position: absolute; left: 0; top: 0; right: 0; bottom: 0;
+        display: flex; flex-direction: column; justify-content: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="video-wrapper">
+      <div class="video">
+        <script type="text/javascript" src="{{embed_url}}"></script>
+      </div>
+    </div>
+    <script>
+        if (window !== window.top) {
+          /** Used to pass play/pause messages parent iframe via postMessage **/
+          window.addEventListener("message", function(evt) {
+            switch (evt.data) {
+              case "play":
+                jwplayer().play(true);
+                break;
+              case "pause":
+                jwplayer().pause(true);
+                break;
+            }
+          });
+        }
+    </script>
+  </body>
+</html>

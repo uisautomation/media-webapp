@@ -16,3 +16,4 @@ If you don't know where to start then :doc:`the getting started guide
     developer
     configuration
     smswebapp
+    smsjwplatform

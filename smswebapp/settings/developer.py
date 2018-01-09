@@ -1,3 +1,6 @@
+import os
+import warnings
+
 # Import settings from the base settings file
 from .base import *  # noqa: F401, F403
 
@@ -43,3 +46,10 @@ MIDDLEWARE = MIDDLEWARE + [  # noqa: F405
 ]
 
 STATIC_URL = '/static/'
+
+# Load jwplayer embed player from environment. Warn if it is unset but allow the app to load.
+JWPLATFORM_EMBED_PLAYER_KEY = os.environ.get('JWPLATFORM_EMBED_PLAYER_KEY', '')
+if JWPLATFORM_EMBED_PLAYER_KEY == '':
+    warnings.warn(
+        'JWPLATFORM_EMBED_PLAYER_KEY is not set. Embedded players will not function.',
+        RuntimeWarning)
