@@ -7,6 +7,12 @@
 #
 # THIS FILE IS ONLY OF USE DURING DEVELOPMENT. IT PLAYS NO ROLE IN DEPLOYMENT.
 
+# Set settings module to a developer-friendly one.
+export DJANGO_SETTINGS_MODULE=smswebapp.settings.developer
+
+# Set secret key. This can be generated, e.g., by "pwgen 48 1".
+export DJANGO_SECRET_KEY="..."
+
 # Get these credentials by logging into the jwplatform dashboard and clicking
 # the "API KEYS" link at the top-right of the Home screen.
 export JWPLATFORM_API_KEY="your-api-key-here"
