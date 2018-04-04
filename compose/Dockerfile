@@ -16,5 +16,4 @@ VOLUME /usr/src/app
 #
 # *DO NOT DEPLOY THIS TO PRODUCTION*
 ENV DJANGO_SETTINGS_MODULE smswebapp.settings_developer
-ENTRYPOINT ["./manage.py"]
-CMD ["runserver", "0.0.0.0:8080"]
+ENTRYPOINT ["/tmp/wait-for-it.sh", "db:5432", "--", "/tmp/start-devserver.sh"]

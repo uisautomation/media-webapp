@@ -12,6 +12,8 @@ services:
     depends_on:
       - "db"
       - "debugsmtp"
+      - "hydra"
+      - "lookupproxy"
     # For devserver, mount the local directory inside the container as a volume
     # to allow local changes to be reflected without having to re-build the
     # container.
@@ -51,6 +53,44 @@ services:
     image: mailhog/mailhog
     ports:
       - "8025:8025"
+
+  # Lookup proxy service
+  lookupproxy:
+    build:
+      context: ./compose/
+      dockerfile: lookupproxy.Dockerfile
+    expose:
+      - "8080"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - "lookupproxy-db"
+      - "hydra"
+    env_file:
+      - compose/lookupproxy.env
+  lookupproxy-db:
+    image: postgres
+    env_file:
+      - compose/lookupproxy.env
+
+  # Hydra OAuth2 infrastructure
+  hydra:
+    image: oryd/hydra:v0.11.6-alpine
+    entrypoint: ["/tmp/start-hydra.sh"]
+    ports:
+      - "4444:4444"
+      - "4445:4445"
+    env_file:
+      - compose/hydra.env
+    depends_on:
+      - hydra-db
+    volumes:
+      - "./compose/start-hydra.sh:/tmp/start-hydra.sh/:ro"
+  hydra-db:
+    image: postgres
+    env_file:
+      - compose/hydra.env
+
 
 volumes:
   # A persistent volume for tox to store its stuff. This allows caching of
