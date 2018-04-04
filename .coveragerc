@@ -5,3 +5,4 @@ omit=
 	*/test/*
 	smswebapp/settings/*
 	smswebapp/wsgi.py
+	.tox/*
