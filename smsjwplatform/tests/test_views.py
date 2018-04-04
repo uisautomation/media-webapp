@@ -6,11 +6,13 @@ from contextlib import contextmanager
 from unittest import mock
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.urls import reverse
 from django.test import TestCase
 
 
 class EmbedTest(TestCase):
+
     def test_embed(self):
         """
         Test basic functionality of embed client.
@@ -57,6 +59,26 @@ class EmbedTest(TestCase):
             # Check that an appropriate URL fragment is in the response
             self.assertIn('players/{}-{}.js'.format(
                 'myaudiokey', settings.JWPLATFORM_EMBED_PLAYER_KEY), r.content.decode('utf8'))
+
+    def test_no_permission(self):
+        """
+        Tests the behaviour when the user's identity (if any) doesn't match the ACL.
+
+        """
+        with patched_client() as jwclient:
+            jwclient.videos.show.return_value = {'video': {'custom': {'sms_acl': 'acl:USER_mb2174:'}}}
+            r = self.client.get(reverse('smsjwplatform:embed', kwargs={'media_id': 34}))
+            self.assertEqual(r.status_code, 200)
+            self.assertTemplateUsed(r, 'smsjwplatform/401.html')
+            # a login_url indicates the template will ask the user to login
+            self.assertIn("login_url", r.context)
+
+            self.client.force_login(User.objects.create(username='rjw57'))
+            r = self.client.get(reverse('smsjwplatform:embed', kwargs={'media_id': 34}))
+            self.assertEqual(r.status_code, 200)
+            self.assertTemplateUsed(r, 'smsjwplatform/401.html')
+            # no login_url indicates the template will say the user has no permission
+            self.assertNotIn("login_url", r.context)
 
     def test_no_player(self):
         """

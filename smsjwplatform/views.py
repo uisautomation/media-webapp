@@ -39,8 +39,11 @@ def embed(request, media_id):
         raise Http404('Media item does not exist')
 
     if not has_permission(request.user, key):
-        return render(request, 'smsjwplatform/cam-required.html',
-                      {'login_url': '%s?next=%s' % (settings.LOGIN_URL, request.path)})
+        return render(
+            request, 'smsjwplatform/401.html',
+            {'login_url': '%s?next=%s' % (settings.LOGIN_URL, request.path)}
+            if request.user.is_anonymous else {}
+        )
 
     url = api.player_embed_url(key, settings.JWPLATFORM_EMBED_PLAYER_KEY, 'js')
     return render(request, 'smsjwplatform/embed.html', {

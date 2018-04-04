@@ -88,13 +88,15 @@ class AceCam:
 class AceInst:
     """This class encapsulates an ACE of the form INST_{instid}"""
 
+    prefix = 'INST_'
+
     def __init__(self, instid):
         self.instid = instid
 
     @staticmethod
     def parse(ace):
         """Parses an ACE and constructs/return an AceInst if it matches or None if it doesn't"""
-        return parse_ace_id('INST_', ace)
+        return AceInst(ace[len(AceInst.prefix):]) if ace.startswith(AceInst.prefix) else None
 
     def has_permission(self, user):
         """Only a user belonging to the 'instid' lookup institution can see the media"""
@@ -112,13 +114,15 @@ class AceInst:
 class AceGroup:
     """This class encapsulates an ACE of the form GROUP_{groupid}"""
 
+    prefix = 'GROUP_'
+
     def __init__(self, groupid):
         self.groupid = groupid
 
     @staticmethod
     def parse(ace):
         """Parses an ACE and constructs/return an AceGroup if it matches or None if it doesn't"""
-        return parse_ace_id('GROUP_', ace)
+        return AceGroup(ace[len(AceGroup.prefix):]) if ace.startswith(AceGroup.prefix) else None
 
     def has_permission(self, user):
         """Only a user belonging to the 'groupid' lookup group can see the media"""
@@ -136,22 +140,19 @@ class AceGroup:
 class AceUser:
     """This class encapsulates an ACE of the form USER_{crsid}"""
 
+    prefix = 'USER_'
+
     def __init__(self, crsid):
         self.crsid = crsid
 
     @staticmethod
     def parse(ace):
         """Parses an ACE and constructs/return an AceUser if it matches or None if it doesn't"""
-        return parse_ace_id('USER_', ace)
+        return AceUser(ace[len(AceUser.prefix):]) if ace.startswith(AceUser.prefix) else None
 
     def has_permission(self, user):
         """Only a user with this CRSID can see the media"""
         return user.username == self.crsid
-
-
-def parse_ace_id(prefix, ace):
-    """This function parses an ACE of the form {prefix}{id} and returns the id."""
-    return AceInst(ace[len(prefix):]) if ace.startswith(prefix) else None
 
 
 # this list is used to iterate over all of the Ace classes
