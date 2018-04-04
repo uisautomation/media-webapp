@@ -41,7 +41,7 @@ def get_person_for_user(user):
     lookup_response = LOOKUP_SESSION.request(
         method='GET', url=urljoin(
             settings.LOOKUP_ROOT,
-             f'people/{settings.LOOKUP_PEOPLE_ID_SCHEME}/{user.username}?fetch=all_insts,all_groups'
+            f'people/{settings.LOOKUP_PEOPLE_ID_SCHEME}/{user.username}?fetch=all_insts,all_groups'
         )
     )
 
@@ -57,43 +57,47 @@ def get_person_for_user(user):
 
 
 class AceWorld:
-    """FIXME"""
+    """This class encapsulates an ACE of the form WORLD"""
 
     @staticmethod
     def parse(ace):
+        """Parses an ACE and constructs/return an AceWorld if it matches or None if it doesn't"""
         return AceWorld() if ace == 'WORLD' else None
 
     @staticmethod
     def has_permission(user):
+        """Anyone can see the media"""
+        LOG.debug(user)
         return True
 
 
 class AceCam:
-    """FIXME"""
+    """This class encapsulates an ACE of the form CAM"""
 
     @staticmethod
     def parse(ace):
+        """Parses an ACE and constructs/return an AceCam if it matches or None if it doesn't"""
         return AceCam() if ace == 'CAM' else None
 
     @staticmethod
     def has_permission(user):
+        """Any authenticated user can see the media"""
         return not user.is_anonymous
 
 
 class AceInst:
-    """FIXME"""
-    prefix = 'INST_'
+    """This class encapsulates an ACE of the form INST_{instid}"""
 
     def __init__(self, instid):
         self.instid = instid
 
     @staticmethod
     def parse(ace):
-        if ace.startswith(AceInst.prefix):
-            return AceInst(ace[len(AceInst.prefix):])
-        return None
+        """Parses an ACE and constructs/return an AceInst if it matches or None if it doesn't"""
+        return parse_ace_id('INST_', ace)
 
     def has_permission(self, user):
+        """Only a user belonging to the 'instid' lookup institution can see the media"""
         if user.is_anonymous:
             return False
 
@@ -106,19 +110,18 @@ class AceInst:
 
 
 class AceGroup:
-    """FIXME"""
-    prefix = 'GROUP_'
+    """This class encapsulates an ACE of the form GROUP_{groupid}"""
 
     def __init__(self, groupid):
         self.groupid = groupid
 
     @staticmethod
     def parse(ace):
-        if ace.startswith(AceGroup.prefix):
-            return AceGroup(ace[len(AceGroup.prefix):])
-        return None
+        """Parses an ACE and constructs/return an AceGroup if it matches or None if it doesn't"""
+        return parse_ace_id('GROUP_', ace)
 
     def has_permission(self, user):
+        """Only a user belonging to the 'groupid' lookup group can see the media"""
         if user.is_anonymous:
             return False
 
@@ -131,26 +134,40 @@ class AceGroup:
 
 
 class AceUser:
-    """FIXME"""
-    prefix = 'USER_'
+    """This class encapsulates an ACE of the form USER_{crsid}"""
 
     def __init__(self, crsid):
         self.crsid = crsid
 
     @staticmethod
     def parse(ace):
-        if ace.startswith(AceUser.prefix):
-            return AceUser(ace[len(AceUser.prefix):])
-        return None
+        """Parses an ACE and constructs/return an AceUser if it matches or None if it doesn't"""
+        return parse_ace_id('USER_', ace)
 
     def has_permission(self, user):
+        """Only a user with this CRSID can see the media"""
         return user.username == self.crsid
 
 
+def parse_ace_id(prefix, ace):
+    """This function parses an ACE of the form {prefix}{id} and returns the id."""
+    return AceInst(ace[len(prefix):]) if ace.startswith(prefix) else None
+
+
+# this list is used to iterate over all of the Ace classes
 ACE_TYPES = [AceWorld, AceCam, AceInst, AceGroup, AceUser]
 
 
 def build_acl(acl):
+    """
+    Iterates over the acl and encapsulates each ACE with the corresponding Ace* Class.
+
+    TODO there are performance enhancements that can be made
+    (Eg only returning AceWorld, id it exists) but I have kept thing simple for now.
+
+    :param acl: access control list
+    :return: list of Ace* classes
+    """
     acl_ = []
     for ace in acl:
         found = False

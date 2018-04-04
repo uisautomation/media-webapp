@@ -47,8 +47,12 @@ def embed(request, media_id):
         'embed_url': url,
     })
 
+
 def has_permission(user, key):
-    """FIXME"""
+    """
+    Get the media's ACL then builds a list on encapsulated ACEs then return's True
+    if any one of them returns true
+    """
     for ace in build_acl(api.get_acl(key)):
         if ace.has_permission(user):
             return True
