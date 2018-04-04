@@ -22,16 +22,9 @@ def embed(request, media_id):
 
     If no media matching the provided SMS media ID is found, a 404 response is generated.
 
-    If the :py:data:`~.defaultsettings.JWPLATFORM_EMBED_PLAYER_KEY` setting is blank, a 404
-    response is generated.
-
     In :py:mod:`~.urls` this view is named ``smsjwplatform:embed``.
 
     """
-    # We cannot serve any media without a player
-    if settings.JWPLATFORM_EMBED_PLAYER_KEY == '':
-        raise Http404('No player found')
-
     try:
         key = api.key_for_media_id(
             media_id, preferred_media_type=request.GET.get('format', 'video'))

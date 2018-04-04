@@ -22,6 +22,7 @@ def required_settings_check(app_configs, **kwargs):
     required_settings = [
         'JWPLATFORM_API_KEY',
         'JWPLATFORM_API_SECRET',
+        'JWPLATFORM_EMBED_PLAYER_KEY',
         'SMS_OAUTH2_CLIENT_ID',
         'SMS_OAUTH2_CLIENT_SECRET',
         'SMS_OAUTH2_TOKEN_URL',

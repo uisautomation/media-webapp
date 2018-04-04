@@ -53,3 +53,10 @@ if JWPLATFORM_EMBED_PLAYER_KEY == '':
     warnings.warn(
         'JWPLATFORM_EMBED_PLAYER_KEY is not set. Embedded players will not function.',
         RuntimeWarning)
+
+SMS_OAUTH2_CLIENT_ID = 'smswebapp'
+SMS_OAUTH2_CLIENT_SECRET = 'smssecret'
+SMS_OAUTH2_TOKEN_URL = 'http://hydra:4444/oauth2/token'
+LOOKUP_ROOT = 'http://lookupproxy:8080/'
+
+JWPLATFORM_EMBED_PLAYER_KEY = '3XZDkSrY'

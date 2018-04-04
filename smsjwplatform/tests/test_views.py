@@ -80,21 +80,6 @@ class EmbedTest(TestCase):
             # no login_url indicates the template will say the user has no permission
             self.assertNotIn("login_url", r.context)
 
-    def test_no_player(self):
-        """
-        Test 404 behaviour when no player specified in settings.
-
-        """
-        with patched_client():
-            # Embedding works with setting ...
-            r = self.client.get(reverse('smsjwplatform:embed', kwargs={'media_id': 34}))
-            self.assertEqual(r.status_code, 200)
-
-            # ... and not without
-            with self.settings(JWPLATFORM_EMBED_PLAYER_KEY=''):
-                r = self.client.get(reverse('smsjwplatform:embed', kwargs={'media_id': 34}))
-                self.assertEqual(r.status_code, 404)
-
     def test_no_media(self):
         """
         Test 404 behaviour when no media returned.

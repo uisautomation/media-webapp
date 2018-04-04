@@ -38,10 +38,9 @@ Base URL for the JWPlatform API. This can usually be left at its default value.
 
 """
 
-JWPLATFORM_EMBED_PLAYER_KEY = ''
+JWPLATFORM_EMBED_PLAYER_KEY = None
 """
-Player key for the embedded player used by the :py:mod:`~.views.embed` view. If left blank, all
-calls to :py:mod:`~smsjwplatform.views.embed` will result in a 404.
+Player key for the embedded player used by the :py:mod:`~.views.embed` view. 
 
 """
 
