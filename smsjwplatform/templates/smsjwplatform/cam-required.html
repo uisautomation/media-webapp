@@ -1,0 +1,19 @@
+<html>
+  <head>
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    <title>SMS Embed Error</title>
+  </head>
+  <body style="background: #000000; color: #DDDDDD; text-align: center">
+    <div style="display:table;width:100%;height:100%;text-align:center;">
+      <p style="display:table-cell;vertical-align:middle;">
+        {% if user.is_anonymous %}
+          This media item can only be viewed by University of Cambridge users who have logged in to the Streaming Media
+          Service with their Raven account<br>
+          <a href="{{ login_url }}" style="color: #aaf; font-weight: bold;">Login</a>
+        {% else %}
+          You don't have access to this media.
+        {% endif %}
+      </p>
+    </div>
+  </body>
+</html>

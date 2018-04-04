@@ -6,6 +6,7 @@ from django.conf import settings
 from django.http import Http404
 from django.shortcuts import render
 
+from smsjwplatform.acl import build_acl
 from . import jwplatform as api
 
 
@@ -37,7 +38,18 @@ def embed(request, media_id):
     except api.VideoNotFoundError:
         raise Http404('Media item does not exist')
 
+    if not has_permission(request.user, key):
+        return render(request, 'smsjwplatform/cam-required.html',
+                      {'login_url': '%s?next=%s' % (settings.LOGIN_URL, request.path)})
+
     url = api.player_embed_url(key, settings.JWPLATFORM_EMBED_PLAYER_KEY, 'js')
     return render(request, 'smsjwplatform/embed.html', {
         'embed_url': url,
     })
+
+def has_permission(user, key):
+    """FIXME"""
+    for ace in build_acl(api.get_acl(key)):
+        if ace.has_permission(user):
+            return True
+    return False

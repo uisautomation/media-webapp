@@ -98,6 +98,28 @@ def key_for_media_id(media_id, preferred_media_type='video', client=None):
     return video_resource['key']
 
 
+def get_acl(key, client=None):
+    """
+
+    :param key: JWPlatform key for the media.
+    :param client: (options) an authenticated JWPlatform client as returned by
+        :py:func:`.get_jwplatform_client`. If ``None``, call :py:func:`.get_jwplatform_client`.
+    """
+    client = client if client is not None else get_jwplatform_client()
+    try:
+        video = client.videos.show(video_key=key)
+        field = video.get('video', {}).get('custom', {}).get('sms_acl', None)
+        field_parts = field.split(":")
+        assert (
+            len(field_parts) == 3 and
+            field_parts[0] == 'acl' and
+            field_parts[2] == ''
+        ), "sms_acl should be of the format 'acl:{ACL}:"
+        return field_parts[1].split(',')
+    except jwplatform.errors.JWPlatformNotFoundError as err:
+        raise VideoNotFoundError(err)
+
+
 def signed_url(url):
     """
     Augment a JWPlatform URL with an expiration time and a signature as outlined in `the jwplatform

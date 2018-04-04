@@ -8,6 +8,10 @@ psycopg2
 git+https://github.com/uisautomation/django-automationcommon.git@master#egg=django-automationcommon
 django-ucamwebauth>=1.4.5
 
+# For managing OAuth2 tokens
+oauthlib
+requests-oauthlib
+
 # To interact with the jwplatform API
 jwplatform
 
