@@ -1,6 +1,3 @@
-import os
-import warnings
-
 # Import settings from the base settings file
 from .base import *  # noqa: F401, F403
 
