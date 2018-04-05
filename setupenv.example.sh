@@ -21,3 +21,7 @@ export JWPLATFORM_API_SECRET="your-api-secret-here"
 # Find this by logging into the jwplatform dashboard and going to "Players" ->
 # "Blank Embed Player". The player key is visible in the URL.
 export JWPLATFORM_EMBED_PLAYER_KEY="player-key-for-embed"
+
+# OAuth2 client id & secret which the API server uses to identify itself to the OAuth2 token introspection endpoint.
+export SMS_OAUTH2_CLIENT_ID="you-sms-oauth-client-id-here"
+export SMS_OAUTH2_CLIENT_SECRET="you-sms-oauth-client-secret-here"

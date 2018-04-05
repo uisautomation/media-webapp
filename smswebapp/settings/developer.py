@@ -47,16 +47,5 @@ MIDDLEWARE = MIDDLEWARE + [  # noqa: F405
 
 STATIC_URL = '/static/'
 
-# Load jwplayer embed player from environment. Warn if it is unset but allow the app to load.
-JWPLATFORM_EMBED_PLAYER_KEY = os.environ.get('JWPLATFORM_EMBED_PLAYER_KEY', '')
-if JWPLATFORM_EMBED_PLAYER_KEY == '':
-    warnings.warn(
-        'JWPLATFORM_EMBED_PLAYER_KEY is not set. Embedded players will not function.',
-        RuntimeWarning)
-
-SMS_OAUTH2_CLIENT_ID = 'smswebapp'
-SMS_OAUTH2_CLIENT_SECRET = 'smssecret'
 SMS_OAUTH2_TOKEN_URL = 'http://hydra:4444/oauth2/token'
 LOOKUP_ROOT = 'http://lookupproxy:8080/'
-
-JWPLATFORM_EMBED_PLAYER_KEY = '3XZDkSrY'
