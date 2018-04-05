@@ -28,5 +28,5 @@ class JWPlatformTest(TestCase):
             'video' : {'custom': {'sms_acl': 'corrupted'}}
         }
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             get_acl(123, client=client)

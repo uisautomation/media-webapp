@@ -1,59 +1,12 @@
 """
-Module providing lookup API-related functionality.
+Module providing functionality for handling ACL's stored in the JWPlayer custom property - sms_acl.
 
 """
 import logging
-from urllib.parse import urljoin
-from django.conf import settings
-from django.core.cache import cache
 
-from .oauth2client import AuthenticatedSession
+from smsjwplatform.lookup import get_person_for_user
 
 LOG = logging.getLogger(__name__)
-
-
-#: An authenticated session which can access the lookup API
-LOOKUP_SESSION = AuthenticatedSession(scopes=settings.SMS_OAUTH2_LOOKUP_SCOPES)
-
-
-def get_person_for_user(user):
-    """
-    Return the resource from Lookup associated with the specified user. A requests package
-    :py:class:`HTTPError` is raised if the request fails.
-
-    The result of this function call is cached based on the username so it is safe to call this
-    multiple times.
-
-    If user is the anonymous user (user.is_anonymous is True), :py:class:`~.UserIsAnonymousError`
-    is raised.
-
-    """
-    # check that the user is not anonymous
-    if user.is_anonymous:
-        raise RuntimeError('User is anonymous')
-
-    # return a cached response if we have it
-    cached_resource = cache.get(f"{user.username}:lookup")
-    if cached_resource is not None:
-        return cached_resource
-
-    # Ask lookup about this person
-    lookup_response = LOOKUP_SESSION.request(
-        method='GET', url=urljoin(
-            settings.LOOKUP_ROOT,
-            f'people/{settings.LOOKUP_PEOPLE_ID_SCHEME}/{user.username}?fetch=all_insts,all_groups'
-        )
-    )
-
-    # Raise if there was an error
-    lookup_response.raise_for_status()
-
-    # save cached value
-    cache.set(f"{user.username}:lookup", lookup_response.json(),
-              settings.LOOKUP_PEOPLE_CACHE_LIFETIME)
-
-    # recurse, which should now retrieve the value from the cache
-    return get_person_for_user(user)
 
 
 class AceWorld:
@@ -67,7 +20,7 @@ class AceWorld:
     @staticmethod
     def has_permission(user):
         """Anyone can see the media"""
-        LOG.debug(user)
+        LOG.debug('AceWorld.has_permission called with %s', user)
         return True
 
 
@@ -96,7 +49,8 @@ class AceInst:
     @staticmethod
     def parse(ace):
         """Parses an ACE and constructs/return an AceInst if it matches or None if it doesn't"""
-        return AceInst(ace[len(AceInst.prefix):]) if ace.startswith(AceInst.prefix) else None
+        head, prefix, tail = ace.partition(AceInst.prefix)
+        return AceInst(tail) if head == '' and prefix == AceInst.prefix else None
 
     def has_permission(self, user):
         """Only a user belonging to the 'instid' lookup institution can see the media"""
@@ -105,8 +59,8 @@ class AceInst:
 
         lookup_response = get_person_for_user(user)
 
-        for institution in lookup_response['institutions']:
-            if self.instid == institution['instid']:
+        for institution in lookup_response.get('institutions', []):
+            if self.instid == institution.get('instid', None):
                 return True
         return False
 
@@ -122,7 +76,8 @@ class AceGroup:
     @staticmethod
     def parse(ace):
         """Parses an ACE and constructs/return an AceGroup if it matches or None if it doesn't"""
-        return AceGroup(ace[len(AceGroup.prefix):]) if ace.startswith(AceGroup.prefix) else None
+        head, prefix, tail = ace.partition(AceGroup.prefix)
+        return AceGroup(tail) if head == '' and prefix == AceGroup.prefix else None
 
     def has_permission(self, user):
         """Only a user belonging to the 'groupid' lookup group can see the media"""
@@ -131,8 +86,9 @@ class AceGroup:
 
         lookup_response = get_person_for_user(user)
 
-        for institution in lookup_response['groups']:
-            if self.groupid == institution['groupid'] or self.groupid == institution['name']:
+        for institution in lookup_response.get('groups', []):
+            if self.groupid == institution.get('groupid') or \
+                    self.groupid == institution.get('name'):
                 return True
         return False
 
@@ -164,19 +120,19 @@ def build_acl(acl):
     Iterates over the acl and encapsulates each ACE with the corresponding Ace* Class.
 
     TODO there are performance enhancements that can be made
-    (Eg only returning AceWorld, id it exists) but I have kept thing simple for now.
+    (Eg only returning AceWorld, if it exists) but I have kept thing simple for now.
 
     :param acl: access control list
-    :return: list of Ace* classes
+    :return: list of Ace* objects
     """
-    acl_ = []
+    built_acl = []
     for ace in acl:
         found = False
         for ace_type in ACE_TYPES:
-            ace_ = ace_type.parse(ace)
-            if ace_:
-                acl_.append(ace_)
+            ace_object = ace_type.parse(ace)
+            if ace_object:
+                built_acl.append(ace_object)
                 found = True
                 break
         assert found, f"'{ace}' not recognised"
-    return acl_
+    return built_acl
