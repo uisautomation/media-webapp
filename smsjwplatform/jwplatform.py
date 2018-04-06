@@ -119,7 +119,7 @@ def parse_custom_field(expected_type, field):
     Raises ValueError if the field is of the wrong form or type.
     """
     field_parts = field.split(":")
-    if len(field_parts) != 3 or field_parts[0] != expected_type  or field_parts[2] != '':
+    if len(field_parts) != 3 or field_parts[0] != expected_type or field_parts[2] != '':
         raise ValueError(f"expected format '{expected_type}:value:")
 
     return field_parts[1]
