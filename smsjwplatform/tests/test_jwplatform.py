@@ -18,14 +18,14 @@ class JWPlatformTest(TestCase):
         client = mock.Mock()
 
         client.videos.show.return_value = {
-            'video' : {'custom': {'sms_acl': 'acl:WORLD,USER_mb2174:'}}
+            'video': {'custom': {'sms_acl': 'acl:WORLD,USER_mb2174:'}}
         }
         self.assertEqual(get_acl(123, client=client), ['WORLD', 'USER_mb2174'])
 
         client.videos.show.assert_called_with(video_key=123)
 
         client.videos.show.return_value = {
-            'video' : {'custom': {'sms_acl': 'corrupted'}}
+            'video': {'custom': {'sms_acl': 'corrupted'}}
         }
 
         with self.assertRaises(ValueError):
