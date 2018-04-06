@@ -16,7 +16,7 @@ services:
     # to allow local changes to be reflected without having to re-build the
     # container.
     volumes:
-      - type: volume
+      - type: bind
         source: ./
         target: /usr/src/app
         read_only: true
@@ -30,7 +30,7 @@ services:
       - compose/base.env
       - compose/tox.env
     volumes:
-      - type: volume
+      - type: bind
         source: ./
         target: /usr/src/app
         read_only: true
