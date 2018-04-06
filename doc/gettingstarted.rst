@@ -61,10 +61,6 @@ installing the default requirements:
 
     $ pip install -r requirements.txt
 
-The ``-e`` flag to ``pip`` will cause the install to use symlinks rather than
-copying which allows for in-place modification of the source without having to
-re-install.
-
 Set up local configuration
 ``````````````````````````
 

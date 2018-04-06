@@ -106,3 +106,7 @@ venv.bak/
 
 # Local configuration
 setupenv.sh
+smswebapp/settings/local.py
+
+# PyCharm
+.idea

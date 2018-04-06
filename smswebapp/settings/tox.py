@@ -36,3 +36,9 @@ JWPLATFORM_API_SECRET = '+++-not-a-secret-+++'
 
 #: Use a fake player key for embedding.
 JWPLATFORM_EMBED_PLAYER_KEY = 'someplayer'
+
+SMS_OAUTH2_CLIENT_ID = 'xxx-not-an-id-xxx'
+SMS_OAUTH2_CLIENT_SECRET = '+++-not-a-secret-+++'
+SMS_OAUTH2_TOKEN_URL = 'http://oauth2.invalid/auth'
+LOOKUP_ROOT = 'http://lookup.invalid/'
+SMS_OAUTH2_LOOKUP_SCOPES = 'not-a-lookup-scope'

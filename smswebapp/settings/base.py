@@ -157,3 +157,10 @@ JWPLATFORM_API_KEY = os.environ.get('JWPLATFORM_API_KEY', '')
 
 #: JWPlatform API secret. Loaded from the ``JWPLATFORM_API_SECRET`` environment variable.
 JWPLATFORM_API_SECRET = os.environ.get('JWPLATFORM_API_SECRET', '')
+
+# Load jwplayer embed player from environment. Warn if it is unset but allow the app to load.
+JWPLATFORM_EMBED_PLAYER_KEY = os.environ.get('JWPLATFORM_EMBED_PLAYER_KEY', '')
+
+SMS_OAUTH2_CLIENT_ID = os.environ.get('SMS_OAUTH2_CLIENT_ID', '')
+
+SMS_OAUTH2_CLIENT_SECRET = os.environ.get('SMS_OAUTH2_CLIENT_SECRET', '')
