@@ -4,7 +4,7 @@ Views provided by :py:mod:`smsjwplatform`.
 """
 from django.conf import settings
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from smsjwplatform.acl import build_acl
 from . import jwplatform as api
@@ -42,6 +42,15 @@ def embed(request, media_id):
     return render(request, 'smsjwplatform/embed.html', {
         'embed_url': url,
     })
+
+
+def rss_media(request, media_id):
+    try:
+        key = api.key_for_media_id(media_id, preferred_media_type='video')
+    except api.VideoNotFoundError:
+        raise Http404('Media item does not exist')
+
+    return redirect(api.pd_api_url(f'/v2/media/{key}', format='mrss'))
 
 
 def has_permission(user, key):
