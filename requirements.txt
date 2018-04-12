@@ -14,6 +14,7 @@ requests-oauthlib
 
 # To interact with the jwplatform API
 jwplatform
+pyjwt
 
 # For an improved ./manage.py shell experience
 ipython

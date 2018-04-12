@@ -3,11 +3,13 @@ Interaction with the JWPlatform API.
 
 """
 import hashlib
+import math
 import time
 import urllib.parse
 
 from django.conf import settings
 import jwplatform
+import jwt
 
 
 class VideoNotFoundError(RuntimeError):
@@ -119,7 +121,7 @@ def parse_custom_field(expected_type, field):
     Raises ValueError if the field is of the wrong form or type.
     """
     field_parts = field.split(":")
-    if len(field_parts) != 3 or field_parts[0] != expected_type  or field_parts[2] != '':
+    if len(field_parts) != 3 or field_parts[0] != expected_type or field_parts[2] != '':
         raise ValueError(f"expected format '{expected_type}:value:")
 
     return field_parts[1]
@@ -150,3 +152,54 @@ def signed_url(url):
     return urllib.parse.urljoin(url, '?' + urllib.parse.urlencode({
         'exp': expiry_timestamp, 'sig': signature
     }))
+
+
+def generate_token(resource):
+    """
+    Generate a signed JWT for the specified resource using the
+    `procedure
+    <https://developer.jwplayer.com/jw-platform/docs/developer-guide/delivery-api/url-token-signing/>`_
+    outlined in the JWPlatform documentation.
+
+    """
+    # The following is lifted almost verbatim from JWPlatform's documentation.
+
+    # Link is valid for 1hr but normalized to 3 minutes to promote better caching
+    exp = math.ceil((time.time() + 3600)/180) * 180
+    token_body = {"resource": resource, "exp": exp}
+
+    return jwt.encode(token_body, settings.JWPLATFORM_API_SECRET, algorithm='HS256')
+
+
+def pd_api_url(resource, **parameters):
+    """
+    Return a JWPlatform Platform Delivery API URL with the request has the appropriate JWT
+    attached.
+
+    :param str resource: path to resource, e.g. ``/v2/media/123456``. Must start with a slash.
+    :param dict parameters: remaining keyword arguments are passed as URL parameters
+    :return: response from API server.
+    :rtype: requests.Response
+
+    :raises ValueError: if the resource name does not start with a slash.
+
+    .. seealso::
+
+        Platform Delivery API reference at
+        https://developer.jwplayer.com/jw-platform/docs/delivery-api-reference/.
+    """
+    # Validate the resource parameter
+    if not resource.startswith('/'):
+        raise ValueError('Resource name must have leading slash')
+
+    # Construct parameters for URL including JWT
+    url_params = {'token': generate_token(resource)}
+    url_params.update(parameters)
+
+    # Construct GET URL
+    url = urllib.parse.urljoin(
+        settings.JWPLATFORM_API_BASE_URL,
+        resource + '?' + urllib.parse.urlencode(url_params)
+    )
+
+    return url
