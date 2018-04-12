@@ -10,6 +10,8 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.test import TestCase
 
+import smsjwplatform.jwplatform as api
+
 
 class EmbedTest(TestCase):
 
@@ -99,6 +101,34 @@ class EmbedTest(TestCase):
         with patched_client():
             # Embedding fails with wrong media id
             r = self.client.get(reverse('smsjwplatform:embed', kwargs={'media_id': 35}))
+            self.assertEqual(r.status_code, 404)
+
+    def test_rss_media(self):
+        """
+        Test RSS media feed.
+
+        """
+        with patched_client():
+            # Try to embed a video
+            r = self.client.get(reverse('smsjwplatform:rss_media', kwargs={'media_id': 34}))
+
+            # Should be redirect
+            self.assertEqual(r.status_code, 302)
+
+            # Check that an appropriate values in location
+            self.assertIn('myvideokey', r['Location'])
+
+    def test_rss_media_404(self):
+        """
+        Test RSS media feed 404s if media item not found.
+
+        """
+        with mock.patch('smsjwplatform.jwplatform.key_for_media_id',
+                        side_effect=api.VideoNotFoundError()):
+            # Try to embed a video
+            r = self.client.get(reverse('smsjwplatform:rss_media', kwargs={'media_id': 34}))
+
+            # Should be 404
             self.assertEqual(r.status_code, 404)
 
 
