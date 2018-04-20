@@ -25,6 +25,19 @@ Views and serializers
 .. automodule:: legacysms.views
     :members:
 
+Redirection back to legacy SMS
+``````````````````````````````
+
+.. automodule:: legacysms.redirect
+    :members:
+
+Settings
+````````
+
+.. automodule:: legacysms.defaultsettings
+    :members:
+    :member-order: bysource
+
 Application configuration
 `````````````````````````
 
