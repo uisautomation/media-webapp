@@ -12,6 +12,8 @@ from django.test import TestCase
 
 import smsjwplatform.jwplatform as api
 
+from .. import redirect
+
 
 class EmbedTest(TestCase):
 
@@ -84,24 +86,26 @@ class EmbedTest(TestCase):
 
     def test_no_media(self):
         """
-        Test 404 behaviour when no media returned.
+        Test redirect behaviour when no media returned.
 
         """
         with patched_client() as jwclient:
             # No matter how videos are searched, return none
             jwclient.videos.list.return_value = {'status': 'ok', 'videos': []}
             r = self.client.get(reverse('legacysms:embed', kwargs={'media_id': 34}))
-            self.assertEqual(r.status_code, 404)
+            self.assertEqual(r.status_code, 302)
+            self.assertEqual(r['Location'], redirect.media_embed(34)['Location'])
 
     def test_wrong_media(self):
         """
-        Test 404 behaviour when wrong media returned.
+        Test redirect behaviour when wrong media returned.
 
         """
         with patched_client():
             # Embedding fails with wrong media id
             r = self.client.get(reverse('legacysms:embed', kwargs={'media_id': 35}))
-            self.assertEqual(r.status_code, 404)
+            self.assertEqual(r.status_code, 302)
+            self.assertEqual(r['Location'], redirect.media_embed(35)['Location'])
 
     def test_rss_media(self):
         """
@@ -118,9 +122,9 @@ class EmbedTest(TestCase):
             # Check that an appropriate values in location
             self.assertIn('myvideokey', r['Location'])
 
-    def test_rss_media_404(self):
+    def test_rss_media_redirect(self):
         """
-        Test RSS media feed 404s if media item not found.
+        Test RSS media feed redirects if media item not found.
 
         """
         with mock.patch('smsjwplatform.jwplatform.key_for_media_id',
@@ -129,7 +133,8 @@ class EmbedTest(TestCase):
             r = self.client.get(reverse('legacysms:rss_media', kwargs={'media_id': 34}))
 
             # Should be 404
-            self.assertEqual(r.status_code, 404)
+            self.assertEqual(r.status_code, 302)
+            self.assertEqual(r['Location'], redirect.media_rss(34)['Location'])
 
 
 # A response from /videos/list which contains two media objects corresponding to the SMS media
