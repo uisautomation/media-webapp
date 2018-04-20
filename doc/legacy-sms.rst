@@ -1,6 +1,30 @@
 Support for Legacy SMS
 ===============================================================================
 
+Apache Configuration
+````````````````````
+
+This application implements views emulating views on the legacy SMS system. It
+is intended that emulated views may be redirected directly to this application
+using Apache configuration similar to the following:
+
+.. code:: apache
+
+    # Redirect configuration for offloading onto the new SMS provider.
+    RewriteEngine On
+
+    # If necessary, enable debugging support by uncommenting these lines:
+    # RewriteLog "/var/log/apache2/rewrite.log"
+    # RewriteLogLevel 3
+
+    # Requests which are passed on to new provider can use the URL path
+    # directly.
+    RewriteRule "^/media/(.*)/embed/?$" "https://ump.uis.cam.ac.uk/legacy$0" [L]
+
+    # Handle any requests passed back the legacy application by the new
+    # provider.
+    RewriteRule "^/_legacy/(.*)$" "/$1" [PT,L]
+
 Installation
 ````````````
 
