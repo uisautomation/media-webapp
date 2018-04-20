@@ -25,12 +25,6 @@ Views and serializers
 .. automodule:: legacysms.views
     :members:
 
-Default URL routing
-```````````````````
-
-.. automodule:: legacysms.urls
-    :members:
-
 Application configuration
 `````````````````````````
 
