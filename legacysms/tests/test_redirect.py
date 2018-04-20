@@ -49,3 +49,20 @@ class RSSTests(RedirectTestCase):
         """Passing non-integer raises an error."""
         with self.assertRaises(ValueError):
             redirect.media_rss('some/malicious/path')
+
+
+class DownloadTests(RedirectTestCase):
+    def test_basic_media_download(self):
+        """A simple media download redirect should produce the correct result."""
+        self.assert_is_redirect_to_path(redirect.media_download(1234, 5678, 'mp4'),
+                                        '_downloads/1234/5678.mp4')
+
+    def test_requires_integer_media_id(self):
+        """Passing non-integer media id raises an error."""
+        with self.assertRaises(ValueError):
+            redirect.media_download('some/malicious/path', 5768, 'mp4')
+
+    def test_requires_integer_clip_id(self):
+        """Passing non-integer clip id raises an error."""
+        with self.assertRaises(ValueError):
+            redirect.media_download(1234, 'some/malicious/path', 'mp4')
