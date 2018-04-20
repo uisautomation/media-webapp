@@ -2,6 +2,7 @@
 Tests for views.
 
 """
+import copy
 from contextlib import contextmanager
 from unittest import mock
 
@@ -9,6 +10,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.test import TestCase
+import requests
 
 import smsjwplatform.jwplatform as api
 
@@ -139,6 +141,152 @@ class EmbedTest(TestCase):
             self.assertEqual(r['Location'], redirect.media_rss(34)['Location'])
 
 
+class DownloadTests(TestCase):
+    """
+    Test media download functionality.
+
+    """
+
+    def setUp(self):
+        # Patch the key_for_media_id call
+        self.key_for_media_id_patcher = mock.patch('smsjwplatform.jwplatform.key_for_media_id')
+
+        # Patch the requests library
+        self.requests_session_patcher = mock.patch('legacysms.views.DEFAULT_REQUESTS_SESSION')
+
+        self.key_for_media_id = self.key_for_media_id_patcher.start()
+        self.requests_session = self.requests_session_patcher.start()
+
+    def tearDown(self):
+        # Stop patching
+        self.key_for_media_id_patcher.stop()
+        self.requests_session_patcher.stop()
+
+    def test_basic_functionality(self):
+        """Basic redirection functionality works."""
+        self.key_for_media_id.return_value = 'video-key'
+        self.requests_session.get.return_value.json.return_value = MEDIA_INFO
+
+        r = self.client.get(reverse('legacysms:download_media',
+                                    kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
+
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r['Location'], 'http://media.invalid/2.mp4')
+
+    def test_passes_video_key_to_jwp(self):
+        """The correct video key used to get video info."""
+        self.key_for_media_id.return_value = 'video-key'
+
+        self.client.get(reverse('legacysms:download_media',
+                                kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
+
+        self.requests_session.get.assert_called_once_with(
+            api.pd_api_url(f'/v2/media/video-key', format='json'), timeout=5
+        )
+
+    def test_redirects_if_not_found(self):
+        """Redirects to legacy SMS if video is not present."""
+        self.key_for_media_id.side_effect = api.VideoNotFoundError()
+
+        r = self.client.get(reverse('legacysms:download_media',
+                                    kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
+
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r['Location'], redirect.media_download(34, 56, 'mp4')['Location'])
+
+    def test_bad_gateway_if_timeout(self):
+        """If request times out, a bad gateway error is returned."""
+        self.key_for_media_id.return_value = 'video-key'
+        self.requests_session.get.side_effect = requests.Timeout()
+
+        r = self.client.get(reverse('legacysms:download_media',
+                                    kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
+
+        self.assertEqual(r.status_code, 502)
+
+    def test_bad_gateway_if_upstream_error(self):
+        """If request to JWPlayer gives HTTP error, a bad gateway error is returned."""
+        self.key_for_media_id.return_value = 'video-key'
+        self.requests_session.get.return_value.raise_for_status.side_effect = requests.HTTPError()
+
+        r = self.client.get(reverse('legacysms:download_media',
+                                    kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
+
+        self.assertEqual(r.status_code, 502)
+
+    def test_bad_gateway_if_bad_json(self):
+        """If request to JWPlayer gives un-parseable JSON, a bad gateway error is returned."""
+        self.key_for_media_id.return_value = 'video-key'
+        self.requests_session.get.return_value.json.side_effect = Exception()
+
+        r = self.client.get(reverse('legacysms:download_media',
+                                    kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
+
+        self.assertEqual(r.status_code, 502)
+
+    def test_redirects_if_no_playlist(self):
+        """Redirects to legacy SMS if there is no playlist or an empty playlist."""
+        self.key_for_media_id.return_value = 'video-key'
+
+        # No playlist
+        self.requests_session.get.return_value.json.return_value = {}
+        r = self.client.get(reverse('legacysms:download_media',
+                                    kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r['Location'], redirect.media_download(34, 56, 'mp4')['Location'])
+
+        # Empty playlist
+        self.requests_session.get.return_value.json.return_value = {'playlist': []}
+        r = self.client.get(reverse('legacysms:download_media',
+                                    kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r['Location'], redirect.media_download(34, 56, 'mp4')['Location'])
+
+    def test_redirects_if_no_sources(self):
+        """Redirects to legacy SMS if there are no sources."""
+        self.key_for_media_id.return_value = 'video-key'
+
+        # No sources
+        self.requests_session.get.return_value.json.return_value = {'playlist': [{}]}
+        r = self.client.get(reverse('legacysms:download_media',
+                                    kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r['Location'], redirect.media_download(34, 56, 'mp4')['Location'])
+
+        # Empty sources
+        self.requests_session.get.return_value.json.return_value = {'playlist': [{'sources': []}]}
+        r = self.client.get(reverse('legacysms:download_media',
+                                    kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r['Location'], redirect.media_download(34, 56, 'mp4')['Location'])
+
+    def test_404_if_bad_extension(self):
+        """404 is returned if an unknown extension is given"""
+        self.key_for_media_id.return_value = 'video-key'
+        self.requests_session.get.return_value.json.return_value = MEDIA_INFO
+
+        r = self.client.get(reverse('legacysms:download_media',
+                                    kwargs={'media_id': 34, 'clip_id': 56, 'extension':
+                                            'not-a-video'}))
+
+        self.assertEqual(r.status_code, 404)
+
+    def test_redirects_if_no_file(self):
+        """Redirects to legacy SMS if the source has no file set."""
+        self.key_for_media_id.return_value = 'video-key'
+
+        media_info = copy.deepcopy(MEDIA_INFO)
+        media_info['playlist'][0]['sources'] = [
+            {'width': 1280, 'height': 720, 'type': 'video/mp4'}
+        ]
+
+        self.requests_session.get.return_value.json.return_value = media_info
+        r = self.client.get(reverse('legacysms:download_media',
+                                    kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r['Location'], redirect.media_download(34, 56, 'mp4')['Location'])
+
+
 # A response from /videos/list which contains two media objects corresponding to the SMS media
 # ID "34".
 LIST_RESPONSE_WITH_MEDIA = {
@@ -154,6 +302,31 @@ LIST_RESPONSE_WITH_MEDIA = {
             'mediatype': 'video',
             'key': 'myvideokey',
         },
+    ],
+}
+
+# A media information resource fixture.
+MEDIA_INFO = {
+    'playlist': [
+        {
+            'sources': [
+                {
+                    'width': 160, 'height': 120, 'type': 'video/mp4',
+                    'file': 'http://media.invalid/1.mp4',
+                },
+                {
+                    'width': 720, 'height': 576, 'type': 'video/mp4',
+                    'file': 'http://media.invalid/2.mp4',
+                },
+                {
+                    'type': 'audio/mp4', 'file': 'http://media.invalid/1.m4a',
+                },
+                {
+                    'width': 720, 'height': 576, 'type': 'application/vnd.apple.mpegurl',
+                    'file': 'http://media.invalid/1.m3u8',
+                },
+            ]
+        }
     ],
 }
 
