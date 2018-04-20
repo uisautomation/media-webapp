@@ -165,3 +165,21 @@ JWPLATFORM_EMBED_PLAYER_KEY = os.environ.get('JWPLATFORM_EMBED_PLAYER_KEY', '')
 SMS_OAUTH2_CLIENT_ID = os.environ.get('SMS_OAUTH2_CLIENT_ID', '')
 
 SMS_OAUTH2_CLIENT_SECRET = os.environ.get('SMS_OAUTH2_CLIENT_SECRET', '')
+
+# Log output from applications to the console. Use the DJANGO_LOG_LEVEL environment variable to
+# override the default logging level.
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        # Catch-all rule
+        '': {
+            'handlers': ['console'], 'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+        },
+    },
+}
