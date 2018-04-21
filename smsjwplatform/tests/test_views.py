@@ -68,7 +68,9 @@ class EmbedTest(TestCase):
 
         """
         with patched_client() as jwclient:
-            jwclient.videos.show.return_value = {'video': {'custom': {'sms_acl': 'acl:USER_mb2174:'}}}
+            jwclient.videos.show.return_value = {
+                'video': {'custom': {'sms_acl': 'acl:USER_mb2174:'}}
+            }
             r = self.client.get(reverse('smsjwplatform:embed', kwargs={'media_id': 34}))
             self.assertEqual(r.status_code, 200)
             self.assertTemplateUsed(r, 'smsjwplatform/401.html')

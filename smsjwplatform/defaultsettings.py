@@ -40,7 +40,7 @@ Base URL for the JWPlatform API. This can usually be left at its default value.
 
 JWPLATFORM_EMBED_PLAYER_KEY = None
 """
-Player key for the embedded player used by the :py:mod:`~.views.embed` view. 
+Player key for the embedded player used by the :py:mod:`~.views.embed` view.
 
 """
 
@@ -94,7 +94,7 @@ lookup resource for a person in seconds.
 
 LOOKUP_PEOPLE_ID_SCHEME = 'mock'
 """
-The ID scheme to use when querying people in LOOKUP. This is almost always 'crsid' unless you are 
+The ID scheme to use when querying people in LOOKUP. This is almost always 'crsid' unless you are
 using test raven, in which case it is 'mock'.
 
 """
