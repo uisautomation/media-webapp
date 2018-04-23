@@ -14,7 +14,10 @@ from django.core.checks import register, Error
 
 
 REQUIRED_SETTINGS = [
-    'LEGACY_SMS_REDIRECT_BASE_URL',
+    'LEGACY_SMS_REDIRECT_FORMAT',
+    'LEGACY_SMS_FRONTEND_URL',
+    'LEGACY_SMS_RSS_URL',
+    'LEGACY_SMS_DOWNLOADS_URL',
 ]
 
 

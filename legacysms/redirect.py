@@ -17,7 +17,8 @@ def media_embed(media_id):
     media id. Raises :py:exc:`ValueError` if *media_id* is non-numeric.
 
     """
-    return _redirect_relative(f'media/{media_id:d}/embed')
+    return _redirect_relative(urlparse.urljoin(
+        settings.LEGACY_SMS_FRONTEND_URL, f'media/{media_id:d}/embed'))
 
 
 def media_rss(media_id):
@@ -26,7 +27,8 @@ def media_rss(media_id):
     media id. Raises :py:exc:`ValueError` if *media_id* is non-numeric.
 
     """
-    return _redirect_relative(f'rss/media/{media_id:d}')
+    return _redirect_relative(urlparse.urljoin(
+        settings.LEGACY_SMS_RSS_URL, f'rss/media/{media_id:d}'))
 
 
 def media_download(media_id, clip_id, extension):
@@ -35,13 +37,14 @@ def media_download(media_id, clip_id, extension):
     given media id. Raises :py:exc:`ValueError` if *media_id* or *clip_id* are non-numeric.
 
     """
-    return _redirect_relative(f'_downloads/{media_id:d}/{clip_id:d}.{extension}')
+    return _redirect_relative(urlparse.urljoin(
+        settings.LEGACY_SMS_DOWNLOADS_URL, f'{media_id:d}/{clip_id:d}.{extension}'))
 
 
-def _redirect_relative(path):
+def _redirect_relative(url):
     """
     Given a relative URL path, return the redirect to the full URL formed using the
-    LEGACY_SMS_REDIRECT_BASE_URL setting.
+    LEGACY_SMS_REDIRECT_FORMAT setting.
 
     """
-    return redirect(urlparse.urljoin(settings.LEGACY_SMS_REDIRECT_BASE_URL, path))
+    return redirect(settings.LEGACY_SMS_REDIRECT_FORMAT.format(url=urlparse.urlsplit(url)))
