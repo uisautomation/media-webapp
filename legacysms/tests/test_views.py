@@ -170,8 +170,7 @@ class DownloadTests(TestCase):
         r = self.client.get(reverse('legacysms:download_media',
                                     kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
 
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(r['Location'], 'http://media.invalid/2.mp4')
+        self.assertRedirects(r, 'http://media.invalid/2.mp4', fetch_redirect_response=False)
 
     def test_passes_video_key_to_jwp(self):
         """The correct video key used to get video info."""
@@ -191,8 +190,8 @@ class DownloadTests(TestCase):
         r = self.client.get(reverse('legacysms:download_media',
                                     kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
 
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(r['Location'], redirect.media_download(34, 56, 'mp4')['Location'])
+        self.assertRedirects(r, redirect.media_download(34, 56, 'mp4')['Location'],
+                             fetch_redirect_response=False)
 
     def test_bad_gateway_if_timeout(self):
         """If request times out, a bad gateway error is returned."""
@@ -232,15 +231,15 @@ class DownloadTests(TestCase):
         self.requests_session.get.return_value.json.return_value = {}
         r = self.client.get(reverse('legacysms:download_media',
                                     kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(r['Location'], redirect.media_download(34, 56, 'mp4')['Location'])
+        self.assertRedirects(r, redirect.media_download(34, 56, 'mp4')['Location'],
+                             fetch_redirect_response=False)
 
         # Empty playlist
         self.requests_session.get.return_value.json.return_value = {'playlist': []}
         r = self.client.get(reverse('legacysms:download_media',
                                     kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(r['Location'], redirect.media_download(34, 56, 'mp4')['Location'])
+        self.assertRedirects(r, redirect.media_download(34, 56, 'mp4')['Location'],
+                             fetch_redirect_response=False)
 
     def test_redirects_if_no_sources(self):
         """Redirects to legacy SMS if there are no sources."""
@@ -250,15 +249,15 @@ class DownloadTests(TestCase):
         self.requests_session.get.return_value.json.return_value = {'playlist': [{}]}
         r = self.client.get(reverse('legacysms:download_media',
                                     kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(r['Location'], redirect.media_download(34, 56, 'mp4')['Location'])
+        self.assertRedirects(r, redirect.media_download(34, 56, 'mp4')['Location'],
+                             fetch_redirect_response=False)
 
         # Empty sources
         self.requests_session.get.return_value.json.return_value = {'playlist': [{'sources': []}]}
         r = self.client.get(reverse('legacysms:download_media',
                                     kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(r['Location'], redirect.media_download(34, 56, 'mp4')['Location'])
+        self.assertRedirects(r, redirect.media_download(34, 56, 'mp4')['Location'],
+                             fetch_redirect_response=False)
 
     def test_404_if_bad_extension(self):
         """404 is returned if an unknown extension is given"""
@@ -283,8 +282,8 @@ class DownloadTests(TestCase):
         self.requests_session.get.return_value.json.return_value = media_info
         r = self.client.get(reverse('legacysms:download_media',
                                     kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(r['Location'], redirect.media_download(34, 56, 'mp4')['Location'])
+        self.assertRedirects(r, redirect.media_download(34, 56, 'mp4')['Location'],
+                             fetch_redirect_response=False)
 
 
 # A response from /videos/list which contains two media objects corresponding to the SMS media
