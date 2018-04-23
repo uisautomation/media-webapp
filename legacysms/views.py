@@ -94,24 +94,24 @@ def download_media(request, media_id, clip_id, extension):
         r = DEFAULT_REQUESTS_SESSION.get(api.pd_api_url(f'/v2/media/{key}', format='json'),
                                          timeout=5)
     except requests.Timeout:
-        LOG.info('Timed out when retrieving information on video "%s" from JWPlatform', key)
+        LOG.warn('Timed out when retrieving information on video "%s" from JWPlatform', key)
         return HttpResponse(status=502)  # Bad gateway
 
     # Check that the call to JWPlatform succeeded.
     try:
         r.raise_for_status()
     except requests.HTTPError as e:
-        LOG.info('Got HTTP error when retrieving information on video "%s" from JWPlatform', key)
-        LOG.info('Error was: %s', e)
+        LOG.warn('Got HTTP error when retrieving information on video "%s" from JWPlatform', key)
+        LOG.warn('Error was: %s', e)
         return HttpResponse(status=502)  # Bad gateway
 
     # Parse response as JSON
     try:
         media_info = r.json()
     except Exception as e:
-        LOG.info(('Failed to parse JSON response when retrieving information on video "%s" from '
+        LOG.warn(('Failed to parse JSON response when retrieving information on video "%s" from '
                   'JWPlatform'), key)
-        LOG.info('Error was: %s', e)
+        LOG.warn('Error was: %s', e)
         return HttpResponse(status=502)  # Bad gateway
 
     # The response should be of the following form according to

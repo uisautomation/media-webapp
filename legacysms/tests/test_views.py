@@ -15,6 +15,7 @@ import requests
 import smsjwplatform.jwplatform as api
 
 from .. import redirect
+from .. import views
 
 
 class EmbedTest(TestCase):
@@ -198,8 +199,11 @@ class DownloadTests(TestCase):
         self.key_for_media_id.return_value = 'video-key'
         self.requests_session.get.side_effect = requests.Timeout()
 
-        r = self.client.get(reverse('legacysms:download_media',
-                                    kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
+        # Check that a warning is also logged
+        with self.assertLogs(views.LOG, 'WARNING'):
+            r = self.client.get(reverse(
+                'legacysms:download_media',
+                kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
 
         self.assertEqual(r.status_code, 502)
 
@@ -208,8 +212,11 @@ class DownloadTests(TestCase):
         self.key_for_media_id.return_value = 'video-key'
         self.requests_session.get.return_value.raise_for_status.side_effect = requests.HTTPError()
 
-        r = self.client.get(reverse('legacysms:download_media',
-                                    kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
+        # Check that a warning is also logged
+        with self.assertLogs(views.LOG, 'WARNING'):
+            r = self.client.get(reverse(
+                'legacysms:download_media',
+                kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
 
         self.assertEqual(r.status_code, 502)
 
@@ -218,8 +225,11 @@ class DownloadTests(TestCase):
         self.key_for_media_id.return_value = 'video-key'
         self.requests_session.get.return_value.json.side_effect = Exception()
 
-        r = self.client.get(reverse('legacysms:download_media',
-                                    kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
+        # Check that a warning is also logged
+        with self.assertLogs(views.LOG, 'WARNING'):
+            r = self.client.get(reverse(
+                'legacysms:download_media',
+                kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
 
         self.assertEqual(r.status_code, 502)
 
