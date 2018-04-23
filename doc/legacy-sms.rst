@@ -22,9 +22,7 @@ using Apache configuration similar to the following:
     RewriteRule "^/media/(.*)/embed/?$" "https://ump.uis.cam.ac.uk/legacy$0" [L]
 
     # Handle any requests passed back the legacy application by the new
-    # provider. Download requests are passed on to the download server which has
-    # a similar Apache configuration to handle _legacy URLs.
-    RewriteRule "^/_legacy/_downloads/(.*)$" "https://downloads.sms.cam.ac.uk/_legacy/$0" [L]
+    # provider.
     RewriteRule "^/_legacy/(.*)$" "/$1" [PT,L]
 
 Installation
