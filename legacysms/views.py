@@ -2,7 +2,6 @@
 Django views.
 
 """
-import itertools
 import logging
 from django.conf import settings
 from django.http import Http404, HttpResponse
@@ -138,39 +137,42 @@ def download_media(request, media_id, clip_id, extension):
         playlist_item = {}
     sources = playlist_item.get('sources', [])
 
-    # If the sources list is empty, redirect back to the legacy SMS to try and deal with it.
-    if len(sources) == 0:
-        return legacyredirect.media_download(media_id, clip_id, extension)
-
-    # Group sources by type and then, within each group, order them by descending height. In this
-    # way we arrange for the first source within each group to be approximately the highest quality
-    # version available.
-
-    # Order the list of sources so that all sources with identical type are together.
-    sources.sort(key=lambda source: source.get('type', ''))
-
-    # Form dictionary mapping type to a sequence of sources
-    sources_by_type = {
-        type: sorted(sources, key=lambda source: source.get('height', 0), reverse=True)
-        for type, sources in itertools.groupby(sources, lambda source: source.get('type', ''))
-    }
-
-    # Convert extension into the appropriate content type. If we know of no such content type,
-    # return a 404 response. We don't redirect back to the legacy SMS here because we want to know
-    # earlier rather than later if the list of extensions in CONTENT_TYPE_FOR_DOWNLOAD_EXTENSION is
-    # incomplete and a 404 is a louder signal than a redirect :).
+    # We now need to find *which* video/audio source to redirect the user back to. Firstly,
+    # determine which content/type we're looking for based on the extension. If we know of no such
+    # content type, return a 404 response. We don't redirect back to the legacy SMS here because we
+    # want to know earlier rather than later if the list of extensions in
+    # CONTENT_TYPE_FOR_DOWNLOAD_EXTENSION is incomplete and a 404 is a louder signal than a
+    # redirect :).
     try:
         desired_content_type = CONTENT_TYPE_FOR_DOWNLOAD_EXTENSION[extension.lower()]
     except KeyError:
         LOG.info('Could not match extension "%s" to a known content type', extension)
         raise Http404('Unknown extension: %s'.format(extension))
 
-    # If there is no matching source, redirect back to SMS.
-    try:
-        url = sources_by_type[desired_content_type][0]['file']
-    except (KeyError, IndexError):
+    # Filter the sources by this content type and then find the one with the largest height.
+    # We assume that the tallest source is approximately the highest quality version available.
+    sources_with_correct_type = [
+        source for source in sources if source.get('type', '') == desired_content_type
+    ]
+
+    # If the filtered sources list is empty, redirect back to the legacy SMS to try and deal with
+    # it.
+    if len(sources_with_correct_type) == 0:
         LOG.info('download: failed to find source of content type %s for media id %s',
                  desired_content_type, media_id)
+        return legacyredirect.media_download(media_id, clip_id, extension)
+
+    # Find best source. I.e. the one with greatest height
+    best_source = sources_with_correct_type[0]
+    for candidate_source in sources_with_correct_type[1:]:
+        if candidate_source.get('height', 0) > best_source.get('height', 0):
+            best_source = candidate_source
+
+    # Get the source URL
+    try:
+        url = best_source['file']
+    except KeyError:
+        LOG.warn('download: source is missing file key: %s', best_source)
         return legacyredirect.media_download(media_id, clip_id, extension)
 
     # Redirect to the direct download URL for the media item.
