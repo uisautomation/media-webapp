@@ -2,10 +2,12 @@
 Test redirects back to legacy SMS.
 
 """
-from .. import redirect
+from urllib import parse as urlparse
 
 from django.conf import settings
 from django.test import TestCase, override_settings
+
+from .. import redirect
 
 
 @override_settings(LEGACY_SMS_REDIRECT_BASE_URL='http://legacysms.invalid/a/b/')
@@ -22,11 +24,8 @@ class RedirectTestCase(TestCase):
         LEGACY_SMS_REDIRECT_BASE_URL setting.
 
         """
-        self.assertEqual(response.status_code, 302)
-        location = response['Location']
-        self.assertTrue(location.startswith(settings.LEGACY_SMS_REDIRECT_BASE_URL))
-        path = location[len(settings.LEGACY_SMS_REDIRECT_BASE_URL):]
-        self.assertEqual(path, expected_path)
+        expected_url = urlparse.urljoin(settings.LEGACY_SMS_REDIRECT_BASE_URL, expected_path)
+        self.assertRedirects(response, expected_url, fetch_redirect_response=False)
 
 
 class MediaEmbedTests(RedirectTestCase):

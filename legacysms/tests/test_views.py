@@ -97,8 +97,8 @@ class EmbedTest(TestCase):
             # No matter how videos are searched, return none
             jwclient.videos.list.return_value = {'status': 'ok', 'videos': []}
             r = self.client.get(reverse('legacysms:embed', kwargs={'media_id': 34}))
-            self.assertEqual(r.status_code, 302)
-            self.assertEqual(r['Location'], redirect.media_embed(34)['Location'])
+            self.assertRedirects(r, redirect.media_embed(34)['Location'],
+                                 fetch_redirect_response=False)
 
     def test_wrong_media(self):
         """
@@ -108,23 +108,23 @@ class EmbedTest(TestCase):
         with patched_client():
             # Embedding fails with wrong media id
             r = self.client.get(reverse('legacysms:embed', kwargs={'media_id': 35}))
-            self.assertEqual(r.status_code, 302)
-            self.assertEqual(r['Location'], redirect.media_embed(35)['Location'])
+            self.assertRedirects(r, redirect.media_embed(35)['Location'],
+                                 fetch_redirect_response=False)
 
     def test_rss_media(self):
         """
         Test RSS media feed.
 
         """
-        with patched_client():
+        # We mock time.time() here since URL signing uses the current time as an input and we want
+        # to ensure that we generate the same signature.
+        with patched_client(), mock.patch('time.time', return_value=12345):
             # Try to embed a video
             r = self.client.get(reverse('legacysms:rss_media', kwargs={'media_id': 34}))
 
-            # Should be redirect
-            self.assertEqual(r.status_code, 302)
-
-            # Check that an appropriate values in location
-            self.assertIn('myvideokey', r['Location'])
+            # Should be redirect to RSS URL.
+            expected_url = api.pd_api_url('/v2/media/myvideokey', format='mrss')
+            self.assertRedirects(r, expected_url, fetch_redirect_response=False)
 
     def test_rss_media_redirect(self):
         """
@@ -136,9 +136,9 @@ class EmbedTest(TestCase):
             # Try to embed a video
             r = self.client.get(reverse('legacysms:rss_media', kwargs={'media_id': 34}))
 
-            # Should be 404
-            self.assertEqual(r.status_code, 302)
-            self.assertEqual(r['Location'], redirect.media_rss(34)['Location'])
+            # Should be redirect
+            self.assertRedirects(r, redirect.media_rss(34)['Location'],
+                                 fetch_redirect_response=False)
 
 
 class DownloadTests(TestCase):
