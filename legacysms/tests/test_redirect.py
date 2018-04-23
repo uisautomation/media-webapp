@@ -2,36 +2,21 @@
 Test redirects back to legacy SMS.
 
 """
-from urllib import parse as urlparse
-
-from django.conf import settings
 from django.test import TestCase, override_settings
 
 from .. import redirect
 
 
-@override_settings(LEGACY_SMS_REDIRECT_BASE_URL='http://legacysms.invalid/a/b/')
-class RedirectTestCase(TestCase):
-    """
-    Base class for test cases testing redirect behaviour. This cannot be a mixin since it uses the
-    override_settings decorator.
-
-    """
-
-    def assert_is_redirect_to_path(self, response, expected_path):
-        """
-        Check that the response is a redirect to the specified path relative to the
-        LEGACY_SMS_REDIRECT_BASE_URL setting.
-
-        """
-        expected_url = urlparse.urljoin(settings.LEGACY_SMS_REDIRECT_BASE_URL, expected_path)
-        self.assertRedirects(response, expected_url, fetch_redirect_response=False)
-
-
-class MediaEmbedTests(RedirectTestCase):
+@override_settings(
+    LEGACY_SMS_REDIRECT_FORMAT='{url.scheme}://test.{url.netloc}{url.path}',
+    LEGACY_SMS_FRONTEND_URL='https://sms.invalid/'
+)
+class MediaEmbedTests(TestCase):
     def test_basic_redirect(self):
         """A simple redirect should produce the correct result."""
-        self.assert_is_redirect_to_path(redirect.media_embed(1234), 'media/1234/embed')
+        self.assertRedirects(
+            redirect.media_embed(1234), 'https://test.sms.invalid/media/1234/embed',
+            fetch_redirect_response=False)
 
     def test_requires_integer(self):
         """Passing non-integer raises an error."""
@@ -39,10 +24,16 @@ class MediaEmbedTests(RedirectTestCase):
             redirect.media_embed('some/malicious/path')
 
 
-class RSSTests(RedirectTestCase):
+@override_settings(
+    LEGACY_SMS_REDIRECT_FORMAT='{url.scheme}://test.{url.netloc}{url.path}',
+    LEGACY_SMS_RSS_URL='https://rss.invalid/'
+)
+class RSSTests(TestCase):
     def test_basic_media_redirect(self):
         """A simple media item redirect should produce the correct result."""
-        self.assert_is_redirect_to_path(redirect.media_rss(1234), 'rss/media/1234')
+        self.assertRedirects(
+            redirect.media_rss(1234), 'https://test.rss.invalid/rss/media/1234',
+            fetch_redirect_response=False)
 
     def test_requires_integer(self):
         """Passing non-integer raises an error."""
