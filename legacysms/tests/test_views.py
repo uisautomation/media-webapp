@@ -316,6 +316,32 @@ class DownloadTests(TestCase):
         self.assertRedirects(r, redirect.media_download(34, 56, 'mp4')['Location'],
                              fetch_redirect_response=False)
 
+    def test_no_permission(self):
+        """
+        Tests the behaviour when the user's identity (if any) doesn't match the ACL.
+
+        """
+        with mock.patch('smsjwplatform.jwplatform.Video.from_media_id') as from_media_id:
+            from_media_id.return_value = api.Video({
+                'key': 'video-key',
+                'custom': {
+                    'sms_acl': 'acl:USER_mb2174:',
+                    'sms_media_id': 'media:34:',
+                }
+            })
+            self.assertEqual(api.Video.from_media_id(34).acl, ['USER_mb2174'])
+
+            r = self.client.get(reverse(
+                'legacysms:download_media',
+                kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
+            self.assertEqual(r.status_code, 403)
+
+            self.client.force_login(User.objects.create(username='spqr1'))
+            r = self.client.get(reverse(
+                'legacysms:download_media',
+                kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
+            self.assertEqual(r.status_code, 403)
+
 
 # A response from /videos/list which contains two media objects corresponding to the SMS media
 # ID "34".

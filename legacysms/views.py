@@ -90,6 +90,8 @@ def download_media(request, media_id, clip_id, extension):
         LOG.info('download: failed to find matching video for media id %s', media_id)
         return legacyredirect.media_download(media_id, clip_id, extension)
 
+    video.check_user_access(request.user)
+
     # Fetch the media download information from JWPlatform.
     try:
         r = DEFAULT_REQUESTS_SESSION.get(api.pd_api_url(f'/v2/media/{video.key}', format='json'),
