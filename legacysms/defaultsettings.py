@@ -28,3 +28,9 @@ LEGACY_SMS_RSS_URL = 'https://rss.sms.cam.ac.uk/'
 Required. URL of legacy SMS RSS feed site.
 
 """
+
+LEGACY_SMS_DOWNLOADS_URL = 'https://downloads.sms.cam.ac.uk/'
+"""
+Required. URL of legacy SMS download site.
+
+"""
