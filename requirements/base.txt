@@ -1,6 +1,6 @@
 # Requirements for the webapp itself
 django>=2.0
-psycopg2
+psycopg2-binary
 # explicitly specify django-automationcommon's git repo since changes in
 # automationcommon tend to be "ad hoc" and may need testing here without a
 # corresponding pypi release. Recall that git branched may be explicitly given

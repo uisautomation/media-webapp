@@ -55,11 +55,11 @@ Install any requirements
 
 Usually you'll want to use the `tox <https://tox.readthedocs.io/>`_ automation
 tool to run tests, etc but you can run the application within your virtualenv by
-installing the default requirements:
+installing the developer requirements:
 
 .. code-block:: bash
 
-    $ pip install -r requirements.txt
+    $ pip install -r requirements/developer.txt
 
 Set up local configuration
 ``````````````````````````

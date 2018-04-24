@@ -1,0 +1,11 @@
+# Requirements specific to the Docker container. Installed *after*
+# requirements/base.txt. Place any overrides/additions in this file.
+
+# IPython is useful when running ./migrate.py shell within the container
+ipython
+
+# gunicorn is used for serving the WSGI application
+gunicorn
+
+# whitenoise is used for serving static files
+whitenoise

@@ -5,8 +5,8 @@ FROM python:3.6
 WORKDIR /usr/src/app
 
 # Install any explicit requirements
-ADD requirements*.txt ./
-RUN pip install -r ./requirements_developer.txt
+ADD ./requirements/* ./requirements/
+RUN pip install -r ./requirements/developer.txt
 
 # The webapp source will be mounted here as a volume
 VOLUME /usr/src/app

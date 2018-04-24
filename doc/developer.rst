@@ -59,8 +59,8 @@ flake8
     Run by default. Check for code-style violations using the `flake8
     <http://flake8.pycqa.org/>`_ linter.
 
-collectstatic
-    Collect static files used by Django to the ``build/static/`` directory.
+manage
+    Run management commands. Positional arguments are passed to ``manage.py``.
 
 .. _devserver:
 
