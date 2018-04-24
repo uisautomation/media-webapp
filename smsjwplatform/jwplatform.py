@@ -8,8 +8,11 @@ import time
 import urllib.parse
 
 from django.conf import settings
+import django.core.exceptions
 import jwplatform
 import jwt
+
+from . import acl
 
 
 class VideoNotFoundError(RuntimeError):
@@ -53,66 +56,109 @@ def get_jwplatform_client():
     return jwplatform.Client(settings.JWPLATFORM_API_KEY, settings.JWPLATFORM_API_SECRET)
 
 
-def key_for_media_id(media_id, preferred_media_type='video', client=None):
+class VideoPermissionDenied(django.core.exceptions.PermissionDenied):
     """
-    :param media_id: the SMS media ID of the required video
-    :type media_id: int
-    :param preferred_media_type: (optional) the preferred media type to return. One of ``'video'``
-        or ``'audio'``.
-    :param client: (options) an authenticated JWPlatform client as returned by
-        :py:func:`.get_jwplatform_client`. If ``None``, call :py:func:`.get_jwplatform_client`.
-    :raises: :py:class:`.VideoNotFoundError` if the media id does not correspond to a JWPlatform
-        video.
+    A sub-class of :py:exc:`django.core.exceptions.PermissionDenied` used to indicate that the
+    current user does not match the ACL of a video. See: :py:func:`~.Video.check_user_access`.
 
     """
-    client = client if client is not None else get_jwplatform_client()
-
-    # The value of the sms_media_id custom property we search for
-    media_id_value = 'media:{:d}:'.format(media_id)
-
-    # Search for videos
-    response = client.videos.list(**{
-        'search:custom.sms_media_id': media_id_value,
-    })
-
-    # Loop through "videos" to find the preferred one based on mediatype
-    video_resource = None
-    for video in response.get('videos', []):
-        # Sanity check: skip videos with wrong media id since video search is
-        # not "is equal to", it is "contains".
-        if video.get('custom', {}).get('sms_media_id') != media_id_value:
-            continue
-
-        # use this video if it has the preferred mediatype or if we have nothing
-        # else
-        if (video.get('mediatype') == preferred_media_type
-                or video_resource is None):
-            video_resource = video
-
-    # If no video found, raise error
-    if video_resource is None:
-        raise VideoNotFoundError()
-
-    # Check the video we found has a non-None key
-    if video_resource.get('key') is None:
-        raise VideoNotFoundError()
-
-    return video_resource['key']
 
 
-def get_acl(key, client=None):
+class Video(dict):
     """
-    :param key: JWPlatform key for the media.
-    :param client: (options) an authenticated JWPlatform client as returned by
-        :py:func:`.get_jwplatform_client`. If ``None``, call :py:func:`.get_jwplatform_client`.
+    A dict subclass representing a video resource object as returned by the JWPlatform API.
+
+    This subclass provides some convenience accessors for various common resource keys but, since
+    this is a dict subclass, the values can be retrieved using ``[]`` or ``get`` as per usual.
+
     """
-    client = client if client is not None else get_jwplatform_client()
-    try:
-        video = client.videos.show(video_key=key)
-        field = video.get('video', {}).get('custom', {}).get('sms_acl', None)
+    @property
+    def key(self):
+        """JWPlatform key for this video or ``None`` if it has none."""
+        return self.get('key')
+
+    @property
+    def acl(self):
+        """
+        The parsed ACL custom prop on the video. If no ACL is present, the WORLD ACL is assumed.
+
+        """
+        field = self.get('custom', {}).get('sms_acl', 'acl:WORLD:')
         return parse_custom_field('acl', field).split(',')
-    except jwplatform.errors.JWPlatformNotFoundError as err:
-        raise VideoNotFoundError(err)
+
+    def check_user_access(self, user):
+        """
+        Check whether the specified Django user has permission to access this video.
+        Raises :py:exc:`~.VideoPermissionDenied` if the user does not match the ACL.
+        """
+        for ace in acl.build_acl(self.acl):
+            if ace.has_permission(user):
+                return True
+        raise VideoPermissionDenied()
+
+    @classmethod
+    def from_key(cls, key, client=None):
+        """
+        Return a :py:class:`Video` instance corresponding to the JWPlatform key passed.
+
+        :param key: JWPlatform key for the media.
+        :param client: (optional) an authenticated JWPlatform client as returned by
+            :py:func:`.get_jwplatform_client`. If ``None``, call :py:func:`.get_jwplatform_client`.
+
+        :raises: :py:exc:`jwplatform.errors.JWPlatformNotFoundError` if the video is not found.
+
+        """
+        client = client if client is not None else get_jwplatform_client()
+        return cls(client.videos.show(video_key=key)['video'])
+
+    @classmethod
+    def from_media_id(cls, media_id, preferred_media_type='video', client=None):
+        """
+        Return a :py:class:`Video` instance which matches the passed legacy SMS media ID or raise
+        :py:exc:`VideoNotFoundError` if no such video could be found.
+
+        :param media_id: the SMS media ID of the required video
+        :type media_id: int
+        :param preferred_media_type: (optional) the preferred media type to return. One of
+            ``'video'`` or ``'audio'``.
+        :param client: (options) an authenticated JWPlatform client as returned by
+            :py:func:`.get_jwplatform_client`. If ``None``, call :py:func:`.get_jwplatform_client`.
+        :raises: :py:class:`.VideoNotFoundError` if the media id does not correspond to a
+            JWPlatform video.
+
+        """
+        client = client if client is not None else get_jwplatform_client()
+
+        # The value of the sms_media_id custom property we search for
+        media_id_value = 'media:{:d}:'.format(media_id)
+
+        # Search for videos
+        response = client.videos.list(**{
+            'search:custom.sms_media_id': media_id_value,
+        })
+
+        # Loop through "videos" to find the preferred one based on mediatype
+        video_resource = None
+        for video_dict in response.get('videos', []):
+            # Convert video dictionary to video resource object
+            video = cls(video_dict)
+
+            # Sanity check: skip videos with wrong media id since video search is
+            # not "is equal to", it is "contains".
+            if video.get('custom', {}).get('sms_media_id') != media_id_value:
+                continue
+
+            # use this video if it has the preferred mediatype or if we have nothing
+            # else
+            if (video.get('mediatype') == preferred_media_type
+                    or video_resource is None):
+                video_resource = video
+
+        # If no video found, raise error
+        if video_resource is None:
+            raise VideoNotFoundError()
+
+        return video_resource
 
 
 def parse_custom_field(expected_type, field):

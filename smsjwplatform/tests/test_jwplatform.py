@@ -15,14 +15,14 @@ class JWPlatformTest(TestCase):
     General module tests
     """
 
-    def test_get_acl(self):
+    def test_acl(self):
 
         client = mock.Mock()
 
         client.videos.show.return_value = {
             'video': {'custom': {'sms_acl': 'acl:WORLD,USER_mb2174:'}}
         }
-        self.assertEqual(api.get_acl(123, client=client), ['WORLD', 'USER_mb2174'])
+        self.assertEqual(api.Video.from_key(123, client=client).acl, ['WORLD', 'USER_mb2174'])
 
         client.videos.show.assert_called_with(video_key=123)
 
@@ -31,7 +31,7 @@ class JWPlatformTest(TestCase):
         }
 
         with self.assertRaises(ValueError):
-            api.get_acl(123, client=client)
+            api.Video.from_key(123, client=client).acl
 
 
 class PlatformDeliveryAPITests(TestCase):

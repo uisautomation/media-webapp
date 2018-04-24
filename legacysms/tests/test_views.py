@@ -72,10 +72,16 @@ class EmbedTest(TestCase):
         Tests the behaviour when the user's identity (if any) doesn't match the ACL.
 
         """
-        with patched_client() as jwclient:
-            jwclient.videos.show.return_value = {
-                'video': {'custom': {'sms_acl': 'acl:USER_mb2174:'}}
-            }
+        with mock.patch('smsjwplatform.jwplatform.Video.from_media_id') as from_media_id:
+            from_media_id.return_value = api.Video({
+                'key': 'video-key',
+                'custom': {
+                    'sms_acl': 'acl:USER_mb2174:',
+                    'sms_media_id': 'media:34:',
+                }
+            })
+            self.assertEqual(api.Video.from_media_id(34).acl, ['USER_mb2174'])
+
             r = self.client.get(reverse('legacysms:embed', kwargs={'media_id': 34}))
             self.assertEqual(r.status_code, 403)
             self.assertTemplateUsed(r, 'legacysms/403.html')
@@ -132,7 +138,7 @@ class EmbedTest(TestCase):
         Test RSS media feed redirects if media item not found.
 
         """
-        with mock.patch('smsjwplatform.jwplatform.key_for_media_id',
+        with mock.patch('smsjwplatform.jwplatform.Video.from_media_id',
                         side_effect=api.VideoNotFoundError()):
             # Try to embed a video
             r = self.client.get(reverse('legacysms:rss_media', kwargs={'media_id': 34}))
@@ -149,23 +155,27 @@ class DownloadTests(TestCase):
     """
 
     def setUp(self):
-        # Patch the key_for_media_id call
-        self.key_for_media_id_patcher = mock.patch('smsjwplatform.jwplatform.key_for_media_id')
+        # Patch the video_from_media_id call
+        self.video_from_media_id_patcher = mock.patch(
+            'smsjwplatform.jwplatform.Video.from_media_id')
 
         # Patch the requests library
         self.requests_session_patcher = mock.patch('legacysms.views.DEFAULT_REQUESTS_SESSION')
 
-        self.key_for_media_id = self.key_for_media_id_patcher.start()
+        self.video_from_media_id = self.video_from_media_id_patcher.start()
         self.requests_session = self.requests_session_patcher.start()
+
+        # Video.from_media_id() by default returns a mock Video resource
+        self.mock_video = api.Video({'key': 'video-key'})
+        self.video_from_media_id.return_value = self.mock_video
 
     def tearDown(self):
         # Stop patching
-        self.key_for_media_id_patcher.stop()
+        self.video_from_media_id_patcher.stop()
         self.requests_session_patcher.stop()
 
     def test_basic_functionality(self):
         """Basic redirection functionality works."""
-        self.key_for_media_id.return_value = 'video-key'
         self.requests_session.get.return_value.json.return_value = MEDIA_INFO
 
         r = self.client.get(reverse('legacysms:download_media',
@@ -175,8 +185,6 @@ class DownloadTests(TestCase):
 
     def test_passes_video_key_to_jwp(self):
         """The correct video key used to get video info."""
-        self.key_for_media_id.return_value = 'video-key'
-
         self.client.get(reverse('legacysms:download_media',
                                 kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
 
@@ -186,7 +194,7 @@ class DownloadTests(TestCase):
 
     def test_redirects_if_not_found(self):
         """Redirects to legacy SMS if video is not present."""
-        self.key_for_media_id.side_effect = api.VideoNotFoundError()
+        self.video_from_media_id.side_effect = api.VideoNotFoundError()
 
         r = self.client.get(reverse('legacysms:download_media',
                                     kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
@@ -196,7 +204,6 @@ class DownloadTests(TestCase):
 
     def test_bad_gateway_if_timeout(self):
         """If request times out, a bad gateway error is returned."""
-        self.key_for_media_id.return_value = 'video-key'
         self.requests_session.get.side_effect = requests.Timeout()
 
         # Check that a warning is also logged
@@ -209,7 +216,6 @@ class DownloadTests(TestCase):
 
     def test_bad_gateway_if_upstream_error(self):
         """If request to JWPlayer gives HTTP error, a bad gateway error is returned."""
-        self.key_for_media_id.return_value = 'video-key'
         self.requests_session.get.return_value.raise_for_status.side_effect = requests.HTTPError()
 
         # Check that a warning is also logged
@@ -222,7 +228,6 @@ class DownloadTests(TestCase):
 
     def test_bad_gateway_if_bad_json(self):
         """If request to JWPlayer gives un-parseable JSON, a bad gateway error is returned."""
-        self.key_for_media_id.return_value = 'video-key'
         self.requests_session.get.return_value.json.side_effect = Exception()
 
         # Check that a warning is also logged
@@ -235,8 +240,6 @@ class DownloadTests(TestCase):
 
     def test_redirects_if_no_playlist(self):
         """Redirects to legacy SMS if there is no playlist or an empty playlist."""
-        self.key_for_media_id.return_value = 'video-key'
-
         # No playlist
         self.requests_session.get.return_value.json.return_value = {}
         r = self.client.get(reverse('legacysms:download_media',
@@ -253,8 +256,6 @@ class DownloadTests(TestCase):
 
     def test_redirects_if_no_sources(self):
         """Redirects to legacy SMS if there are no sources."""
-        self.key_for_media_id.return_value = 'video-key'
-
         # No sources
         self.requests_session.get.return_value.json.return_value = {'playlist': [{}]}
         r = self.client.get(reverse('legacysms:download_media',
@@ -271,7 +272,6 @@ class DownloadTests(TestCase):
 
     def test_404_if_bad_extension(self):
         """404 is returned if an unknown extension is given"""
-        self.key_for_media_id.return_value = 'video-key'
         self.requests_session.get.return_value.json.return_value = MEDIA_INFO
 
         r = self.client.get(reverse('legacysms:download_media',
@@ -282,8 +282,6 @@ class DownloadTests(TestCase):
 
     def test_redirects_if_no_file(self):
         """Redirects to legacy SMS if the source has no file set."""
-        self.key_for_media_id.return_value = 'video-key'
-
         media_info = copy.deepcopy(MEDIA_INFO)
         media_info['playlist'][0]['sources'] = [
             {'width': 1280, 'height': 720, 'type': 'video/mp4'}

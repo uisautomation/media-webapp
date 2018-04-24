@@ -8,7 +8,6 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
 import requests
 
-from smsjwplatform.acl import build_acl
 from smsjwplatform import jwplatform as api
 
 from . import redirect as legacyredirect
@@ -36,7 +35,7 @@ def embed(request, media_id):
 
     """
     try:
-        key = api.key_for_media_id(
+        video = api.Video.from_media_id(
             media_id, preferred_media_type=request.GET.get('format', 'video'))
     except api.VideoNotFoundError:
         # If we cannot find the item, simply redirect to the legacy SMS. We ignore the format
@@ -44,13 +43,15 @@ def embed(request, media_id):
         # HTML no longer includes the format parameter.
         return legacyredirect.media_embed(media_id)
 
-    if not has_permission(request.user, key):
+    try:
+        video.check_user_access(request.user)
+    except api.VideoPermissionDenied:
         context = {
             'login_url': '%s?next=%s' % (settings.LOGIN_URL, request.path)
         } if request.user.is_anonymous else {}
         return render(request, 'legacysms/403.html', context, status=403)
 
-    url = api.player_embed_url(key, settings.JWPLATFORM_EMBED_PLAYER_KEY, 'js')
+    url = api.player_embed_url(video.key, settings.JWPLATFORM_EMBED_PLAYER_KEY, 'js')
     return render(request, 'legacysms/embed.html', {
         'embed_url': url,
     })
@@ -58,12 +59,12 @@ def embed(request, media_id):
 
 def rss_media(request, media_id):
     try:
-        key = api.key_for_media_id(media_id, preferred_media_type='video')
+        video = api.Video.from_media_id(media_id, preferred_media_type='video')
     except api.VideoNotFoundError:
         # If we cannot find the item, simply redirect to the legacy SMS.
         return legacyredirect.media_rss(media_id)
 
-    return redirect(api.pd_api_url(f'/v2/media/{key}', format='mrss'))
+    return redirect(api.pd_api_url(f'/v2/media/{video.key}', format='mrss'))
 
 
 #: Map between filename extensions passed to the download URL and the content type which should be
@@ -81,7 +82,7 @@ def download_media(request, media_id, clip_id, extension):
 
     # Locate the matching JWPlatform video resource.
     try:
-        key = api.key_for_media_id(media_id, preferred_media_type='video')
+        video = api.Video.from_media_id(media_id, preferred_media_type='video')
     except api.VideoNotFoundError:
         # If we cannot find the item, simply redirect to the legacy SMS.
         LOG.info('download: failed to find matching video for media id %s', media_id)
@@ -89,17 +90,17 @@ def download_media(request, media_id, clip_id, extension):
 
     # Fetch the media download information from JWPlatform.
     try:
-        r = DEFAULT_REQUESTS_SESSION.get(api.pd_api_url(f'/v2/media/{key}', format='json'),
+        r = DEFAULT_REQUESTS_SESSION.get(api.pd_api_url(f'/v2/media/{video.key}', format='json'),
                                          timeout=5)
     except requests.Timeout:
-        LOG.warn('Timed out when retrieving information on video "%s" from JWPlatform', key)
+        LOG.warn('Timed out when retrieving information on video "%s" from JWPlatform', video)
         return HttpResponse(status=502)  # Bad gateway
 
     # Check that the call to JWPlatform succeeded.
     try:
         r.raise_for_status()
     except requests.HTTPError as e:
-        LOG.warn('Got HTTP error when retrieving information on video "%s" from JWPlatform', key)
+        LOG.warn('Got HTTP error when retrieving information on video "%s" from JWPlatform', video)
         LOG.warn('Error was: %s', e)
         return HttpResponse(status=502)  # Bad gateway
 
@@ -108,7 +109,7 @@ def download_media(request, media_id, clip_id, extension):
         media_info = r.json()
     except Exception as e:
         LOG.warn(('Failed to parse JSON response when retrieving information on video "%s" from '
-                  'JWPlatform'), key)
+                  'JWPlatform'), video)
         LOG.warn('Error was: %s', e)
         return HttpResponse(status=502)  # Bad gateway
 
@@ -176,14 +177,3 @@ def download_media(request, media_id, clip_id, extension):
 
     # Redirect to the direct download URL for the media item.
     return redirect(url)
-
-
-def has_permission(user, key):
-    """
-    Get the media's ACL then builds a list on encapsulated ACEs then return's True
-    if any one of them returns true
-    """
-    for ace in build_acl(api.get_acl(key)):
-        if ace.has_permission(user):
-            return True
-    return False
