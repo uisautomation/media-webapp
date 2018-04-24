@@ -30,7 +30,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('ucamwebauth.urls')),
     path('status', automationcommon.views.status, name='status'),
-    path('legacy/', include('smsjwplatform.urls')),
+    path('legacy/', include('legacysms.urls', namespace='legacysms')),
 ]
 
 # Selectively enable django debug toolbar URLs. Only if the toolbar is
