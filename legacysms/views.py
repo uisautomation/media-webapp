@@ -64,6 +64,8 @@ def rss_media(request, media_id):
         # If we cannot find the item, simply redirect to the legacy SMS.
         return legacyredirect.media_rss(media_id)
 
+    video.check_user_access(request.user)
+
     return redirect(api.pd_api_url(f'/v2/media/{video.key}', format='mrss'))
 
 
