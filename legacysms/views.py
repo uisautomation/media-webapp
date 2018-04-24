@@ -46,13 +46,13 @@ def embed(request, media_id):
 
     if not has_permission(request.user, key):
         return render(
-            request, 'smsjwplatform/401.html',
+            request, 'legacysms/401.html',
             {'login_url': '%s?next=%s' % (settings.LOGIN_URL, request.path)}
             if request.user.is_anonymous else {}
         )
 
     url = api.player_embed_url(key, settings.JWPLATFORM_EMBED_PLAYER_KEY, 'js')
-    return render(request, 'smsjwplatform/embed.html', {
+    return render(request, 'legacysms/embed.html', {
         'embed_url': url,
     })
 

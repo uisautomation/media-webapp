@@ -78,14 +78,14 @@ class EmbedTest(TestCase):
             }
             r = self.client.get(reverse('legacysms:embed', kwargs={'media_id': 34}))
             self.assertEqual(r.status_code, 200)
-            self.assertTemplateUsed(r, 'smsjwplatform/401.html')
+            self.assertTemplateUsed(r, 'legacysms/401.html')
             # a login_url indicates the template will ask the user to login
             self.assertIn("login_url", r.context)
 
             self.client.force_login(User.objects.create(username='rjw57'))
             r = self.client.get(reverse('legacysms:embed', kwargs={'media_id': 34}))
             self.assertEqual(r.status_code, 200)
-            self.assertTemplateUsed(r, 'smsjwplatform/401.html')
+            self.assertTemplateUsed(r, 'legacysms/401.html')
             # no login_url indicates the template will say the user has no permission
             self.assertNotIn("login_url", r.context)
 
