@@ -45,11 +45,10 @@ def embed(request, media_id):
         return legacyredirect.media_embed(media_id)
 
     if not has_permission(request.user, key):
-        return render(
-            request, 'legacysms/401.html',
-            {'login_url': '%s?next=%s' % (settings.LOGIN_URL, request.path)}
-            if request.user.is_anonymous else {}
-        )
+        context = {
+            'login_url': '%s?next=%s' % (settings.LOGIN_URL, request.path)
+        } if request.user.is_anonymous else {}
+        return render(request, 'legacysms/403.html', context, status=403)
 
     url = api.player_embed_url(key, settings.JWPLATFORM_EMBED_PLAYER_KEY, 'js')
     return render(request, 'legacysms/embed.html', {
