@@ -6,6 +6,7 @@ psycopg2
 # corresponding pypi release. Recall that git branched may be explicitly given
 # in the VCS URL.
 git+https://github.com/uisautomation/django-automationcommon.git@master#egg=django-automationcommon
+git+https://github.com/uisautomation/django-oauthcommon.git@master#egg=django-oauthcommon
 django-ucamwebauth>=1.4.5
 
 # For managing OAuth2 tokens

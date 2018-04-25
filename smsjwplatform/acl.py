@@ -4,7 +4,7 @@ Module providing functionality for handling ACL's stored in the JWPlayer custom 
 """
 import logging
 
-from smsjwplatform.lookup import get_person_for_user
+from oauthcommon.lookup import get_person_for_user
 
 LOG = logging.getLogger(__name__)
 

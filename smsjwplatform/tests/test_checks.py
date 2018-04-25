@@ -2,7 +2,6 @@
 Test that the registered system checks work as expected.
 
 """
-from django.conf import settings
 from django.core.management import call_command
 # Q: is this a documented import location for SystemCheckError?
 from django.core.management.base import SystemCheckError
@@ -11,23 +10,28 @@ from django.test import TestCase
 
 class JWPlatformCreds(TestCase):
     """
-    JWPlatform API credentials are checked for their presence.
+    Required settings are set.
 
     """
-    def test_checks_pass(self):
+    required_settings = [
+        'JWPLATFORM_API_KEY',
+        'JWPLATFORM_API_SECRET',
+        'JWPLATFORM_EMBED_PLAYER_KEY',
+        'OAUTH2_CLIENT_ID',
+        'OAUTH2_CLIENT_SECRET',
+        'OAUTH2_TOKEN_URL',
+        'LOOKUP_ROOT',
+    ]
+
+    @staticmethod
+    def test_checks_pass():
         """The system checks should succeed in the test suite configuration."""
-        self.assertNotEqual(settings.JWPLATFORM_API_KEY, '')
-        self.assertNotEqual(settings.JWPLATFORM_API_SECRET, '')
         call_command('check')
 
-    def test_api_key_required(self):
-        """The JWPLATFORM_API_KEY setting must be non-blank."""
-        with self.settings(JWPLATFORM_API_KEY=''):
-            with self.assertRaises(SystemCheckError):
+    def test_checks_fail(self):
+        """The system check should fail if any required setting is unset or blank."""
+        for name in self.required_settings:
+            with self.settings(**{name: ''}), self.assertRaises(SystemCheckError):
                 call_command('check')
-
-    def test_api_secret_required(self):
-        """The JWPLATFORM_API_SECRET setting must be non-blank."""
-        with self.settings(JWPLATFORM_API_SECRET=''):
-            with self.assertRaises(SystemCheckError):
+            with self.settings(**{name: None}), self.assertRaises(SystemCheckError):
                 call_command('check')

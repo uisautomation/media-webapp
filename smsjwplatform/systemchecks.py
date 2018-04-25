@@ -23,9 +23,9 @@ def required_settings_check(app_configs, **kwargs):
         'JWPLATFORM_API_KEY',
         'JWPLATFORM_API_SECRET',
         'JWPLATFORM_EMBED_PLAYER_KEY',
-        'SMS_OAUTH2_CLIENT_ID',
-        'SMS_OAUTH2_CLIENT_SECRET',
-        'SMS_OAUTH2_TOKEN_URL',
+        'OAUTH2_CLIENT_ID',
+        'OAUTH2_CLIENT_SECRET',
+        'OAUTH2_TOKEN_URL',
         'LOOKUP_ROOT',
     ]
 

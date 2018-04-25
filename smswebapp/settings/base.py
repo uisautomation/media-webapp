@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'automationcommon',
+    'oauthcommon',
     'ucamwebauth',
 
     'smsjwplatform',
@@ -40,6 +41,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'smsjwplatform.middleware.user_lookup_middleware'
 ]
 
 #: Root URL patterns
@@ -162,9 +164,9 @@ JWPLATFORM_API_SECRET = os.environ.get('JWPLATFORM_API_SECRET', '')
 # Load jwplayer embed player from environment. Warn if it is unset but allow the app to load.
 JWPLATFORM_EMBED_PLAYER_KEY = os.environ.get('JWPLATFORM_EMBED_PLAYER_KEY', '')
 
-SMS_OAUTH2_CLIENT_ID = os.environ.get('SMS_OAUTH2_CLIENT_ID', '')
+OAUTH2_CLIENT_ID = os.environ.get('OAUTH2_CLIENT_ID', '')
 
-SMS_OAUTH2_CLIENT_SECRET = os.environ.get('SMS_OAUTH2_CLIENT_SECRET', '')
+OAUTH2_CLIENT_SECRET = os.environ.get('OAUTH2_CLIENT_SECRET', '')
 
 # Log output from applications to the console. Use the DJANGO_LOG_LEVEL environment variable to
 # override the default logging level.
