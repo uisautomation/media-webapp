@@ -1,0 +1,67 @@
+# docker-compose file for local development and testing with container image.
+version: '3.2'
+services:
+  db:
+    image: postgres
+    env_file:
+      - base.env
+    volumes:
+      - postgres-data-local:/var/lib/postgresql/data
+      - postgres-backup-local:/backups
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "8025:8025"
+
+  # Lookup proxy service
+  lookupproxy:
+    build:
+      context: .
+      dockerfile: ./lookupproxy.Dockerfile
+    expose:
+      - "8080"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - "lookupproxy-db"
+      - "hydra"
+    env_file:
+      - lookupproxy.env
+  lookupproxy-db:
+    image: postgres
+    env_file:
+      - lookupproxy.env
+    volumes:
+      - lookupproxy-postgres-data-local:/var/lib/postgresql/data
+      - lookupproxy-postgres-backup-local:/backups
+
+  # Hydra OAuth2 infrastructure
+  hydra:
+    image: oryd/hydra:v0.11.6-alpine
+    entrypoint: ["/tmp/start-hydra.sh"]
+    ports:
+      - "4444:4444"
+      - "4445:4445"
+    env_file:
+      - hydra.env
+    depends_on:
+      - hydra-db
+    volumes:
+      - "./start-hydra.sh:/tmp/start-hydra.sh/:ro"
+  hydra-db:
+    image: postgres
+    env_file:
+      - hydra.env
+    volumes:
+      - hydra-postgres-data-local:/var/lib/postgresql/data
+      - hydra-postgres-backup-local:/backups
+
+
+volumes:
+  # Persistent volumes for postgres database data
+  postgres-data-local:
+  postgres-backup-local:
+  lookupproxy-postgres-data-local:
+  lookupproxy-postgres-backup-local:
+  hydra-postgres-data-local:
+  hydra-postgres-backup-local:

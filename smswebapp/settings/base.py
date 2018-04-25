@@ -151,6 +151,10 @@ UCAMWEBAUTH_LOGOUT_REDIRECT = 'https://raven.cam.ac.uk/auth/logout.html'
 UCAMWEBAUTH_NOT_CURRENT = False
 
 
+# Lookup-proxy root URL
+LOOKUP_ROOT = os.environ.get('LOOKUP_ROOT')
+
+
 # jwplatform API credentials
 
 #: JWPlatform API key. Loaded from the ``JWPLATFORM_API_KEY`` environment variable.
@@ -165,6 +169,8 @@ JWPLATFORM_EMBED_PLAYER_KEY = os.environ.get('JWPLATFORM_EMBED_PLAYER_KEY', '')
 SMS_OAUTH2_CLIENT_ID = os.environ.get('SMS_OAUTH2_CLIENT_ID', '')
 
 SMS_OAUTH2_CLIENT_SECRET = os.environ.get('SMS_OAUTH2_CLIENT_SECRET', '')
+
+SMS_OAUTH2_TOKEN_URL = os.environ.get('SMS_OAUTH2_TOKEN_URL')
 
 # Log output from applications to the console. Use the DJANGO_LOG_LEVEL environment variable to
 # override the default logging level.

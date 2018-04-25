@@ -43,6 +43,3 @@ MIDDLEWARE = MIDDLEWARE + [  # noqa: F405
 ]
 
 STATIC_URL = '/static/'
-
-SMS_OAUTH2_TOKEN_URL = 'http://hydra:4444/oauth2/token'
-LOOKUP_ROOT = 'http://lookupproxy:8080/'

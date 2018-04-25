@@ -29,7 +29,7 @@ except ImportError:
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('ucamwebauth.urls')),
-    path('status', automationcommon.views.status, name='status'),
+    path('healthz', automationcommon.views.status, name='status'),
     path('legacy/', include('legacysms.urls', namespace='legacysms')),
 ]
 
