@@ -25,7 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'automationcommon',
-    'oauthcommon',
+    'automationlookup',
     'ucamwebauth',
 
     'smsjwplatform',

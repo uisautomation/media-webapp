@@ -1,4 +1,4 @@
-from oauthcommon.models import UserLookup
+from automationlookup.models import UserLookup
 from django.conf import settings
 
 
