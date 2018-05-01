@@ -172,7 +172,7 @@ OAUTH2_CLIENT_ID = os.environ.get('OAUTH2_CLIENT_ID', '')
 
 OAUTH2_CLIENT_SECRET = os.environ.get('OAUTH2_CLIENT_SECRET', '')
 
-SMS_OAUTH2_TOKEN_URL = os.environ.get('SMS_OAUTH2_TOKEN_URL')
+OAUTH2_TOKEN_URL = os.environ.get('OAUTH2_TOKEN_URL')
 
 # Log output from applications to the console. Use the DJANGO_LOG_LEVEL environment variable to
 # override the default logging level.
