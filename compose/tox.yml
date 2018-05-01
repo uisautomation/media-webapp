@@ -8,7 +8,7 @@ services:
   tox:
     build:
       context: ..
-      dockerfile: ./Dockerfile
+      dockerfile: ./compose/development.Dockerfile
     command: ["tox"]
     depends_on:
       - "db"
