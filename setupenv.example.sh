@@ -23,5 +23,5 @@ export JWPLATFORM_API_SECRET="your-api-secret-here"
 export JWPLATFORM_EMBED_PLAYER_KEY="player-key-for-embed"
 
 # OAuth2 client id & secret which the API server uses to identify itself to the OAuth2 token introspection endpoint.
-export SMS_OAUTH2_CLIENT_ID="you-sms-oauth-client-id-here"
-export SMS_OAUTH2_CLIENT_SECRET="you-sms-oauth-client-secret-here"
+export OAUTH2_CLIENT_ID="your-oauth-client-id-here"
+export OAUTH2_CLIENT_SECRET="your-oauth-client-secret-here"

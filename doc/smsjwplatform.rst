@@ -34,18 +34,6 @@ ACLs
 .. automodule:: smsjwplatform.acl
     :members:
 
-Lookup API
-----------
-
-.. automodule:: smsjwplatform.lookup
-    :members:
-
-OAuth2 Session
---------------
-
-.. automodule:: smsjwplatform.oauth2client
-    :members:
-
 Application configuration
 -------------------------
 

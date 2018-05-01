@@ -111,7 +111,7 @@ migration:
 
 .. code-block:: bash
 
-    $ docker-compose run --rm migrate
+    $ devserver
 
 To run the development server:
 
