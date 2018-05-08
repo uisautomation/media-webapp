@@ -50,39 +50,43 @@ Sometimes you'll want to ``push`` or ``pull`` from it.
 
     $ git remote add $USER git@github.com:$USER/sms-webapp.git
 
-Install any requirements
-````````````````````````
+Install docker-compose
+``````````````````````
 
-Usually you'll want to use the `tox <https://tox.readthedocs.io/>`_ automation
-tool to run tests, etc but you can run the application within your virtualenv by
-installing the default requirements:
+In order to bring up a development web server or to run tests, you will need
+docker-compose installed. `Installation instructions
+<https://docs.docker.com/compose/install/>`_ are available on Docker's site.
 
-.. code-block:: bash
+Run tests
+`````````
 
-    $ pip install -r requirements.txt
-
-Set up local configuration
-``````````````````````````
-
-The developer settings are configured to load some settings from the
-environment. These are settings which are either sensitive or dependent on
-third-party sources.
-
-It is recommended that you create a file names ``setupenv.sh`` in the root
-directory of the application and add contents similar to the following:
-
-.. literalinclude:: ../setupenv.example.sh
-    :language: bash
-
-Perform initial migration
-`````````````````````````
-
-Before running for the first time, an initial database migration must be
-performed as usual:
+Once docker-compose is installed, you can run the tests using the ``compose.sh``
+wrapper script:
 
 .. code-block:: bash
 
-    $ ./manage.py migrate
+    $ ./compose.sh tox run --rm tox
+
+Bring up a development web-server
+`````````````````````````````````
+
+If the tests pass, you should be able to bring up a development web-server:
+
+.. code-block:: bash
+
+    $ ./compose.sh development
+
+The application should now be available at http://localhost:8000/.
+
+.. note::
+
+    Some settings are loaded from environment variables. These are settings
+    which are either sensitive or dependent on third-party sources.
+    Docker-compose will warn when starting the server if these variables are not
+    set.
+
+    If you want to create a script to set these environment variables, then
+    ``setupenv.sh`` has been added to the ``.gitignore`` file.
 
 Next steps
 ``````````

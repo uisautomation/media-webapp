@@ -6,31 +6,46 @@ services:
 
 language: python
 
-# This should match the version run by tox.
+# We run tox et al inside a container so this does not necessarily have to match
+# the version of Python we're using but it is neater if it does.
 python:
   - "3.6"
 
+install:
+  - pip install codecov
+
 env:
   global:
-    - DJANGO_DB_ENGINE=django.db.backends.postgresql
-    - DJANGO_DB_NAME=postgres
-    - DJANGO_DB_HOST=localhost
-    - DJANGO_DB_USER=postgres
-    - DJANGO_DB_PASSWORD=mysecret
-
-# Pull and launch the postgres database container.
-before_install:
-  - docker pull postgres:9.6
-  - docker run -d -P -e POSTGRES_PASSWORD=$DJANGO_DB_PASSWORD postgres:9.6
-  - docker ps -a
-
-install:
-  - pip install tox codecov
+    # Set the required secrets for production to mock values here. Although they
+    # are not real values, the production image will no start without them set
+    # to some value even if the precise value does not affect the outcome of
+    # calling the health-check endpoint.
+    JWPLATFORM_API_KEY: 'api-key-mock'
+    JWPLATFORM_API_SECRET: 'api-key-secret'
+    JWPLATFORM_EMBED_PLAYER_KEY: 'embed-player-key'
 
 script:
-  - tox
+  # Run tox tests
+  - ./compose.sh tox
+      run
+      -v $PWD:/tmp/workspace
+      -e COVERAGE_FILE=/tmp/workspace/.coverage
+      -e TOXINI_ARTEFACT_DIR=/tmp/workspace/build
+      --rm
+      tox
+  - ./compose.sh tox down
+
+  # Check that the production container builds and listens on port 8000
+  - ./compose.sh production up -d
+  - ./compose/wait-for-it.sh localhost:8000 -t 15
+  - ./compose.sh production exec production_app ./manage.py migrate
+
+  # The health-check endpoint should return a non-fail status.
+  - curl --location --output /tmp/healthz --fail --silent --connect-timeout 2
+      http://localhost:8000/healthz
 
 after_success:
+  # Upload to codecov
   - codecov
 
 # From: https://docs.travis-ci.com/user/deployment/pages/

@@ -1,5 +1,5 @@
-# Install the main set of requirements
--r requirements.txt
+# Install the base set of requirements
+-r ./base.txt
 
 # Additional requirements useful for developers of the webapp
 

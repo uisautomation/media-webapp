@@ -1,0 +1,28 @@
+# docker-compose file for local development and testing with container image.
+#
+# Extends compose/base.yml so launch services via:
+#
+#   docker-compose -f compose/base.yml -f compose/production.yml
+version: '3.2'
+services:
+  # Main web application service
+  production_app:
+    build:
+      context: ..
+      dockerfile: ./Dockerfile
+    expose:
+      - "8080"
+    ports:
+      - "8000:8080"
+    depends_on:
+      - "db"
+      - "mailhog"
+      - "hydra"
+      - "lookupproxy"
+    environment:
+      # Teleport JWPlatform credentials and configuration from host environment.
+      JWPLATFORM_API_KEY: "${JWPLATFORM_API_KEY}"
+      JWPLATFORM_API_SECRET: "${JWPLATFORM_API_SECRET}"
+      JWPLATFORM_EMBED_PLAYER_KEY: "${JWPLATFORM_EMBED_PLAYER_KEY}"
+    env_file:
+      - base.env
