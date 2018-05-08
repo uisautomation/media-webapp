@@ -1,0 +1,314 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>The Web App Project &mdash; Streaming Media Service Webapp  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="JWPlatform Integration Application" href="smsjwplatform.html" />
+    <link rel="prev" title="Configuration" href="configuration.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Streaming Media Service Webapp
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer’s guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">The Web App Project</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#settings">Settings</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-smswebapp.settings">Generic settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-smswebapp.settings.tox">Test-suite specific settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-smswebapp.settings.developer">Developer specific settings</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#custom-test-suite-runner">Custom test suite runner</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="smsjwplatform.html">JWPlatform Integration Application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy-sms.html">Support for Legacy SMS</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Streaming Media Service Webapp</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>The Web App Project</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/smswebapp.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="the-web-app-project">
+<h1>The Web App Project<a class="headerlink" href="#the-web-app-project" title="Permalink to this headline">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">smswebapp</span></code> project contains top-level configuration and URL routes for
+the entire web application.</p>
+<div class="section" id="settings">
+<h2>Settings<a class="headerlink" href="#settings" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">smswebapp</span></code> project ships a number of settings files.</p>
+<div class="section" id="module-smswebapp.settings">
+<span id="generic-settings"></span><span id="id1"></span><h3>Generic settings<a class="headerlink" href="#module-smswebapp.settings" title="Permalink to this headline">¶</a></h3>
+<p>The default <a class="reference internal" href="#module-smswebapp.settings" title="smswebapp.settings"><code class="xref py py-mod docutils literal notranslate"><span class="pre">smswebapp.settings</span></code></a> module contains settings which are
+common to most deployment environments.</p>
+</div>
+<div class="section" id="module-smswebapp.settings.tox">
+<span id="test-suite-specific-settings"></span><span id="settings-testsuite"></span><h3>Test-suite specific settings<a class="headerlink" href="#module-smswebapp.settings.tox" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">smswebapp.settings_testsuite</span></code> module contains settings which are
+specific to the test suite environment. The default <code class="docutils literal notranslate"><span class="pre">tox</span></code> test environment
+uses this settings module when running the test suite.</p>
+<dl class="data">
+<dt id="smswebapp.settings.tox.JWPLATFORM_API_KEY">
+<code class="descclassname">smswebapp.settings.tox.</code><code class="descname">JWPLATFORM_API_KEY</code><em class="property"> = 'xxx-not-a-key-xxx'</em><a class="headerlink" href="#smswebapp.settings.tox.JWPLATFORM_API_KEY" title="Permalink to this definition">¶</a></dt>
+<dd><p>When running the test suite, we do not call any external APIs but we <em>do</em> check that the
+<code class="docutils literal notranslate"><span class="pre">JWPLATFORM_...</span></code> settings must be set.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="smswebapp.settings.tox.JWPLATFORM_EMBED_PLAYER_KEY">
+<code class="descclassname">smswebapp.settings.tox.</code><code class="descname">JWPLATFORM_EMBED_PLAYER_KEY</code><em class="property"> = 'someplayer'</em><a class="headerlink" href="#smswebapp.settings.tox.JWPLATFORM_EMBED_PLAYER_KEY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use a fake player key for embedding.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="smswebapp.settings.tox.LOGGING">
+<code class="descclassname">smswebapp.settings.tox.</code><code class="descname">LOGGING</code><em class="property"> = None</em><a class="headerlink" href="#smswebapp.settings.tox.LOGGING" title="Permalink to this definition">¶</a></dt>
+<dd><p>Be less verbose in logging with tox</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="smswebapp.settings.tox.STATIC_ROOT">
+<code class="descclassname">smswebapp.settings.tox.</code><code class="descname">STATIC_ROOT</code><em class="property"> = '/tmp/workspace/build/static'</em><a class="headerlink" href="#smswebapp.settings.tox.STATIC_ROOT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Static files are collected into a directory determined by the tox
+configuration. See the tox.ini file.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="smswebapp.settings.tox.TEST_RUNNER">
+<code class="descclassname">smswebapp.settings.tox.</code><code class="descname">TEST_RUNNER</code><em class="property"> = 'smswebapp.test.runner.BufferedDiscoverRunner'</em><a class="headerlink" href="#smswebapp.settings.tox.TEST_RUNNER" title="Permalink to this definition">¶</a></dt>
+<dd><p>The default test runner is changed to one which captures stdout and stderr
+when running tests.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-smswebapp.settings.developer">
+<span id="developer-specific-settings"></span><span id="settings-developer"></span><h3>Developer specific settings<a class="headerlink" href="#module-smswebapp.settings.developer" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="custom-test-suite-runner">
+<h2>Custom test suite runner<a class="headerlink" href="#custom-test-suite-runner" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="#settings-testsuite"><span class="std std-ref">test suite settings</span></a> overrides the
+<code class="docutils literal notranslate"><span class="pre">TEST_RUNNER</span></code> setting to point to
+<a class="reference internal" href="#smswebapp.test.runner.BufferedTextTestRunner" title="smswebapp.test.runner.BufferedTextTestRunner"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedTextTestRunner</span></code></a>. This runner captures
+output to stdout and stderr and only reports the output if a test fails. This
+helps make our tests a little less noisy.</p>
+<dl class="class">
+<dt id="smswebapp.test.runner.BufferedDiscoverRunner">
+<em class="property">class </em><code class="descclassname">smswebapp.test.runner.</code><code class="descname">BufferedDiscoverRunner</code><span class="sig-paren">(</span><em>pattern=None</em>, <em>top_level=None</em>, <em>verbosity=1</em>, <em>interactive=True</em>, <em>failfast=False</em>, <em>keepdb=False</em>, <em>reverse=False</em>, <em>debug_mode=False</em>, <em>debug_sql=False</em>, <em>parallel=0</em>, <em>tags=None</em>, <em>exclude_tags=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#smswebapp.test.runner.BufferedDiscoverRunner" title="Permalink to this definition">¶</a></dt>
+<dd><p>A sub-class of <code class="xref py py-class docutils literal notranslate"><span class="pre">django.test.runner.DiscoverRunner</span></code> which has
+exactly the same behaviour except that the <code class="xref py py-attr docutils literal notranslate"><span class="pre">test_runner</span></code>
+attribute is set to <a class="reference internal" href="#smswebapp.test.runner.BufferedTextTestRunner" title="smswebapp.test.runner.BufferedTextTestRunner"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedTextTestRunner</span></code></a>.</p>
+<p>The upshot of this is that output to stdout and stderror is captured and
+only reported on test failure.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="smswebapp.test.runner.BufferedTextTestRunner">
+<em class="property">class </em><code class="descclassname">smswebapp.test.runner.</code><code class="descname">BufferedTextTestRunner</code><span class="sig-paren">(</span><em>stream=None</em>, <em>descriptions=True</em>, <em>verbosity=1</em>, <em>failfast=False</em>, <em>buffer=True</em>, <em>resultclass=None</em>, <em>warnings=None</em>, <em>*</em>, <em>tb_locals=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#smswebapp.test.runner.BufferedTextTestRunner" title="Permalink to this definition">¶</a></dt>
+<dd><p>A sub-class of <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.TextTestRunner</span></code> with identical behaviour
+except that the <em>buffer</em> keyword argument to the constructor defaults to
+True.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="smsjwplatform.html" class="btn btn-neutral float-right" title="JWPlatform Integration Application" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="configuration.html" class="btn btn-neutral" title="Configuration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, University of Cambridge Information Services.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

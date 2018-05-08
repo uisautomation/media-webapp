@@ -1,0 +1,702 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>JWPlatform Integration Application &mdash; Streaming Media Service Webapp  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Support for Legacy SMS" href="legacy-sms.html" />
+    <link rel="prev" title="The Web App Project" href="smswebapp.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Streaming Media Service Webapp
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer’s guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="smswebapp.html">The Web App Project</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">JWPlatform Integration Application</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-smsjwplatform.defaultsettings">Settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-smsjwplatform.views">Views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-smsjwplatform.urls">URLs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-smsjwplatform.jwplatform">JWPlatform API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-smsjwplatform.acl">ACLs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-smsjwplatform.apps">Application configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-smsjwplatform.systemchecks">System checks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="legacy-sms.html">Support for Legacy SMS</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Streaming Media Service Webapp</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>JWPlatform Integration Application</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/smsjwplatform.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-smsjwplatform">
+<span id="jwplatform-integration-application"></span><h1>JWPlatform Integration Application<a class="headerlink" href="#module-smsjwplatform" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference internal" href="#module-smsjwplatform" title="smsjwplatform"><code class="xref py py-mod docutils literal notranslate"><span class="pre">smsjwplatform</span></code></a> application provides integration with the JWPlatform API.</p>
+<div class="section" id="module-smsjwplatform.defaultsettings">
+<span id="settings"></span><h2>Settings<a class="headerlink" href="#module-smsjwplatform.defaultsettings" title="Permalink to this headline">¶</a></h2>
+<p>Default settings values for the <a class="reference internal" href="#module-smsjwplatform" title="smsjwplatform"><code class="xref py py-mod docutils literal notranslate"><span class="pre">smsjwplatform</span></code></a> application.</p>
+<dl class="data">
+<dt id="smsjwplatform.defaultsettings.JWPLATFORM_API_BASE_URL">
+<code class="descclassname">smsjwplatform.defaultsettings.</code><code class="descname">JWPLATFORM_API_BASE_URL</code><em class="property"> = 'https://cdn.jwplayer.com/'</em><a class="headerlink" href="#smsjwplatform.defaultsettings.JWPLATFORM_API_BASE_URL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base URL for the JWPlatform API. This can usually be left at its default value.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="smsjwplatform.defaultsettings.JWPLATFORM_API_KEY">
+<code class="descclassname">smsjwplatform.defaultsettings.</code><code class="descname">JWPLATFORM_API_KEY</code><em class="property"> = None</em><a class="headerlink" href="#smsjwplatform.defaultsettings.JWPLATFORM_API_KEY" title="Permalink to this definition">¶</a></dt>
+<dd><p>The jwplatform API key. Defaults to the empty string but a custom system check ensures that this
+setting has a non-empty value.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="smsjwplatform.defaultsettings.JWPLATFORM_API_SECRET">
+<code class="descclassname">smsjwplatform.defaultsettings.</code><code class="descname">JWPLATFORM_API_SECRET</code><em class="property"> = None</em><a class="headerlink" href="#smsjwplatform.defaultsettings.JWPLATFORM_API_SECRET" title="Permalink to this definition">¶</a></dt>
+<dd><p>The jwplatform API secret. Defaults to the empty string but a custom system check ensures that this
+setting has a non-empty value.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="smsjwplatform.defaultsettings.JWPLATFORM_EMBED_PLAYER_KEY">
+<code class="descclassname">smsjwplatform.defaultsettings.</code><code class="descname">JWPLATFORM_EMBED_PLAYER_KEY</code><em class="property"> = None</em><a class="headerlink" href="#smsjwplatform.defaultsettings.JWPLATFORM_EMBED_PLAYER_KEY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Player key for the embedded player used by the <code class="xref py py-mod docutils literal notranslate"><span class="pre">embed</span></code> view.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="smsjwplatform.defaultsettings.JWPLATFORM_SIGNATURE_TIMEOUT">
+<code class="descclassname">smsjwplatform.defaultsettings.</code><code class="descname">JWPLATFORM_SIGNATURE_TIMEOUT</code><em class="property"> = 3600</em><a class="headerlink" href="#smsjwplatform.defaultsettings.JWPLATFORM_SIGNATURE_TIMEOUT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lifetime of signed URL in seconds.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference external" href="https://developer.jwplayer.com/jw-platform/docs/developer-guide/delivery-api/legacy-url-token-signing/">JWPlatform documentation on URL signing</a>.</p>
+</div>
+</dd></dl>
+
+<dl class="data">
+<dt id="smsjwplatform.defaultsettings.LOOKUP_PEOPLE_CACHE_LIFETIME">
+<code class="descclassname">smsjwplatform.defaultsettings.</code><code class="descname">LOOKUP_PEOPLE_CACHE_LIFETIME</code><em class="property"> = 1800</em><a class="headerlink" href="#smsjwplatform.defaultsettings.LOOKUP_PEOPLE_CACHE_LIFETIME" title="Permalink to this definition">¶</a></dt>
+<dd><p>Responses to the people endpoint of lookupproxy are cached to increase performance. We assume that
+lookup details on people change rarely. This setting specifies the lifetime of a single cached
+lookup resource for a person in seconds.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="smsjwplatform.defaultsettings.LOOKUP_PEOPLE_ID_SCHEME">
+<code class="descclassname">smsjwplatform.defaultsettings.</code><code class="descname">LOOKUP_PEOPLE_ID_SCHEME</code><em class="property"> = 'mock'</em><a class="headerlink" href="#smsjwplatform.defaultsettings.LOOKUP_PEOPLE_ID_SCHEME" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ID scheme to use when querying people in LOOKUP. This is almost always ‘crsid’ unless you are
+using test raven, in which case it is ‘mock’.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="smsjwplatform.defaultsettings.LOOKUP_ROOT">
+<code class="descclassname">smsjwplatform.defaultsettings.</code><code class="descname">LOOKUP_ROOT</code><em class="property"> = None</em><a class="headerlink" href="#smsjwplatform.defaultsettings.LOOKUP_ROOT" title="Permalink to this definition">¶</a></dt>
+<dd><p>URL of the lookup proxy’s API root.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="smsjwplatform.defaultsettings.OAUTH2_CLIENT_ID">
+<code class="descclassname">smsjwplatform.defaultsettings.</code><code class="descname">OAUTH2_CLIENT_ID</code><em class="property"> = None</em><a class="headerlink" href="#smsjwplatform.defaultsettings.OAUTH2_CLIENT_ID" title="Permalink to this definition">¶</a></dt>
+<dd><p>OAuth2 client id which the API server uses to identify itself to the OAuth2 token introspection
+endpoint.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="smsjwplatform.defaultsettings.OAUTH2_CLIENT_SECRET">
+<code class="descclassname">smsjwplatform.defaultsettings.</code><code class="descname">OAUTH2_CLIENT_SECRET</code><em class="property"> = None</em><a class="headerlink" href="#smsjwplatform.defaultsettings.OAUTH2_CLIENT_SECRET" title="Permalink to this definition">¶</a></dt>
+<dd><p>OAuth2 client secret which the API server uses to identify itself to the OAuth2 token introspection
+endpoint.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="smsjwplatform.defaultsettings.OAUTH2_LOOKUP_SCOPES">
+<code class="descclassname">smsjwplatform.defaultsettings.</code><code class="descname">OAUTH2_LOOKUP_SCOPES</code><em class="property"> = ['lookup:anonymous']</em><a class="headerlink" href="#smsjwplatform.defaultsettings.OAUTH2_LOOKUP_SCOPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of OAuth2 scopes the API server will request for the token it will use with lookup.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="smsjwplatform.defaultsettings.OAUTH2_MAX_RETRIES">
+<code class="descclassname">smsjwplatform.defaultsettings.</code><code class="descname">OAUTH2_MAX_RETRIES</code><em class="property"> = 5</em><a class="headerlink" href="#smsjwplatform.defaultsettings.OAUTH2_MAX_RETRIES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maximum number of retries when fetching URLs from the OAuth2 endpoint or OAuth2 authenticated URLs.
+This applies only to failed DNS lookups, socket connections and connection timeouts, never to
+requests where data has made it to the server.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="smsjwplatform.defaultsettings.OAUTH2_TOKEN_URL">
+<code class="descclassname">smsjwplatform.defaultsettings.</code><code class="descname">OAUTH2_TOKEN_URL</code><em class="property"> = None</em><a class="headerlink" href="#smsjwplatform.defaultsettings.OAUTH2_TOKEN_URL" title="Permalink to this definition">¶</a></dt>
+<dd><p>URL of the OAuth2 token endpoint the API server uses to request an authorisation token to perform
+OAuth2 token introspection.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-smsjwplatform.views">
+<span id="views"></span><h2>Views<a class="headerlink" href="#module-smsjwplatform.views" title="Permalink to this headline">¶</a></h2>
+<p>Views</p>
+</div>
+<div class="section" id="module-smsjwplatform.urls">
+<span id="urls"></span><h2>URLs<a class="headerlink" href="#module-smsjwplatform.urls" title="Permalink to this headline">¶</a></h2>
+<p>Default URL patterns for the <a class="reference internal" href="#module-smsjwplatform" title="smsjwplatform"><code class="xref py py-mod docutils literal notranslate"><span class="pre">smsjwplatform</span></code></a> application are provided by the
+<a class="reference internal" href="#module-smsjwplatform.urls" title="smsjwplatform.urls"><code class="xref py py-mod docutils literal notranslate"><span class="pre">urls</span></code></a> module. You can use the default mapping by adding the following to your global
+<code class="docutils literal notranslate"><span class="pre">urlpatterns</span></code>:</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">path</span><span class="p">,</span> <span class="n">include</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># ...</span>
+    <span class="n">path</span><span class="p">(</span><span class="s1">&#39;sms/&#39;</span><span class="p">,</span> <span class="n">include</span><span class="p">(</span><span class="s1">&#39;smsjwplatform.urls&#39;</span><span class="p">)),</span>
+    <span class="c1"># ...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="module-smsjwplatform.jwplatform">
+<span id="jwplatform-api"></span><h2>JWPlatform API<a class="headerlink" href="#module-smsjwplatform.jwplatform" title="Permalink to this headline">¶</a></h2>
+<p>Interaction with the JWPlatform API.</p>
+<dl class="exception">
+<dt id="smsjwplatform.jwplatform.VideoNotFoundError">
+<em class="property">exception </em><code class="descclassname">smsjwplatform.jwplatform.</code><code class="descname">VideoNotFoundError</code><a class="headerlink" href="#smsjwplatform.jwplatform.VideoNotFoundError" title="Permalink to this definition">¶</a></dt>
+<dd><p>The provided SMS media ID does not have a corresponding JWPlatform video.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="smsjwplatform.jwplatform.player_embed_url">
+<code class="descclassname">smsjwplatform.jwplatform.</code><code class="descname">player_embed_url</code><span class="sig-paren">(</span><em>key</em>, <em>player</em>, <em>format='js'</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.jwplatform.player_embed_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a signed URL pointing to a player initialised with a specific media item.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>key</strong> – JWPlatform key for the media.</li>
+<li><strong>player</strong> – JWPlatform player key.</li>
+<li><strong>format</strong> – (optional) Either <code class="docutils literal notranslate"><span class="pre">'js'</span></code> or <code class="docutils literal notranslate"><span class="pre">'html'</span></code> depending on whether you want an
+embeddable player or a HTML page with a player on it.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference external" href="https://developer.jwplayer.com/jw-platform/docs/delivery-api-reference/#!/players/get_players_content_id_player_id_embed_type">JWPlatform endpoint documentation</a>.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="smsjwplatform.jwplatform.get_jwplatform_client">
+<code class="descclassname">smsjwplatform.jwplatform.</code><code class="descname">get_jwplatform_client</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.jwplatform.get_jwplatform_client" title="Permalink to this definition">¶</a></dt>
+<dd><p>Examine the settings and return an authenticated <code class="xref py py-class docutils literal notranslate"><span class="pre">jwplatform.Client</span></code> instance.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last">The <a class="reference external" href="https://github.com/jwplayer/jwplatform-py">jwplatform module on GitHub</a>.</p>
+</div>
+</dd></dl>
+
+<dl class="exception">
+<dt id="smsjwplatform.jwplatform.VideoPermissionDenied">
+<em class="property">exception </em><code class="descclassname">smsjwplatform.jwplatform.</code><code class="descname">VideoPermissionDenied</code><a class="headerlink" href="#smsjwplatform.jwplatform.VideoPermissionDenied" title="Permalink to this definition">¶</a></dt>
+<dd><p>A sub-class of <code class="xref py py-exc docutils literal notranslate"><span class="pre">django.core.exceptions.PermissionDenied</span></code> used to indicate that the
+current user does not match the ACL of a video. See: <code class="xref py py-func docutils literal notranslate"><span class="pre">check_user_access()</span></code>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="smsjwplatform.jwplatform.Video">
+<em class="property">class </em><code class="descclassname">smsjwplatform.jwplatform.</code><code class="descname">Video</code><a class="headerlink" href="#smsjwplatform.jwplatform.Video" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dict subclass representing a video resource object as returned by the JWPlatform API.</p>
+<p>This subclass provides some convenience accessors for various common resource keys but, since
+this is a dict subclass, the values can be retrieved using <code class="docutils literal notranslate"><span class="pre">[]</span></code> or <code class="docutils literal notranslate"><span class="pre">get</span></code> as per usual.</p>
+<dl class="attribute">
+<dt id="smsjwplatform.jwplatform.Video.key">
+<code class="descname">key</code><a class="headerlink" href="#smsjwplatform.jwplatform.Video.key" title="Permalink to this definition">¶</a></dt>
+<dd><p>JWPlatform key for this video or <code class="docutils literal notranslate"><span class="pre">None</span></code> if it has none.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="smsjwplatform.jwplatform.Video.acl">
+<code class="descname">acl</code><a class="headerlink" href="#smsjwplatform.jwplatform.Video.acl" title="Permalink to this definition">¶</a></dt>
+<dd><p>The parsed ACL custom prop on the video. If no ACL is present, the WORLD ACL is assumed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="smsjwplatform.jwplatform.Video.check_user_access">
+<code class="descname">check_user_access</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.jwplatform.Video.check_user_access" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether the specified Django user has permission to access this video.
+Raises <a class="reference internal" href="#smsjwplatform.jwplatform.VideoPermissionDenied" title="smsjwplatform.jwplatform.VideoPermissionDenied"><code class="xref py py-exc docutils literal notranslate"><span class="pre">VideoPermissionDenied</span></code></a> if the user does not match the ACL.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="smsjwplatform.jwplatform.Video.from_key">
+<em class="property">classmethod </em><code class="descname">from_key</code><span class="sig-paren">(</span><em>key</em>, <em>client=None</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.jwplatform.Video.from_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a <a class="reference internal" href="#smsjwplatform.jwplatform.Video" title="smsjwplatform.jwplatform.Video"><code class="xref py py-class docutils literal notranslate"><span class="pre">Video</span></code></a> instance corresponding to the JWPlatform key passed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>key</strong> – JWPlatform key for the media.</li>
+<li><strong>client</strong> – (optional) an authenticated JWPlatform client as returned by
+<a class="reference internal" href="#smsjwplatform.jwplatform.get_jwplatform_client" title="smsjwplatform.jwplatform.get_jwplatform_client"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_jwplatform_client()</span></code></a>. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, call <a class="reference internal" href="#smsjwplatform.jwplatform.get_jwplatform_client" title="smsjwplatform.jwplatform.get_jwplatform_client"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_jwplatform_client()</span></code></a>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">jwplatform.errors.JWPlatformNotFoundError</span></code> if the video is not found.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="smsjwplatform.jwplatform.Video.from_media_id">
+<em class="property">classmethod </em><code class="descname">from_media_id</code><span class="sig-paren">(</span><em>media_id</em>, <em>preferred_media_type='video'</em>, <em>client=None</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.jwplatform.Video.from_media_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a <a class="reference internal" href="#smsjwplatform.jwplatform.Video" title="smsjwplatform.jwplatform.Video"><code class="xref py py-class docutils literal notranslate"><span class="pre">Video</span></code></a> instance which matches the passed legacy SMS media ID or raise
+<a class="reference internal" href="#smsjwplatform.jwplatform.VideoNotFoundError" title="smsjwplatform.jwplatform.VideoNotFoundError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">VideoNotFoundError</span></code></a> if no such video could be found.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>media_id</strong> (<em>int</em>) – the SMS media ID of the required video</li>
+<li><strong>preferred_media_type</strong> – (optional) the preferred media type to return. One of
+<code class="docutils literal notranslate"><span class="pre">'video'</span></code> or <code class="docutils literal notranslate"><span class="pre">'audio'</span></code>.</li>
+<li><strong>client</strong> – (options) an authenticated JWPlatform client as returned by
+<a class="reference internal" href="#smsjwplatform.jwplatform.get_jwplatform_client" title="smsjwplatform.jwplatform.get_jwplatform_client"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_jwplatform_client()</span></code></a>. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, call <a class="reference internal" href="#smsjwplatform.jwplatform.get_jwplatform_client" title="smsjwplatform.jwplatform.get_jwplatform_client"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_jwplatform_client()</span></code></a>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#smsjwplatform.jwplatform.VideoNotFoundError" title="smsjwplatform.jwplatform.VideoNotFoundError"><code class="xref py py-class docutils literal notranslate"><span class="pre">VideoNotFoundError</span></code></a> if the media id does not correspond to a
+JWPlatform video.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="smsjwplatform.jwplatform.parse_custom_field">
+<code class="descclassname">smsjwplatform.jwplatform.</code><code class="descname">parse_custom_field</code><span class="sig-paren">(</span><em>expected_type</em>, <em>field</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.jwplatform.parse_custom_field" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses a custom field content of the form “&lt;expected_type&gt;:&lt;value&gt;:”. Returns the value.
+Raises ValueError if the field is of the wrong form or type.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="smsjwplatform.jwplatform.signed_url">
+<code class="descclassname">smsjwplatform.jwplatform.</code><code class="descname">signed_url</code><span class="sig-paren">(</span><em>url</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.jwplatform.signed_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Augment a JWPlatform URL with an expiration time and a signature as outlined in <a class="reference external" href="https://developer.jwplayer.com/jw-platform/docs/developer-guide/delivery-api/legacy-url-token-signing/">the jwplatform
+documentation on signatures</a>.</p>
+<p>The signature timeout is specified by the
+<a class="reference internal" href="#smsjwplatform.defaultsettings.JWPLATFORM_SIGNATURE_TIMEOUT" title="smsjwplatform.defaultsettings.JWPLATFORM_SIGNATURE_TIMEOUT"><code class="xref py py-data docutils literal notranslate"><span class="pre">JWPLATFORM_SIGNATURE_TIMEOUT</span></code></a> setting.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>url</strong> – The JWPlatform API URL to add a query string to.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the API URL with “exp” and “sig” query parameters appended.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="smsjwplatform.jwplatform.generate_token">
+<code class="descclassname">smsjwplatform.jwplatform.</code><code class="descname">generate_token</code><span class="sig-paren">(</span><em>resource</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.jwplatform.generate_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a signed JWT for the specified resource using the
+<a class="reference external" href="https://developer.jwplayer.com/jw-platform/docs/developer-guide/delivery-api/url-token-signing/">procedure</a>
+outlined in the JWPlatform documentation.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="smsjwplatform.jwplatform.pd_api_url">
+<code class="descclassname">smsjwplatform.jwplatform.</code><code class="descname">pd_api_url</code><span class="sig-paren">(</span><em>resource</em>, <em>**parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.jwplatform.pd_api_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a JWPlatform Platform Delivery API URL with the request has the appropriate JWT
+attached.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>resource</strong> (<em>str</em>) – path to resource, e.g. <code class="docutils literal notranslate"><span class="pre">/v2/media/123456</span></code>. Must start with a slash.</li>
+<li><strong>parameters</strong> (<em>dict</em>) – remaining keyword arguments are passed as URL parameters</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">response from API server.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">requests.Response</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>ValueError</strong> – if the resource name does not start with a slash.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last">Platform Delivery API reference at
+<a class="reference external" href="https://developer.jwplayer.com/jw-platform/docs/delivery-api-reference/">https://developer.jwplayer.com/jw-platform/docs/delivery-api-reference/</a>.</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="module-smsjwplatform.acl">
+<span id="acls"></span><h2>ACLs<a class="headerlink" href="#module-smsjwplatform.acl" title="Permalink to this headline">¶</a></h2>
+<p>Module providing functionality for handling ACL’s stored in the JWPlayer custom property - sms_acl.</p>
+<dl class="class">
+<dt id="smsjwplatform.acl.AceCam">
+<em class="property">class </em><code class="descclassname">smsjwplatform.acl.</code><code class="descname">AceCam</code><a class="headerlink" href="#smsjwplatform.acl.AceCam" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class encapsulates an ACE of the form CAM</p>
+<dl class="staticmethod">
+<dt id="smsjwplatform.acl.AceCam.has_permission">
+<em class="property">static </em><code class="descname">has_permission</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.acl.AceCam.has_permission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Any authenticated user can see the media</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="smsjwplatform.acl.AceCam.parse">
+<em class="property">static </em><code class="descname">parse</code><span class="sig-paren">(</span><em>ace</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.acl.AceCam.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses an ACE and constructs/return an AceCam if it matches or None if it doesn’t</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="smsjwplatform.acl.AceGroup">
+<em class="property">class </em><code class="descclassname">smsjwplatform.acl.</code><code class="descname">AceGroup</code><span class="sig-paren">(</span><em>groupid</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.acl.AceGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class encapsulates an ACE of the form GROUP_{groupid}</p>
+<dl class="method">
+<dt id="smsjwplatform.acl.AceGroup.has_permission">
+<code class="descname">has_permission</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.acl.AceGroup.has_permission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only a user belonging to the ‘groupid’ lookup group can see the media</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="smsjwplatform.acl.AceGroup.parse">
+<em class="property">static </em><code class="descname">parse</code><span class="sig-paren">(</span><em>ace</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.acl.AceGroup.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses an ACE and constructs/return an AceGroup if it matches or None if it doesn’t</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="smsjwplatform.acl.AceInst">
+<em class="property">class </em><code class="descclassname">smsjwplatform.acl.</code><code class="descname">AceInst</code><span class="sig-paren">(</span><em>instid</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.acl.AceInst" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class encapsulates an ACE of the form INST_{instid}</p>
+<dl class="method">
+<dt id="smsjwplatform.acl.AceInst.has_permission">
+<code class="descname">has_permission</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.acl.AceInst.has_permission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only a user belonging to the ‘instid’ lookup institution can see the media</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="smsjwplatform.acl.AceInst.parse">
+<em class="property">static </em><code class="descname">parse</code><span class="sig-paren">(</span><em>ace</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.acl.AceInst.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses an ACE and constructs/return an AceInst if it matches or None if it doesn’t</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="smsjwplatform.acl.AceUser">
+<em class="property">class </em><code class="descclassname">smsjwplatform.acl.</code><code class="descname">AceUser</code><span class="sig-paren">(</span><em>crsid</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.acl.AceUser" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class encapsulates an ACE of the form USER_{crsid}</p>
+<dl class="method">
+<dt id="smsjwplatform.acl.AceUser.has_permission">
+<code class="descname">has_permission</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.acl.AceUser.has_permission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only a user with this CRSID can see the media</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="smsjwplatform.acl.AceUser.parse">
+<em class="property">static </em><code class="descname">parse</code><span class="sig-paren">(</span><em>ace</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.acl.AceUser.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses an ACE and constructs/return an AceUser if it matches or None if it doesn’t</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="smsjwplatform.acl.AceWorld">
+<em class="property">class </em><code class="descclassname">smsjwplatform.acl.</code><code class="descname">AceWorld</code><a class="headerlink" href="#smsjwplatform.acl.AceWorld" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class encapsulates an ACE of the form WORLD</p>
+<dl class="staticmethod">
+<dt id="smsjwplatform.acl.AceWorld.has_permission">
+<em class="property">static </em><code class="descname">has_permission</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.acl.AceWorld.has_permission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Anyone can see the media</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="smsjwplatform.acl.AceWorld.parse">
+<em class="property">static </em><code class="descname">parse</code><span class="sig-paren">(</span><em>ace</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.acl.AceWorld.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses an ACE and constructs/return an AceWorld if it matches or None if it doesn’t</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="smsjwplatform.acl.build_acl">
+<code class="descclassname">smsjwplatform.acl.</code><code class="descname">build_acl</code><span class="sig-paren">(</span><em>acl</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.acl.build_acl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterates over the acl and encapsulates each ACE with the corresponding Ace* Class.</p>
+<p>TODO there are performance enhancements that can be made
+(Eg only returning AceWorld, if it exists) but I have kept thing simple for now.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>acl</strong> – access control list</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of Ace* objects</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-smsjwplatform.apps">
+<span id="application-configuration"></span><h2>Application configuration<a class="headerlink" href="#module-smsjwplatform.apps" title="Permalink to this headline">¶</a></h2>
+<p>Django configuration for the <a class="reference internal" href="#module-smsjwplatform" title="smsjwplatform"><code class="xref py py-mod docutils literal notranslate"><span class="pre">smsjwplatform</span></code></a> application.</p>
+<dl class="class">
+<dt id="smsjwplatform.apps.SMSJWPlatformConfig">
+<em class="property">class </em><code class="descclassname">smsjwplatform.apps.</code><code class="descname">SMSJWPlatformConfig</code><span class="sig-paren">(</span><em>app_name</em>, <em>app_module</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.apps.SMSJWPlatformConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configuration for smsjwplatform application.</p>
+<dl class="attribute">
+<dt id="smsjwplatform.apps.SMSJWPlatformConfig.name">
+<code class="descname">name</code><em class="property"> = 'smsjwplatform'</em><a class="headerlink" href="#smsjwplatform.apps.SMSJWPlatformConfig.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The short name for this application.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="smsjwplatform.apps.SMSJWPlatformConfig.ready">
+<code class="descname">ready</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.apps.SMSJWPlatformConfig.ready" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform application initialisation once the Django platform has been initialised.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="smsjwplatform.apps.SMSJWPlatformConfig.verbose_name">
+<code class="descname">verbose_name</code><em class="property"> = 'SMS integration with the JWPlatform API'</em><a class="headerlink" href="#smsjwplatform.apps.SMSJWPlatformConfig.verbose_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The human-readable verbose name for this application.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-smsjwplatform.systemchecks">
+<span id="system-checks"></span><h2>System checks<a class="headerlink" href="#module-smsjwplatform.systemchecks" title="Permalink to this headline">¶</a></h2>
+<p>Custom system checks for the <a class="reference internal" href="#module-smsjwplatform" title="smsjwplatform"><code class="xref py py-mod docutils literal notranslate"><span class="pre">smsjwplatform</span></code></a> application.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last">The <a class="reference external" href="https://docs.djangoproject.com/en/2.0/ref/checks/">Django System Check Framework</a>.</p>
+</div>
+<dl class="function">
+<dt id="smsjwplatform.systemchecks.required_settings_check">
+<code class="descclassname">smsjwplatform.systemchecks.</code><code class="descname">required_settings_check</code><span class="sig-paren">(</span><em>app_configs</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.systemchecks.required_settings_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>A system check ensuring that all required settings are specified.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference external" href="https://docs.djangoproject.com/en/2.0/ref/checks/">https://docs.djangoproject.com/en/2.0/ref/checks/</a></p>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="legacy-sms.html" class="btn btn-neutral float-right" title="Support for Legacy SMS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="smswebapp.html" class="btn btn-neutral" title="The Web App Project" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, University of Cambridge Information Services.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

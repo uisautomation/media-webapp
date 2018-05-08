@@ -1,0 +1,395 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Support for Legacy SMS &mdash; Streaming Media Service Webapp  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="JWPlatform Integration Application" href="smsjwplatform.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Streaming Media Service Webapp
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer’s guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="smswebapp.html">The Web App Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="smsjwplatform.html">JWPlatform Integration Application</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Support for Legacy SMS</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#apache-configuration">Apache Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-legacysms.views">Views and serializers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-legacysms.redirect">Redirection back to legacy SMS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-legacysms.defaultsettings">Settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-legacysms.apps">Application configuration</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Streaming Media Service Webapp</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Support for Legacy SMS</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/legacy-sms.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="support-for-legacy-sms">
+<h1>Support for Legacy SMS<a class="headerlink" href="#support-for-legacy-sms" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="apache-configuration">
+<h2>Apache Configuration<a class="headerlink" href="#apache-configuration" title="Permalink to this headline">¶</a></h2>
+<p>This application implements views emulating views on the legacy SMS system. It
+is intended that emulated views may be redirected directly to this application
+using Apache configuration similar to the following:</p>
+<div class="code apache highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Redirect configuration for offloading onto the new SMS provider.</span>
+<span class="n">RewriteEngine</span> <span class="n">On</span>
+
+<span class="c1"># If necessary, enable debugging support by uncommenting these lines:</span>
+<span class="c1"># RewriteLog &quot;/var/log/apache2/rewrite.log&quot;</span>
+<span class="c1"># RewriteLogLevel 3</span>
+
+<span class="c1"># Requests which are passed on to new provider can use the URL path</span>
+<span class="c1"># directly.</span>
+<span class="n">RewriteRule</span> <span class="s2">&quot;^/media/(.*)/embed/?$&quot;</span> <span class="s2">&quot;https://ump.uis.cam.ac.uk/legacy$0&quot;</span> <span class="p">[</span><span class="n">L</span><span class="p">]</span>
+
+<span class="c1"># Handle any requests passed back the legacy application by the new</span>
+<span class="c1"># provider.</span>
+<span class="n">RewriteRule</span> <span class="s2">&quot;^/_legacy/(.*)$&quot;</span> <span class="s2">&quot;/$1&quot;</span> <span class="p">[</span><span class="n">PT</span><span class="p">,</span><span class="n">L</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>Add the <code class="docutils literal notranslate"><span class="pre">legacysms</span></code> application to your <code class="docutils literal notranslate"><span class="pre">INSTALLED_APPS</span></code> configuration as
+usual and add the following to your URL configuration:</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">path</span>
+
+<span class="c1"># ...</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># ....</span>
+    <span class="n">path</span><span class="p">(</span><span class="s1">&#39;legacy/&#39;</span><span class="p">,</span> <span class="n">include</span><span class="p">(</span><span class="s1">&#39;legacysms.urls&#39;</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s1">&#39;legacysms&#39;</span><span class="p">)),</span>
+    <span class="c1"># ....</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="module-legacysms.views">
+<span id="views-and-serializers"></span><h2>Views and serializers<a class="headerlink" href="#module-legacysms.views" title="Permalink to this headline">¶</a></h2>
+<p>Django views.</p>
+<dl class="data">
+<dt id="legacysms.views.CONTENT_TYPE_FOR_DOWNLOAD_EXTENSION">
+<code class="descclassname">legacysms.views.</code><code class="descname">CONTENT_TYPE_FOR_DOWNLOAD_EXTENSION</code><em class="property"> = {'aac': 'audio/mp4', 'm4a': 'audio/mp4', 'm4v': 'video/mp4', 'mp3': 'audio/mp4', 'mp4': 'video/mp4', 'webm': 'video/mp4'}</em><a class="headerlink" href="#legacysms.views.CONTENT_TYPE_FOR_DOWNLOAD_EXTENSION" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map between filename extensions passed to the download URL and the content type which should be
+served. JWPlatform does not perform WEBM or MP3 encoding and so we simply use the MP4 version.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="legacysms.views.DEFAULT_REQUESTS_SESSION">
+<code class="descclassname">legacysms.views.</code><code class="descname">DEFAULT_REQUESTS_SESSION</code><em class="property"> = &lt;requests.sessions.Session object&gt;</em><a class="headerlink" href="#legacysms.views.DEFAULT_REQUESTS_SESSION" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default session used for making HTTP requests.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="legacysms.views.embed">
+<code class="descclassname">legacysms.views.</code><code class="descname">embed</code><span class="sig-paren">(</span><em>request</em>, <em>media_id</em><span class="sig-paren">)</span><a class="headerlink" href="#legacysms.views.embed" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>request</strong> – the current request</li>
+<li><strong>media_id</strong> (<em>int</em>) – SMS media id of the required media</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Render an embedded video/audio player based on the SMS media ID. If the <code class="docutils literal notranslate"><span class="pre">format</span></code> GET
+parameter is provided, it should be one of <code class="docutils literal notranslate"><span class="pre">audio</span></code> or <code class="docutils literal notranslate"><span class="pre">video</span></code> and this is used to specify
+the preferred media type.</p>
+<p>If no media matching the provided SMS media ID is found, a 404 response is generated.</p>
+<p>In <a class="reference internal" href="smsjwplatform.html#module-smsjwplatform.urls" title="smsjwplatform.urls"><code class="xref py py-mod docutils literal notranslate"><span class="pre">urls</span></code></a> this view is named <code class="docutils literal notranslate"><span class="pre">smsjwplatform:embed</span></code>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-legacysms.redirect">
+<span id="redirection-back-to-legacy-sms"></span><h2>Redirection back to legacy SMS<a class="headerlink" href="#module-legacysms.redirect" title="Permalink to this headline">¶</a></h2>
+<p>Occasionally we may want to redirect incoming requests back to the legacy SMS. For example, if we
+are asked to generate an embed view for a video which is not in the JWPlatform database, we don’t
+know if that is because the video doesn’t exist or if that is because the video has not yet been
+imported. In this case, we redirect back to a special SMS URL which handles the request for us.</p>
+<dl class="function">
+<dt id="legacysms.redirect.media_download">
+<code class="descclassname">legacysms.redirect.</code><code class="descname">media_download</code><span class="sig-paren">(</span><em>media_id</em>, <em>clip_id</em>, <em>extension</em><span class="sig-paren">)</span><a class="headerlink" href="#legacysms.redirect.media_download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">HttpResponse</span></code> which redirects back to the legacy download link for the
+given media id. Raises <code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> if <em>media_id</em> or <em>clip_id</em> are non-numeric.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="legacysms.redirect.media_embed">
+<code class="descclassname">legacysms.redirect.</code><code class="descname">media_embed</code><span class="sig-paren">(</span><em>media_id</em><span class="sig-paren">)</span><a class="headerlink" href="#legacysms.redirect.media_embed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">HttpResponse</span></code> which redirects back to the legacy embed view for the given
+media id. Raises <code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> if <em>media_id</em> is non-numeric.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="legacysms.redirect.media_rss">
+<code class="descclassname">legacysms.redirect.</code><code class="descname">media_rss</code><span class="sig-paren">(</span><em>media_id</em><span class="sig-paren">)</span><a class="headerlink" href="#legacysms.redirect.media_rss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">HttpResponse</span></code> which redirects back to the legacy RSS feed for the given
+media id. Raises <code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> if <em>media_id</em> is non-numeric.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-legacysms.defaultsettings">
+<span id="settings"></span><h2>Settings<a class="headerlink" href="#module-legacysms.defaultsettings" title="Permalink to this headline">¶</a></h2>
+<p>Default settings values for the <code class="xref py py-mod docutils literal notranslate"><span class="pre">legacysms</span></code> application.</p>
+<dl class="data">
+<dt id="legacysms.defaultsettings.LEGACY_SMS_REDIRECT_FORMAT">
+<code class="descclassname">legacysms.defaultsettings.</code><code class="descname">LEGACY_SMS_REDIRECT_FORMAT</code><em class="property"> = '{url.scheme}://{url.netloc}/_legacy{url.path}'</em><a class="headerlink" href="#legacysms.defaultsettings.LEGACY_SMS_REDIRECT_FORMAT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required. Format string for generating URL used when redirecting a request back to the legacy SMS.
+The format string should use a named parameter called <em>url</em> which is an instance of the tuple
+subclass returned by calling <code class="xref py py-func docutils literal notranslate"><span class="pre">urllib.parse.urlsplit()</span></code> on the original SMS URL. On the SMS
+side, Apache should be configured to accept requests for these URLs without forwarding on to the
+SMS web app.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="legacysms.defaultsettings.LEGACY_SMS_FRONTEND_URL">
+<code class="descclassname">legacysms.defaultsettings.</code><code class="descname">LEGACY_SMS_FRONTEND_URL</code><em class="property"> = 'https://sms.cam.ac.uk/'</em><a class="headerlink" href="#legacysms.defaultsettings.LEGACY_SMS_FRONTEND_URL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required. URL of legacy SMS web frontend.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="legacysms.defaultsettings.LEGACY_SMS_RSS_URL">
+<code class="descclassname">legacysms.defaultsettings.</code><code class="descname">LEGACY_SMS_RSS_URL</code><em class="property"> = 'https://rss.sms.cam.ac.uk/'</em><a class="headerlink" href="#legacysms.defaultsettings.LEGACY_SMS_RSS_URL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required. URL of legacy SMS RSS feed site.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="legacysms.defaultsettings.LEGACY_SMS_DOWNLOADS_URL">
+<code class="descclassname">legacysms.defaultsettings.</code><code class="descname">LEGACY_SMS_DOWNLOADS_URL</code><em class="property"> = 'https://downloads.sms.cam.ac.uk/'</em><a class="headerlink" href="#legacysms.defaultsettings.LEGACY_SMS_DOWNLOADS_URL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required. URL of legacy SMS download site.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-legacysms.apps">
+<span id="application-configuration"></span><h2>Application configuration<a class="headerlink" href="#module-legacysms.apps" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="legacysms.apps.Config">
+<em class="property">class </em><code class="descclassname">legacysms.apps.</code><code class="descname">Config</code><span class="sig-paren">(</span><em>app_name</em>, <em>app_module</em><span class="sig-paren">)</span><a class="headerlink" href="#legacysms.apps.Config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configuration for Support for Legacy SMS application.</p>
+<dl class="attribute">
+<dt id="legacysms.apps.Config.name">
+<code class="descname">name</code><em class="property"> = 'legacysms'</em><a class="headerlink" href="#legacysms.apps.Config.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The short name for this application.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="legacysms.apps.Config.ready">
+<code class="descname">ready</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#legacysms.apps.Config.ready" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform application initialisation once the Django platform has been initialised.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="legacysms.apps.Config.verbose_name">
+<code class="descname">verbose_name</code><em class="property"> = 'legacy-sms'</em><a class="headerlink" href="#legacysms.apps.Config.verbose_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The human-readable verbose name for this application.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="smsjwplatform.html" class="btn btn-neutral" title="JWPlatform Integration Application" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, University of Cambridge Information Services.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

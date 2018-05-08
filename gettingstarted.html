@@ -1,0 +1,312 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Getting started &mdash; Streaming Media Service Webapp  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Developer’s guide" href="developer.html" />
+    <link rel="prev" title="Streaming Media Service Webapp" href="index.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Streaming Media Service Webapp
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#fork-the-upstream-repository">Fork the upstream repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#set-up-cloud-integrations">Set up cloud integrations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#clone-the-repository-locally">Clone the repository locally</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-docker-compose">Install docker-compose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-tests">Run tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bring-up-a-development-web-server">Bring up a development web-server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#next-steps">Next steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer’s guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="smswebapp.html">The Web App Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="smsjwplatform.html">JWPlatform Integration Application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy-sms.html">Support for Legacy SMS</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Streaming Media Service Webapp</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Getting started</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/gettingstarted.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="getting-started">
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<p>This section is a guide to checking out the source and getting a development
+machine configured. More information on development is found in the
+<a class="reference internal" href="developer.html"><span class="doc">Developer’s guide</span></a>.</p>
+<div class="section" id="fork-the-upstream-repository">
+<h2>Fork the upstream repository<a class="headerlink" href="#fork-the-upstream-repository" title="Permalink to this headline">¶</a></h2>
+<p>The repository at <a class="reference external" href="https://github.com/uisautomation/sms-webapp">https://github.com/uisautomation/sms-webapp</a> is configured to
+disallow pushing to master. You’ll need to <em>fork</em> the repository into your
+personal account and then open pull requests from your personal repository into
+the main repository.</p>
+</div>
+<div class="section" id="set-up-cloud-integrations">
+<h2>Set up cloud integrations<a class="headerlink" href="#set-up-cloud-integrations" title="Permalink to this headline">¶</a></h2>
+<p>Visit the following cloud tool sites, sign in with GitHub and add your new
+fork:</p>
+<ol class="arabic simple">
+<li>Add your repository to  <a class="reference external" href="https://travis-ci.org/">Travis CI</a>.</li>
+<li>Go to <a class="reference external" href="https://codecov.io/">Codecov</a> and add your fork as a watched repo.
+Make sure to enable the Codecov integration.</li>
+</ol>
+</div>
+<div class="section" id="clone-the-repository-locally">
+<h2>Clone the repository locally<a class="headerlink" href="#clone-the-repository-locally" title="Permalink to this headline">¶</a></h2>
+<p>Clone the remote upstream repository locally and configure the push URL to be
+your local user fork. This means that <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">push</span></code> commands will modify your
+local fork but <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span></code> commands will automatically fetch from the upstream
+repository.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone git@github.com:uisautomation/sms-webapp.git
+$ <span class="nb">cd</span> sms-webapp
+$ git remote set-url origin --push git@github.com:<span class="nv">$USER</span>/sms-webapp.git
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Make sure to replace <code class="docutils literal notranslate"><span class="pre">$USER</span></code> with your GitHub user name. If your
+GitHub user name happens to be the same as your local user name, on
+Unix-y systems this will be done by magic!</p>
+</div>
+<p>It is also worth setting up an explicit remote for your personal repository.
+Sometimes you’ll want to <code class="docutils literal notranslate"><span class="pre">push</span></code> or <code class="docutils literal notranslate"><span class="pre">pull</span></code> from it.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git remote add <span class="nv">$USER</span> git@github.com:<span class="nv">$USER</span>/sms-webapp.git
+</pre></div>
+</div>
+</div>
+<div class="section" id="install-docker-compose">
+<h2>Install docker-compose<a class="headerlink" href="#install-docker-compose" title="Permalink to this headline">¶</a></h2>
+<p>In order to bring up a development web server or to run tests, you will need
+docker-compose installed. <a class="reference external" href="https://docs.docker.com/compose/install/">Installation instructions</a> are available on Docker’s site.</p>
+</div>
+<div class="section" id="run-tests">
+<h2>Run tests<a class="headerlink" href="#run-tests" title="Permalink to this headline">¶</a></h2>
+<p>Once docker-compose is installed, you can run the tests using the <code class="docutils literal notranslate"><span class="pre">compose.sh</span></code>
+wrapper script:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./compose.sh tox run --rm tox
+</pre></div>
+</div>
+</div>
+<div class="section" id="bring-up-a-development-web-server">
+<h2>Bring up a development web-server<a class="headerlink" href="#bring-up-a-development-web-server" title="Permalink to this headline">¶</a></h2>
+<p>If the tests pass, you should be able to bring up a development web-server:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./compose.sh development
+</pre></div>
+</div>
+<p>The application should now be available at <a class="reference external" href="http://localhost:8000/">http://localhost:8000/</a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Some settings are loaded from environment variables. These are settings
+which are either sensitive or dependent on third-party sources.
+Docker-compose will warn when starting the server if these variables are not
+set.</p>
+<p class="last">If you want to create a script to set these environment variables, then
+<code class="docutils literal notranslate"><span class="pre">setupenv.sh</span></code> has been added to the <code class="docutils literal notranslate"><span class="pre">.gitignore</span></code> file.</p>
+</div>
+</div>
+<div class="section" id="next-steps">
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this headline">¶</a></h2>
+<p>See the <a class="reference internal" href="developer.html"><span class="doc">Developer’s guide</span></a> for what to do next.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="developer.html" class="btn btn-neutral float-right" title="Developer’s guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Streaming Media Service Webapp" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, University of Cambridge Information Services.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
