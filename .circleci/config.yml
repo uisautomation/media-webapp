@@ -1,0 +1,58 @@
+version: 2
+
+jobs:
+  build:
+    machine: true
+    environment:
+      # Set the required secrets for production to mock values here. Although they
+      # are not real values, the production image will no start without them set
+      # to some value even if the precise value does not affect the outcome of
+      # calling the health-check endpoint.
+      JWPLATFORM_API_KEY: 'api-key-mock'
+      JWPLATFORM_API_SECRET: 'api-key-secret'
+      JWPLATFORM_EMBED_PLAYER_KEY: 'embed-player-key'
+      GCLOUD_PROJECT: 'uis-automation-media'
+    steps:
+      - checkout
+      - run:
+          name: GCloud Service Account
+          command: echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
+      - run:
+          name: Activate GCloud service account
+          command: gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
+      - run:
+          name: Set GCloud project
+          command: gcloud --quiet config set project $GCLOUD_PROJECT
+      - run:
+          name: Install codecov
+          command: pip install codecov
+      - run:
+          name: Run tox tests
+          command: docker-compose --file compose/base.yml --file compose/tox.yml run -v $PWD:/tmp/workspace -e COVERAGE_FILE=/tmp/workspace/.coverage -e TOXINI_ARTEFACT_DIR=/tmp/workspace/build --rm tox
+      - run:
+          name: Stop test containers
+          command: docker-compose --file compose/base.yml --file compose/tox.yml down
+      - run:
+          name: Build and run production
+          command: |
+            docker-compose --file compose/base.yml --file compose/production.yml up -d
+            ./compose/wait-for-it.sh localhost:8000 -t 15
+            docker-compose --file compose/base.yml --file compose/production.yml exec production_app ./manage.py migrate
+      - run:
+          name: The health-check endpoint should return a non-fail status.
+          command: curl --location --output /tmp/healthz --fail --silent --connect-timeout 2 http://localhost:8000/healthz
+      - run:
+          name: Tag docker image
+          command: |
+            docker tag compose_production_app:latest eu.gcr.io/$GCLOUD_PROJECT/$CIRCLE_PROJECT_REPONAME:sha-$CIRCLE_SHA1
+            docker tag compose_production_app:latest eu.gcr.io/$GCLOUD_PROJECT/$CIRCLE_PROJECT_REPONAME:branch-$CIRCLE_BRANCH
+            docker tag compose_production_app:latest eu.gcr.io/$GCLOUD_PROJECT/$CIRCLE_PROJECT_REPONAME:build-$CIRCLE_BUILD_NUM
+      - run:
+          name: GCloud Docker login
+          command: docker login -u _json_key --password-stdin https://eu.gcr.io < ${HOME}/gcloud-service-key.json
+      - run:
+          name: Push docker image
+          command: |
+            docker push eu.gcr.io/$GCLOUD_PROJECT/$CIRCLE_PROJECT_REPONAME:sha-$CIRCLE_SHA1
+            docker push eu.gcr.io/$GCLOUD_PROJECT/$CIRCLE_PROJECT_REPONAME:branch-$CIRCLE_BRANCH
+            docker push eu.gcr.io/$GCLOUD_PROJECT/$CIRCLE_PROJECT_REPONAME:build-$CIRCLE_BUILD_NUM
