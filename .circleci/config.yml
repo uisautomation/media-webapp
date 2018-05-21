@@ -13,6 +13,8 @@ jobs:
       JWPLATFORM_EMBED_PLAYER_KEY: 'embed-player-key'
       GCLOUD_PROJECT: 'uis-automation-media'
     steps:
+      # IMPORTANT: Do not use ./compose.sh script in any of the steps, as its use of "exec" breaks CircleCI because it
+      # doesn't detect when the process finishes and thus the step never ends
       - checkout
       - run:
           name: GCloud Service Account

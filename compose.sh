@@ -26,4 +26,5 @@ fi
 # Change to this script's directory
 cd "$( dirname "${BASH_SOURCE[0]}")"
 
-docker-compose --file compose/base.yml --file compose/${config}.yml $args
+set -x
+exec docker-compose --file compose/base.yml --file compose/${config}.yml $args
