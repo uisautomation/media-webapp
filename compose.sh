@@ -26,6 +26,5 @@ fi
 # Change to this script's directory
 cd "$( dirname "${BASH_SOURCE[0]}")"
 
-# Execute test runner, logging command used
 set -x
 exec docker-compose --file compose/base.yml --file compose/${config}.yml $args

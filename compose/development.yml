@@ -5,6 +5,10 @@
 #   docker-compose -f compose/base.yml -f compose/development.yml
 version: '3.2'
 services:
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "8025:8025"
   # Main web application service
   development_app:
     build:
