@@ -3,7 +3,7 @@
 # Extends compose/base.yml so launch services via:
 #
 #   docker-compose -f compose/base.yml -f compose/tox.yml run --rm tox <...>
-version: '3.2'
+version: '3.4'
 services:
   tox:
     build:

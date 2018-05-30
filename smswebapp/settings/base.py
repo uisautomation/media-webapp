@@ -211,3 +211,9 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_ROOT = os.environ.get('DJANGO_STATIC_ROOT', os.path.join(BASE_DIR, 'build', 'static'))
+
+# See wsgi.py for how this is used.
+FRONTEND_APP_BUILD_DIR = os.environ.get(
+    'DJANGO_FRONTEND_APP_BUILD_DIR',
+    os.path.abspath(os.path.join(BASE_DIR, 'frontend', 'build'))
+)

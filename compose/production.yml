@@ -3,7 +3,7 @@
 # Extends compose/base.yml so launch services via:
 #
 #   docker-compose -f compose/base.yml -f compose/production.yml
-version: '3.2'
+version: '3.4'
 services:
   # Main web application service
   production_app:
