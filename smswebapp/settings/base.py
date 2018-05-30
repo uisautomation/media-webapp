@@ -2,7 +2,7 @@ import os
 
 #: Base directory containing the project. Build paths inside the project via
 #: ``os.path.join(BASE_DIR, ...)``.
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 #: The Django secret key is by default set from the environment. If omitted, a system check will
