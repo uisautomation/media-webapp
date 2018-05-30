@@ -12,6 +12,11 @@ djangorestframework
 django-cors-headers
 drf-yasg
 
+# PRE-RELEASE WHITENOISE VERSION
+# We need at least version 4 of whitenoise to make use of the index_file
+# configuration option.
+whitenoise>=4.0b4
+
 # For managing OAuth2 tokens
 oauthlib
 requests-oauthlib
