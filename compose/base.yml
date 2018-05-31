@@ -48,6 +48,12 @@ services:
       - hydra-db
     volumes:
       - "./start-hydra.sh:/tmp/start-hydra.sh/:ro"
+  hydra-consent:
+    image: uisautomation/experimental-mock-consent-app
+    env_file:
+      - ./hydra-consent.env
+    ports:
+      - "8090:8090"
   hydra-db:
     image: postgres
     env_file:
