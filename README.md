@@ -7,6 +7,26 @@ Status](https://travis-ci.org/uisautomation/sms-webapp.svg?branch=master)](https
 Documentation for developers, including a "getting started" guide, can be found
 at https://uisautomation.github.io/sms-webapp.
 
+## Useful developer links
+
+When a development environment is created via ``./compose.sh development up``,
+the following endpoints are available:
+
+* http://localhost:8000/ - the web application itself.
+* http://localhost:3000/ - a version of the web application served from the
+    create-react-app environment. Supports live reload of the UI when the
+    underlying JavaScript changes.
+* http://localhost:7000/ - a Swagger UI instance configured to point to the
+    application's REST-ful API.
+* http://localhost:6060/ - live generated documentation for the React components
+    which form part of the UI.
+* http://localhost:8080/ui - Swagger UI for a lookupproxy instance which can be
+    used with an OAuth2 client called ``lookupproxy``
+
+Additionally, endpoints for a mock hydra OAuth2 authorisation provider are
+created. See [compose/base.yml](compose/base.yml) for the exposed ports for
+those services.
+
 ## Short, short version
 
 Firstly, [install docker-compose](https://docs.docker.com/compose/install/).
