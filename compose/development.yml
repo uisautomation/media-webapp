@@ -30,6 +30,10 @@ x-frontend-template: &frontend-template
     - "frontend_build:/tmp/frontend_build"
 
 services:
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "8025:8025"
   # Main web application service
   development_app:
     build:

@@ -8,10 +8,6 @@ services:
     volumes:
       - postgres-data-local:/var/lib/postgresql/data
       - postgres-backup-local:/backups
-  mailhog:
-    image: mailhog/mailhog
-    ports:
-      - "8025:8025"
 
   # Lookup proxy service
   lookupproxy:

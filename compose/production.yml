@@ -16,7 +16,6 @@ services:
       - "8000:8080"
     depends_on:
       - "db"
-      - "mailhog"
       - "hydra"
       - "lookupproxy"
     environment:
