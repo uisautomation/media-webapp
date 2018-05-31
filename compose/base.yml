@@ -54,6 +54,19 @@ services:
       - ./hydra-consent.env
     ports:
       - "8090:8090"
+  # A service which waits for hydra to start and then creates the OAuth2
+  # clients.
+  hydra-create-clients:
+    image: oryd/hydra:v0.11.6-alpine
+    entrypoint: ["sh"]
+    command: ["-c", "apk update && apk add bash && /tmp/create-oauth2-clients.sh"]
+    env_file:
+      - hydra.env
+    depends_on:
+      - hydra
+    volumes:
+      - "./wait-for-it.sh:/tmp/wait-for-it.sh/:ro"
+      - "./create-oauth2-clients.sh:/tmp/create-oauth2-clients.sh/:ro"
   hydra-db:
     image: postgres
     env_file:
