@@ -13,48 +13,47 @@ jobs:
       JWPLATFORM_EMBED_PLAYER_KEY: 'embed-player-key'
       GCLOUD_PROJECT: 'uis-automation-media'
     steps:
-      # IMPORTANT: Do not use ./compose.sh script in any of the steps, as its use of "exec" breaks CircleCI because it
-      # doesn't detect when the process finishes and thus the step never ends
       - checkout
-      - run:
-          name: GCloud Service Account
-          command: echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
-      - run:
-          name: Activate GCloud service account
-          command: gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-      - run:
-          name: Set GCloud project
-          command: gcloud --quiet config set project $GCLOUD_PROJECT
+
       - run:
           name: Install codecov
           command: pip install codecov
+
       - run:
-          name: Run tox tests
-          command: docker-compose --file compose/base.yml --file compose/tox.yml run -v $PWD:/tmp/workspace -e COVERAGE_FILE=/tmp/workspace/.coverage -e TOXINI_ARTEFACT_DIR=/tmp/workspace/build --rm tox
-      - run:
-          name: Stop test containers
-          command: docker-compose --file compose/base.yml --file compose/tox.yml down
-      - run:
-          name: Build and run production
+          name: Run tests
           command: |
-            docker-compose --file compose/base.yml --file compose/production.yml up -d
+            ./compose.sh tox run -v $PWD:/tmp/workspace -e COVERAGE_FILE=/tmp/workspace/.coverage -e TOXINI_ARTEFACT_DIR=/tmp/workspace/build --rm tox
+            ./compose.sh tox down
+
+      - run:
+          name: Test production container health check
+          command: |
+            ./compose.sh production up -d
             ./compose/wait-for-it.sh localhost:8000 -t 15
-            docker-compose --file compose/base.yml --file compose/production.yml exec production_app ./manage.py migrate
+            ./compose.sh production exec production_app ./manage.py migrate
+            curl --verbose --location --output /tmp/healthz --fail --connect-timeout 2 http://localhost:8000/healthz
+
       - run:
-          name: The health-check endpoint should return a non-fail status.
-          command: curl --location --output /tmp/healthz --fail --silent --connect-timeout 2 http://localhost:8000/healthz
-      - run:
-          name: Tag docker image
+          name: Build and tag production container
           command: |
-            docker tag compose_production_app:latest eu.gcr.io/$GCLOUD_PROJECT/$CIRCLE_PROJECT_REPONAME:sha-$CIRCLE_SHA1
-            docker tag compose_production_app:latest eu.gcr.io/$GCLOUD_PROJECT/$CIRCLE_PROJECT_REPONAME:branch-$CIRCLE_BRANCH
-            docker tag compose_production_app:latest eu.gcr.io/$GCLOUD_PROJECT/$CIRCLE_PROJECT_REPONAME:build-$CIRCLE_BUILD_NUM
-      - run:
-          name: GCloud Docker login
-          command: docker login -u _json_key --password-stdin https://eu.gcr.io < ${HOME}/gcloud-service-key.json
+            docker build -t production .
+            docker tag production:latest eu.gcr.io/$GCLOUD_PROJECT/$CIRCLE_PROJECT_REPONAME:sha-$CIRCLE_SHA1
+            docker tag production:latest eu.gcr.io/$GCLOUD_PROJECT/$CIRCLE_PROJECT_REPONAME:branch-$CIRCLE_BRANCH
+            docker tag production:latest eu.gcr.io/$GCLOUD_PROJECT/$CIRCLE_PROJECT_REPONAME:build-$CIRCLE_BUILD_NUM
+
       - run:
           name: Push docker image
           command: |
-            docker push eu.gcr.io/$GCLOUD_PROJECT/$CIRCLE_PROJECT_REPONAME:sha-$CIRCLE_SHA1
-            docker push eu.gcr.io/$GCLOUD_PROJECT/$CIRCLE_PROJECT_REPONAME:branch-$CIRCLE_BRANCH
-            docker push eu.gcr.io/$GCLOUD_PROJECT/$CIRCLE_PROJECT_REPONAME:build-$CIRCLE_BUILD_NUM
+            if [ ! -z "$GCLOUD_SERVICE_KEY" ]; then
+              echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
+              gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
+              gcloud --quiet config set project $GCLOUD_PROJECT
+
+              docker login -u _json_key --password-stdin https://eu.gcr.io < ${HOME}/gcloud-service-key.json
+
+              docker push eu.gcr.io/$GCLOUD_PROJECT/$CIRCLE_PROJECT_REPONAME:sha-$CIRCLE_SHA1
+              docker push eu.gcr.io/$GCLOUD_PROJECT/$CIRCLE_PROJECT_REPONAME:branch-$CIRCLE_BRANCH
+              docker push eu.gcr.io/$GCLOUD_PROJECT/$CIRCLE_PROJECT_REPONAME:build-$CIRCLE_BUILD_NUM
+            else
+              echo "Skipping push step as there are no GCloud secrets"
+            fi
