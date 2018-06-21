@@ -30,7 +30,11 @@ those services.
 ## Short, short version
 
 Firstly, [install docker-compose](https://docs.docker.com/compose/install/).
-Then most tasks can be performed via the ``compose.sh`` script:
+
+Secondly, copy the [example secrets.env file](secrets.env.in) to secrets.env and
+populate it with the various secrets required.
+
+Then, most tasks can be performed via the ``compose.sh`` script:
 
 ```bash
 # Start development server

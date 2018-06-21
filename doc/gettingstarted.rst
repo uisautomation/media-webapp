@@ -67,6 +67,15 @@ wrapper script:
 
     $ ./compose.sh tox run --rm tox
 
+Configure secrets
+`````````````````
+
+Secrets used in development are loaded from a ``secrets.env`` file in the
+project root. An example of this file is located at ``secrets.env.in``. Copy it
+to ``secrets.env`` and fill in the appropriate secrets. ``secrets.env`` has been
+added to the ``.gitignore`` file to guard against accidentally committing the
+file.
+
 Bring up a development web-server
 `````````````````````````````````
 

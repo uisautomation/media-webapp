@@ -62,14 +62,11 @@ services:
         read_only: true
       - "frontend_build:/tmp/frontend_build"
     environment:
-      # Teleport JWPlatform credentials and configuration from host environment.
-      JWPLATFORM_API_KEY: "${JWPLATFORM_API_KEY}"
-      JWPLATFORM_API_SECRET: "${JWPLATFORM_API_SECRET}"
-      JWPLATFORM_EMBED_PLAYER_KEY: "${JWPLATFORM_EMBED_PLAYER_KEY}"
       DJANGO_FRONTEND_APP_BUILD_DIR: "/tmp/frontend_build"
     env_file:
       - base.env
       - development.env
+      - ../secrets.env
 
   # Front end using the default webpack development server which allows
   # hot-reloading, etc.

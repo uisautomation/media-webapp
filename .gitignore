@@ -110,3 +110,4 @@ smswebapp/settings/local.py
 
 # PyCharm
 .idea
+secrets.env
