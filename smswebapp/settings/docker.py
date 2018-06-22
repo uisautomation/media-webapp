@@ -11,9 +11,8 @@ SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 # variable is set and is non-empty.
 DEBUG = os.environ.get('SMS_ENABLE_DEBUG_THIS_IS_DANGEROUS', '') != ''
 
-# Redirect all traffic except healthz endpoint to HTTPS unless HTTPS_REDIRECT is set to anything 
-# that is not True
-SECURE_SSL_REDIRECT = os.environ.get('HTTPS_REDIRECT', True) == True
+# Redirect all traffic except healthz endpoint to HTTPS unless HTTPS_REDIRECT is set to False
+SECURE_SSL_REDIRECT = os.environ.get('HTTPS_REDIRECT', True) is True
 SECURE_REDIRECT_EXEMPT = ['^healthz$']
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
