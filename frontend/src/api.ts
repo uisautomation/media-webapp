@@ -23,14 +23,18 @@ export interface IError {
 
 /** A media resource. */
 export interface IMediaResource {
+  id: string;
   ui_url: string;
   title: string;
   description: string;
   poster_image_url?: string;
+  published_at_timestamp: number;
+  duration: number;
 };
 
 /** A collection resource. */
 export interface ICollectionResource {
+  id: string;
   ui_url: string;
   title: string;
   description: string;
@@ -40,16 +44,24 @@ export interface ICollectionResource {
 /** A media list response. */
 export interface IMediaListResponse {
   results: IMediaResource[];
+  limit: number;
+  offset: number;
+  total: number;
 };
 
 /** A collection list response. */
 export interface ICollectionListResponse {
   results: ICollectionResource[];
+  limit: number;
+  offset: number;
+  total: number;
 };
 
 /** A query to the media list endpoint. */
 export interface IMediaQuery {
   search?: string;
+  order_by?: string;
+  direction?: string;
 };
 
 /** A query to the collection list endpoint. */
