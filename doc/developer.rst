@@ -22,7 +22,7 @@ created by docker-compose. Other databases can be used by setting the
 
 .. code-block:: bash
 
-    $ ./compose.sh tox run --rm tox
+    $ ./tox.sh
 
 By default, ``tox`` will run the test suite using the version of Python used
 when we deploy and will compile a local version of the documentation. The ``-e``
@@ -31,7 +31,18 @@ build only the documentation:
 
 .. code-block:: bash
 
-    $ ./compose.sh tox run --rm tox -e doc
+    $ ./tox.sh -e doc
+
+Tox runs tests within persistent virtualenvs. Tox attempts to determine when it
+should rebuild the virtualenv but its logic can sometimes be imperfect. This is
+especially true in the case of dependencies hidden deep in the various
+``requirements/{...}.txt`` files. Should it appear that a module is not
+installed when it should be, the ``-r`` flag can be passed to tox:
+
+.. code-block:: bash
+
+    $ ./tox.sh -r          # recreate all environments
+    $ ./tox.se -e py36 -r  # recreate only the py36 environment
 
 .. _toxenvs:
 
