@@ -92,10 +92,10 @@ The application should now be available at http://localhost:8000/.
     Some settings are loaded from environment variables. These are settings
     which are either sensitive or dependent on third-party sources.
     Docker-compose will warn when starting the server if these variables are not
-    set.
-
-    If you want to create a script to set these environment variables, then
-    ``setupenv.sh`` has been added to the ``.gitignore`` file.
+    set. These secrets are loaded by the docker-compose configuration from a
+    file named ``secrets.env`` which must be created. See the ``secrets.env.in``
+    file for guidance. ``secrets.env`` has been added to the ``.gitignore`` file
+    to guard agains inadvertently commiting it.
 
 Next steps
 ``````````
