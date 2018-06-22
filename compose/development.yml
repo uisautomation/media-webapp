@@ -148,6 +148,8 @@ services:
       - "8080"
     ports:
       - "7000:8080"
+    depends_on:
+      - "development_app"
     environment:
       API_URL: http://localhost:8000/api/swagger.json
 
