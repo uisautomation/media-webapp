@@ -4,6 +4,9 @@ FROM python:3.6
 # application.
 WORKDIR /usr/src/app
 
+# Add useful packages
+RUN apt-get -y update && apt-get -y install postgresql-client
+
 # Install any explicit developer requirements
 ADD ./requirements/* ./requirements/
 RUN pip install -r ./requirements/developer.txt
