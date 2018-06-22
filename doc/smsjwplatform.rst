@@ -15,6 +15,12 @@ Views
 .. automodule:: smsjwplatform.views
     :members:
 
+Models
+------
+
+.. automodule:: smsjwplatform.models
+    :members:
+
 URLs
 ----
 
