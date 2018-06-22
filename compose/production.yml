@@ -18,6 +18,7 @@ services:
       - "db"
       - "hydra"
       - "lookupproxy"
+      - "hydra-create-clients"
     env_file:
       - base.env
       - ../secrets.env

@@ -52,6 +52,7 @@ services:
       - "hydra"
       - "lookupproxy"
       - "frontend_watch"
+      - "hydra-create-clients"
     volumes:
       # For devserver, mount the local directory inside the container as a volume
       # to allow local changes to be reflected without having to re-build the
