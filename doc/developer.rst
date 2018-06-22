@@ -9,6 +9,20 @@ Local development
 
 These tasks are usually performed on an individual developer's machine.
 
+Make database migrations
+````````````````````````
+
+The ``makemigrations`` command cannot be run directly since the application
+directory is mounted read-only within the container. The work around is a little
+ugly at the moment:
+
+1. In ``compose/development.yml``, comment out the ``read_only: true`` value
+   from the volume defined in ``development_app``.
+2. Run ``./compose.sh development run --rm development_app ./manage.py makemigrations ...``
+   as usual.
+3. Uncomment the ``read_only: true`` commented out in 1.
+4. Change permissions on the migration: ``sudo chmod $USER path/to/migration.py``
+
 .. _run-tests:
 
 Run the test suite
