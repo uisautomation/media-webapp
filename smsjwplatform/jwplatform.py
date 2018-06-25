@@ -14,6 +14,7 @@ import jwplatform
 import jwt
 
 from . import acl
+from . import models
 
 
 class VideoNotFoundError(RuntimeError):
@@ -129,60 +130,53 @@ class Video(Resource):
         """
         Return a :py:class:`Video` instance corresponding to the JWPlatform key passed.
 
+        .. note::
+
+            This method looks for videos by way of the
+            :py:class:`~smsjwplatform.models.CachedResource` model and *not* by using the API
+            directly.
+
         :param key: JWPlatform key for the media.
-        :param client: (optional) an authenticated JWPlatform client as returned by
-            :py:func:`.get_jwplatform_client`. If ``None``, call :py:func:`.get_jwplatform_client`.
 
-        :raises: :py:exc:`jwplatform.errors.JWPlatformNotFoundError` if the video is not found.
+        :raises: :py:exc:`~.VideoNotFoundError` if the video is not found.
 
         """
-        client = client if client is not None else get_jwplatform_client()
-        return cls(client.videos.show(video_key=key)['video'])
+        try:
+            return cls(models.CachedResource.videos.get(key=key).data)
+        except models.CachedResource.DoesNotExist:
+            raise VideoNotFoundError()
 
     @classmethod
-    def list(cls, list_params={}, client=None):
-        """
-        Convenience wrapper around the ``videos.list`` JWPlatform API method. The videos returned
-        are coerced into :py:class:`Video` instances.
-
-        """
-        client = client if client is not None else get_jwplatform_client()
-        response = client.videos.list(**list_params)
-
-        if 'videos' in response:
-            response['videos'] = [cls(resource) for resource in response['videos']]
-
-        return response
-
-    @classmethod
-    def from_media_id(cls, media_id, preferred_media_type='video', client=None):
+    def from_media_id(cls, media_id, preferred_media_type='video'):
         """
         Return a :py:class:`Video` instance which matches the passed legacy SMS media ID or raise
         :py:exc:`VideoNotFoundError` if no such video could be found.
+
+        .. note::
+
+            This method looks for videos by way of the
+            :py:class:`~smsjwplatform.models.CachedResource` model and *not* by using the API
+            directly.
 
         :param media_id: the SMS media ID of the required video
         :type media_id: int
         :param preferred_media_type: (optional) the preferred media type to return. One of
             ``'video'`` or ``'audio'``.
-        :param client: (options) an authenticated JWPlatform client as returned by
-            :py:func:`.get_jwplatform_client`. If ``None``, call :py:func:`.get_jwplatform_client`.
         :raises: :py:class:`.VideoNotFoundError` if the media id does not correspond to a
             JWPlatform video.
 
         """
-        client = client if client is not None else get_jwplatform_client()
-
         # The value of the sms_media_id custom property we search for
         media_id_value = 'media:{:d}:'.format(media_id)
 
         # Search for videos
-        response = client.videos.list(**{
-            'search:custom.sms_media_id': media_id_value,
-        })
+        videos = (v.data for v in models.CachedResource.videos.filter(
+            data__custom__sms_media_id=media_id_value
+        ))
 
         # Loop through "videos" to find the preferred one based on mediatype
         video_resource = None
-        for video_dict in response.get('videos', []):
+        for video_dict in videos:
             # Convert video dictionary to video resource object
             video = cls(video_dict)
 

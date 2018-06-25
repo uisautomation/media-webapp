@@ -13,59 +13,59 @@ from django.test import TestCase
 import requests
 
 import smsjwplatform.jwplatform as api
+from smsjwplatform.models import CachedResource
 
 from .. import redirect
 from .. import views
 
 
-class EmbedTest(TestCase):
+class TestCaseWithFixtures(TestCase):
+    def setUp(self):
+        for video in VIDEOS_FIXTURE:
+            CachedResource.objects.create(type=CachedResource.VIDEO, key=video['key'], data=video)
 
+
+class EmbedTest(TestCaseWithFixtures):
     def test_embed(self):
         """
         Test basic functionality of embed client.
 
         """
-        with patched_client() as jwclient:
-            # Try to embed a video
-            r = self.client.get(reverse('legacysms:embed', kwargs={'media_id': 34}))
-            self.assertEqual(r.status_code, 200)
+        # Try to embed a video
+        r = self.client.get(reverse('legacysms:embed', kwargs={'media_id': 34}))
+        self.assertEqual(r.status_code, 200)
 
-            # Check that the search endpoint was called
-            jwclient.videos.list.assert_called()
-
-            # Check that an appropriate URL fragment is in the response
-            self.assertIn('players/{}-{}.js'.format(
-                'myvideokey', settings.JWPLATFORM_EMBED_PLAYER_KEY), r.content.decode('utf8'))
+        # Check that an appropriate URL fragment is in the response
+        self.assertIn('players/{}-{}.js'.format(
+            'myvideokey', settings.JWPLATFORM_EMBED_PLAYER_KEY), r.content.decode('utf8'))
 
     def test_video_embed(self):
         """
         Test basic functionality of embed client with an explicit video embed.
 
         """
-        with patched_client():
-            # Try to embed a video
-            r = self.client.get(
-                reverse('legacysms:embed', kwargs={'media_id': 34}) + '?format=video')
-            self.assertEqual(r.status_code, 200)
+        # Try to embed a video
+        r = self.client.get(
+            reverse('legacysms:embed', kwargs={'media_id': 34}) + '?format=video')
+        self.assertEqual(r.status_code, 200)
 
-            # Check that an appropriate URL fragment is in the response
-            self.assertIn('players/{}-{}.js'.format(
-                'myvideokey', settings.JWPLATFORM_EMBED_PLAYER_KEY), r.content.decode('utf8'))
+        # Check that an appropriate URL fragment is in the response
+        self.assertIn('players/{}-{}.js'.format(
+            'myvideokey', settings.JWPLATFORM_EMBED_PLAYER_KEY), r.content.decode('utf8'))
 
     def test_audio_embed(self):
         """
         Test basic functionality of embed client with an explicit audio embed.
 
         """
-        with patched_client():
-            # Try to embed an audio stream
-            r = self.client.get(
-                reverse('legacysms:embed', kwargs={'media_id': 34}) + '?format=audio')
-            self.assertEqual(r.status_code, 200)
+        # Try to embed an audio stream
+        r = self.client.get(
+            reverse('legacysms:embed', kwargs={'media_id': 34}) + '?format=audio')
+        self.assertEqual(r.status_code, 200)
 
-            # Check that an appropriate URL fragment is in the response
-            self.assertIn('players/{}-{}.js'.format(
-                'myaudiokey', settings.JWPLATFORM_EMBED_PLAYER_KEY), r.content.decode('utf8'))
+        # Check that an appropriate URL fragment is in the response
+        self.assertIn('players/{}-{}.js'.format(
+            'myaudiokey', settings.JWPLATFORM_EMBED_PLAYER_KEY), r.content.decode('utf8'))
 
     def test_no_permission(self):
         """
@@ -97,26 +97,22 @@ class EmbedTest(TestCase):
 
     def test_no_media(self):
         """
-        Test redirect behaviour when no media returned.
+        Test redirect behaviour when no media is in local cache.
 
         """
-        with patched_client() as jwclient:
-            # No matter how videos are searched, return none
-            jwclient.videos.list.return_value = {'status': 'ok', 'videos': []}
-            r = self.client.get(reverse('legacysms:embed', kwargs={'media_id': 34}))
-            self.assertRedirects(r, redirect.media_embed(34)['Location'],
-                                 fetch_redirect_response=False)
+        r = self.client.get(reverse('legacysms:embed', kwargs={'media_id': 12345}))
+        self.assertRedirects(r, redirect.media_embed(12345)['Location'],
+                             fetch_redirect_response=False)
 
     def test_wrong_media(self):
         """
         Test redirect behaviour when wrong media returned.
 
         """
-        with patched_client():
-            # Embedding fails with wrong media id
-            r = self.client.get(reverse('legacysms:embed', kwargs={'media_id': 35}))
-            self.assertRedirects(r, redirect.media_embed(35)['Location'],
-                                 fetch_redirect_response=False)
+        # Embedding fails with wrong media id
+        r = self.client.get(reverse('legacysms:embed', kwargs={'media_id': 35}))
+        self.assertRedirects(r, redirect.media_embed(35)['Location'],
+                             fetch_redirect_response=False)
 
     def test_rss_media(self):
         """
@@ -125,7 +121,7 @@ class EmbedTest(TestCase):
         """
         # We mock time.time() here since URL signing uses the current time as an input and we want
         # to ensure that we generate the same signature.
-        with patched_client(), mock.patch('time.time', return_value=12345):
+        with mock.patch('time.time', return_value=12345):
             # Try to embed a video
             r = self.client.get(reverse('legacysms:rss_media', kwargs={'media_id': 34}))
 
@@ -343,23 +339,19 @@ class DownloadTests(TestCase):
             self.assertEqual(r.status_code, 403)
 
 
-# A response from /videos/list which contains two media objects corresponding to the SMS media
-# ID "34".
-LIST_RESPONSE_WITH_MEDIA = {
-    'status': 'ok',
-    'videos': [
-        {
-            'custom': {'sms_media_id': 'media:34:', 'sms_acl': 'acl:WORLD:'},
-            'mediatype': 'audio',
-            'key': 'myaudiokey',
-        },
-        {
-            'custom': {'sms_media_id': 'media:34:', 'sms_acl': 'acl:WORLD:'},
-            'mediatype': 'video',
-            'key': 'myvideokey',
-        },
-    ],
-}
+# Two media objects corresponding to the SMS media ID "34".
+VIDEOS_FIXTURE = [
+    {
+        'custom': {'sms_media_id': 'media:34:', 'sms_acl': 'acl:WORLD:'},
+        'mediatype': 'audio',
+        'key': 'myaudiokey',
+    },
+    {
+        'custom': {'sms_media_id': 'media:34:', 'sms_acl': 'acl:WORLD:'},
+        'mediatype': 'video',
+        'key': 'myvideokey',
+    },
+]
 
 # A media information resource fixture.
 MEDIA_INFO = {
@@ -395,10 +387,6 @@ def patched_client():
 
     """
     client = mock.MagicMock()
-    # No matter how videos are searched, return two with ID: 34
-    client.videos.list.return_value = LIST_RESPONSE_WITH_MEDIA
-    # return a media item with a WORLD acl
-    client.videos.show.return_value = {'video': LIST_RESPONSE_WITH_MEDIA['videos'][0]}
     get_client = mock.MagicMock()
     get_client.return_value = client
     patcher = mock.patch('smsjwplatform.jwplatform.get_jwplatform_client', get_client)
