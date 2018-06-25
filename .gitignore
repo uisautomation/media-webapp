@@ -105,8 +105,8 @@ venv.bak/
 *.sqlite3
 
 # Local configuration
-setupenv.sh
 smswebapp/settings/local.py
+secrets.env
 
 # PyCharm
 .idea

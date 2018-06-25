@@ -28,6 +28,7 @@ jobs:
       - run:
           name: Test production container health check
           command: |
+            cp secrets.env.in secrets.env
             ./compose.sh production up -d
             ./compose/wait-for-it.sh localhost:8000 -t 15
             ./compose.sh production exec production_app ./manage.py migrate

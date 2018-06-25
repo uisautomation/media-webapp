@@ -18,10 +18,7 @@ services:
       - "db"
       - "hydra"
       - "lookupproxy"
-    environment:
-      # Teleport JWPlatform credentials and configuration from host environment.
-      JWPLATFORM_API_KEY: "${JWPLATFORM_API_KEY}"
-      JWPLATFORM_API_SECRET: "${JWPLATFORM_API_SECRET}"
-      JWPLATFORM_EMBED_PLAYER_KEY: "${JWPLATFORM_EMBED_PLAYER_KEY}"
+      - "hydra-create-clients"
     env_file:
       - base.env
+      - ../secrets.env

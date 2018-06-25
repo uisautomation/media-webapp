@@ -2,7 +2,7 @@ import os
 
 #: Base directory containing the project. Build paths inside the project via
 #: ``os.path.join(BASE_DIR, ...)``.
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 #: The Django secret key is by default set from the environment. If omitted, a system check will
@@ -22,10 +22,14 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'whitenoise.runserver_nostatic',  # use whitenoise even in development
     'django.contrib.staticfiles',
 
     'automationcommon',
     'automationlookup',
+    'corsheaders',
+    'drf_yasg',
+    'rest_framework',
     'ucamwebauth',
 
     'smsjwplatform',
@@ -35,7 +39,9 @@ INSTALLED_APPS = [
 #: Installed middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -191,3 +197,23 @@ LOGGING = {
         },
     },
 }
+
+# Configure DRF to use Django's session authentication to determine the current user
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ]
+}
+
+# Allow all origins to access API.
+CORS_URLS_REGEX = r'^/api/.*$'
+CORS_ORIGIN_ALLOW_ALL = True
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATIC_ROOT = os.environ.get('DJANGO_STATIC_ROOT', os.path.join(BASE_DIR, 'build', 'static'))
+
+# See wsgi.py for how this is used.
+FRONTEND_APP_BUILD_DIR = os.environ.get(
+    'DJANGO_FRONTEND_APP_BUILD_DIR',
+    os.path.abspath(os.path.join(BASE_DIR, 'frontend', 'build'))
+)
