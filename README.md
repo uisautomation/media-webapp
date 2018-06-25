@@ -69,6 +69,10 @@ via Docker:
 * JWPLATFORM_API_KEY and JWPLATFORM_API_SECRET
 * OAUTH2_CLIENT_ID and OAUTH2_CLIENT_SECRET
 
+The following environment variables are optional:
+* SMS_ENABLE_DEBUG_THIS_IS_DANGEROUS. Enables DJANGO DEBUG if set.
+* DANGEROUS_DISABLE_HTTPS_REDIRECT. Disables HTTP to HTTPS redirect.
+
 See the [Dockerfile](Dockerfile).
 
 ## Connecting the React world and the Django world
