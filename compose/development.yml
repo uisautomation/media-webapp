@@ -4,6 +4,34 @@
 #
 #   docker-compose -f compose/base.yml -f compose/development.yml
 version: '3.2'
+
+## The docker-compose version on CircleCI does not support version 3.4 files
+## which are required to template common configuration for the frontend
+## containers like below using extension fields. Instead we must copy-paste the
+## configuration.
+##
+## See: https://docs.docker.com/compose/compose-file/#extension-fields
+#x-frontend-template: &frontend-template
+#  build:
+#    context: ..
+#    dockerfile: ./compose/development.frontend.Dockerfile
+#
+#  volumes:
+#    # For the frontend, mount the local frontend directories inside the container
+#    # as a volume to allow local changes to be reflected without having to
+#    # re-build the container.
+#    - type: bind
+#      source: ../frontend/src
+#      target: /usr/src/app/src
+#      read_only: true
+#    - type: bind
+#      source: ../frontend/public
+#      target: /usr/src/app/public
+#      read_only: true
+#
+#    # This volume is only used by some frontend services
+#    - "frontend_build:/tmp/frontend_build"
+
 services:
   mailhog:
     image: mailhog/mailhog
@@ -13,7 +41,7 @@ services:
   development_app:
     build:
       context: ..
-      dockerfile: ./compose/development.Dockerfile
+      dockerfile: ./compose/development.django.Dockerfile
     expose:
       - "8080"
     ports:
@@ -23,19 +51,107 @@ services:
       - "mailhog"
       - "hydra"
       - "lookupproxy"
-    # For devserver, mount the local directory inside the container as a volume
-    # to allow local changes to be reflected without having to re-build the
-    # container.
+      - "frontend_watch"
+      - "hydra-create-clients"
     volumes:
+      # For devserver, mount the local directory inside the container as a volume
+      # to allow local changes to be reflected without having to re-build the
+      # container.
       - type: bind
         source: ../
         target: /usr/src/app
         read_only: true
+      - "frontend_build:/tmp/frontend_build"
     environment:
-      # Teleport JWPlatform credentials and configuration from host environment.
-      JWPLATFORM_API_KEY: "${JWPLATFORM_API_KEY}"
-      JWPLATFORM_API_SECRET: "${JWPLATFORM_API_SECRET}"
-      JWPLATFORM_EMBED_PLAYER_KEY: "${JWPLATFORM_EMBED_PLAYER_KEY}"
+      DJANGO_FRONTEND_APP_BUILD_DIR: "/tmp/frontend_build"
     env_file:
       - base.env
       - development.env
+      - ../secrets.env
+
+  # Front end using the default webpack development server which allows
+  # hot-reloading, etc.
+  frontend:
+    build:
+      context: ..
+      dockerfile: ./compose/development.frontend.Dockerfile
+
+    volumes:
+      # For the frontend, mount the local frontend directories inside the container
+      # as a volume to allow local changes to be reflected without having to
+      # re-build the container.
+      - type: bind
+        source: ../frontend/src
+        target: /usr/src/app/src
+        read_only: true
+      - type: bind
+        source: ../frontend/public
+        target: /usr/src/app/public
+        read_only: true
+    expose:
+      - "3000"
+    ports:
+      - "3000:3000"
+
+  # Front end which is continually re-build using webpack's watch support. Used
+  # to provide an updated source of files for the Django app.
+  frontend_watch:
+    build:
+      context: ..
+      dockerfile: ./compose/development.frontend.Dockerfile
+
+    volumes:
+      # For the frontend, mount the local frontend directories inside the container
+      # as a volume to allow local changes to be reflected without having to
+      # re-build the container.
+      - type: bind
+        source: ../frontend/src
+        target: /usr/src/app/src
+        read_only: true
+      - type: bind
+        source: ../frontend/public
+        target: /usr/src/app/public
+        read_only: true
+      - "frontend_build:/tmp/frontend_build"
+    command: ["run", "watch"]
+    environment:
+      APP_BUILD: "/tmp/frontend_build"
+
+  # Front end live documentation
+  frontend_styleguidist:
+    build:
+      context: ..
+      dockerfile: ./compose/development.frontend.Dockerfile
+
+    volumes:
+      # For the frontend, mount the local frontend directories inside the container
+      # as a volume to allow local changes to be reflected without having to
+      # re-build the container.
+      - type: bind
+        source: ../frontend/src
+        target: /usr/src/app/src
+        read_only: true
+      - type: bind
+        source: ../frontend/public
+        target: /usr/src/app/public
+        read_only: true
+    expose:
+      - "6060"
+    ports:
+      - "6060:6060"
+    command: ["run", "styleguidist-server"]
+
+  # Swagger
+  swagger:
+    image: swaggerapi/swagger-ui
+    expose:
+      - "8080"
+    ports:
+      - "7000:8080"
+    depends_on:
+      - "development_app"
+    environment:
+      API_URL: http://localhost:8000/api/swagger.json
+
+volumes:
+  frontend_build:

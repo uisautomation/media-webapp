@@ -8,6 +8,14 @@ psycopg2-binary
 git+https://github.com/uisautomation/django-automationcommon.git@master#egg=django-automationcommon
 git+https://github.com/uisautomation/django-automationoauth.git@master#egg=django-automationoauth
 django-ucamwebauth>=1.4.5
+djangorestframework
+django-cors-headers
+drf-yasg
+
+# PRE-RELEASE WHITENOISE VERSION
+# We need at least version 4 of whitenoise to make use of the index_file
+# configuration option.
+whitenoise>=4.0b4
 
 # For managing OAuth2 tokens
 oauthlib

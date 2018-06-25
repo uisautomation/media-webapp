@@ -1,0 +1,35 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@material-ui/core": "^1.1.0",
+    "@material-ui/icons": "^1.1.0",
+    "react": "^16.4.0",
+    "react-content-loader": "^3.1.2",
+    "react-docgen-typescript": "^1.5.0",
+    "react-dom": "^16.4.0",
+    "react-scripts-ts": "2.16.0"
+  },
+  "scripts": {
+    "start": "react-scripts-ts start",
+    "build": "react-scripts-ts build",
+    "test": "react-scripts-ts test --env=jsdom",
+    "eject": "react-scripts-ts eject",
+    "watch": "node scripts/watch.js",
+    "styleguidist-server": "styleguidist server"
+  },
+  "devDependencies": {
+    "@types/jest": "^22.2.3",
+    "@types/node": "^10.1.4",
+    "@types/react": "^16.3.14",
+    "@types/react-dom": "^16.0.5",
+    "typescript": "^2.8.3",
+    "react-styleguidist": "^7.0.14"
+  },
+  "proxy": {
+    "/(api|accounts|raven_return)/": {
+      "target": "http://development_app:8080"
+    }
+  }
+}

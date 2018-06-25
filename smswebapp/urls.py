@@ -31,6 +31,7 @@ urlpatterns = [
     path('', include('ucamwebauth.urls')),
     path('healthz', automationcommon.views.status, name='status'),
     path('legacy/', include('legacysms.urls', namespace='legacysms')),
+    path('api/', include('api.urls', namespace='api')),
 ]
 
 # Selectively enable django debug toolbar URLs. Only if the toolbar is

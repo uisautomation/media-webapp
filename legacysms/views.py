@@ -45,7 +45,7 @@ def embed(request, media_id):
 
     try:
         video.check_user_access(request.user)
-    except api.VideoPermissionDenied:
+    except api.ResourceACLPermissionDenied:
         context = {
             'login_url': '%s?next=%s' % (settings.LOGIN_URL, request.path)
         } if request.user.is_anonymous else {}

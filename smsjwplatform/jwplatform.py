@@ -56,7 +56,7 @@ def get_jwplatform_client():
     return jwplatform.Client(settings.JWPLATFORM_API_KEY, settings.JWPLATFORM_API_SECRET)
 
 
-class VideoPermissionDenied(django.core.exceptions.PermissionDenied):
+class ResourceACLPermissionDenied(django.core.exceptions.PermissionDenied):
     """
     A sub-class of :py:exc:`django.core.exceptions.PermissionDenied` used to indicate that the
     current user does not match the ACL of a video. See: :py:func:`~.Video.check_user_access`.
@@ -64,7 +64,43 @@ class VideoPermissionDenied(django.core.exceptions.PermissionDenied):
     """
 
 
-class Video(dict):
+class Resource(dict):
+    """
+    A dict subclass representing a media item or channel resource as returned by the JWPlatform
+    API. This subsclass is specialised by the :py:class:`.Video` or :py:class:`.Channel` objects.
+
+    """
+    @property
+    def key(self):
+        """JWPlatform key for this resource or ``None`` if it has none."""
+        return self.get('key')
+
+    @property
+    def acl(self):
+        """
+        The parsed ACL custom prop on the resource. If no ACL is present, the WORLD ACL is assumed.
+
+        """
+        field = parse_custom_field('acl', self.get('custom', {}).get('sms_acl', 'acl:WORLD:'))
+
+        # Work around odd ACL entries. See uisautomation/sms2jwplayer#30.
+        if field == "['']":
+            return []
+
+        return [acl.strip() for acl in field.split(',') if acl.strip() != '']
+
+    def check_user_access(self, user):
+        """
+        Check whether the specified Django user has permission to access this resource.
+        Raises :py:exc:`~.ResourceACLPermissionDenied` if the user does not match the ACL.
+        """
+        for ace in acl.build_acl(self.acl):
+            if ace.has_permission(user):
+                return True
+        raise ResourceACLPermissionDenied()
+
+
+class Video(Resource):
     """
     A dict subclass representing a video resource object as returned by the JWPlatform API.
 
@@ -73,28 +109,19 @@ class Video(dict):
 
     """
     @property
-    def key(self):
-        """JWPlatform key for this video or ``None`` if it has none."""
-        return self.get('key')
-
-    @property
-    def acl(self):
+    def media_id(self):
         """
-        The parsed ACL custom prop on the video. If no ACL is present, the WORLD ACL is assumed.
+        The legacy SMS media id (or None if there is none)
 
         """
-        field = self.get('custom', {}).get('sms_acl', 'acl:WORLD:')
-        return parse_custom_field('acl', field).split(',')
+        field = self.get('custom', {}).get('sms_media_id')
+        if field is None:
+            return None
+        return parse_custom_field('media', field)
 
-    def check_user_access(self, user):
-        """
-        Check whether the specified Django user has permission to access this video.
-        Raises :py:exc:`~.VideoPermissionDenied` if the user does not match the ACL.
-        """
-        for ace in acl.build_acl(self.acl):
-            if ace.has_permission(user):
-                return True
-        raise VideoPermissionDenied()
+    def get_poster_url(self, width=720):
+        return 'https://cdn.jwplayer.com/thumbs/{key}-{width}.jpg'.format(
+            key=self.key, width=width)
 
     @classmethod
     def from_key(cls, key, client=None):
@@ -110,6 +137,21 @@ class Video(dict):
         """
         client = client if client is not None else get_jwplatform_client()
         return cls(client.videos.show(video_key=key)['video'])
+
+    @classmethod
+    def list(cls, list_params={}, client=None):
+        """
+        Convenience wrapper around the ``videos.list`` JWPlatform API method. The videos returned
+        are coerced into :py:class:`Video` instances.
+
+        """
+        client = client if client is not None else get_jwplatform_client()
+        response = client.videos.list(**list_params)
+
+        if 'videos' in response:
+            response['videos'] = [cls(resource) for resource in response['videos']]
+
+        return response
 
     @classmethod
     def from_media_id(cls, media_id, preferred_media_type='video', client=None):
@@ -159,6 +201,70 @@ class Video(dict):
             raise VideoNotFoundError()
 
         return video_resource
+
+
+class Channel(Resource):
+    """
+    A dict subclass representing a channel resource object as returned by the JWPlatform API.
+
+    This subclass provides some convenience accessors for various common resource keys but, since
+    this is a dict subclass, the values can be retrieved using ``[]`` or ``get`` as per usual.
+
+    """
+    @property
+    def collection_id(self):
+        """
+        The legacy SMS collection id (or None if there is none)
+
+        """
+        field = self.get('custom', {}).get('sms_collection_id')
+        if field is None:
+            return None
+        return parse_custom_field('collection', field)
+
+    def get_poster_url(self):
+        # TODO: find some solution for channel thumbnails
+        field = self.get('custom', {}).get('sms_image_id')
+        if field is None:
+            return None
+
+        image_id = parse_custom_field('image', field)
+
+        # Work around an import script bug
+        if image_id is None or image_id == 'None':
+            return None
+
+        return f'https://sms.cam.ac.uk/image/{image_id}'
+
+    @classmethod
+    def from_key(cls, key, client=None):
+        """
+        Return a :py:class:`Video` instance corresponding to the JWPlatform key passed.
+
+        :param key: JWPlatform key for the media.
+        :param client: (optional) an authenticated JWPlatform client as returned by
+            :py:func:`.get_jwplatform_client`. If ``None``, call :py:func:`.get_jwplatform_client`.
+
+        :raises: :py:exc:`jwplatform.errors.JWPlatformNotFoundError` if the video is not found.
+
+        """
+        client = client if client is not None else get_jwplatform_client()
+        return cls(client.channels.show(channel_key=key)['channel'])
+
+    @classmethod
+    def list(cls, list_params={}, client=None):
+        """
+        Convenience wrapper around the ``channels.list`` JWPlatform API method. The channels
+        returned are coerced into :py:class:`Video` instances.
+
+        """
+        client = client if client is not None else get_jwplatform_client()
+        response = client.channels.list(**list_params)
+
+        if 'channels' in response:
+            response['channels'] = [cls(resource) for resource in response['channels']]
+
+        return response
 
 
 def parse_custom_field(expected_type, field):
