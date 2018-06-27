@@ -8,6 +8,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from smsjwplatform import jwplatform as api
+from smsjwplatform import models
 
 
 class JWPlatformTest(TestCase):
@@ -15,23 +16,22 @@ class JWPlatformTest(TestCase):
     General module tests
     """
 
-    def test_acl(self):
+    def test_acl_parsing(self):
+        models.CachedResource.objects.create(
+            key='xyz', type=models.CachedResource.VIDEO,
+            data={'key': 'xxx', 'custom': {'sms_acl': 'acl:WORLD,USER_mb2174:'}}
+        )
 
-        client = mock.Mock()
+        self.assertEqual(api.Video.from_key('xyz').acl, ['WORLD', 'USER_mb2174'])
 
-        client.videos.show.return_value = {
-            'video': {'custom': {'sms_acl': 'acl:WORLD,USER_mb2174:'}}
-        }
-        self.assertEqual(api.Video.from_key(123, client=client).acl, ['WORLD', 'USER_mb2174'])
-
-        client.videos.show.assert_called_with(video_key=123)
-
-        client.videos.show.return_value = {
-            'video': {'custom': {'sms_acl': 'corrupted'}}
-        }
+    def test_corrupted_acl(self):
+        models.CachedResource.objects.create(
+            key='xyz', type=models.CachedResource.VIDEO,
+            data={'key': 'xxx', 'custom': {'sms_acl': 'corrupted'}}
+        )
 
         with self.assertRaises(ValueError):
-            api.Video.from_key(123, client=client).acl
+            api.Video.from_key('xyz').acl
 
 
 class PlatformDeliveryAPITests(TestCase):

@@ -4,6 +4,8 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory, force_authenticate
 
+from smsjwplatform.models import CachedResource
+
 from .. import views
 
 
@@ -103,13 +105,8 @@ class MediaListViewTestCase(ViewTestCase):
     def setUp(self):
         super().setUp()
         self.view = views.MediaListView().as_view()
-        self.client.videos.list.return_value = {
-            'status': 'ok',
-            'videos': VIDEOS_FIXTURE,
-            'limit': 10,
-            'offset': 0,
-            'total': 30,
-        }
+        for video in VIDEOS_FIXTURE:
+            CachedResource.objects.create(type=CachedResource.VIDEO, key=video['key'], data=video)
 
     def test_basic_list(self):
         """An user should get all SMS media back."""
@@ -141,20 +138,6 @@ class MediaListViewTestCase(ViewTestCase):
         # Authorised users have more results
         self.assertGreater(
             len(auth_response_data['results']), len(unauth_response_data['results']))
-
-    def test_jwplatform_error(self):
-        """A JWPlatform error should be reported as a bad gateway error."""
-        self.client.videos.list.return_value = {'status': 'error'}
-        response = self.view(self.factory.get('/'))
-        self.assertEqual(response.status_code, 502)
-
-    def test_search(self):
-        """A search options should be passed through to the API call."""
-        self.view(self.factory.get('/?search=foo'))
-        call_args = self.client.videos.list.call_args
-        self.assertIsNotNone(call_args)
-        self.assertIn('search', call_args[1])
-        self.assertEqual(call_args[1]['search'], 'foo')
 
 
 CHANNELS_FIXTURE = [
