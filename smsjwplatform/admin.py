@@ -1,8 +1,14 @@
 from django.contrib import admin
 
-# Register your models here.
-from django.contrib.admin import ModelAdmin
-
 from automationlookup.models import UserLookup
+from smsjwplatform.models import CachedResource
 
-admin.site.register(UserLookup, ModelAdmin)
+admin.site.register(UserLookup, admin.ModelAdmin)
+
+
+@admin.register(CachedResource)
+class CachedResourceAdmin(admin.ModelAdmin):
+    list_display = ('title', 'type', 'deleted_at')
+
+    def title(self, obj):
+        return obj.data.get('title', '<no title>')

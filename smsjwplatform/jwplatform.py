@@ -4,6 +4,7 @@ Interaction with the JWPlatform API.
 """
 import hashlib
 import math
+import re
 import time
 import urllib.parse
 
@@ -267,16 +268,19 @@ class Channel(Resource):
         return response
 
 
+CUSTOM_FIELD_PATTERN = re.compile(r'^(?P<type>[^:]+):(?P<value>.*):$')
+
+
 def parse_custom_field(expected_type, field):
     """
     Parses a custom field content of the form "<expected_type>:<value>:". Returns the value.
     Raises ValueError if the field is of the wrong form or type.
     """
-    field_parts = field.split(":")
-    if len(field_parts) != 3 or field_parts[0] != expected_type or field_parts[2] != '':
-        raise ValueError(f"expected format '{expected_type}:value:")
+    match = CUSTOM_FIELD_PATTERN.match(field)
+    if not match or match.group('type') != expected_type:
+        raise ValueError(f"expected format '{expected_type}:value:, value was '{field}'")
 
-    return field_parts[1]
+    return match.group('value')
 
 
 def signed_url(url):
