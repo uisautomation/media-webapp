@@ -135,6 +135,8 @@ class MediaListView(APIView):
         # Django has limited understanding of how to order by a JSONField so we help it out a bit
         # here by using the .extra() method on the QuerySet and just providing the SQL expression
         # directly.
+        # Django will have native support for order_by in JSONFields from Django 2.1
+        # To keep track of the issue: https://code.djangoproject.com/ticket/24747
         videos = CachedResource.videos.extra(
             select={'__ordering': self.ORDER_BY_MAP[query['order_by']]},
             order_by=[
