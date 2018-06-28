@@ -41,6 +41,16 @@ def media_download(media_id, clip_id, extension):
         settings.LEGACY_SMS_DOWNLOADS_URL, f'{media_id:d}/{clip_id:d}.{extension}'))
 
 
+def media_page(media_id):
+    """
+    Returns a :py:class:`HttpResponse` which redirects back to the legacy media item page for the
+    given media id. Raises :py:exc:`ValueError` if *media_id* is non-numeric.
+
+    """
+    return _redirect_relative(urlparse.urljoin(
+        settings.LEGACY_SMS_FRONTEND_URL, f'media/{media_id:d}'))
+
+
 def _redirect_relative(url):
     """
     Given a relative URL path, return the redirect to the full URL formed using the
