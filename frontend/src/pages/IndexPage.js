@@ -8,6 +8,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { mediaList, mediaResourceToItem } from '../api';
 import AppBar from '../components/AppBar';
 import MediaList from '../components/MediaList';
+import MotdBanner from '../components/MotdBanner';
 import SearchResultsProvider, { withSearchResults } from '../providers/SearchResultsProvider';
 import { withProfile } from '../providers/ProfileProvider';
 import withRoot from './withRoot';
@@ -59,6 +60,8 @@ class IndexPage extends Component {
         </AppBar>
 
         <div className={classes.body}>
+          <MotdBanner />
+
           <SearchResultsProvider query={searchQuery}>
             <SearchResultsSection />
           </SearchResultsProvider>
