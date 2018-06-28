@@ -125,6 +125,7 @@ const ProfileButton = withProfile(({ profile, ...otherProps }) => {
 const mediaListSectionStyles = theme => ({
   root: {
     marginBottom: theme.spacing.unit * 4,
+    marginTop: theme.spacing.unit * 2,
   },
 });
 
@@ -166,7 +167,6 @@ const styles = theme => ({
     margin: [[0, 'auto']],
     paddingLeft: theme.spacing.unit * 2,
     paddingRight: theme.spacing.unit * 2,
-    paddingTop: theme.spacing.unit * 3,
 
     [theme.breakpoints.up('sm')]: {
       paddingLeft: theme.spacing.unit * 3,
