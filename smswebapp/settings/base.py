@@ -1,4 +1,5 @@
 import os
+import sys
 
 #: Base directory containing the project. Build paths inside the project via
 #: ``os.path.join(BASE_DIR, ...)``.
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
 #: Installed middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -46,7 +48,6 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'smsjwplatform.middleware.user_lookup_middleware'
 ]
 
@@ -212,8 +213,38 @@ CORS_ORIGIN_ALLOW_ALL = True
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_ROOT = os.environ.get('DJANGO_STATIC_ROOT', os.path.join(BASE_DIR, 'build', 'static'))
 
-# See wsgi.py for how this is used.
+# Serve the frontend files from the application root. We use WHITENOISE_INDEX_FILE to make sure
+# that index.html is used for /.
 FRONTEND_APP_BUILD_DIR = os.environ.get(
     'DJANGO_FRONTEND_APP_BUILD_DIR',
     os.path.abspath(os.path.join(BASE_DIR, 'frontend', 'build'))
 )
+
+# If the build directory for the frontend actually exists, serve files for the root of the
+# application from it. Print a warning otherwise.
+if os.path.isdir(FRONTEND_APP_BUILD_DIR):
+    WHITENOISE_ROOT = FRONTEND_APP_BUILD_DIR
+    WHITENOISE_INDEX_FILE = True
+else:
+    print('Warning: FRONTEND_APP_BUILD_DIR does not exist. The frontend will not be served',
+          file=sys.stderr)
+
+# By default we a) redirect all HTTP traffic to HTTPS, b) set the HSTS header to a maximum age
+# of 1 year (as per the consensus recommendation from a quick Google search) and c) advertise that
+# we are willing to be "preloaded" into Chrome and Firefox's internal list of HTTPS-only sites.
+# Set the DANGEROUS_DISABLE_HTTPS_REDIRECT variable to any non-blank value to disable this.
+if os.environ.get('DANGEROUS_DISABLE_HTTPS_REDIRECT', '') == '':
+    # Exempt the healtch-check endpoint from the HTTP->HTTPS redirect.
+    SECURE_REDIRECT_EXEMPT = ['^healthz/?$']
+
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000  # == 1 year
+    SECURE_HSTS_PRELOAD = True
+else:
+    print('Warning: HTTP to HTTPS redirect has been disabled.', file=sys.stderr)
+
+# We also support the X-Forwarded-Proto header to detect if we're behind a load balancer which does
+# TLS termination for us. In future this setting might need to be moved to settings.docker or to be
+# configured via an environment variable if we want to support a wider range of TLS terminating
+# load balancers.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
