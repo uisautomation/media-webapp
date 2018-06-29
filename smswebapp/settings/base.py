@@ -228,3 +228,23 @@ if os.path.isdir(FRONTEND_APP_BUILD_DIR):
 else:
     print('Warning: FRONTEND_APP_BUILD_DIR does not exist. The frontend will not be served',
           file=sys.stderr)
+
+# By default we a) redirect all HTTP traffic to HTTPS, b) set the HSTS header to a maximum age
+# of 1 year (as per the consensus recommendation from a quick Google search) and c) advertise that
+# we are willing to be "preloaded" into Chrome and Firefox's internal list of HTTPS-only sites.
+# Set the DANGEROUS_DISABLE_HTTPS_REDIRECT variable to any non-blank value to disable this.
+if os.environ.get('DANGEROUS_DISABLE_HTTPS_REDIRECT', '') == '':
+    # Exempt the healtch-check endpoint from the HTTP->HTTPS redirect.
+    SECURE_REDIRECT_EXEMPT = ['^healthz/?$']
+
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000  # == 1 year
+    SECURE_HSTS_PRELOAD = True
+else:
+    print('Warning: HTTP to HTTPS redirect has been disabled.', file=sys.stderr)
+
+# We also support the X-Forwarded-Proto header to detect if we're behind a load balancer which does
+# TLS termination for us. In future this setting might need to be moved to settings.docker or to be
+# configured via an environment variable if we want to support a wider range of TLS terminating
+# load balancers.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

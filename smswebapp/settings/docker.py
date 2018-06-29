@@ -11,12 +11,6 @@ SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 # variable is set and is non-empty.
 DEBUG = os.environ.get('SMS_ENABLE_DEBUG_THIS_IS_DANGEROUS', '') != ''
 
-# Redirect all traffic except healthz endpoint to HTTPS unless DANGEROUS_DISABLE_HTTPS_REDIRECT
-# is set
-SECURE_SSL_REDIRECT = os.environ.get('DANGEROUS_DISABLE_HTTPS_REDIRECT') is None
-SECURE_REDIRECT_EXEMPT = ['^healthz$']
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
 # Allow all hosts to connect
 ALLOWED_HOSTS = ['*']
 
