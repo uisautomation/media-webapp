@@ -1,4 +1,5 @@
 import os
+import sys
 
 #: Base directory containing the project. Build paths inside the project via
 #: ``os.path.join(BASE_DIR, ...)``.
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
 #: Installed middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -46,7 +48,6 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'smsjwplatform.middleware.user_lookup_middleware'
 ]
 
@@ -212,8 +213,18 @@ CORS_ORIGIN_ALLOW_ALL = True
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_ROOT = os.environ.get('DJANGO_STATIC_ROOT', os.path.join(BASE_DIR, 'build', 'static'))
 
-# See wsgi.py for how this is used.
+# Serve the frontend files from the application root. We use WHITENOISE_INDEX_FILE to make sure
+# that index.html is used for /.
 FRONTEND_APP_BUILD_DIR = os.environ.get(
     'DJANGO_FRONTEND_APP_BUILD_DIR',
     os.path.abspath(os.path.join(BASE_DIR, 'frontend', 'build'))
 )
+
+# If the build directory for the frontend actually exists, serve files for the root of the
+# application from it. Print a warning otherwise.
+if os.path.isdir(FRONTEND_APP_BUILD_DIR):
+    WHITENOISE_ROOT = FRONTEND_APP_BUILD_DIR
+    WHITENOISE_INDEX_FILE = True
+else:
+    print('Warning: FRONTEND_APP_BUILD_DIR does not exist. The frontend will not be served',
+          file=sys.stderr)
