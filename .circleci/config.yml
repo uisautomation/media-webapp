@@ -20,24 +20,39 @@ jobs:
           command: pip install codecov
 
       - run:
+          name: Create mock secrets.env file
+          command: |
+            cp secrets.env.in secrets.env
+
+      - run:
+          name: Test production container health check
+          command: |
+            # Start production containers
+            ./compose.sh production up -d
+
+            # Fetch endpoint
+            ./compose/wait-for-it.sh localhost:8000 -t 15
+            ./compose.sh production exec production_app ./manage.py migrate
+            curl --verbose --location --output /tmp/healthz --fail --connect-timeout 2 http://localhost:8000/healthz
+
+            # Before it goes away, tag the production container
+            IMAGE=$(./compose.sh production images -q production_app)
+            echo "-- Production container image id: $IMAGE"
+            [ -z "${IMAGE}" ] && (echo "could not determined image id" >&2; exit 1)
+            docker tag ${IMAGE} production:latest
+
+            # Stop production containers
+            ./compose.sh production down
+
+      - run:
           name: Run tests
           command: |
             ./compose.sh tox run -v $PWD:/tmp/workspace -e COVERAGE_FILE=/tmp/workspace/.coverage -e TOXINI_ARTEFACT_DIR=/tmp/workspace/build --rm tox
             ./compose.sh tox down
 
       - run:
-          name: Test production container health check
+          name: Tag production container
           command: |
-            cp secrets.env.in secrets.env
-            ./compose.sh production up -d
-            ./compose/wait-for-it.sh localhost:8000 -t 15
-            ./compose.sh production exec production_app ./manage.py migrate
-            curl --verbose --location --output /tmp/healthz --fail --connect-timeout 2 http://localhost:8000/healthz
-
-      - run:
-          name: Build and tag production container
-          command: |
-            docker build -t production .
             docker tag production:latest eu.gcr.io/$GCLOUD_PROJECT/$CIRCLE_PROJECT_REPONAME:sha-$CIRCLE_SHA1
             docker tag production:latest eu.gcr.io/$GCLOUD_PROJECT/$CIRCLE_PROJECT_REPONAME:branch-$CIRCLE_BRANCH
             docker tag production:latest eu.gcr.io/$GCLOUD_PROJECT/$CIRCLE_PROJECT_REPONAME:build-$CIRCLE_BUILD_NUM
