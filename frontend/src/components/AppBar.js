@@ -10,6 +10,8 @@ import { withStyles } from '@material-ui/core/styles';
 
 import SearchForm from './SearchForm';
 
+import ShieldImage from '../img/shield.svg';
+
 const styles = theme => ({
   root: { /* no default styles */ },
 
@@ -68,7 +70,7 @@ const AppBar = (
     <Grid container component={Toolbar}>
       <Grid item xs={3} className={classes.appBarLeft}>
         <Typography variant="title" color="inherit">
-          University Media Platform
+          <img src={ShieldImage} alt="University Media Platform" style={{verticalAlign: 'bottom', height: '1.8em'}} />
         </Typography>
       </Grid>
       <Grid item xs={12} sm={9} md={6} className={classes.appBarMiddle}>
