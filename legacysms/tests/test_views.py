@@ -204,12 +204,13 @@ class DownloadTests(TestCase):
 
     def test_passes_video_key_to_jwp(self):
         """The correct video key used to get video info."""
-        self.client.get(reverse('legacysms:download_media',
-                                kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
+        with mock.patch('time.time', return_value=12345):
+            self.client.get(reverse('legacysms:download_media',
+                                    kwargs={'media_id': 34, 'clip_id': 56, 'extension': 'mp4'}))
 
-        self.requests_session.get.assert_called_once_with(
-            api.pd_api_url(f'/v2/media/video-key', format='json'), timeout=5
-        )
+            self.requests_session.get.assert_called_once_with(
+                api.pd_api_url(f'/v2/media/video-key', format='json'), timeout=5
+            )
 
     def test_redirects_if_not_found(self):
         """Redirects to legacy SMS if video is not present."""
