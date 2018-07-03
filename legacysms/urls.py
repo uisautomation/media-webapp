@@ -17,4 +17,5 @@ urlpatterns = [
     path('rss/media/<int:media_id>/', views.rss_media, name='rss_media'),
     path('downloads/<int:media_id>/<int:clip_id>.<extension>', views.download_media,
          name='download_media'),
+    path('media/<int:media_id>/', views.media, name='media'),
 ]

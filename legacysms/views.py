@@ -6,6 +6,7 @@ import logging
 from django.conf import settings
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
+from django.urls import reverse
 import requests
 
 from smsjwplatform import jwplatform as api
@@ -181,3 +182,32 @@ def download_media(request, media_id, clip_id, extension):
 
     # Redirect to the direct download URL for the media item.
     return redirect(url)
+
+
+def media(request, media_id):
+    """
+    :param request: the current request
+    :param media_id: SMS media id of the required media
+    :type media_id: int
+
+    Redirect to the correct UI view for the specified SMS media IO. If no media matching the
+    provided SMS media ID is found, a redirect back to the legacy SMS is generated.
+
+    In :py:mod:`~.urls` this view is named ``legacysms:media``.
+
+    """
+    try:
+        video = api.Video.from_media_id(media_id, preferred_media_type='video')
+    except api.VideoNotFoundError:
+        # If we cannot find the item, simply redirect to the legacy SMS. We ignore the format
+        # parameter here because this redirect will only be for new media items and the embedding
+        # HTML no longer includes the format parameter.
+        return legacyredirect.media_page(media_id)
+
+    # If the user cannot access the media, redirect to legacy sms which will show an error page.
+    try:
+        video.check_user_access(request.user)
+    except api.ResourceACLPermissionDenied:
+        return legacyredirect.media_page(media_id)
+
+    return redirect(reverse('ui:media_item', kwargs={'media_key': video.key}))
