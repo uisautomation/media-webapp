@@ -392,7 +392,7 @@ def signed_url(url):
     }))
 
 
-def generate_token(resource):
+def _generate_token(resource, now_timestamp):
     """
     Generate a signed JWT for the specified resource using the
     `procedure
@@ -403,21 +403,24 @@ def generate_token(resource):
     # The following is lifted almost verbatim from JWPlatform's documentation.
 
     # Link is valid for 1hr but normalized to 3 minutes to promote better caching
-    exp = math.ceil((time.time() + 3600)/180) * 180
+    exp = math.ceil((now_timestamp + 3600)/180) * 180
     token_body = {"resource": resource, "exp": exp}
 
     return jwt.encode(token_body, settings.JWPLATFORM_API_SECRET, algorithm='HS256')
 
 
-def pd_api_url(resource, **parameters):
+def pd_api_url(resource, now_timestamp=None, **parameters):
     """
     Return a JWPlatform Platform Delivery API URL with the request has the appropriate JWT
     attached.
 
     :param str resource: path to resource, e.g. ``/v2/media/123456``. Must start with a slash.
+    :param int now_timestamp: the current UTC timestamp as returned by :py:func:`time.time`.
     :param dict parameters: remaining keyword arguments are passed as URL parameters
     :return: response from API server.
     :rtype: requests.Response
+
+    If *now_timestamp* is ``None``, the value returned by :py:func:`time.time` is used.
 
     :raises ValueError: if the resource name does not start with a slash.
 
@@ -430,8 +433,10 @@ def pd_api_url(resource, **parameters):
     if not resource.startswith('/'):
         raise ValueError('Resource name must have leading slash')
 
+    now_timestamp = now_timestamp if now_timestamp is not None else time.time()
+
     # Construct parameters for URL including JWT
-    url_params = {'token': generate_token(resource)}
+    url_params = {'token': _generate_token(resource, now_timestamp=now_timestamp)}
     url_params.update(parameters)
 
     # Construct GET URL
