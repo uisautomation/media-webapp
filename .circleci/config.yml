@@ -51,6 +51,10 @@ jobs:
             ./compose.sh tox down
 
       - run:
+          name: Run codecov
+          command: codecov
+
+      - run:
           name: Tag & Push docker image
           command: |
             if [ ! -z "$GCLOUD_SERVICE_KEY" ]; then
