@@ -1,4 +1,4 @@
-FROM python:3.6
+FROM uisautomation/python:django
 
 # Do everything relative to /usr/src/app which is where we install our
 # application.

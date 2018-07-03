@@ -10,7 +10,7 @@ ADD ./frontend/ ./
 RUN npm install && npm run build
 
 # Use python alpine image to run webapp proper
-FROM python:3.6-alpine
+FROM uisautomation/python:django
 
 # Ensure packages are up to date and install some useful utilities
 RUN apk update && apk add git vim postgresql-dev libffi-dev gcc musl-dev \
