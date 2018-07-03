@@ -13,6 +13,9 @@ const paleGreen = '#F1FBFC';
 const lightGreen = '#91B9A4';
 const coreGreen = '#00B1C1';
 const darkGreen = '#106470';
+const lightRed = '#EB99A9';
+const coreRed = '#D6083B';
+const darkRed = '#901C3B';
 const white = '#fff';
 const darkGrey = '#212121';
 const mediumGrey = '#757575';
@@ -31,9 +34,9 @@ const theme = createMuiTheme({
       contrastText: white,
     },
     secondary: {
-      light: lightGreen,
-      main: coreGreen,
-      dark: darkGreen,
+      light: lightRed,
+      main: coreRed,
+      dark: darkRed,
       contrastText: white,
     },
   },
@@ -42,12 +45,22 @@ const theme = createMuiTheme({
     lightGreen,
     coreGreen,
     darkGreen,
+    lightRed,
+    coreRed,
+    darkRed,
     white,
     darkGrey,
     mediumGrey,
     lightGrey,
     blueyGrey,
     appBarBackground,
+  },
+  overrides: {
+    MuiAppBar: {
+      colorPrimary: {
+        backgroundColor: darkGreen,
+      },
+    },
   },
 });
 
