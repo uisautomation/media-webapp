@@ -32,6 +32,7 @@ urlpatterns = [
     path('healthz', automationcommon.views.status, name='status'),
     path('legacy/', include('legacysms.urls', namespace='legacysms')),
     path('api/', include('api.urls', namespace='api')),
+    path('', include('ui.urls', namespace='ui')),
 ]
 
 # Selectively enable django debug toolbar URLs. Only if the toolbar is

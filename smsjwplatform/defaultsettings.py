@@ -38,6 +38,12 @@ Base URL for the JWPlatform API. This can usually be left at its default value.
 
 """
 
+JWPLATFORM_CONTENT_BASE_URL = 'https://content.jwplatform.com'
+"""
+Base URL for the JWPlatform Content. This can usually be left at its default value.
+
+"""
+
 JWPLATFORM_EMBED_PLAYER_KEY = None
 """
 Player key for the embedded player used by the :py:mod:`~.views.embed` view.

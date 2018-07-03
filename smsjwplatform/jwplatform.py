@@ -3,11 +3,13 @@ Interaction with the JWPlatform API.
 
 """
 import hashlib
+import logging
 import math
 import re
 import time
 import urllib.parse
 
+import requests
 from django.conf import settings
 import django.core.exceptions
 import jwplatform
@@ -15,6 +17,11 @@ import jwt
 
 from . import acl
 from . import models
+
+LOG = logging.getLogger(__name__)
+
+# Default session used for making HTTP requests.
+DEFAULT_REQUESTS_SESSION = requests.Session()
 
 
 class VideoNotFoundError(RuntimeError):
@@ -24,7 +31,14 @@ class VideoNotFoundError(RuntimeError):
     """
 
 
-def player_embed_url(key, player, format='js'):
+class UnparseableVideoError(RuntimeError):
+    """
+    The JWPlayer JSON response body was unparseable.
+
+    """
+
+
+def player_embed_url(key, player, format='js', base=settings.JWPLATFORM_API_BASE_URL):
     """
     Return a signed URL pointing to a player initialised with a specific media item.
 
@@ -39,10 +53,9 @@ def player_embed_url(key, player, format='js'):
         <https://developer.jwplayer.com/jw-platform/docs/delivery-api-reference/#!/players/get_players_content_id_player_id_embed_type>`_.
 
     """
-    url = urllib.parse.urljoin(
-        settings.JWPLATFORM_API_BASE_URL,
-        '/players/{key}-{player}.{format}'.format(
-            key=key, player=player, format=format))
+    url = urllib.parse.urljoin(base, '/players/{key}-{player}.{format}'.format(
+        key=key, player=player, format=format
+    ))
     return signed_url(url)
 
 
@@ -101,6 +114,10 @@ class Resource(dict):
                 return True
         raise ResourceACLPermissionDenied()
 
+    def get_poster_url(self, width=720):
+        return settings.JWPLATFORM_API_BASE_URL + 'thumbs/{key}-{width}.jpg'.format(
+            key=self.key, width=width)
+
 
 class Video(Resource):
     """
@@ -121,12 +138,8 @@ class Video(Resource):
             return None
         return parse_custom_field('media', field)
 
-    def get_poster_url(self, width=720):
-        return 'https://cdn.jwplayer.com/thumbs/{key}-{width}.jpg'.format(
-            key=self.key, width=width)
-
     @classmethod
-    def from_key(cls, key, client=None):
+    def from_key(cls, key):
         """
         Return a :py:class:`Video` instance corresponding to the JWPlatform key passed.
 
@@ -196,6 +209,81 @@ class Video(Resource):
             raise VideoNotFoundError()
 
         return video_resource
+
+
+class DeliveryVideo(Resource):
+    """
+    A dict subclass representing a video resource object as returned by the Delivery API.
+
+    This subclass provides some convenience accessors for various common resource keys but, since
+    this is a dict subclass, the values can be retrieved using ``[]`` or ``get`` as per usual.
+
+    """
+    @property
+    def media_id(self):
+        """
+        The legacy SMS media id (or None if there is none)
+
+        """
+        field = self.get('sms_media_id')
+        if field is None:
+            return None
+        return parse_custom_field('media', field)
+
+    @property
+    def acl(self):
+        """
+        The parsed ACL custom prop on the resource. If no ACL is present, the WORLD ACL is assumed.
+
+        """
+        field = parse_custom_field('acl', self.get('sms_acl', 'acl:WORLD:'))
+
+        # Work around odd ACL entries. See uisautomation/sms2jwplayer#30.
+        if field == "['']":
+            return []
+
+        return [acl.strip() for acl in field.split(',') if acl.strip() != '']
+
+    @classmethod
+    def from_key(cls, key, session=None):
+        """
+        Return a :py:class:`DeliveryVideo` instance corresponding to the JWPlatform key passed.
+
+        :param key: JWPlatform key for the media.
+        :param session: (optional) session used for making HTTP requests, if None, then a default
+        is used.
+
+        :raises: :py:exc:`VideoNotFoundError` if the video is not found.
+
+        """
+        session = session if session is not None else DEFAULT_REQUESTS_SESSION
+
+        # Fetch the media download information from JWPlatform.
+        response = session.get(
+            pd_api_url(f'/v2/media/{key}', format='json'), timeout=5
+        )
+
+        if response.status_code == 404:
+            LOG.warning("Couldn't find video for key '%s'", key)
+            raise VideoNotFoundError
+
+        # translate
+        response.raise_for_status()
+
+        # Parse response as JSON
+        try:
+            body = response.json()
+        except Exception as e:
+            message = 'Failed to parse response when retrieving video "%s": %s'.format(key, e)
+            LOG.warning(message)
+            raise UnparseableVideoError(message)
+
+        item = body['playlist'][0]
+
+        item['key'] = item.get('mediaid')
+        item['date'] = item.get('pubdate')
+
+        return cls(item)
 
 
 class Channel(Resource):

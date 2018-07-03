@@ -35,6 +35,7 @@ INSTALLED_APPS = [
 
     'smsjwplatform',
     'legacysms',
+    'ui',
 ]
 
 #: Installed middleware
@@ -54,11 +55,18 @@ MIDDLEWARE = [
 #: Root URL patterns
 ROOT_URLCONF = 'smswebapp.urls'
 
-#: Template loading
+# Serve the frontend files from the application root.
+FRONTEND_APP_BUILD_DIR = os.environ.get(
+    'DJANGO_FRONTEND_APP_BUILD_DIR',
+    os.path.abspath(os.path.join(BASE_DIR, 'frontend', 'build'))
+)
+
+#: Template loading. We include FRONTEND_APP_BUILD_DIR as a template dir so we can use the frontend
+#: index.html as a template.
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [FRONTEND_APP_BUILD_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -213,18 +221,10 @@ CORS_ORIGIN_ALLOW_ALL = True
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_ROOT = os.environ.get('DJANGO_STATIC_ROOT', os.path.join(BASE_DIR, 'build', 'static'))
 
-# Serve the frontend files from the application root. We use WHITENOISE_INDEX_FILE to make sure
-# that index.html is used for /.
-FRONTEND_APP_BUILD_DIR = os.environ.get(
-    'DJANGO_FRONTEND_APP_BUILD_DIR',
-    os.path.abspath(os.path.join(BASE_DIR, 'frontend', 'build'))
-)
-
 # If the build directory for the frontend actually exists, serve files for the root of the
 # application from it. Print a warning otherwise.
 if os.path.isdir(FRONTEND_APP_BUILD_DIR):
     WHITENOISE_ROOT = FRONTEND_APP_BUILD_DIR
-    WHITENOISE_INDEX_FILE = True
 else:
     print('Warning: FRONTEND_APP_BUILD_DIR does not exist. The frontend will not be served',
           file=sys.stderr)

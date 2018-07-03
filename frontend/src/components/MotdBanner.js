@@ -15,7 +15,7 @@ import ReleaseTag from './ReleaseTag';
 const MotdBanner = ({
   classes, component: Component, ...otherProps
 }) => (
-  <Component className={classes.root} {...otherProps}>
+  <Component component='div' className={classes.root} {...otherProps}>
     <div className={classes.message}>
       <ReleaseTag style={{marginRight: '0.5ex'}}>alpha</ReleaseTag>
       {' '}This service is in development.{' '} { /* whitespace coalescing in JSX sux! */ }

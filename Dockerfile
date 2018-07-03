@@ -28,7 +28,7 @@ RUN pip install --no-cache-dir -r requirements/base.txt && \
 
 # Copy the remaining files over
 ADD . .
-COPY --from=frontend-builder /usr/src/app/build/ ./frontend/build/
+COPY --from=frontend-builder /usr/src/app/build/ /usr/src/frontend/
 
 # Default environment for image.  By default, we use the settings module bundled
 # with this repo. Change DJANGO_SETTINGS_MODULE to install a custom settings.
@@ -39,6 +39,7 @@ COPY --from=frontend-builder /usr/src/app/build/ ./frontend/build/
 EXPOSE 8000
 ENV \
 	DJANGO_SETTINGS_MODULE=smswebapp.settings.docker \
+	DJANGO_FRONTEND_APP_BUILD_DIR=/usr/src/frontend/ \
 	PORT=8000
 
 # Collect static files. We provide placeholder values for required settings.

@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import MuiAppBar from '@material-ui/core/AppBar';
-import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
@@ -11,6 +10,10 @@ import { withStyles } from '@material-ui/core/styles';
 import SearchForm from './SearchForm';
 
 import ShieldImage from '../img/shield.svg';
+
+// The location for a redirected search request
+// TODO this is to be refactored as per https://github.com/uisautomation/sms-webapp/issues/102
+const SEARCH_LOCATION = '/';
 
 const styles = theme => ({
   root: { /* no default styles */ },
@@ -22,7 +25,7 @@ const styles = theme => ({
 
     [theme.breakpoints.down('sm')]: {
       display: 'none',
-    }
+    },
   },
 
   appBarMiddle: {
@@ -64,7 +67,7 @@ const styles = theme => ({
  * Any unknown properties supplied will be spread to the root component.
  */
 const AppBar = (
-  { classes, onSearch, color, children, autoFocus, ...otherProps }
+  { classes, defaultSearch, onSearch, color, children, autoFocus, ...otherProps }
 ) => (
   <MuiAppBar position="static" color={color} className={classes.root} {...otherProps}>
     <Grid container component={Toolbar}>
@@ -84,6 +87,7 @@ const AppBar = (
           }}
           onSubmit={event => handleSubmit(event, onSearch)}
           InputProps={{
+            defaultValue: defaultSearch,
             name: 'q',
             placeholder: 'Search',
           }}
@@ -103,21 +107,23 @@ AppBar.propTypes = {
   /** The color of the component. */
   color: PropTypes.oneOf(['default', 'inherit', 'primary', 'secondary']),
 
-  /** Function called with search text. */
-  onSearch: PropTypes.func,
+  /** Default search text to populate the search form with. */
+  defaultSearch: PropTypes.string,
+
+  /** Function called with search text. If not provided, the submit redirects with the search
+   * params: ``?q={text}``
+   */
+  onSearch: PropTypes.func
 };
 
 AppBar.defaultProps = {
   autoFocus: true,
-  color: 'primary',
+  color: 'primary'
 };
 
 const handleSubmit = (event, onSearch) => {
   // Prevent default handling of submit event.
   event.preventDefault();
-
-  // Need do nothing else if there is no search handler.
-  if(!onSearch) { return; }
 
   // Get value from input element.
   const formElement = event.target;
@@ -128,8 +134,13 @@ const handleSubmit = (event, onSearch) => {
   const query = inputElement.value;
   if(!query) { return; }
 
-  // Pass query to handler.
-  onSearch(query);
-}
+  if(onSearch) {
+    // Pass query to handler.
+    onSearch(query);
+  } else {
+    // no search handler so redirect the search
+    location = SEARCH_LOCATION + '?q=' + encodeURI(query);
+  }
+};
 
 export default withStyles(styles)(AppBar);

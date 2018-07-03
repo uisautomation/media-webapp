@@ -7,12 +7,14 @@ import logging
 
 from django.db.models import Q
 from django.conf import settings
+from django.http import Http404
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework.exceptions import APIException
+from rest_framework.exceptions import APIException, PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from smsjwplatform import jwplatform
+from smsjwplatform.jwplatform import VideoNotFoundError
 from smsjwplatform.models import CachedResource
 
 from . import serializers
@@ -168,6 +170,29 @@ class MediaListView(APIView):
         }
 
         return Response(serializers.MediaListSerializer(response).data)
+
+
+class MediaView(APIView):
+    """
+    Endpoint to retrieve a single media item.
+
+    """
+    @swagger_auto_schema(
+        responses={200: serializers.MediaSerializer()}
+    )
+    def get(self, request, media_key):
+        """Handle GET request."""
+
+        try:
+            video = jwplatform.DeliveryVideo.from_key(media_key)
+        except VideoNotFoundError:
+            # if we don't find a video raise a 404
+            raise Http404
+
+        if not user_can_view_resource(request.user, video):
+            raise PermissionDenied
+
+        return Response(serializers.MediaSerializer(video).data)
 
 
 def user_can_view_resource(user, resource):

@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory, force_authenticate
 
+import smsjwplatform.jwplatform as api
 from smsjwplatform.models import CachedResource
 
 from .. import views
@@ -12,6 +13,7 @@ from .. import views
 class ViewTestCase(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
+        self.get_request = self.factory.get('/')
         self.user = get_user_model().objects.create_user(username='test0001')
         self.patch_get_jwplatform_client()
         self.patch_get_person_for_user()
@@ -40,20 +42,19 @@ class ProfileViewTestCase(ViewTestCase):
 
     def test_anonymous(self):
         """An anonymous user should have is_anonymous set to True."""
-        response = self.view(self.factory.get('/'))
+        response = self.view(self.get_request)
         self.assertTrue(response.data['is_anonymous'])
 
     def test_authenticated(self):
         """An anonymous user should have is_anonymous set to False and username set."""
-        request = self.factory.get('/')
-        force_authenticate(request, user=self.user)
-        response = self.view(request)
+        force_authenticate(self.get_request, user=self.user)
+        response = self.view(self.get_request)
         self.assertFalse(response.data['is_anonymous'])
         self.assertEqual(response.data['username'], self.user.username)
 
     def test_urls(self):
         """The profile should include a login URL."""
-        response = self.view(self.factory.get('/'))
+        response = self.view(self.get_request)
         self.assertIn('login', response.data['urls'])
 
 
@@ -71,7 +72,7 @@ class CollectionListViewTestCase(ViewTestCase):
 
     def test_basic_list(self):
         """An user should get all SMS channels back."""
-        response_data = self.view(self.factory.get('/')).data
+        response_data = self.view(self.get_request).data
         self.assertIn('results', response_data)
 
         # We have some results
@@ -89,7 +90,7 @@ class CollectionListViewTestCase(ViewTestCase):
     def test_jwplatform_error(self):
         """A JWPlatform error should be reported as a bad gateway error."""
         self.client.channels.list.return_value = {'status': 'error'}
-        response = self.view(self.factory.get('/'))
+        response = self.view(self.get_request)
         self.assertEqual(response.status_code, 502)
 
     def test_search(self):
@@ -110,7 +111,7 @@ class MediaListViewTestCase(ViewTestCase):
 
     def test_basic_list(self):
         """An user should get all SMS media back."""
-        response_data = self.view(self.factory.get('/')).data
+        response_data = self.view(self.get_request).data
         self.assertIn('results', response_data)
 
         # We have some results
@@ -129,15 +130,68 @@ class MediaListViewTestCase(ViewTestCase):
 
     def test_auth_list(self):
         """An authenticated user should get more SMS media back."""
-        unauth_response_data = self.view(self.factory.get('/')).data
+        unauth_response_data = self.view(self.get_request).data
 
-        request = self.factory.get('/')
-        force_authenticate(request, user=self.user)
-        auth_response_data = self.view(request).data
+        force_authenticate(self.get_request, user=self.user)
+        auth_response_data = self.view(self.get_request).data
 
         # Authorised users have more results
         self.assertGreater(
             len(auth_response_data['results']), len(unauth_response_data['results']))
+
+
+class MediaViewTestCase(ViewTestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.view = views.MediaView().as_view()
+
+    @mock.patch('smsjwplatform.jwplatform.DeliveryVideo.from_key')
+    def test_success(self, mock_from_id):
+        """Check that a media item is successfully returned"""
+        mock_from_id.return_value = api.DeliveryVideo(DELIVERY_VIDEO_FIXTURE)
+
+        # test
+        response = self.view(self.get_request, 'XYZ123')
+
+        mock_from_id.assert_called_with('XYZ123')
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(response.data['id'], 'mock1')
+        self.assertEqual(response.data['title'], 'Mock 1')
+        self.assertEqual(response.data['description'], 'Description for mock 1')
+        self.assertEqual(response.data['published_at_timestamp'], 1234567)
+        self.assertEqual(
+            response.data['poster_image_url'], 'https://cdn.jwplayer.com/thumbs/mock1-720.jpg'
+        )
+        self.assertEqual(response.data['duration'], 54.0)
+        self.assertEqual(response.data['media_id'], '1234')
+        self.assertTrue(response.data['player_url'].startswith(
+            'https://content.jwplatform.com/players/mock1-someplayer.html'
+        ))
+
+    @mock.patch('smsjwplatform.jwplatform.DeliveryVideo.from_key')
+    def test_video_not_found(self, mock_from_id):
+        """Check that a 404 is returned if not media is found"""
+        mock_from_id.side_effect = api.VideoNotFoundError
+
+        # test
+        response = self.view(self.get_request, 'XYZ123')
+
+        self.assertEqual(response.status_code, 404)
+
+    @mock.patch('smsjwplatform.jwplatform.DeliveryVideo.from_key')
+    def test_no_access_to_video(self, mock_from_id):
+        """Check that a 403 is returned the caller isn't the ACL"""
+        mock_from_id.return_value = api.DeliveryVideo(
+            {**DELIVERY_VIDEO_FIXTURE, 'sms_acl': 'acl:CAM:'}
+        )
+
+        # test
+        response = self.view(self.get_request, 'XYZ123')
+
+        self.assertEqual(response.status_code, 403)
 
 
 CHANNELS_FIXTURE = [
@@ -163,6 +217,17 @@ CHANNELS_FIXTURE = [
         'description': 'Not a SMS collection',
     },
 ]
+
+
+DELIVERY_VIDEO_FIXTURE = {
+    'key': 'mock1',
+    'title': 'Mock 1',
+    'description': 'Description for mock 1',
+    'date': 1234567,
+    'duration': 54,
+    'sms_acl': 'acl:WORLD:',
+    'sms_media_id': 'media:1234:',
+}
 
 
 VIDEOS_FIXTURE = [
