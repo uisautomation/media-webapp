@@ -47,7 +47,7 @@ jobs:
       - run:
           name: Run tests
           command: |
-            ./compose.sh tox run -v $PWD:/tmp/workspace -e COVERAGE_FILE=/tmp/workspace/.coverage -e TOXINI_ARTEFACT_DIR=/tmp/workspace/build --rm tox
+            ./compose.sh tox run -v $PWD:/tmp/workspace -e COVERAGE_FILE=/tmp/workspace/.coverage -e COVERAGE_XML_FILE=/tmp/workspace/coverage.xml -e TOXINI_ARTEFACT_DIR=/tmp/workspace/build --rm tox
             ./compose.sh tox down
 
       - run:
