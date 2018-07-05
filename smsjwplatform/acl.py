@@ -4,7 +4,9 @@ Module providing functionality for handling ACL's stored in the JWPlayer custom 
 """
 import logging
 
-from automationlookup.lookup import get_person_for_user
+from django.conf import settings
+
+import automationlookup
 
 LOG = logging.getLogger(__name__)
 
@@ -57,7 +59,8 @@ class AceInst:
         if user.is_anonymous:
             return False
 
-        lookup_response = get_person_for_user(user)
+        lookup_response = automationlookup.get_person(
+            user.username, settings.LOOKUP_SCHEME, fetch=['all_insts'])
 
         for institution in lookup_response.get('institutions', []):
             if self.instid == institution.get('instid', None):
@@ -84,7 +87,8 @@ class AceGroup:
         if user.is_anonymous:
             return False
 
-        lookup_response = get_person_for_user(user)
+        lookup_response = automationlookup.get_person(
+            user.username, settings.LOOKUP_SCHEME, fetch=['all_groups'])
 
         for institution in lookup_response.get('groups', []):
             if self.groupid == institution.get('groupid') or \

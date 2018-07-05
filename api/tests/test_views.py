@@ -16,7 +16,7 @@ class ViewTestCase(TestCase):
         self.get_request = self.factory.get('/')
         self.user = get_user_model().objects.create_user(username='test0001')
         self.patch_get_jwplatform_client()
-        self.patch_get_person_for_user()
+        self.patch_get_person()
         self.client = self.get_jwplatform_client()
 
     def patch_get_jwplatform_client(self):
@@ -25,14 +25,14 @@ class ViewTestCase(TestCase):
         self.get_jwplatform_client = self.get_jwplatform_client_patcher.start()
         self.addCleanup(self.get_jwplatform_client_patcher.stop)
 
-    def patch_get_person_for_user(self):
-        self.get_person_for_user_patcher = mock.patch('smsjwplatform.acl.get_person_for_user')
-        self.get_person_for_user = self.get_person_for_user_patcher.start()
-        self.get_person_for_user.return_value = {
+    def patch_get_person(self):
+        self.get_person_patcher = mock.patch('automationlookup.get_person')
+        self.get_person = self.get_person_patcher.start()
+        self.get_person.return_value = {
             'institutions': [{'instid': 'UIS'}],
             'groups': [{'groupid': '12345', 'name': 'uis-members'}]
         }
-        self.addCleanup(self.get_person_for_user_patcher.stop)
+        self.addCleanup(self.get_person_patcher.stop)
 
 
 class ProfileViewTestCase(ViewTestCase):

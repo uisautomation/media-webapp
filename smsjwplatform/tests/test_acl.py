@@ -75,7 +75,7 @@ class AceInstTest(TestCase):
         self.assertIsNone(AceInst.parse('USER_mb2174'))
 
     def test_has_permission(self):
-        patch_get_person_for_user(self)
+        patch_get_person(self)
         user = mock.Mock(is_anonymous=False)
 
         self.assertTrue(AceInst('UIS').has_permission(user))
@@ -96,7 +96,7 @@ class AceGroupTest(TestCase):
         self.assertIsNone(AceInst.parse('USER_mb2174'))
 
     def test_has_permission(self):
-        patch_get_person_for_user(self)
+        patch_get_person(self)
         user = mock.Mock(is_anonymous=False)
 
         self.assertTrue(AceGroup('12345').has_permission(user))
@@ -123,12 +123,12 @@ class AceUserTest(TestCase):
         self.assertTrue(ace_user.has_permission(mock.Mock(username="mb2174")))
 
 
-def patch_get_person_for_user(self):
-    get_person_for_user = mock.Mock()
-    get_person_for_user.return_value = {
+def patch_get_person(self):
+    get_person = mock.Mock()
+    get_person.return_value = {
         'institutions': [{'instid': 'UIS'}],
         'groups': [{'groupid': '12345', 'name': 'uis-members'}]
     }
-    patcher = mock.patch('smsjwplatform.acl.get_person_for_user', get_person_for_user)
+    patcher = mock.patch('automationlookup.get_person', get_person)
     self.addCleanup(patcher.stop)
     patcher.start()

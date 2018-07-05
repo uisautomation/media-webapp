@@ -28,6 +28,7 @@ INSTALLED_APPS = [
 
     'automationcommon',
     'automationlookup',
+    'automationoauth',
     'corsheaders',
     'drf_yasg',
     'rest_framework',
@@ -248,3 +249,5 @@ else:
 # configured via an environment variable if we want to support a wider range of TLS terminating
 # load balancers.
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+LOOKUP_SCHEME = 'crsid'
