@@ -73,7 +73,7 @@ const AppBar = (
     <Grid container component={Toolbar}>
       <Grid item xs={3} className={classes.appBarLeft}>
         <Typography variant="title" color="inherit">
-          <img src={ShieldImage} alt="University Media Platform" style={{verticalAlign: 'bottom', height: '1.8em'}} />
+          <img src={ShieldImage} alt="The University of Cambridge Media Platform" style={{verticalAlign: 'bottom', height: '1.8em'}} />
         </Typography>
       </Grid>
       <Grid item xs={12} sm={9} md={6} className={classes.appBarMiddle}>
