@@ -7,6 +7,7 @@ WORKDIR /usr/src/app
 # Clone latest lookupproxy source
 RUN \
 	git clone https://github.com/uisautomation/lookupproxy /usr/src/app && \
+	apk add postgresql-dev gcc musl-dev && \
 	pip install -r requirements.txt && \
 	pip install -r requirements_developer.txt
 
