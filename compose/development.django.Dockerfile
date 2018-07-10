@@ -9,7 +9,7 @@ RUN apt-get -y update && apt-get -y install postgresql-client
 
 # Install any explicit developer requirements
 ADD ./requirements/* ./requirements/
-RUN pip install -r ./requirements/developer.txt
+RUN pip install --upgrade -r ./requirements/developer.txt
 
 # The webapp source will be mounted here as a volume
 VOLUME /usr/src/app

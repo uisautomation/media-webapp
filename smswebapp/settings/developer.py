@@ -46,3 +46,5 @@ STATIC_URL = '/static/'
 
 OAUTH2_TOKEN_URL = 'http://hydra:4444/oauth2/token'
 LOOKUP_ROOT = 'http://lookupproxy:8080/'
+
+LOOKUP_SCHEME = 'mock'
