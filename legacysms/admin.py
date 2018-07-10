@@ -1,3 +1,13 @@
-# from django.contrib import admin
+from django.contrib import admin
 
-# Register your models here.
+from .models import MediaItem, Collection
+
+
+@admin.register(MediaItem)
+class MediaItemAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Collection)
+class CollectionAdmin(admin.ModelAdmin):
+    pass
