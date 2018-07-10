@@ -23,8 +23,8 @@ WORKDIR /usr/src/app
 # requirements/docker.txt last to allow it to override any versions in
 # requirements/requirements.txt.
 ADD ./requirements/* ./requirements/
-RUN pip install --no-cache-dir -r requirements/base.txt && \
-	pip install --no-cache-dir -r requirements/docker.txt
+RUN pip install --upgrade --no-cache-dir -r requirements/base.txt && \
+	pip install --upgrade --no-cache-dir -r requirements/docker.txt
 
 # Copy the remaining files over
 ADD . .
