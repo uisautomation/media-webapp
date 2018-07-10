@@ -27,9 +27,7 @@ class Command(BaseCommand):
 
         # Fetch and cache the video resources
         self.stdout.write('Caching video resources...')
-        models.CachedResource.videos.set_resources(
-            (video['key'], video) for video in self.fetch_videos()
-        )
+        models.set_videos(self.fetch_videos())
 
         # Print out the total number of videos cached
         self.stdout.write(self.style.SUCCESS('Number of cached video resources: {}'.format(
