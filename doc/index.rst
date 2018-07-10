@@ -16,6 +16,7 @@ If you don't know where to start then :doc:`the getting started guide
     developer
     configuration
     smswebapp
+    mediaplatform
     api
     smsjwplatform
     legacy-sms
