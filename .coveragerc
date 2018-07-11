@@ -7,3 +7,4 @@ omit=
 	smswebapp/settings/*
 	smswebapp/wsgi.py
 	.tox/*
+	*/migrations/*
