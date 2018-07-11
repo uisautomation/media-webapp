@@ -4,15 +4,14 @@ from django.db import models
 import django.contrib.postgres.fields as pgfields
 
 
-#: The number of characters in the tokens returned by _make_token. This matches the length of the
-#: ids used by YouTube which suggests there'll be enough entropy for the time being.
-_TOKEN_LENGTH = 8
+#: The number of bytes of entropy in the tokens returned by _make_token.
+_TOKEN_ENTROPY = 8
 
 
 def _make_token():
     """
     Return a cryptographically random URL-safe token. The implementation returns an id with
-    :py:data:`_TOKEN_LENGTH` bytes of entropy.
+    :py:data:`_TOKEN_ENTROPY` bytes of entropy with length :py:data:`_TOKEN_LENGTH`.
 
     For some additional background, see Tom Scott's informative video on ids for websites at
     https://www.youtube.com/watch?v=gocwRvLhDf8.
@@ -20,7 +19,12 @@ def _make_token():
     Going forward, we probably want to run these past a black list of "naughty" words. :)
 
     """
-    return secrets.token_urlsafe(_TOKEN_LENGTH)
+    return secrets.token_urlsafe(_TOKEN_ENTROPY)
+
+
+#: The number of characters in the tokens returned by _make_token. This matches the length of the
+#: ids used by YouTube which suggests there'll be enough entropy for the time being.
+_TOKEN_LENGTH = len(_make_token())
 
 
 class Permission(models.Model):
