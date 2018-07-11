@@ -66,31 +66,37 @@ class MediaItem(models.Model):
     """
     An individual media item in the media platform.
 
+    Most fields in this model can store blank values since they are synced from external providers
+    who may not have the degree of rigour we want. For the same reason, we have default values for
+    most fields.
+
     """
     #: Primary key
     id = models.CharField(
             max_length=_TOKEN_LENGTH, primary_key=True, default=_make_token, editable=False)
 
     #: Media item title
-    title = models.TextField(help_text='Title of media item')
+    title = models.TextField(help_text='Title of media item', blank=True, default='')
 
     #: Media item description
-    description = models.TextField(blank=True, help_text='Description of media item')
+    description = models.TextField(blank=True, default='', help_text='Description of media item')
 
     #: Downloadable flag
     downloadable = models.BooleanField(
+        default=False,
         help_text='If this item can be viewed, can it also be downloaded?')
 
     #: ISO 693-3 language code
     language = models.CharField(
-        max_length=3,
+        max_length=3, null=True, default=None,
         help_text=(
             'ISO 639-3 three letter language code describing majority language used in this item'
         )
     )
 
     #: Video copyright
-    copyright = models.TextField(blank=True, help_text='Free text describing Copyright holder')
+    copyright = models.TextField(
+        blank=True, default='', help_text='Free text describing Copyright holder')
 
     #: List of tags for video
     tags = pgfields.ArrayField(models.CharField(max_length=256), default=[],
@@ -104,12 +110,12 @@ class MediaItem(models.Model):
     #: :py:class:`~.Permission` determining who can view this item
     view_permission = models.OneToOneField(Permission, on_delete=models.PROTECT,
                                            help_text='Restriction on who can see/hear this item',
-                                           related_name='+')
+                                           related_name='+', null=True, default=None)
 
     #: :py:class:`~.Permission` determining who can edit this item
     edit_permission = models.OneToOneField(Permission, on_delete=models.PROTECT,
                                            help_text='Restriction on who can modify this item',
-                                           related_name='+')
+                                           related_name='+', null=True, default=None)
 
     #: Creation time
     created_at = models.DateTimeField(auto_now_add=True)
@@ -125,16 +131,20 @@ class Collection(models.Model):
     """
     A collection of media items.
 
+    Most fields in this model can store blank values since they are synced from external providers
+    who may not have the degree of rigour we want. For the same reason, we have default values for
+    most fields.
+
     """
     #: Primary key
     id = models.CharField(
             max_length=_TOKEN_LENGTH, primary_key=True, default=_make_token, editable=False)
 
     #: Collection title
-    title = models.TextField(help_text='Title of collection')
+    title = models.TextField(help_text='Title of collection', blank=True, default='')
 
     #: Collection description
-    description = models.TextField(help_text='Description for collection')
+    description = models.TextField(help_text='Description for collection', blank=True, default='')
 
     #: List of tags for collection
     tags = pgfields.ArrayField(models.CharField(max_length=256), default=[],
@@ -147,7 +157,7 @@ class Collection(models.Model):
     #: YouTube, as an example, has this problem as well since videos in playlists are sometimes
     #: replaced by a "deleted video" placeholder.
     media_items = pgfields.ArrayField(
-        models.UUIDField(), blank=True, help_text='Primary keys of media items in this collection')
+        models.UUIDField(), default=[], help_text='Primary keys of media items in this collection')
 
     # We use on_delete=models.PROTECT here to make sure that the referenced permission cannot be
     # deleted from under our feet. We set the related name to "+" to stop Django trying to create a
@@ -156,12 +166,12 @@ class Collection(models.Model):
 
     #: :py:class:`~.Permission` determining who can view this item
     view_permission = models.OneToOneField(
-        Permission, on_delete=models.PROTECT, related_name='+',
+        Permission, on_delete=models.PROTECT, related_name='+', null=True, default=None,
         help_text='Restriction on who can see which items are in this collection')
 
     #: :py:class:`~.Permission` determining who can edit this item
     edit_permission = models.OneToOneField(
-        Permission, on_delete=models.PROTECT, related_name='+',
+        Permission, on_delete=models.PROTECT, related_name='+', null=True, default=None,
         help_text='Restriction on who can modify this collection')
 
     #: Creation time
