@@ -36,6 +36,8 @@ INSTALLED_APPS = [
 
     'smsjwplatform',
     'legacysms',
+    'mediaplatform',
+    'mediaplatform_jwp',
     'ui',
 ]
 

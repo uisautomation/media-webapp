@@ -21,6 +21,10 @@ Models
 .. automodule:: smsjwplatform.models
     :members:
 
+.. automodule:: mediaplatform_jwp.models
+    :members:
+    :member-order: bysource
+
 
 Management commands
 -------------------
