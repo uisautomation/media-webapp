@@ -2,6 +2,7 @@ import secrets
 
 from django.db import models
 import django.contrib.postgres.fields as pgfields
+from iso639 import languages
 
 
 #: The number of bytes of entropy in the tokens returned by _make_token.
@@ -27,41 +28,6 @@ def _make_token():
 _TOKEN_LENGTH = len(_make_token())
 
 
-class Permission(models.Model):
-    """
-    Specify whether a user has permission to perform some action.
-
-    A user has permission to perform the action if *any* of the following are true:
-
-    * They have a crsid and that crsid appears in :py:attr:`~.crsids`
-    * The numeric id of a lookup group which they are a member of appears in
-      :py:attr:`~.lookup_groups`
-    * The instid of an an institution they are a member of appears in
-      :py:attr:`~.lookup_insts`
-    * The :py:attr:`~.is_public` flag is ``True``
-    * The user is not anonymous and :py:attr:`is_signed_in` is ``True``
-
-    """
-    #: Primary key
-    id = models.CharField(
-            max_length=_TOKEN_LENGTH, primary_key=True, default=_make_token, editable=False)
-
-    #: List of crsids of users with this permission
-    crsids = pgfields.ArrayField(models.TextField(), blank=True, default=[])
-
-    #: List of lookup groups which users with this permission belong to
-    lookup_groups = pgfields.ArrayField(models.BigIntegerField(), blank=True, default=[])
-
-    #: List of lookup institutions which users with this permission belong to
-    lookup_insts = pgfields.ArrayField(models.TextField(), blank=True, default=[])
-
-    #: Do all users (including anonymous ones) have this permission?
-    is_public = models.BooleanField(default=False)
-
-    #: Do all signed in (non-anonymous) users have this permission?
-    is_signed_in = models.BooleanField(default=False)
-
-
 class MediaItem(models.Model):
     """
     An individual media item in the media platform.
@@ -71,6 +37,16 @@ class MediaItem(models.Model):
     most fields.
 
     """
+    VIDEO = 'video'
+    AUDIO = 'audio'
+    UNKNOWN = 'unknown'
+    TYPE_CHOICES = ((VIDEO, 'Video'), (AUDIO, 'Audio'))
+
+    LANGUAGE_CHOICES = sorted(
+        ((language.part3, language.name) for language in languages),
+        key=lambda choice: choice[1]
+    )
+
     #: Primary key
     id = models.CharField(
             max_length=_TOKEN_LENGTH, primary_key=True, default=_make_token, editable=False)
@@ -81,6 +57,17 @@ class MediaItem(models.Model):
     #: Media item description
     description = models.TextField(blank=True, default='', help_text='Description of media item')
 
+    #: Duration
+    duration = models.FloatField(null=True, editable=False, help_text='Duration of video')
+
+    #: Type of media.
+    type = models.CharField(
+        max_length=10, choices=TYPE_CHOICES, default=VIDEO, editable=False,
+        help_text='Type of media (video, audio or unknown)')
+
+    #: Publication date
+    published_at = models.DateTimeField(null=True, help_text='Date from which video is visible')
+
     #: Downloadable flag
     downloadable = models.BooleanField(
         default=False,
@@ -88,7 +75,7 @@ class MediaItem(models.Model):
 
     #: ISO 693-3 language code
     language = models.CharField(
-        max_length=3, null=True, default=None,
+        max_length=3, blank=True, default='', choices=LANGUAGE_CHOICES,
         help_text=(
             'ISO 639-3 three letter language code describing majority language used in this item'
         )
@@ -102,21 +89,6 @@ class MediaItem(models.Model):
     tags = pgfields.ArrayField(models.CharField(max_length=256), default=[],
                                help_text='Tags/keywords for item')
 
-    # We use on_delete=models.PROTECT here to make sure that the referenced permission cannot be
-    # deleted from under our feet. We set the related name to "+" to stop Django trying to create a
-    # related field back from the Permission object. If it tried to do so there would be a sea of
-    # "allows_view_on_media_item"-like fields on Permission which would clutter things immensely.
-
-    #: :py:class:`~.Permission` determining who can view this item
-    view_permission = models.OneToOneField(Permission, on_delete=models.PROTECT,
-                                           help_text='Restriction on who can see/hear this item',
-                                           related_name='+', null=True, default=None)
-
-    #: :py:class:`~.Permission` determining who can edit this item
-    edit_permission = models.OneToOneField(Permission, on_delete=models.PROTECT,
-                                           help_text='Restriction on who can modify this item',
-                                           related_name='+', null=True, default=None)
-
     #: Creation time
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -125,6 +97,9 @@ class MediaItem(models.Model):
 
     #: Deletion time. If non-NULL, the item has been "deleted" and should not usually be visible.
     deleted_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return '{} ("{}")'.format(self.id, self.title)
 
 
 class Collection(models.Model):
@@ -159,21 +134,6 @@ class Collection(models.Model):
     media_items = pgfields.ArrayField(
         models.UUIDField(), default=[], help_text='Primary keys of media items in this collection')
 
-    # We use on_delete=models.PROTECT here to make sure that the referenced permission cannot be
-    # deleted from under our feet. We set the related name to "+" to stop Django trying to create a
-    # related field back from the Permission object. If it tried to do so there would be a sea of
-    # "allows_view_on_media_item"-like fields on Permission which would clutter things immensely.
-
-    #: :py:class:`~.Permission` determining who can view this item
-    view_permission = models.OneToOneField(
-        Permission, on_delete=models.PROTECT, related_name='+', null=True, default=None,
-        help_text='Restriction on who can see which items are in this collection')
-
-    #: :py:class:`~.Permission` determining who can edit this item
-    edit_permission = models.OneToOneField(
-        Permission, on_delete=models.PROTECT, related_name='+', null=True, default=None,
-        help_text='Restriction on who can modify this collection')
-
     #: Creation time
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -182,3 +142,91 @@ class Collection(models.Model):
 
     #: Deletion time. If non-NULL, the item has been "deleted" and should not usually be visible.
     deleted_at = models.DateTimeField(null=True, blank=True)
+
+
+class Permission(models.Model):
+    """
+    Specify whether a user has permission to perform some action.
+
+    A user has permission to perform the action if *any* of the following are true:
+
+    * They have a crsid and that crsid appears in :py:attr:`~.crsids`
+    * The numeric id of a lookup group which they are a member of appears in
+      :py:attr:`~.lookup_groups`
+    * The instid of an an institution they are a member of appears in
+      :py:attr:`~.lookup_insts`
+    * The :py:attr:`~.is_public` flag is ``True``
+    * The user is not anonymous and :py:attr:`is_signed_in` is ``True``
+
+    """
+    #: Primary key
+    id = models.CharField(
+        max_length=_TOKEN_LENGTH, primary_key=True, default=_make_token, editable=False)
+
+    #: MediaItem whose view permission is this object
+    allows_view_item = models.OneToOneField(
+        MediaItem, on_delete=models.CASCADE, related_name='view_permission', editable=False,
+        null=True
+    )
+
+    #: MediaItem whose edit permission is this object
+    allows_edit_item = models.OneToOneField(
+        MediaItem, on_delete=models.CASCADE, related_name='edit_permission', editable=False,
+        null=True
+    )
+
+    #: Collection whose view permission is this object
+    allows_view_collection = models.OneToOneField(
+        Collection, on_delete=models.CASCADE, related_name='view_permission', editable=False,
+        null=True
+    )
+
+    #: Collection whose edit permission is this object
+    allows_edit_collection = models.OneToOneField(
+        Collection, on_delete=models.CASCADE, related_name='edit_permission', editable=False,
+        null=True
+    )
+
+    #: List of crsids of users with this permission
+    crsids = pgfields.ArrayField(models.TextField(), blank=True, default=[])
+
+    #: List of lookup groups which users with this permission belong to
+    lookup_groups = pgfields.ArrayField(models.BigIntegerField(), blank=True, default=[])
+
+    #: List of lookup institutions which users with this permission belong to
+    lookup_insts = pgfields.ArrayField(models.TextField(), blank=True, default=[])
+
+    #: Do all users (including anonymous ones) have this permission?
+    is_public = models.BooleanField(default=False)
+
+    #: Do all signed in (non-anonymous) users have this permission?
+    is_signed_in = models.BooleanField(default=False)
+
+    def __str__(self):
+        if self.is_public:
+            return 'Public'
+
+        clauses = []
+        if self.is_signed_in:
+            clauses.append('is signed in')
+        if len(self.crsids) != 0:
+            clauses.append('crsid \N{ELEMENT OF} {{ {} }}'.format(', '.join(self.crsids)))
+        if len(self.lookup_groups) != 0:
+            clauses.append('lookup \N{ELEMENT OF} of {{ {} }}'.format(
+                ', '.join(self.lookup_groups)))
+        if len(self.lookup_insts) != 0:
+            clauses.append('lookup inst \N{ELEMENT OF} {{ {} }}'.format(
+                ', '.join(self.lookup_insts)))
+
+        if len(clauses) == 0:
+            return 'Nobody'
+
+        return ' OR '.join(clauses)
+
+    def reset(self):
+        """Reset this permission to the "allow nobody" state."""
+        self.crsids = []
+        self.lookup_groups = []
+        self.lookup_insts = []
+        self.is_public = False
+        self.is_signed_in = False
