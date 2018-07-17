@@ -57,6 +57,20 @@ $ ./compose.sh production up -d
 $ ./compose.sh production exec production_app ./manage.py migrate
 ```
 
+Additionally the ``tox.sh`` and ``manage_development.sh`` wrapper scripts
+provide convenient ways to run ``tox`` and management commands:
+
+```bash
+# Rebuild all testenvs
+$ ./tox.sh -r
+
+# Run only the flake8 tests
+$ ./tox.sh -e flake8
+
+# Run the migrate management command using the development images
+$ ./manage_development.sh migrate
+```
+
 ## Dockerfile configuration
 
 The following environment variables need to be set when running the application
