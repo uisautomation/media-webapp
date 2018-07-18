@@ -38,7 +38,7 @@ class UnparseableVideoError(RuntimeError):
     """
 
 
-def player_embed_url(key, player, format='js', base=settings.JWPLATFORM_API_BASE_URL):
+def player_embed_url(key, player, format='js', base=None):
     """
     Return a signed URL pointing to a player initialised with a specific media item.
 
@@ -53,6 +53,7 @@ def player_embed_url(key, player, format='js', base=settings.JWPLATFORM_API_BASE
         <https://developer.jwplayer.com/jw-platform/docs/delivery-api-reference/#!/players/get_players_content_id_player_id_embed_type>`_.
 
     """
+    base = base if base is not None else settings.JWPLATFORM_API_BASE_URL
     url = urllib.parse.urljoin(base, '/players/{key}-{player}.{format}'.format(
         key=key, player=player, format=format
     ))
