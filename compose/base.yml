@@ -11,9 +11,8 @@ services:
 
   # Lookup proxy service
   lookupproxy:
-    build:
-      context: .
-      dockerfile: ./lookupproxy.Dockerfile
+    image: uisautomation/lookupproxy
+    entrypoint: ["/tmp/wait-for-it.sh", "lookupproxy-db:5432", "--", "/tmp/start-devserver.sh"]
     expose:
       - "8080"
     ports:
@@ -23,6 +22,10 @@ services:
       - "hydra"
     env_file:
       - lookupproxy.env
+    volumes:
+      - ./start-devserver.sh:/tmp/start-devserver.sh
+      - ./wait-for-it.sh:/tmp/wait-for-it.sh
+      - ./lookupproxysettings.py:/usr/src/app/settings.py
   lookupproxy-db:
     image: postgres
     env_file:
