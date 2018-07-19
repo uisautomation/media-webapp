@@ -7,6 +7,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 import { BASE_SMS_URL } from '../api';
 import Page from '../components/Page';
+import RenderedMarkdown from '../components/RenderedMarkdown';
 
 /**
  * The media item page
@@ -20,21 +21,23 @@ const MediaPage = ({ mediaItem, classes }) => (
           </iframe>
         </Grid>
         <Grid item xs={12}>
-          <Typography variant="subheading" gutterBottom>
-            <Grid item xs={12}>
-                <Grid container>
-                    <Grid item xs={6}>
-                      <a target='_blank' className={ classes.link } href={mediaItem.bestSource.url} download>
-                        Download media
-                      </a>
-                    </Grid>
-                    <Grid item xs={6} style={{textAlign: 'right'}}>
-                      <a className={ classes.link } href={mediaItem.statsUrl}>
-                        Statistics
-                      </a>
-                    </Grid>
-                </Grid>
-            </Grid>
+          <Typography variant="headline" component="div">{ mediaItem.title }</Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <RenderedMarkdown source={ mediaItem.description }/>
+        </Grid>
+        <Grid item xs={6}>
+          <Typography variant="subheading">
+            <a target='_blank' className={ classes.link } href={mediaItem.bestSource.url} download>
+              Download media
+            </a>
+          </Typography>
+        </Grid>
+        <Grid item xs={6} style={{textAlign: 'right'}}>
+          <Typography variant="subheading">
+            <a className={ classes.link } href={mediaItem.statsUrl}>
+              Statistics
+            </a>
           </Typography>
         </Grid>
       </Grid>
