@@ -32,7 +32,8 @@ class SyncTestCase(TestCase):
         i2 = mpmodels.MediaItem.objects.get(jwp__key=v2.key)
         set_videos_and_sync([v1])
         self.assertIsNone(mpmodels.MediaItem.objects.get(id=i1.id).deleted_at)
-        self.assertIsNotNone(mpmodels.MediaItem.objects.get(id=i2.id).deleted_at)
+        self.assertIsNotNone(mpmodels.MediaItem.objects_including_deleted.get(id=i2.id).deleted_at)
+        self.assertFalse(mpmodels.MediaItem.objects.filter(id=i2.id).exists())
 
     def test_video_update(self):
         """If a video is updated, its corresponding media item is updated."""
@@ -130,11 +131,15 @@ class SyncTestCase(TestCase):
         v1, = set_videos_and_sync([make_video()])
         i1 = mpmodels.MediaItem.objects.get(jwp__key=v1.key)
         set_videos_and_sync([])
-        self.assertIsNotNone(mpmodels.MediaItem.objects.get(id=i1.id).deleted_at)
-        self.assertFalse(hasattr(mpmodels.MediaItem.objects.get(id=i1.id), 'jwp'))
-        i1_v2 = mpmodels.MediaItem.objects.get(id=i1.id)
+        self.assertIsNotNone(mpmodels.MediaItem.objects_including_deleted.get(id=i1.id).deleted_at)
+        self.assertFalse(mpmodels.MediaItem.objects.filter(id=i1.id).exists())
+        self.assertFalse(
+            hasattr(mpmodels.MediaItem.objects_including_deleted.get(id=i1.id), 'jwp'))
+        i1_v2 = mpmodels.MediaItem.objects_including_deleted.get(id=i1.id)
         set_videos_and_sync([], update_kwargs={'update_all': True})
-        self.assertEqual(i1_v2.updated_at, mpmodels.MediaItem.objects.get(id=i1.id).updated_at)
+        self.assertEqual(
+            i1_v2.updated_at,
+            mpmodels.MediaItem.objects_including_deleted.get(id=i1.id).updated_at)
 
     def test_assigns_publication_date(self):
         """If the JWP video has no published timestamp, it defaults to None to avoid accidental
