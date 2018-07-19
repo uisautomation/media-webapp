@@ -3,6 +3,7 @@ import { MuiThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 
 import ProfileProvider from '../providers/ProfileProvider';
+import MathJaxProvider from '../providers/MathJaxProvider';
 import theme from '../theme';
 
 /**
@@ -16,12 +17,14 @@ function withRoot(Component) {
     // MuiThemeProvider makes the theme available down the React tree
     // thanks to React context.
     return (
-      <ProfileProvider>
-        <MuiThemeProvider theme={theme}>
-          <CssBaseline />
-          <Component {...props} />
-        </MuiThemeProvider>
-      </ProfileProvider>
+      <MathJaxProvider>
+        <ProfileProvider>
+          <MuiThemeProvider theme={theme}>
+            <CssBaseline />
+            <Component {...props} />
+          </MuiThemeProvider>
+        </ProfileProvider>
+      </MathJaxProvider>
     );
   }
 
