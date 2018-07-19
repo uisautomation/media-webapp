@@ -16,6 +16,7 @@ hydra connect \
 # corresponding clients did not exist
 hydra clients delete smswebapp || echo "-- smswebapp not deleted"
 hydra clients delete lookupproxy || echo "-- lookupproxy not deleted"
+hydra clients delete lookupproxyserver || echo "-- lookupproxyserver not deleted"
 
 # Create smswebapp client which can request scopes to access the lookup proxy
 # and to introspect tokens from hydra.
@@ -33,6 +34,13 @@ hydra clients create \
     --callbacks http://localhost:8080/static/lookupproxy/oauth2-redirect.html \
     --response-types token \
     --allowed-scopes lookup:anonymous
+
+# Create lookupproxyserver client which can request scopes to introspect tokens
+hydra clients create \
+    --id lookupproxyserver --secret lookupproxysecret \
+    --grant-types client_credentials \
+    --response-types token \
+    --allowed-scopes hydra.introspect
 
 # We need to create a Hydra policy allowing the smswebapp to introspect tokens.
 # Delete a policy if it is already in place and re-create it
