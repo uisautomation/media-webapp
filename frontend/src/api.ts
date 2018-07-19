@@ -85,8 +85,7 @@ export interface ICollectionListResponse {
 /** A query to the media list endpoint. */
 export interface IMediaQuery {
   search?: string;
-  order_by?: string;
-  direction?: string;
+  ordering?: string;
 };
 
 /** A query to the collection list endpoint. */
@@ -154,16 +153,16 @@ export const apiFetch = (
 
 /** List media resources. */
 export const mediaList = (
-  { search }: IMediaQuery = {}
+  { search, ordering }: IMediaQuery = {}
 ): Promise<IMediaListResponse | IError> => {
-  return apiFetch(API_ENDPOINTS.mediaList + objectToQueryPart({ search }));
+  return apiFetch(API_ENDPOINTS.mediaList + objectToQueryPart({ search, ordering }));
 };
 
 /** List collection resources. */
 export const collectionList = (
-  { search }: IMediaQuery = {}
+  { search, ordering }: IMediaQuery = {}
 ): Promise<ICollectionListResponse | IError> => {
-  return apiFetch(API_ENDPOINTS.collectionList + objectToQueryPart({ search }));
+  return apiFetch(API_ENDPOINTS.collectionList + objectToQueryPart({ search, ordering }));
 };
 
 /** Fetch the user's profile. */
