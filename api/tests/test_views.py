@@ -125,7 +125,7 @@ class MediaListViewTestCase(ViewTestCase):
 
         expected_ids = set(o.id for o in self.viewable_by_anon)
         for item in response_data['results']:
-            self.assertIn(item['id'], expected_ids)
+            self.assertIn(item['key'], expected_ids)
 
     def test_auth_list(self):
         """An authenticated user should get expected media back."""
@@ -138,7 +138,7 @@ class MediaListViewTestCase(ViewTestCase):
 
         expected_ids = set(o.id for o in self.viewable_by_user)
         for item in response_data['results']:
-            self.assertIn(item['id'], expected_ids)
+            self.assertIn(item['key'], expected_ids)
 
 
 class MediaViewTestCase(ViewTestCase):
@@ -158,17 +158,17 @@ class MediaViewTestCase(ViewTestCase):
 
         mock_from_id.assert_called_with(item.jwp.key)
 
-        self.assertEqual(response.data['id'], item.id)
-        self.assertEqual(response.data['title'], item.title)
+        self.assertEqual(response.data['key'], item.id)
+        self.assertEqual(response.data['name'], item.title)
         self.assertEqual(response.data['description'], item.description)
-        self.assertEqual(dateparser.parse(response.data['published_at']), item.published_at)
-        self.assertEqual(
-            response.data['poster_image_url'],
-            'https://cdn.jwplayer.com/thumbs/{}-720.jpg'.format(item.jwp.key)
+        self.assertEqual(dateparser.parse(response.data['uploadDate']), item.published_at)
+        self.assertIn(
+            'https://cdn.jwplayer.com/thumbs/{}-1280.jpg'.format(item.jwp.key),
+            response.data['thumbnailUrl']
         )
-        self.assertEqual(response.data['duration'], item.duration)
-        self.assertEqual(response.data['media_id'], item.sms.id)
-        self.assertTrue(response.data['player_url'].startswith(
+        self.assertIsNotNone(response.data['duration'])
+        self.assertEqual(response.data['legacy']['id'], item.sms.id)
+        self.assertTrue(response.data['embedUrl'].startswith(
             'https://content.jwplatform.com/players/{}-someplayer.html'.format(item.jwp.key)
         ))
 

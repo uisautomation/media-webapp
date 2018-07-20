@@ -24,11 +24,11 @@ class ViewsTestCase(ViewTestCase):
 
         self.assertEqual(r.status_code, 200)
         self.assertTemplateUsed(r, 'ui/media.html')
-        self.assertEqual(r.context['title'], item.title)
+        self.assertEqual(r.context['name'], item.title)
         media_item_json = json.loads(r.context['media_item_json'])
-        self.assertEqual(
-            media_item_json['poster_image_url'],
-            'https://cdn.jwplayer.com/thumbs/{}-720.jpg'.format(item.jwp.key)
+        self.assertIn(
+            'https://cdn.jwplayer.com/thumbs/{}-1280.jpg'.format(item.jwp.key),
+            media_item_json['thumbnailUrl'],
         )
 
     @mock.patch('smsjwplatform.jwplatform.DeliveryVideo.from_key')

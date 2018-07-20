@@ -44,17 +44,25 @@ export interface ISource {
   height?: number;
 }
 
+export interface ILegacyMedia {
+  id: number;
+  statisticsUrl: string;
+}
+
 /** A media resource. */
 export interface IMediaResource {
-  id: string;
-  title: string;
+  key: string;
+  name: string;
   description: string;
-  published_at_timestamp: number;
-  poster_image_url?: string;
-  duration: number;
-  player_url: string;
-  source?: ISource[];
-  media_id: number;
+  duration: string;
+  embedUrl: string;
+  thumbnailUrl: string[];
+  uploadDate: string;
+  legacy?: ILegacyMedia;
+  '@id': string;
+  '@context': string;
+  '@type': string;
+  contentUrl?: string;
 };
 
 /** A collection resource. */
@@ -199,10 +207,10 @@ export const collectionResourceToItem = (
  * A function which maps an API media resource to a media item for use by, e.g., MediaItemCard.
  */
 export const mediaResourceToItem = (
-  { id, title, description, poster_image_url }: IMediaResource
+  { key, name, description, thumbnailUrl }: IMediaResource
 ) => ({
   description,
-  imageUrl: poster_image_url,
-  title,
-  url: '/media/' + id,
+  imageUrl: thumbnailUrl ? thumbnailUrl[0] : null,
+  title: name,
+  url: '/media/' + key,
 });
