@@ -181,7 +181,7 @@ class SyncTestCase(TestCase):
         i3 = mpmodels.MediaItem.objects.get(jwp__key=v3.key)
 
         self.assertEqual(i1.view_permission.crsids, ['spqr1', 'abcd1'])
-        self.assertEqual(i1.view_permission.lookup_groups, [1234])
+        self.assertEqual(i1.view_permission.lookup_groups, ['1234'])
         self.assertEqual(i1.view_permission.lookup_insts, ['botolph'])
         self.assertFalse(i1.view_permission.is_public)
         self.assertFalse(i1.view_permission.is_signed_in)

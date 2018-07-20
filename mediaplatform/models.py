@@ -187,7 +187,7 @@ class Permission(models.Model):
     A user has permission to perform the action if *any* of the following are true:
 
     * They have a crsid and that crsid appears in :py:attr:`~.crsids`
-    * The numeric id of a lookup group which they are a member of appears in
+    * The lookup groupid of a lookup group which they are a member of appears in
       :py:attr:`~.lookup_groups`
     * The instid of an an institution they are a member of appears in
       :py:attr:`~.lookup_insts`
@@ -227,7 +227,7 @@ class Permission(models.Model):
     crsids = pgfields.ArrayField(models.TextField(), blank=True, default=[])
 
     #: List of lookup groups which users with this permission belong to
-    lookup_groups = pgfields.ArrayField(models.BigIntegerField(), blank=True, default=[])
+    lookup_groups = pgfields.ArrayField(models.TextField(), blank=True, default=[])
 
     #: List of lookup institutions which users with this permission belong to
     lookup_insts = pgfields.ArrayField(models.TextField(), blank=True, default=[])
