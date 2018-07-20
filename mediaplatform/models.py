@@ -248,7 +248,7 @@ class Permission(models.Model):
         if len(self.crsids) != 0:
             clauses.append('crsid \N{ELEMENT OF} {{ {} }}'.format(', '.join(self.crsids)))
         if len(self.lookup_groups) != 0:
-            clauses.append('lookup \N{ELEMENT OF} of {{ {} }}'.format(
+            clauses.append('lookup \N{ELEMENT OF} {{ {} }}'.format(
                 ', '.join(self.lookup_groups)))
         if len(self.lookup_insts) != 0:
             clauses.append('lookup inst \N{ELEMENT OF} {{ {} }}'.format(
