@@ -31,14 +31,33 @@ _TOKEN_LENGTH = len(_make_token())
 
 
 class MediaItemQuerySet(models.QuerySet):
-    def viewable_by_user(self, use):
+    def viewable_by_user(self, user):
         """
         Filter the queryset to only those items which can be viewed by the passed Django user.
 
         """
-        # TODO: implement ACLs here
+        # Start with the condition that the item must be public
+        condition = models.Q(view_permission__is_public=True)
 
-        return self
+        # If a non-None user was passed and the user is not anonymous, we can add additional ways
+        # the item can be viewed
+        if user is not None and not user.is_anonymous:
+            groupids, instids = _lookup_groupids_and_instids_for_user(user)
+
+            # Irrespective of user groups/institutions, any signed in user can view videos with the
+            # is_signed_in permission
+            condition |= models.Q(view_permission__is_signed_in=True)
+
+            # The user may also be explicitly mentioned in the list of allowed crsids
+            condition |= models.Q(view_permission__crsids__contains=[user.username])
+
+            # The user's lookup groups may overlap with the allowed set
+            condition |= models.Q(view_permission__lookup_groups__overlap=groupids)
+
+            # The user's lookup institutions may overlap with the allowed set
+            condition |= models.Q(view_permission__lookup_insts__overlap=instids)
+
+        return self.filter(condition)
 
 
 class MediaItemManager(models.Manager):
