@@ -182,7 +182,9 @@ def update_related_models_from_cache(update_all=False):
     #
     # After this stage, all mediaplatform.MediaItem objects whose updated_at field precedes their
     # corresponding JWP video's updated timestamp + MEDIA_ITEM_FRESHNESS_THRESHOLD will have their
-    # metadata updated from the JWP video's custom props.
+    # metadata updated from the JWP video's custom props. Note that legacysms.MediaItem objects
+    # associated with updated mediaplatform.MediaItem objects will also be updated/created/deleted
+    # as necessary.
 
     # The media items which need update. We defer fetching all the metdata since we're going to
     # reset it anyway.
