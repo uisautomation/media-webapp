@@ -30,3 +30,49 @@ class PermissionTest(TestCase):
     def test_creation(self):
         """A Permission object should be creatable with no field values."""
         models.Permission.objects.create()
+
+
+class LookupTest(TestCase):
+    PERSON_FIXTURE = {
+        'groups': [
+            {'groupid': '0123'},
+            {'groupid': '4567'},
+        ],
+        'institutions': [
+            {'instid': 'DEPTA'},
+            {'instid': 'OFFICEB'},
+        ],
+    }
+
+    def setUp(self):
+        self.get_person_patcher = mock.patch('automationlookup.get_person')
+        self.get_person = self.get_person_patcher.start()
+        self.get_person.return_value = self.PERSON_FIXTURE
+        self.addCleanup(self.get_person_patcher.stop)
+
+        self.user = User.objects.create(username='testuser')
+
+        # Make sure the Django cache is empty when running tests
+        cache.clear()
+
+    def test_basic_groups_functionality(self):
+        expected_groupids = [
+            g['groupid'] for g in self.PERSON_FIXTURE['groups']
+        ]
+        groups, _ = models._lookup_groupids_and_instids_for_user(self.user)
+        self.assertEqual(groups, expected_groupids)
+
+    def test_basic_institutions_functionality(self):
+        expected_instids = [
+            g['instid'] for g in self.PERSON_FIXTURE['institutions']
+        ]
+        _, insts = models._lookup_groupids_and_instids_for_user(self.user)
+        self.assertEqual(insts, expected_instids)
+
+    @override_settings(LOOKUP_SCHEME='noscheme')
+    def test_calls_get_person(self):
+        """get_person is called correctly"""
+        models._lookup_groupids_and_instids_for_user(self.user)
+        self.get_person.assert_called_once_with(
+            identifier=self.user.username, scheme=settings.LOOKUP_SCHEME,
+            fetch=['all_groups', 'all_insts'])

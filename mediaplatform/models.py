@@ -1,5 +1,7 @@
 import secrets
 
+import automationlookup
+from django.conf import settings
 from django.db import models
 import django.contrib.postgres.fields as pgfields
 from iso639 import languages
@@ -266,3 +268,29 @@ class Permission(models.Model):
         self.lookup_insts = []
         self.is_public = False
         self.is_signed_in = False
+
+
+def _lookup_groupids_and_instids_for_user(user):
+    """
+    Return a tuple containing the list of group groupids and institution instids which the
+    specified user is (publicly) a member of. The return value is cached so it is safe to call this
+    multiple times.
+
+    """
+    # automationlookup.get_person return values are cached
+    person = automationlookup.get_person(
+        identifier=user.username, scheme=getattr(settings, 'LOOKUP_SCHEME', 'crsid'),
+        fetch=['all_groups', 'all_insts']
+    )
+    # "be liberal in what you accept" - do not assume that all the fields we expect to be
+    # present in the result will be
+    return (
+        [
+            group.get('groupid') for group in person.get('groups', [])
+            if group.get('groupid') is not None
+        ],
+        [
+            inst.get('instid') for inst in person.get('institutions', [])
+            if inst.get('instid') is not None
+        ]
+    )
