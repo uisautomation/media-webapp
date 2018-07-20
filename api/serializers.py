@@ -24,11 +24,11 @@ class MediaSerializer(serializers.Serializer):
     An individual media item.
 
     """
-    id = serializers.CharField(source='key', help_text='Unique id for the media')
+    id = serializers.CharField(help_text='Unique id for the media')
     title = serializers.CharField(help_text='Title of media')
     description = serializers.CharField(help_text='Description of media')
-    published_at_timestamp = serializers.IntegerField(
-        source='date', help_text='Unix-style UTC timestamp of publication time')
+    published_at = serializers.DateTimeField(
+        help_text='Publication time')
     poster_image_url = serializers.SerializerMethodField(
         help_text='A URL of a thumbnail/poster image for the media'
     )
@@ -36,59 +36,43 @@ class MediaSerializer(serializers.Serializer):
     player_url = serializers.SerializerMethodField(
         help_text='A URL to retrieve an embeddable player for the media item.'
     )
-    sources = SourceSerializer(
-        help_text='A collection of download URLs for different media types.',
-        required=False, many=True
-    )
     media_id = serializers.SerializerMethodField(help_text='Unique id for an SMS media')
 
     def get_media_id(self, obj):
-        return obj.media_id
+        if not hasattr(obj, 'sms'):
+            return None
+        return obj.sms.id
 
     def get_player_url(self, obj):
+        if not hasattr(obj, 'jwp'):
+            return None
         return jwplatform.player_embed_url(
-            obj['key'], settings.JWPLATFORM_EMBED_PLAYER_KEY, 'html',
+            obj.jwp.key, settings.JWPLATFORM_EMBED_PLAYER_KEY, 'html',
             settings.JWPLATFORM_CONTENT_BASE_URL
         )
 
     def get_poster_image_url(self, obj):
-        return obj.get_poster_url()
+        if not hasattr(obj, 'jwp'):
+            return None
+        return jwplatform.Video({'key': obj.jwp.key}).get_poster_url()
 
 
-class MediaListSerializer(serializers.Serializer):
+class MediaDetailSerializer(MediaSerializer):
     """
-    A media list response.
-
-    """
-    results = MediaSerializer(many=True, source='videos')
-    limit = serializers.IntegerField()
-    offset = serializers.IntegerField()
-    total = serializers.IntegerField()
-
-
-class MediaListQuerySerializer(serializers.Serializer):
-    """
-    A media list query.
+    Serialize a media object with greater detail for an individual media detail response
 
     """
-    search = serializers.CharField(
-        required=False,
-        help_text='Free text search for media item'
+    sources = serializers.SerializerMethodField(
+        help_text='A collection of download URLs for different media types.'
     )
 
-    order_by = serializers.ChoiceField(
-        choices=[
-            # As we expose other things from the JWPlatform API, add them here.
-            ('date', 'Publication date'),
-        ],
-        default='date',
-        help_text='Specify ordering for items'
-    )
+    def get_sources(self, obj):
+        if not hasattr(obj, 'jwp'):
+            return None
 
-    direction = serializers.ChoiceField(
-        choices=[('asc', 'Ascending'), ('desc', 'Descending')], default='desc',
-        help_text='Direction of item ordering'
-    )
+        video = jwplatform.DeliveryVideo.from_key(obj.jwp.key)
+
+        return SourceSerializer(video.get('sources'), many=True).data
 
 
 class CollectionSerializer(serializers.Serializer):
