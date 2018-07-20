@@ -159,9 +159,8 @@ class MediaItemAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         """Ensure that related items are also fetched by the queryset."""
-        qs = super().get_queryset(request)
         return (
-            qs
+            models.MediaItem.objects_including_deleted
             .select_related('jwp')
             .select_related('sms')
             .select_related('view_permission')
