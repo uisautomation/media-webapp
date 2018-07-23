@@ -97,6 +97,66 @@ class MediaItemTest(TestCase):
         item.view_permission.save()
         self.assert_user_can_view(self.user, item)
 
+    def test_public_item_editable_by_anon(self):
+        """An item with public editable permissions is editable by anonymous."""
+        item = models.MediaItem.objects.get(id='emptyperm')
+        self.assert_user_cannot_edit(AnonymousUser(), item)
+        self.assert_user_cannot_edit(None, item)
+        item.edit_permission.is_public = True
+        item.edit_permission.save()
+        self.assert_user_can_edit(AnonymousUser(), item)
+        self.assert_user_can_edit(None, item)
+
+    def test_signed_in_edit_permissions(self):
+        """An item with signed in edit permissions is not editable by anonymous."""
+        item = models.MediaItem.objects.get(id='emptyperm')
+        self.assert_user_cannot_edit(AnonymousUser(), item)
+        self.assert_user_cannot_edit(None, item)
+        self.assert_user_cannot_edit(self.user, item)
+        item.edit_permission.is_signed_in = True
+        item.edit_permission.save()
+        self.assert_user_cannot_edit(AnonymousUser(), item)
+        self.assert_user_cannot_edit(None, item)
+        self.assert_user_can_edit(self.user, item)
+
+    def test_item_with_no_perms_not_editable(self):
+        """An item with empty permissions is not editable by the anonymous or signed in user."""
+        self.assert_user_cannot_edit(AnonymousUser(), 'emptyperm')
+        self.assert_user_cannot_edit(self.user, 'emptyperm')
+
+    def test_item_with_matching_crsid_editable(self):
+        item = models.MediaItem.objects.get(id='emptyperm')
+        self.assert_user_cannot_edit(self.user, item)
+        item.edit_permission.crsids.extend(['spqr1', self.user.username, 'abcd1'])
+        item.edit_permission.save()
+        self.assert_user_can_edit(self.user, item)
+
+    def test_item_with_matching_lookup_groups_editable(self):
+        """
+        A user who has at least one lookup group which is in the set of lookup groups for a media
+        item can edit it.
+
+        """
+        self.lookup_groupids_and_instids_for_user.return_value = ['A', 'B', 'C'], []
+        item = models.MediaItem.objects.get(id='emptyperm')
+        self.assert_user_cannot_edit(self.user, item)
+        item.edit_permission.lookup_groups.extend(['X', 'Y', 'A', 'B', 'Z'])
+        item.edit_permission.save()
+        self.assert_user_can_edit(self.user, item)
+
+    def test_item_with_matching_lookup_insts_editable(self):
+        """
+        A user who has at least one lookup institution which is in the set of lookup institutions
+        for a media item can edit it.
+
+        """
+        self.lookup_groupids_and_instids_for_user.return_value = [], ['A', 'B', 'C']
+        item = models.MediaItem.objects.get(id='emptyperm')
+        self.assert_user_cannot_edit(self.user, item)
+        item.edit_permission.lookup_insts.extend(['X', 'Y', 'A', 'B', 'Z'])
+        item.edit_permission.save()
+        self.assert_user_can_edit(self.user, item)
+
     def test_view_permission_created(self):
         """A new MediaItem has a view permission created on save()."""
         item = models.MediaItem.objects.create()
@@ -154,6 +214,35 @@ class MediaItemTest(TestCase):
             .annotate_viewable(user, name='TEST_viewable')
             .get(id=item_or_id.id)
             .TEST_viewable
+        )
+
+    def assert_user_cannot_edit(self, user, item_or_id):
+        if isinstance(item_or_id, str):
+            item_or_id = models.MediaItem.objects_including_deleted.get(id=item_or_id)
+        self.assertFalse(
+            models.MediaItem.objects_including_deleted.all()
+            .filter(id=item_or_id.id)
+            .editable_by_user(user)
+            .exists()
+        )
+        self.assertFalse(
+            models.MediaItem.objects_including_deleted.all()
+            .annotate_editable(user, name='TEST_editable')
+            .get(id=item_or_id.id)
+            .TEST_editable
+        )
+
+    def assert_user_can_edit(self, user, item_or_id):
+        if isinstance(item_or_id, str):
+            item_or_id = models.MediaItem.objects_including_deleted.get(id=item_or_id)
+        self.assertTrue(
+            models.MediaItem.objects.all().editable_by_user(user).filter(id=item_or_id.id).exists()
+        )
+        self.assertTrue(
+            models.MediaItem.objects_including_deleted.all()
+            .annotate_editable(user, name='TEST_editable')
+            .get(id=item_or_id.id)
+            .TEST_editable
         )
 
 

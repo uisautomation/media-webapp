@@ -85,6 +85,29 @@ class MediaItemQuerySet(models.QuerySet):
         """
         return self.filter(self._permission_condition('view_permission', user))
 
+    def annotate_editable(self, user, name='editable'):
+        """
+        Annotate the query set with a boolean indicating if the user can edit the item.
+
+        """
+        return self.annotate(**{
+            name: models.Case(
+                models.When(
+                    self._permission_condition('edit_permission', user),
+                    then=models.Value(True)
+                ),
+                default=models.Value(False),
+                output_field=models.BooleanField()
+            ),
+        })
+
+    def editable_by_user(self, user):
+        """
+        Filter the queryset to only those items which can be edited by the passed Django user.
+
+        """
+        return self.filter(self._permission_condition('edit_permission', user))
+
 
 class MediaItemManager(models.Manager):
     """
