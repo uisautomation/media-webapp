@@ -9,6 +9,9 @@ Settings
 .. automodule:: smsjwplatform.defaultsettings
     :members:
 
+.. automodule:: mediaplatform_jwp.defaultsettings
+    :members:
+
 Views
 -----
 
