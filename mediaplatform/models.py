@@ -2,8 +2,10 @@ import secrets
 
 import automationlookup
 from django.conf import settings
-from django.db import models
 import django.contrib.postgres.fields as pgfields
+from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from iso639 import languages
 
 
@@ -287,6 +289,42 @@ class Permission(models.Model):
         self.lookup_insts = []
         self.is_public = False
         self.is_signed_in = False
+
+
+@receiver(post_save, sender=MediaItem)
+def _media_item_post_save_handler(*args, sender, instance, created, raw, **kwargs):
+    """
+    A post_save handler for :py:class:`~.MediaItem` which creates blank view and edit permissions
+    if they don't exist.
+
+    """
+    # If this is a "raw" update (e.g. from a test fixture) or was not the creation of the item,
+    # don't try to create objects.
+    if raw or not created:
+        return
+
+    if not hasattr(instance, 'view_permission'):
+        Permission.objects.create(allows_view_item=instance)
+    if not hasattr(instance, 'edit_permission'):
+        Permission.objects.create(allows_edit_item=instance)
+
+
+@receiver(post_save, sender=Collection)
+def _collection_post_save_handler(*args, sender, instance, created, raw, **kwargs):
+    """
+    A post_save handler for :py:class:`~.Collection` which creates blank view and edit permissions
+    if they don't exist.
+
+    """
+    # If this is a "raw" update (e.g. from a test fixture) or was not the creation of the item,
+    # don't try to create objects.
+    if raw or not created:
+        return
+
+    if not hasattr(instance, 'view_permission'):
+        Permission.objects.create(allows_view_collection=instance)
+    if not hasattr(instance, 'edit_permission'):
+        Permission.objects.create(allows_edit_collection=instance)
 
 
 def _lookup_groupids_and_instids_for_user(user):
