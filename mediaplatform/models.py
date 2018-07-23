@@ -364,6 +364,27 @@ class Permission(models.Model):
         self.is_signed_in = False
 
 
+class UploadEndpoint(models.Model):
+    """
+    An endpoint which can be used to upload a media item.
+
+    """
+    #: Primary key
+    id = models.CharField(
+        max_length=_TOKEN_LENGTH, primary_key=True, default=_make_token, editable=False)
+
+    #: URL for upload
+    url = models.URLField(editable=False, help_text='URL to POST file data to')
+
+    #: Related media item
+    item = models.OneToOneField(
+        MediaItem, editable=False, help_text='item this upload URL is for',
+        on_delete=models.CASCADE, related_name='upload_endpoint')
+
+    #: Date and time at which this upload URL will expire
+    expires_at = models.DateTimeField(editable=False, help_text='Expiry time of URL')
+
+
 @receiver(post_save, sender=MediaItem)
 def _media_item_post_save_handler(*args, sender, instance, created, raw, **kwargs):
     """
