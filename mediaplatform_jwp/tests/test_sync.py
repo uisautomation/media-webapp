@@ -102,7 +102,9 @@ class SyncTestCase(TestCase):
 
     def test_sync_duration(self):
         self.assert_attribute_sync('duration', test_value=10.2)
-        self.assert_attribute_sync('duration', test_value=None)  # missing duration is handled
+        # missing duration is handled
+        v1, = set_videos_and_sync([make_video(duration=None)])
+        self.assertEqual(0., mpmodels.MediaItem.objects.get(jwp__key=v1.key).duration)
 
     def test_sync_type(self):
         self.assert_attribute_sync('mediatype', model_attr='type', test_value='unknown')

@@ -1,3 +1,4 @@
+import itertools
 import secrets
 
 import automationlookup
@@ -164,10 +165,10 @@ class MediaItem(models.Model):
     UNKNOWN = 'unknown'
     TYPE_CHOICES = ((VIDEO, 'Video'), (AUDIO, 'Audio'))
 
-    LANGUAGE_CHOICES = sorted(
+    LANGUAGE_CHOICES = tuple(itertools.chain([('', 'None')], sorted(
         ((language.part3, language.name) for language in languages),
         key=lambda choice: choice[1]
-    )
+    )))
 
     #: Object manager. See :py:class:`~.MediaItemManager`. The objects returned by this manager do
     #: not include deleted objects. See :py:attr:\~.objects_including_deleted`.
@@ -179,24 +180,25 @@ class MediaItem(models.Model):
 
     #: Primary key
     id = models.CharField(
-            max_length=_TOKEN_LENGTH, primary_key=True, default=_make_token, editable=False)
+        max_length=_TOKEN_LENGTH, primary_key=True, default=_make_token, editable=False)
 
     #: Media item title
     title = models.TextField(help_text='Title of media item', blank=True, default='')
 
     #: Media item description
-    description = models.TextField(blank=True, default='', help_text='Description of media item')
+    description = models.TextField(help_text='Description of media item', blank=True, default='')
 
     #: Duration
-    duration = models.FloatField(null=True, editable=False, help_text='Duration of video')
+    duration = models.FloatField(editable=False, help_text='Duration of video', default=0.)
 
     #: Type of media.
     type = models.CharField(
-        max_length=10, choices=TYPE_CHOICES, default=VIDEO, editable=False,
+        max_length=10, choices=TYPE_CHOICES, default=UNKNOWN, editable=False,
         help_text='Type of media (video, audio or unknown)')
 
     #: Publication date
-    published_at = models.DateTimeField(null=True, help_text='Date from which video is visible')
+    published_at = models.DateTimeField(
+        null=True, blank=True, help_text='Date from which video is visible')
 
     #: Downloadable flag
     downloadable = models.BooleanField(
@@ -205,7 +207,7 @@ class MediaItem(models.Model):
 
     #: ISO 693-3 language code
     language = models.CharField(
-        max_length=3, blank=True, default='', choices=LANGUAGE_CHOICES,
+        max_length=3, default='', blank=True, choices=LANGUAGE_CHOICES,
         help_text=(
             'ISO 639-3 three letter language code describing majority language used in this item'
         )
@@ -216,7 +218,7 @@ class MediaItem(models.Model):
         blank=True, default='', help_text='Free text describing Copyright holder')
 
     #: List of tags for video
-    tags = pgfields.ArrayField(models.CharField(max_length=256), default=[],
+    tags = pgfields.ArrayField(models.CharField(max_length=256), default=[], blank=True,
                                help_text='Tags/keywords for item')
 
     #: Creation time
