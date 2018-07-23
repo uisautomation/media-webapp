@@ -131,7 +131,16 @@ class MediaItemTest(TestCase):
         if isinstance(item_or_id, str):
             item_or_id = models.MediaItem.objects_including_deleted.get(id=item_or_id)
         self.assertFalse(
-            models.MediaItem.objects.all().viewable_by_user(user).filter(id=item_or_id.id).exists()
+            models.MediaItem.objects_including_deleted.all()
+            .filter(id=item_or_id.id)
+            .viewable_by_user(user)
+            .exists()
+        )
+        self.assertFalse(
+            models.MediaItem.objects_including_deleted.all()
+            .annotate_viewable(user, name='TEST_viewable')
+            .get(id=item_or_id.id)
+            .TEST_viewable
         )
 
     def assert_user_can_view(self, user, item_or_id):
@@ -139,6 +148,12 @@ class MediaItemTest(TestCase):
             item_or_id = models.MediaItem.objects_including_deleted.get(id=item_or_id)
         self.assertTrue(
             models.MediaItem.objects.all().viewable_by_user(user).filter(id=item_or_id.id).exists()
+        )
+        self.assertTrue(
+            models.MediaItem.objects_including_deleted.all()
+            .annotate_viewable(user, name='TEST_viewable')
+            .get(id=item_or_id.id)
+            .TEST_viewable
         )
 
 

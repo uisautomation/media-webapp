@@ -33,33 +33,57 @@ _TOKEN_LENGTH = len(_make_token())
 
 
 class MediaItemQuerySet(models.QuerySet):
-    def viewable_by_user(self, user):
+    def _permission_condition(self, fieldname, user):
         """
-        Filter the queryset to only those items which can be viewed by the passed Django user.
+        Return a queryset expression for the permission field "fieldname" which is True if the
+        passed user has that permission.
 
         """
         # Start with the condition that the item must be public
-        condition = models.Q(view_permission__is_public=True)
+        condition = models.Q(**{fieldname + '__is_public': True})
 
         # If a non-None user was passed and the user is not anonymous, we can add additional ways
         # the item can be viewed
         if user is not None and not user.is_anonymous:
             groupids, instids = _lookup_groupids_and_instids_for_user(user)
 
-            # Irrespective of user groups/institutions, any signed in user can view videos with the
-            # is_signed_in permission
-            condition |= models.Q(view_permission__is_signed_in=True)
+            # Irrespective of user groups/institutions, any signed in user has the is_signed_in
+            # permission
+            condition |= models.Q(**{fieldname + '__is_signed_in': True})
 
             # The user may also be explicitly mentioned in the list of allowed crsids
-            condition |= models.Q(view_permission__crsids__contains=[user.username])
+            condition |= models.Q(**{fieldname + '__crsids__contains': [user.username]})
 
             # The user's lookup groups may overlap with the allowed set
-            condition |= models.Q(view_permission__lookup_groups__overlap=groupids)
+            condition |= models.Q(**{fieldname + '__lookup_groups__overlap': groupids})
 
             # The user's lookup institutions may overlap with the allowed set
-            condition |= models.Q(view_permission__lookup_insts__overlap=instids)
+            condition |= models.Q(**{fieldname + '__lookup_insts__overlap': instids})
 
-        return self.filter(condition)
+        return condition
+
+    def annotate_viewable(self, user, name='viewable'):
+        """
+        Annotate the query set with a boolean indicating if the user can view the item.
+
+        """
+        return self.annotate(**{
+            name: models.Case(
+                models.When(
+                    self._permission_condition('view_permission', user),
+                    then=models.Value(True)
+                ),
+                default=models.Value(False),
+                output_field=models.BooleanField()
+            ),
+        })
+
+    def viewable_by_user(self, user):
+        """
+        Filter the queryset to only those items which can be viewed by the passed Django user.
+
+        """
+        return self.filter(self._permission_condition('view_permission', user))
 
 
 class MediaItemManager(models.Manager):
