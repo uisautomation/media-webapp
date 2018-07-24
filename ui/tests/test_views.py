@@ -24,8 +24,8 @@ class ViewsTestCase(ViewTestCase):
 
         self.assertEqual(r.status_code, 200)
         self.assertTemplateUsed(r, 'ui/media.html')
-        self.assertEqual(r.context['name'], item.title)
-        media_item_json = json.loads(r.context['media_item_json'])
+        media_item_json = json.loads(r.context['json_ld'])
+        self.assertEqual(media_item_json['name'], item.title)
         self.assertIn(
             'https://cdn.jwplayer.com/thumbs/{}-1280.jpg'.format(item.jwp.key),
             media_item_json['thumbnailUrl'],

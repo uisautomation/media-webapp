@@ -15,6 +15,7 @@ from rest_framework import generics, pagination, filters
 from smsjwplatform import jwplatform
 import mediaplatform.models as mpmodels
 
+from . import permissions
 from . import serializers
 
 
@@ -138,7 +139,47 @@ class MediaListSearchFilter(filters.SearchFilter):
         return filtered_qs
 
 
-class MediaListView(generics.ListAPIView):
+class MediaItemListMixin:
+    """
+    A mixin class for DRF generic views which has all of the specialisations necessary for listing
+    (and possibly creating/deleting) media items. Use this mixin with ListAPIView or
+    ListCreateAPIView to form a concrete view class.
+
+    """
+    queryset = mpmodels.MediaItem.objects
+    permission_classes = [permissions.MediaItemPermission]
+
+    def get_queryset(self):
+        return (
+            super().get_queryset().all()
+            .viewable_by_user(self.request.user)
+            .annotate_editable(self.request.user)
+            .select_related('jwp')
+            .select_related('sms')
+        )
+
+
+class MediaItemMixin:
+    """
+    A mixin class for DRF generic views which has all of the specialisations necessary for
+    retrieving (and possibly updating) individual media items. Use this mixin with RetrieveAPIView
+    or RetrieveUpdateAPIView to form a concrete view class.
+
+    """
+    queryset = mpmodels.MediaItem.objects
+    permission_classes = [permissions.MediaItemPermission]
+
+    def get_queryset(self):
+        return (
+            super().get_queryset().all()
+            .viewable_by_user(self.request.user)
+            .annotate_editable(self.request.user)
+            .select_related('jwp')
+            .select_related('sms')
+        )
+
+
+class MediaListView(MediaItemListMixin, generics.ListCreateAPIView):
     """
     Endpoint to retrieve a list of media.
 
@@ -147,31 +188,13 @@ class MediaListView(generics.ListAPIView):
     ordering = '-published_at'
     ordering_fields = ('published_at',)
     pagination_class = MediaListPagination
-    queryset = mpmodels.MediaItem.objects
     search_fields = ('title', 'description', 'tags')
     serializer_class = serializers.MediaSerializer
 
-    def get_queryset(self):
-        return (
-            super().get_queryset().all()
-            .viewable_by_user(self.request.user)
-            .select_related('jwp')
-            .select_related('sms')
-        )
 
-
-class MediaView(generics.RetrieveAPIView):
+class MediaView(MediaItemMixin, generics.RetrieveUpdateAPIView):
     """
     Endpoint to retrieve a single media item.
 
     """
-    queryset = mpmodels.MediaItem.objects
     serializer_class = serializers.MediaDetailSerializer
-
-    def get_queryset(self):
-        return (
-            super().get_queryset().all()
-            .viewable_by_user(self.request.user)
-            .select_related('jwp')
-            .select_related('sms')
-        )

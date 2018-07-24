@@ -3,6 +3,6 @@
 {% block page_name %}media{% endblock %}
 {% block extrabody %}
 <script id="mediaItem" type="application/ld+json">
-{% autoescape off %}{{ media_item_json }}{% endautoescape %}
+{% autoescape off %}{{ json_ld }}{% endautoescape %}
 </script>
 {% endblock %}
