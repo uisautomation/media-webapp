@@ -72,6 +72,33 @@ class MediaSerializer(serializers.HyperlinkedModelSerializer):
     legacy = LegacySMSMediaSerializer(
         source='sms', help_text='Information from legacy SMS', required=False, read_only=True)
 
+    def create(self, validated_data):
+        """
+        Override behaviour when creating a new object using this serializer. If the current request
+        is being passed in the context, give the request user edit and view permissions on the
+        item.
+
+        """
+        new_item = super().create(validated_data)
+
+        if self.context is not None and 'request' in self.context:
+            request = self.context['request']
+            if not request.user.is_anonymous:
+                # Due to Django ORM oddness, we need to re-fetch the object to correctly modify
+                # permissions otherwise the ORM gets confused
+                new_item = (
+                    mpmodels.MediaItem.objects.all()
+                    .only()
+                    .select_related('view_permission', 'edit_permission')
+                    .get(id=new_item.id)
+                )
+                new_item.view_permission.crsids.append(request.user.username)
+                new_item.view_permission.save()
+                new_item.edit_permission.crsids.append(request.user.username)
+                new_item.edit_permission.save()
+
+        return new_item
+
     def get_duration(self, obj):
         """Return the media item's duration in ISO 8601 format."""
         if obj.duration is None:
