@@ -45,3 +45,6 @@ OAUTH2_LOOKUP_SCOPES = 'not-a-lookup-scope'
 
 #: Be less verbose in logging with tox
 LOGGING = None
+
+#: Do not synchronise items using the JWP API unless tests expect it
+JWP_SYNC_ITEMS = False

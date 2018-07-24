@@ -25,3 +25,6 @@ class Config(AppConfig):
         # Apply this dictionary to the settings
         for name, default_value in default_setting_values.items():
             setattr(settings, name, getattr(settings, name, default_value))
+
+        # Import, and thereby register, our custom signal handlers
+        from . import signalhandlers  # noqa: F401
