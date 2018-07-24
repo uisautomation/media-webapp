@@ -12,6 +12,18 @@ import CollectionDefaultImage from './img/collection-default-image.jpg';
 // The base URL for the SMS application - used to create legacy URLs.
 export const BASE_SMS_URL = 'https://sms.cam.ac.uk';
 
+// Get Django's CSRF token from the page from the first element named "csrfmiddlewaretoken". If no
+// such element is present, the token is empty.
+const CSRF_ELEMENT =
+  (document.getElementsByName('csrfmiddlewaretoken')[0] as HTMLInputElement);
+const CSRF_TOKEN = (typeof(CSRF_ELEMENT) !== 'undefined') ? CSRF_ELEMENT.value : '';
+
+// Headers to send with fetch request which authorises us to Django.
+const API_HEADERS = {
+  'Content-Type': 'application/json',
+  'X-CSRFToken': CSRF_TOKEN,
+};
+
 /**
  * When API calls fail, the related Promise is reject()-ed with an object implementing this
  * interface.
@@ -105,8 +117,16 @@ export const API_ENDPOINTS = {
  * Any errors are *always* logged via console.error().
  */
 export const apiFetch = (
-  input: string | Request, init: object = {}
-): Promise<any | IError> => fetch(input, { credentials: 'include', ...init })
+  input: string | Request, init: RequestInit = {}
+): Promise<any | IError> => (
+  fetch(input, {
+    credentials: 'include',
+    ...init,
+    headers: {
+      ...API_HEADERS,
+      ...init.headers,
+    }
+  })
   .then(response => {
     if(!response || !response.ok) {
       // Always log any API errors we get.
@@ -129,7 +149,8 @@ export const apiFetch = (
 
     // Chain to the next error handler
     return Promise.reject({ error });
-  });
+  })
+);
 
 /** List media resources. */
 export const mediaList = (
