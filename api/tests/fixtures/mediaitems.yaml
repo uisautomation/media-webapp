@@ -71,16 +71,27 @@
     updated_at: 2010-09-15 14:40:45
 
 - model: mediaplatform.Permission
-  pk: ppop
+  pk: populatedv
   fields:
     is_public: true
     allows_view_item: populated
+
+- model: mediaplatform.Permission
+  pk: populatede
+  fields:
+    allows_edit_item: populated
 
 - model: mediaplatform_jwp.Video
   pk: jwpvid1
   fields:
     updated: 12345
     item: populated
+
+- model: mediaplatform.UploadEndpoint
+  pk: upload1
+  fields:
+    item: populated
+    expires_at: 2010-09-15 14:40:45
 
 - model: legacysms.MediaItem
   pk: 1234

@@ -200,3 +200,21 @@ class MediaItemView(MediaItemMixin, generics.RetrieveUpdateAPIView):
 
     """
     serializer_class = serializers.MediaItemDetailSerializer
+
+
+class MediaItemUploadView(MediaItemMixin, generics.RetrieveUpdateAPIView):
+    """
+    Endpoint for retrieving an upload URL for a media item. Requires that the user have the edit
+    permission for the media item. Should the upload URL be expired or otherwise unsuitable, a HTTP
+    POST/PUT to this endpoint refreshes the URL.
+
+    """
+    # To access the upload API, the user must always have the edit permission.
+    permission_classes = MediaItemListMixin.permission_classes + [
+        permissions.MediaItemEditPermission
+    ]
+    serializer_class = serializers.MediaUploadSerializer
+
+    # Make sure that the related upload_endpoint is fetched by the queryset
+    def get_queryset(self):
+        return super().get_queryset().select_related('upload_endpoint')
