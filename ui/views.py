@@ -4,6 +4,8 @@ Views
 """
 import logging
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics
@@ -22,3 +24,8 @@ class MediaView(apiviews.MediaItemMixin, generics.RetrieveAPIView):
     serializer_class = serializers.MediaItemPageSerializer
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'ui/media.html'
+
+
+@login_required
+def upload(request):
+    return render(request, 'ui/upload.html')

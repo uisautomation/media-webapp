@@ -22,6 +22,7 @@ app_name = 'ui'
 
 urlpatterns = [
     path('media/<pk>', views.MediaView.as_view(), name='media_item'),
+    path('upload', views.upload, name='upload'),
     path('about', TemplateView.as_view(template_name="ui/about.html"), name='about'),
     path('', TemplateView.as_view(template_name="index.html"), name='home'),
 ]

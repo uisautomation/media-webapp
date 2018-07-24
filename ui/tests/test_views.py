@@ -4,6 +4,7 @@ Tests for views.
 """
 from unittest import mock
 
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 import smsjwplatform.jwplatform as api
@@ -41,3 +42,15 @@ class ViewsTestCase(ViewTestCase):
         self.assertEqual(r.status_code, 404)
 
     # TODO: add ACL checks here
+
+
+class UploadViewTestCase(ViewTestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create(username='spqr1')
+
+    def test_requires_login(self):
+        r = self.client.get(reverse('ui:upload'))
+        self.assertNotEqual(r.status_code, 200)
+        self.client.force_login(self.user)
+        r = self.client.get(reverse('ui:upload'))
+        self.assertEqual(r.status_code, 200)
