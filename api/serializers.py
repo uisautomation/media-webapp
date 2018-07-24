@@ -48,22 +48,29 @@ class MediaSerializer(serializers.HyperlinkedModelSerializer):
     # In JSON-LD, this should be "@id" but DRF doesn't make it easy to have @ signs in field naes
     # so we rename this field in to_representation() below.
     id = serializers.HyperlinkedIdentityField(
-        view_name='api:media_item', help_text='Unique URL for the media')
-    key = serializers.CharField(source='id', help_text='Unique id for media')
+        view_name='api:media_item', help_text='Unique URL for the media', read_only=True)
+
+    key = serializers.CharField(source='id', help_text='Unique id for media', read_only=True)
+
     name = serializers.CharField(source='title', help_text='Title of media')
-    description = serializers.CharField(help_text='Description of media')
+
+    description = serializers.CharField(help_text='Description of media', required=False)
+
     duration = serializers.SerializerMethodField(
-        help_text='Duration of the media in ISO 8601 format')
+        help_text='Duration of the media in ISO 8601 format', read_only=True)
+
     embedUrl = serializers.SerializerMethodField(
-        help_text='A URL to retrieve an embeddable player for the media item.'
-    )
+        help_text='A URL to retrieve an embeddable player for the media item.',
+        read_only=True)
+
     thumbnailUrl = serializers.SerializerMethodField(
-        help_text='A URL of a thumbnail/poster image for the media'
-    )
-    uploadDate = serializers.DateTimeField(source='published_at', help_text='Publication time')
+        help_text='A URL of a thumbnail/poster image for the media', read_only=True)
+
+    uploadDate = serializers.DateTimeField(
+        source='published_at', help_text='Publication time', read_only=True)
 
     legacy = LegacySMSMediaSerializer(
-        source='sms', help_text='Information from legacy SMS', required=False)
+        source='sms', help_text='Information from legacy SMS', required=False, read_only=True)
 
     def get_duration(self, obj):
         """Return the media item's duration in ISO 8601 format."""
