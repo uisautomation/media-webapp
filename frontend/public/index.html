@@ -24,6 +24,8 @@
     {% block extra_head %}{% endblock %}
   </head>
   <body>
+    {# Include Django's CSRF token in the page for the API to read. #}
+    {% csrf_token %}
     <noscript>
       You need to enable JavaScript to run this app.
     </noscript>
