@@ -5,12 +5,14 @@
   "dependencies": {
     "@material-ui/core": "^1.1.0",
     "@material-ui/icons": "^1.1.0",
+    "@types/react-router-dom": "^4.3.0",
     "deepmerge": "^2.1.1",
     "hast-util-sanitize": "^1.2.0",
     "react": "^16.4.0",
     "react-content-loader": "^3.1.2",
     "react-docgen-typescript": "^1.5.0",
     "react-dom": "^16.4.0",
+    "react-router-dom": "^4.3.1",
     "react-scripts-ts": "2.16.0",
     "remark-react": "^4.0.3"
   },
