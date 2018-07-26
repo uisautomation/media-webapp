@@ -96,6 +96,12 @@ export interface IMediaResource {
   links?: IMediaLinks;
 };
 
+/** A media upload resource. */
+export interface IMediaUploadResource {
+  url: string;
+  expires_at: string;
+};
+
 /** A collection resource. */
 export interface ICollectionResource {
   id: string;
@@ -218,6 +224,12 @@ export const mediaPatch = (item: IMediaResource) : Promise<IMediaResource | IErr
     body: JSON.stringify(item),
     method: 'PATCH',
   });
+};
+
+/** Create a new media resource. */
+export const mediaUploadGet = (item: IMediaResource) : Promise<IMediaUploadResource | IError> => {
+  // TODO: decide if we want to use the URL in @id rather than key here,
+  return apiFetch(API_ENDPOINTS.mediaList + item.id + '/upload');
 };
 
 /** List collection resources. */
