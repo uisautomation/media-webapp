@@ -39,7 +39,7 @@ class IndexPage extends Component {
   componentWillMount() {
     // As soon as the index page mounts, fetch the latest media.
     this.setState({ latestMediaLoading: true });
-    mediaList({ orderBy: 'date', direction: 'desc' }).then(
+    mediaList({ ordering: '-published_at' }).then(
       response => this.setState({ latestMediaResponse: response, latestMediaLoading: false }),
       error => this.setState({ latestMediaResponse: null, latestMediaLoading: false })
     );

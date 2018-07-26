@@ -5,17 +5,15 @@ Views implementing the API endpoints.
 import copy
 import logging
 
-from django.db.models import Q
 from django.conf import settings
-from django.http import Http404
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework.exceptions import APIException, PermissionDenied
+from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import generics, pagination, filters
 
 from smsjwplatform import jwplatform
-from smsjwplatform.jwplatform import VideoNotFoundError
-from smsjwplatform.models import CachedResource
+import mediaplatform.models as mpmodels
 
 from . import serializers
 
@@ -111,98 +109,69 @@ class CollectionListView(APIView):
         return Response(serializers.CollectionListSerializer(channel_list).data)
 
 
-class MediaListView(APIView):
+class MediaListPagination(pagination.CursorPagination):
+    page_size = 50
+
+
+class MediaListSearchFilter(filters.SearchFilter):
+    """
+    Custom filter based on :py:class:`rest_framework.filters.SearchFilter` specialised to search
+    :py:class:`mediaplatform.models.MediaItem` objects. If the "tags" field is specified in the
+    view's ``search_fields`` attribute, then the tags field is dearched for any tag matching the
+    lower cased search term.
+
+    """
+
+    def get_search_term(self, request):
+        return request.query_params.get(self.search_param, '')
+
+    def get_search_terms(self, request):
+        return [self.get_search_term(request)]
+
+    def filter_queryset(self, request, queryset, view):
+        filtered_qs = super().filter_queryset(request, queryset, view)
+
+        if 'tags' in getattr(view, 'search_fields', ()):
+            search_term = self.get_search_term(request)
+            filtered_qs |= queryset.filter(tags__contains=[search_term.lower()])
+
+        return filtered_qs
+
+
+class MediaListView(generics.ListAPIView):
     """
     Endpoint to retrieve a list of media.
 
     """
-    # Mapping from order_by values to SQL expression giving the appropriate value to order results
-    # by.
-    ORDER_BY_MAP = {
-        'date': "data -> 'date'",
-    }
+    filter_backends = (filters.OrderingFilter, MediaListSearchFilter)
+    ordering = '-published_at'
+    ordering_fields = ('published_at',)
+    pagination_class = MediaListPagination
+    queryset = mpmodels.MediaItem.objects
+    search_fields = ('title', 'description', 'tags')
+    serializer_class = serializers.MediaSerializer
 
-    @swagger_auto_schema(
-        query_serializer=serializers.MediaListQuerySerializer(),
-        responses={200: serializers.MediaListSerializer()}
-    )
-    def get(self, request):
-        """Handle GET request."""
-        query_serializer = serializers.MediaListQuerySerializer(data=request.query_params)
-        query_serializer.is_valid(raise_exception=True)
-        query = query_serializer.data
-
-        limit, offset = 100, 0
-
-        # Django has limited understanding of how to order by a JSONField so we help it out a bit
-        # here by using the .extra() method on the QuerySet and just providing the SQL expression
-        # directly.
-        # Django will have native support for order_by in JSONFields from Django 2.1
-        # To keep track of the issue: https://code.djangoproject.com/ticket/24747
-        videos = CachedResource.videos.extra(
-            select={'__ordering': self.ORDER_BY_MAP[query['order_by']]},
-            order_by=[
-                '{}__ordering'.format('-' if query['direction'] == 'desc' else '')
-            ]
+    def get_queryset(self):
+        return (
+            super().get_queryset().all()
+            .viewable_by_user(self.request.user)
+            .select_related('jwp')
+            .select_related('sms')
         )
 
-        # If the search field is populated, match on title and description. We can be cleverer here
-        # and, for example, use Postgres' support for full text search:
-        # https://www.postgresql.org/docs/current/static/textsearch.html
-        search = query.get('search')
-        if search is not None:
-            videos = videos.filter(
-                Q(data__title__icontains=search) |
-                Q(data__description__icontains=search)
-            )
 
-        # Filter videos. They must have a) an SMS media id (so have originated on the SMS) and b)
-        # have an ACL which allows the current user.
-        video_list = [jwplatform.Video(video.data) for video in videos.all()[offset:offset+limit]]
-        response = {
-            'videos': [
-                video for video in video_list
-                if video.media_id is not None and user_can_view_resource(request.user, video)
-            ],
-            'limit': limit,
-            'offset': offset,
-            'total': videos.count(),
-        }
-
-        return Response(serializers.MediaListSerializer(response).data)
-
-
-class MediaView(APIView):
+class MediaView(generics.RetrieveAPIView):
     """
     Endpoint to retrieve a single media item.
 
     """
-    @swagger_auto_schema(
-        responses={200: serializers.MediaSerializer()}
-    )
-    def get(self, request, media_key):
-        """Handle GET request."""
+    queryset = mpmodels.MediaItem.objects
+    serializer_class = serializers.MediaDetailSerializer
 
-        try:
-            video = jwplatform.DeliveryVideo.from_key(media_key)
-        except VideoNotFoundError:
-            # if we don't find a video raise a 404
-            raise Http404
-
-        if not user_can_view_resource(request.user, video):
-            raise PermissionDenied
-
-        return Response(serializers.MediaSerializer(video).data)
-
-
-def user_can_view_resource(user, resource):
-    """
-    Return a boolean indicating if the passed Django user can access the passed JWPlatform
-    resource. The decision is based on the ACLs associated with the resource.
-
-    """
-    try:
-        resource.check_user_access(user)
-        return True
-    except jwplatform.ResourceACLPermissionDenied:
-        return False
+    def get_queryset(self):
+        return (
+            super().get_queryset().all()
+            .viewable_by_user(self.request.user)
+            .select_related('jwp')
+            .select_related('sms')
+        )

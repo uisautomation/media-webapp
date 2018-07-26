@@ -347,7 +347,7 @@ class MediaPageTest(TestCaseWithFixtures):
 
         """
         r = self.client.get(reverse('legacysms:media', kwargs={'media_id': 34}))
-        self.assertRedirects(r, reverse('ui:media_item', kwargs={'media_key': 'myvideokey'}),
+        self.assertRedirects(r, reverse('ui:media_item', kwargs={'pk': 'myvideokey'}),
                              fetch_redirect_response=False)
 
     def test_no_permission(self):

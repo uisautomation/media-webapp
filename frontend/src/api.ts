@@ -44,17 +44,25 @@ export interface ISource {
   height?: number;
 }
 
+export interface ILegacyMedia {
+  id: number;
+  statisticsUrl: string;
+}
+
 /** A media resource. */
 export interface IMediaResource {
-  id: string;
-  title: string;
+  key: string;
+  name: string;
   description: string;
-  published_at_timestamp: number;
-  poster_image_url?: string;
-  duration: number;
-  player_url: string;
-  source?: ISource[];
-  media_id: number;
+  duration: string;
+  embedUrl: string;
+  thumbnailUrl: string[];
+  uploadDate: string;
+  legacy?: ILegacyMedia;
+  '@id': string;
+  '@context': string;
+  '@type': string;
+  contentUrl?: string;
 };
 
 /** A collection resource. */
@@ -85,8 +93,7 @@ export interface ICollectionListResponse {
 /** A query to the media list endpoint. */
 export interface IMediaQuery {
   search?: string;
-  order_by?: string;
-  direction?: string;
+  ordering?: string;
 };
 
 /** A query to the collection list endpoint. */
@@ -154,16 +161,16 @@ export const apiFetch = (
 
 /** List media resources. */
 export const mediaList = (
-  { search }: IMediaQuery = {}
+  { search, ordering }: IMediaQuery = {}
 ): Promise<IMediaListResponse | IError> => {
-  return apiFetch(API_ENDPOINTS.mediaList + objectToQueryPart({ search }));
+  return apiFetch(API_ENDPOINTS.mediaList + objectToQueryPart({ search, ordering }));
 };
 
 /** List collection resources. */
 export const collectionList = (
-  { search }: IMediaQuery = {}
+  { search, ordering }: IMediaQuery = {}
 ): Promise<ICollectionListResponse | IError> => {
-  return apiFetch(API_ENDPOINTS.collectionList + objectToQueryPart({ search }));
+  return apiFetch(API_ENDPOINTS.collectionList + objectToQueryPart({ search, ordering }));
 };
 
 /** Fetch the user's profile. */
@@ -200,10 +207,10 @@ export const collectionResourceToItem = (
  * A function which maps an API media resource to a media item for use by, e.g., MediaItemCard.
  */
 export const mediaResourceToItem = (
-  { id, title, description, poster_image_url }: IMediaResource
+  { key, name, description, thumbnailUrl }: IMediaResource
 ) => ({
   description,
-  imageUrl: poster_image_url,
-  title,
-  url: '/media/' + id,
+  imageUrl: thumbnailUrl ? thumbnailUrl[0] : null,
+  title: name,
+  url: '/media/' + key,
 });

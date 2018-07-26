@@ -28,6 +28,34 @@ def _make_token():
 _TOKEN_LENGTH = len(_make_token())
 
 
+class MediaItemQuerySet(models.QuerySet):
+    def viewable_by_user(self, use):
+        """
+        Filter the queryset to only those items which can be viewed by the passed Django user.
+
+        """
+        # TODO: implement ACLs here
+
+        return self
+
+
+class MediaItemManager(models.Manager):
+    """
+    An object manager for :py:class:`~.MediaItem` objects. Accepts an additional named parameter
+    *include_deleted* which specifies if the default queryset should include deleted items.
+
+    """
+    def __init__(self, *args, include_deleted=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._include_deleted = include_deleted
+
+    def get_queryset(self):
+        qs = MediaItemQuerySet(self.model, using=self._db)
+        if not self._include_deleted:
+            qs = qs.filter(deleted_at__isnull=True)
+        return qs
+
+
 class MediaItem(models.Model):
     """
     An individual media item in the media platform.
@@ -46,6 +74,14 @@ class MediaItem(models.Model):
         ((language.part3, language.name) for language in languages),
         key=lambda choice: choice[1]
     )
+
+    #: Object manager. See :py:class:`~.MediaItemManager`. The objects returned by this manager do
+    #: not include deleted objects. See :py:attr:\~.objects_including_deleted`.
+    objects = MediaItemManager()
+
+    #: Object manager whose objects include the deleted items. This has been separated out into a
+    #: separate manager to avoid inadvertently including deleted objects in a query
+    objects_including_deleted = MediaItemManager(include_deleted=True)
 
     #: Primary key
     id = models.CharField(
