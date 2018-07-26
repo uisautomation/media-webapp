@@ -13,10 +13,10 @@ from .models import Video
 
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
-    fields = ('key', 'preview', 'item_link', 'updated_datetime',)
+    fields = ('key', 'preview', 'item_link', 'updated_datetime', 'updated')
     list_display = ('key', 'item_link', 'updated_datetime')
     search_fields = ('key', 'item__title', 'item__description')
-    readonly_fields = ('key', 'updated_datetime', 'item_link', 'preview')
+    readonly_fields = ('key', 'updated', 'updated_datetime', 'item_link', 'preview')
 
     def updated_datetime(self, obj):
         """A more friendly "updated" time which presents it as a localised string."""
