@@ -14,9 +14,6 @@ import smsjwplatform.models as smsjwpmodels
 from smsjwplatform import jwplatform as jwp
 
 
-MEDIA_ITEM_FRESHNESS_THRESHOLD = 100
-
-
 @transaction.atomic
 def update_related_models_from_cache(update_all=False):
     """
@@ -25,15 +22,8 @@ def update_related_models_from_cache(update_all=False):
     is deleted from the SMS (but is still in JWP for some reason), the legacysms.MediaItem model
     associated with the MediaItem is deleted.
 
-    The updated field from the JWP videos is compared to each MediaItem's updated_at field and
-    those which are out of date are updated. The MEDIA_ITEM_FRESHNESS_THRESHOLD constant specifies
-    a degree of "slack" which is allowed between the JWP clock and our clock. It is a number of
-    seconds beyond the JWP updated timestamp at which we will still update a MediaItem. Having this
-    be a small, positive value means we err on the side of caution when deciding which videos need
-    update.
-
-    The JWP and SMS metadata is synchronised to mediaplatform.MediaItem or an associates
-    legacysms.MediaItem as appropriate.
+    For video resources whose updated timestamp has increased, the JWP and SMS metadata is
+    synchronised to mediaplatform.MediaItem or an associated legacysms.MediaItem as appropriate.
 
     The *update_all* flag may be set to True in which case a synchronisation of *all* MediaItems
     with the associated CachedResource is performed irrespective of the updated_at timestamp.
@@ -84,6 +74,9 @@ def update_related_models_from_cache(update_all=False):
         .exclude(key__in=jwpmodels.Video.objects.values_list('key', flat=True))
     )
 
+    # Start creating a list of all JWP video object which were touched in this update
+    updated_jwp_keys = [v.key for v in new_video_resources.only('key')]
+
     # Bulk insert Video objects for all new videos.
     jwpmodels.Video.objects.bulk_create([
         jwpmodels.Video(key=resource.key, updated=resource.data.get('updated', 0))
@@ -104,6 +97,14 @@ def update_related_models_from_cache(update_all=False):
             functions.Cast(expressions.RawSQL("data ->> 'updated'", []), models.BigIntegerField())
         )[:1]
     )
+
+    # Add to our list of updated JWP videos
+    updated_jwp_keys.extend([
+        v.key
+        for v in jwpmodels.Video.objects
+        .filter(updated__lt=matching_resource_updated)
+        .only('key')
+    ])
 
     # For all mediaplatform_jwp.Video objects whose corresponding CachedResource's updated field is
     # later than the Video's updated field, update the Video.
@@ -155,36 +156,16 @@ def update_related_models_from_cache(update_all=False):
         mpmodels.Permission(allows_edit_item=item) for _, item in jwp_keys_and_items
     ])
 
-    # For new MediaItems, manually set the updated_at field to a date 100,000 seconds earlier the
-    # earliest updated timestamp of the JWP videos needing an item. This means the metadata will
-    # definitely be updated in the metadata update stage below. We couldn't do this in
-    # bulk_create() because the updated_at field is overridden by the auto_now_add option. update()
-    # bypasses this.
-    earliest_updated = videos_needing_items.aggregate(updated_min=models.Min(
-        expressions.RawSQL("data ->> 'updated'", [])
-    ))['updated_min']
-    if earliest_updated is None:
-        earliest_updated = 0
-    else:
-        earliest_updated = int(earliest_updated)
-
-    (
-        mpmodels.MediaItem.objects
-        .filter(id__in=[item.id for _, item in jwp_keys_and_items])
-        .update(updated_at=datetime.datetime.fromtimestamp(earliest_updated - 100000, pytz.utc))
-    )
-
     # Add the corresponding media item link to the JWP videos.
     for key, item in jwp_keys_and_items:
         jwpmodels.Video.objects.filter(key=key).update(item=item)
 
     # 4) Update metadata for changed videos
     #
-    # After this stage, all mediaplatform.MediaItem objects whose updated_at field precedes their
-    # corresponding JWP video's updated timestamp + MEDIA_ITEM_FRESHNESS_THRESHOLD will have their
-    # metadata updated from the JWP video's custom props. Note that legacysms.MediaItem objects
-    # associated with updated mediaplatform.MediaItem objects will also be updated/created/deleted
-    # as necessary.
+    # After this stage, all mediaplatform.MediaItem objects whose associated JWP video is one of
+    # those in updated_jwp_keys need to be re-synchronised.  will have their metadata updated from
+    # the JWP video's custom props. Note that legacysms.MediaItem objects associated with updated
+    # mediaplatform.MediaItem objects will also be updated/created/deleted as necessary.
 
     # The media items which need update. We defer fetching all the metdata since we're going to
     # reset it anyway.
@@ -208,10 +189,7 @@ def update_related_models_from_cache(update_all=False):
     if not update_all:
         updated_media_items = (
             updated_media_items
-            .filter(updated_at__lt=expressions.Func(
-                models.F('jwp__updated') + MEDIA_ITEM_FRESHNESS_THRESHOLD,
-                function='to_timestamp'
-            ))
+            .filter(jwp__key__in=updated_jwp_keys)
         )
 
     # Iterate over all updated media items and set the metadata

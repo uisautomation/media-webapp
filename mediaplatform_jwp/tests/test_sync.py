@@ -9,7 +9,7 @@ import mediaplatform.models as mpmodels
 import mediaplatform_jwp.models as jwpmodels
 import legacysms.models as legacymodels
 from smsjwplatform.jwplatform import Video
-from smsjwplatform.models import set_videos
+from smsjwplatform.models import set_videos, CachedResource
 
 from .. import sync
 
@@ -36,17 +36,14 @@ class SyncTestCase(TestCase):
 
     def test_video_update(self):
         """If a video is updated, its corresponding media item is updated."""
-        # This timestamp is sufficiently old (by 10 seconds) that the "slack" introduced by
-        # MEDIA_ITEM_FRESHNESS_THRESHOLD does not catch it
-        updated = timezone.now() - datetime.timedelta(
-                seconds=sync.MEDIA_ITEM_FRESHNESS_THRESHOLD + 10)
+        updated = timezone.now()
         v1, v2 = make_video(updated=updated), make_video(updated=updated)
         set_videos_and_sync([v1, v2])
         i1 = mpmodels.MediaItem.objects.get(jwp__key=v1.key)
         i2 = mpmodels.MediaItem.objects.get(jwp__key=v2.key)
 
         # Update video 1 but not 2
-        v1['updated'] = int(timezone.now().timestamp())
+        v1['updated'] += 1
         v1['title'] += 'new title'
         set_videos_and_sync([v1, v2])
 
@@ -56,42 +53,6 @@ class SyncTestCase(TestCase):
         # Only video 1 was updated
         self.assertGreater(new_i1.updated_at, i1.updated_at)
         self.assertEqual(new_i1.title, v1['title'])
-        self.assertEqual(new_i2.updated_at, i2.updated_at)
-
-    def test_video_update_slack(self):
-        """
-        Videos which have been updated less than MEDIA_ITEM_FRESHNESS_THRESHOLD ago, are still
-        updated.
-
-        """
-        # This timestamp is not sufficiently old (by 10 seconds). The "slack" introduced by
-        # MEDIA_ITEM_FRESHNESS_THRESHOLD fill still catch it.
-        updated1 = timezone.now() - datetime.timedelta(
-                seconds=sync.MEDIA_ITEM_FRESHNESS_THRESHOLD - 10)
-        # This timestamp *is* sufficiently old (by 10 seconds).
-        updated2 = timezone.now() - datetime.timedelta(
-                seconds=sync.MEDIA_ITEM_FRESHNESS_THRESHOLD + 10)
-        v1, v2 = make_video(updated=updated1), make_video(updated=updated2)
-        set_videos_and_sync([v1, v2])
-        i1 = mpmodels.MediaItem.objects.get(jwp__key=v1.key)
-        i2 = mpmodels.MediaItem.objects.get(jwp__key=v2.key)
-        i1.save()
-        i2.save()
-
-        # The updated_at of the corresponding items is greater than or equal to the update time
-        self.assertGreaterEqual(i1.updated_at, updated1)
-        self.assertGreaterEqual(i2.updated_at, updated2)
-
-        # Re-sync
-        set_videos_and_sync([v1, v2])
-
-        # If the videos are fetched again, some are still synchronised despite their updated_at
-        # fields being later than or equal to updated
-        new_i1 = mpmodels.MediaItem.objects.get(jwp__key=v1.key)
-        new_i2 = mpmodels.MediaItem.objects.get(jwp__key=v2.key)
-
-        # Only video 1 was updated
-        self.assertGreater(new_i1.updated_at, i1.updated_at)
         self.assertEqual(new_i2.updated_at, i2.updated_at)
 
     def test_sync_jwp(self):
@@ -251,6 +212,7 @@ class SyncTestCase(TestCase):
 
         # Check that legacy creator:...: format is accepted for custom prop
         v2['custom']['sms_created_by'] = 'creator:abcd1:'
+        v2['updated'] += 1
         set_videos_and_sync([v1, v2])
 
         i2_v2 = mpmodels.MediaItem.objects.get(jwp__key=v2.key)
@@ -286,12 +248,31 @@ class SyncTestCase(TestCase):
 
         # Simulate a SMS delete
         del v1['custom']['sms_media_id']
+        v1['updated'] += 1
         set_videos_and_sync([v1])
 
         # SMS object should've been deleted
         i1_v2 = mpmodels.MediaItem.objects.get(jwp__key=v1.key)
         self.assertFalse(hasattr(i1_v2, 'sms'))
         self.assertEqual(legacymodels.MediaItem.objects.filter(id=1234).count(), 0)
+
+    def test_item_update_with_modifiying_cached_resource(self):
+        """
+        A change up the updated field in the Cached resource should re-sync the video.
+
+        """
+        v1, = set_videos_and_sync([make_video(media_id=1234)])
+        i1 = mpmodels.MediaItem.objects.get(jwp__key=v1.key)
+
+        resource = CachedResource.videos.get(key=v1.key)
+        new_title = i1.title + '-changed'
+        resource.data['title'] = new_title
+        resource.data['updated'] += 1
+        resource.save()
+
+        sync.update_related_models_from_cache()
+
+        self.assertEqual(mpmodels.MediaItem.objects.get(jwp__key=v1.key).title, new_title)
 
     def assert_attribute_sync(self, video_attr, model_attr=None, test_value='testing'):
         """
