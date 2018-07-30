@@ -19,8 +19,7 @@ class MediaView(api.views.MediaView):
 
     template_name = 'ui/media.html'
 
-    def get(self, request, media_key):
-
-        response = super().get(request, media_key)
+    def get(self, request, pk):
+        response = super().get(request, pk)
         response.data['media_item_json'] = json.dumps(response.data)
         return response

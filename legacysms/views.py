@@ -210,4 +210,4 @@ def media(request, media_id):
     except api.ResourceACLPermissionDenied:
         return legacyredirect.media_page(media_id)
 
-    return redirect(reverse('ui:media_item', kwargs={'media_key': video.key}))
+    return redirect(reverse('ui:media_item', kwargs={'pk': video.key}))

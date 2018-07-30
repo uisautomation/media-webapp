@@ -54,6 +54,6 @@
       try {document.addEventListener("DOMContentLoaded", $buo_f,false)}
       catch(e){window.attachEvent("onload", $buo_f)}
     </script>
-    <script>{% block custom_script %}{% endblock %}</script>
+    {% block extrabody %}{% endblock %}
   </body>
 </html>
