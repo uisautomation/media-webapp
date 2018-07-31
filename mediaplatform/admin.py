@@ -29,6 +29,11 @@ class MediaItemEditPermissionInline(PermissionInline):
     verbose_name_plural = 'Edit Permissions'
 
 
+class ChannelEditPermissionInline(PermissionInline):
+    fk_name = 'allows_edit_channel'
+    verbose_name_plural = 'Edit Permissions'
+
+
 # TODO: it would be nice to refactor the mediaplatform admin to be unaware of the JWP/SMS models
 # and use something like https://github.com/kux/django-admin-extend in the
 # mediaplatform_jwp/legacysms applications instead.
@@ -102,8 +107,9 @@ class MediaItemAdminForm(forms.ModelForm):
 @admin.register(models.MediaItem)
 class MediaItemAdmin(admin.ModelAdmin):
     fields = (
-        'preview', 'type', 'title', 'description', 'formatted_duration', 'published_at',
-        'downloadable', 'tags', 'language', 'copyright', 'created_at', 'updated_at', 'deleted_at',
+        'preview', 'channel_link', 'type', 'title', 'description', 'formatted_duration',
+        'published_at', 'downloadable', 'tags', 'language', 'copyright', 'created_at',
+        'updated_at', 'deleted_at',
     )
     list_display = (
         'title', 'type', 'downloadable', 'published_at', 'deleted'
@@ -118,7 +124,8 @@ class MediaItemAdmin(admin.ModelAdmin):
         MediaItemEditPermissionInline,
     ]
     readonly_fields = (
-        'created_at', 'deleted', 'formatted_duration', 'preview', 'type', 'updated_at'
+        'channel_link', 'created_at', 'deleted', 'formatted_duration', 'preview', 'type',
+        'updated_at'
     )
     form = MediaItemAdminForm
 
@@ -127,6 +134,15 @@ class MediaItemAdmin(admin.ModelAdmin):
         return obj.deleted_at is not None
 
     deleted.boolean = True
+
+    def channel_link(self, obj):
+        return format_html(
+            '<a href="{}">{}</a>',
+            reverse('admin:mediaplatform_channel_change', args=(obj.channel.id,)),
+            obj.channel,
+        )
+
+    channel_link.short_description = 'Channel'
 
     def formatted_duration(self, obj):
         """The duration of the video nicely formatted."""
@@ -178,3 +194,42 @@ class MediaItemAdmin(admin.ModelAdmin):
 class CollectionAdmin(admin.ModelAdmin):
     list_display = ('title', 'created_at', 'updated_at', 'deleted_at')
     search_fields = ('id', 'title', 'description')
+
+
+class ChannelAdminForm(forms.ModelForm):
+    """
+    A custom form for rendering a Channel in the admin which uses a single-line input widget for
+    the title.
+
+    """
+    class Meta:
+        fields = '__all__'
+        model = models.Channel
+        widgets = {
+            'title': admin.widgets.AdminTextInputWidget,
+        }
+
+
+@admin.register(models.Channel)
+class ChannelAdmin(admin.ModelAdmin):
+    fields = ('title', 'item_count', 'created_at', 'updated_at', 'deleted_at')
+    search_fields = ('id', 'title', 'description')
+    list_display = ('title', 'deleted')
+    ordering = ('title', 'id')
+    search_fields = ('id', 'title', 'description')
+    inlines = [
+        ChannelEditPermissionInline,
+    ]
+    readonly_fields = (
+        'item_count', 'created_at', 'deleted', 'updated_at'
+    )
+    form = ChannelAdminForm
+
+    def deleted(self, obj):
+        """Whether the channel is marked as deleted."""
+        return obj.deleted_at is not None
+
+    deleted.boolean = True
+
+    def item_count(self, obj):
+        return obj.items.count()
