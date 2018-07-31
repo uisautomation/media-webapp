@@ -69,6 +69,9 @@ $ ./tox.sh -e flake8
 
 # Run the migrate management command using the development images
 $ ./manage_development.sh migrate
+
+# Run tests and write coverage/documentation to build directory
+$ COMPOSE_ARGS="-v ./build:/tmp/tox-data/artefacts" ./tox.sh
 ```
 
 ## Dockerfile configuration
