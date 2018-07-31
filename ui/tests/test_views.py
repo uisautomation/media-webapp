@@ -2,7 +2,6 @@
 Tests for views.
 
 """
-import json
 from unittest import mock
 
 from django.urls import reverse
@@ -24,7 +23,7 @@ class ViewsTestCase(ViewTestCase):
 
         self.assertEqual(r.status_code, 200)
         self.assertTemplateUsed(r, 'ui/media.html')
-        media_item_json = json.loads(r.context['json_ld'])
+        media_item_json = r.context['json_ld']
         self.assertEqual(media_item_json['name'], item.title)
         self.assertIn(
             'https://cdn.jwplayer.com/thumbs/{}-1280.jpg'.format(item.jwp.key),

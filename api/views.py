@@ -110,11 +110,11 @@ class CollectionListView(APIView):
         return Response(serializers.CollectionListSerializer(channel_list).data)
 
 
-class MediaListPagination(pagination.CursorPagination):
+class MediaItemListPagination(pagination.CursorPagination):
     page_size = 50
 
 
-class MediaListSearchFilter(filters.SearchFilter):
+class MediaItemListSearchFilter(filters.SearchFilter):
     """
     Custom filter based on :py:class:`rest_framework.filters.SearchFilter` specialised to search
     :py:class:`mediaplatform.models.MediaItem` objects. If the "tags" field is specified in the
@@ -181,22 +181,22 @@ class MediaItemMixin:
         )
 
 
-class MediaListView(MediaItemListMixin, generics.ListCreateAPIView):
+class MediaItemListView(MediaItemListMixin, generics.ListCreateAPIView):
     """
     Endpoint to retrieve a list of media.
 
     """
-    filter_backends = (filters.OrderingFilter, MediaListSearchFilter)
+    filter_backends = (filters.OrderingFilter, MediaItemListSearchFilter)
     ordering = '-published_at'
     ordering_fields = ('published_at',)
-    pagination_class = MediaListPagination
+    pagination_class = MediaItemListPagination
     search_fields = ('title', 'description', 'tags')
-    serializer_class = serializers.MediaSerializer
+    serializer_class = serializers.MediaItemSerializer
 
 
-class MediaView(MediaItemMixin, generics.RetrieveUpdateAPIView):
+class MediaItemView(MediaItemMixin, generics.RetrieveUpdateAPIView):
     """
     Endpoint to retrieve a single media item.
 
     """
-    serializer_class = serializers.MediaDetailSerializer
+    serializer_class = serializers.MediaItemDetailSerializer

@@ -24,6 +24,26 @@ const API_HEADERS = {
   'X-CSRFToken': CSRF_TOKEN,
 };
 
+// Iterate over all resources which have been embedded in the page and build a map keyed by
+// resource id.
+const RESOURCES_FROM_PAGE = new Map(
+  Array.from(document.getElementsByTagName('script'))
+  .filter((element: HTMLScriptElement) => element.type === 'application/resource+json')
+  .map((element: HTMLScriptElement) => JSON.parse(element.text))
+  .filter(({ id }) => !!id)
+  .map((resource): [string, any] => [resource.id, resource])
+);
+
+/**
+ * A function which retrieves a resource from the page by id. Note that, to avoid caching problems,
+ * once retrieved, the resource is then removed from the RESOURCES_FROM_PAGE object.
+ */
+const resourceFromPageById = (id: string) => {
+  const resource = RESOURCES_FROM_PAGE.get(id);
+  if(resource) { RESOURCES_FROM_PAGE.delete(id); }
+  return resource;
+};
+
 /**
  * When API calls fail, the related Promise is reject()-ed with an object implementing this
  * interface.
@@ -37,32 +57,43 @@ export interface IError {
 };
 
 /** A media download source. */
-export interface ISource {
-  mime_type: string;
+export interface IMediaSource {
+  mimeType: string;
   url: string;
   width?: number;
   height?: number;
 }
 
-export interface ILegacyMedia {
-  id: number;
-  statisticsUrl: string;
+export interface IMediaLinks {
+  legacyStatisticsUrl: string;
+}
+
+/** A media resource. */
+export interface IMediaCreateResource {
+  title: string;
+  description: string;
+  language: string;
+  copyright: string;
+  tags: string[];
 }
 
 /** A media resource. */
 export interface IMediaResource {
-  key: string;
-  name: string;
+  url?: string;
+  id?: string;
+  title: string;
   description: string;
-  duration: string;
-  embedUrl: string;
-  thumbnailUrl: string[];
-  uploadDate: string;
-  legacy?: ILegacyMedia;
-  '@id': string;
-  '@context': string;
-  '@type': string;
-  contentUrl?: string;
+  duration: number;
+  type: string;
+  publishedAt: string;
+  updatedAt: string;
+  createdAt: string;
+  language: string;
+  copyright: string;
+  tags: string[];
+  posterImageUrl: string;
+  sources?: IMediaSource[];
+  links?: IMediaLinks;
 };
 
 /** A collection resource. */
@@ -166,6 +197,29 @@ export const mediaList = (
   return apiFetch(API_ENDPOINTS.mediaList + objectToQueryPart({ search, ordering }));
 };
 
+/** Create a new media resource. */
+export const mediaCreate = (body: IMediaCreateResource) : Promise<IMediaResource | IError> => {
+  return apiFetch(API_ENDPOINTS.mediaList, {
+    body: JSON.stringify(body),
+    method: 'POST',
+  });
+};
+
+/** Retrieve a media resource. */
+export const mediaGet = (id: string) : Promise<IMediaListResponse | IError> => {
+  const resource = resourceFromPageById(id);
+  if(resource) { return Promise.resolve(resource); }
+  return apiFetch(API_ENDPOINTS.mediaList + id);
+};
+
+/** Patch an existing media resource. */
+export const mediaPatch = (item: IMediaResource) : Promise<IMediaResource | IError> => {
+  return apiFetch(API_ENDPOINTS.mediaList + item.id, {
+    body: JSON.stringify(item),
+    method: 'PATCH',
+  });
+};
+
 /** List collection resources. */
 export const collectionList = (
   { search, ordering }: IMediaQuery = {}
@@ -207,10 +261,10 @@ export const collectionResourceToItem = (
  * A function which maps an API media resource to a media item for use by, e.g., MediaItemCard.
  */
 export const mediaResourceToItem = (
-  { key, name, description, thumbnailUrl }: IMediaResource
+  { id, title, description, posterImageUrl }: IMediaResource
 ) => ({
   description,
-  imageUrl: thumbnailUrl ? thumbnailUrl[0] : null,
-  title: name,
-  url: '/media/' + key,
+  imageUrl: posterImageUrl,
+  title,
+  url: '/media/' + id,
 });
