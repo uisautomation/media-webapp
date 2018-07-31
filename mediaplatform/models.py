@@ -33,7 +33,7 @@ def _make_token():
 _TOKEN_LENGTH = len(_make_token())
 
 
-class MediaItemQuerySet(models.QuerySet):
+class PermissionQuerySetMixin:
     def _permission_condition(self, fieldname, user):
         """
         Return a queryset expression for the permission field "fieldname" which is True if the
@@ -63,6 +63,8 @@ class MediaItemQuerySet(models.QuerySet):
 
         return condition
 
+
+class MediaItemQuerySet(PermissionQuerySetMixin, models.QuerySet):
     def annotate_viewable(self, user, name='viewable'):
         """
         Annotate the query set with a boolean indicating if the user can view the item.
@@ -319,6 +321,12 @@ class Permission(models.Model):
         null=True
     )
 
+    #: Channel whose edit permission is this object
+    allows_edit_channel = models.OneToOneField(
+        'Channel', on_delete=models.CASCADE, related_name='edit_permission', editable=False,
+        null=True
+    )
+
     #: List of crsids of users with this permission
     crsids = pgfields.ArrayField(models.TextField(), blank=True, default=[])
 
@@ -385,6 +393,85 @@ class UploadEndpoint(models.Model):
     expires_at = models.DateTimeField(editable=False, help_text='Expiry time of URL')
 
 
+class ChannelQuerySet(PermissionQuerySetMixin, models.QuerySet):
+    def annotate_editable(self, user, name='editable'):
+        """
+        Annotate the query set with a boolean indicating if the user can edit the item.
+
+        """
+        return self.annotate(**{
+            name: models.Case(
+                models.When(
+                    self._permission_condition('edit_permission', user),
+                    then=models.Value(True)
+                ),
+                default=models.Value(False),
+                output_field=models.BooleanField()
+            ),
+        })
+
+    def editable_by_user(self, user):
+        """
+        Filter the queryset to only those items which can be edited by the passed Django user.
+
+        """
+        return self.filter(self._permission_condition('edit_permission', user))
+
+
+class ChannelManager(models.Manager):
+    """
+    An object manager for :py:class:`~.Channel` objects. Accepts an additional named parameter
+    *include_deleted* which specifies if the default queryset should include deleted items.
+
+    """
+    def __init__(self, *args, include_deleted=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._include_deleted = include_deleted
+
+    def get_queryset(self):
+        qs = ChannelQuerySet(self.model, using=self._db)
+        if not self._include_deleted:
+            qs = qs.filter(deleted_at__isnull=True)
+        return qs
+
+
+class Channel(models.Model):
+    """
+    An individual channel in the media platform.
+
+    """
+    #: Object manager. See :py:class:`~.ChannelManager`. The objects returned by this manager do
+    #: not include deleted objects. See :py:attr:\~.objects_including_deleted`.
+    objects = ChannelManager()
+
+    #: Object manager whose objects include the deleted items. This has been separated out into a
+    #: separate manager to avoid inadvertently including deleted objects in a query
+    objects_including_deleted = ChannelManager(include_deleted=True)
+
+    #: Primary key
+    id = models.CharField(
+        max_length=_TOKEN_LENGTH, primary_key=True, default=_make_token, editable=False)
+
+    #: Channel title
+    title = models.TextField(help_text='Title of media item', blank=False)
+
+    #: Channel description
+    description = models.TextField(help_text='Description of media item', blank=True, default='')
+
+    #: Creation time
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    #: Last update time
+    updated_at = models.DateTimeField(auto_now=True)
+
+    #: Deletion time. If non-NULL, the channel has been "deleted" and should not usually be
+    #: visible.
+    deleted_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return '{} ("{}")'.format(self.id, self.title)
+
+
 @receiver(post_save, sender=MediaItem)
 def _media_item_post_save_handler(*args, sender, instance, created, raw, **kwargs):
     """
@@ -419,6 +506,22 @@ def _collection_post_save_handler(*args, sender, instance, created, raw, **kwarg
         Permission.objects.create(allows_view_collection=instance)
     if not hasattr(instance, 'edit_permission'):
         Permission.objects.create(allows_edit_collection=instance)
+
+
+@receiver(post_save, sender=Channel)
+def _channel_post_save_handler(*args, sender, instance, created, raw, **kwargs):
+    """
+    A post_save handler for :py:class:`~.Channel` which creates a blank edit permission if it don't
+    exist.
+
+    """
+    # If this is a "raw" update (e.g. from a test fixture) or was not the creation of the channel,
+    # don't try to create objects.
+    if raw or not created:
+        return
+
+    if not hasattr(instance, 'edit_permission'):
+        Permission.objects.create(allows_edit_channel=instance)
 
 
 def _lookup_groupids_and_instids_for_user(user):

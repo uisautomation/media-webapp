@@ -332,3 +332,137 @@ class LookupTest(TestCase):
         self.get_person.assert_called_once_with(
             identifier=self.user.username, scheme=settings.LOOKUP_SCHEME,
             fetch=['all_groups', 'all_insts'])
+
+
+class ChannelTest(TestCase):
+    fixtures = ['mediaplatform/tests/fixtures/test_data.yaml']
+
+    def setUp(self):
+        self.user = User.objects.get(username='testuser')
+        self.c1 = models.Channel.objects.get(id='channel1')
+
+        self.lookup_groupids_and_instids_for_user_patcher = mock.patch(
+                'mediaplatform.models._lookup_groupids_and_instids_for_user')
+        self.lookup_groupids_and_instids_for_user = (
+            self.lookup_groupids_and_instids_for_user_patcher.start())
+        self.lookup_groupids_and_instids_for_user.return_value = ([], [])
+        self.addCleanup(self.lookup_groupids_and_instids_for_user_patcher.stop)
+
+    def test_creation_no_fields(self):
+        """A Channel object should *not* be creatable with no field values."""
+        models.Channel.objects.create()
+
+    def test_creation_title_only(self):
+        """A Channel object should be creatable with only a title."""
+        models.Channel.objects.create(title='XXX')
+
+    def test_no_deleted_in_objects(self):
+        """The default queryset used by Channel.objects contains no deleted items."""
+        self.assertEqual(models.Channel.objects.filter(deleted_at__isnull=False).count(), 0)
+
+    def test_deleted_in_objects_including_deleted(self):
+        """If we explicitly ask for deleted objects, we get them."""
+        self.assertGreater(
+            models.Channel.objects_including_deleted.filter(deleted_at__isnull=False).count(), 0)
+
+    def test_public_channel_editable_by_anon(self):
+        """An channel with public editable permissions is editable by anonymous."""
+        self.assert_user_cannot_edit(AnonymousUser(), self.c1)
+        self.assert_user_cannot_edit(None, self.c1)
+        self.c1.edit_permission.is_public = True
+        self.c1.edit_permission.save()
+        self.assert_user_can_edit(AnonymousUser(), self.c1)
+        self.assert_user_can_edit(None, self.c1)
+
+    def test_signed_in_edit_permissions(self):
+        """An channel with signed in edit permissions is not editable by anonymous."""
+        self.assert_user_cannot_edit(AnonymousUser(), self.c1)
+        self.assert_user_cannot_edit(None, self.c1)
+        self.assert_user_cannot_edit(self.user, self.c1)
+        self.c1.edit_permission.is_signed_in = True
+        self.c1.edit_permission.save()
+        self.assert_user_cannot_edit(AnonymousUser(), self.c1)
+        self.assert_user_cannot_edit(None, self.c1)
+        self.assert_user_can_edit(self.user, self.c1)
+
+    def test_channel_with_no_perms_not_editable(self):
+        """An channel with empty permissions is not editable by the anonymous or signed in user."""
+        self.c1.edit_permission.reset()
+        self.c1.edit_permission.save()
+        self.assert_user_cannot_edit(AnonymousUser(), self.c1)
+        self.assert_user_cannot_edit(self.user, self.c1)
+
+    def test_channel_with_matching_crsid_editable(self):
+        self.assert_user_cannot_edit(self.user, self.c1)
+        self.c1.edit_permission.crsids.extend(['spqr1', self.user.username, 'abcd1'])
+        self.c1.edit_permission.save()
+        self.assert_user_can_edit(self.user, self.c1)
+
+    def test_channel_with_matching_lookup_groups_editable(self):
+        """
+        A user who has at least one lookup group which is in the set of lookup groups for a media
+        self.c1 can edit it.
+
+        """
+        self.lookup_groupids_and_instids_for_user.return_value = ['A', 'B', 'C'], []
+        self.assert_user_cannot_edit(self.user, self.c1)
+        self.c1.edit_permission.lookup_groups.extend(['X', 'Y', 'A', 'B', 'Z'])
+        self.c1.edit_permission.save()
+        self.assert_user_can_edit(self.user, self.c1)
+
+    def test_channel_with_matching_lookup_insts_editable(self):
+        """
+        A user who has at least one lookup institution which is in the set of lookup institutions
+        for a media self.c1 can edit it.
+
+        """
+        self.lookup_groupids_and_instids_for_user.return_value = [], ['A', 'B', 'C']
+        self.assert_user_cannot_edit(self.user, self.c1)
+        self.c1.edit_permission.lookup_insts.extend(['X', 'Y', 'A', 'B', 'Z'])
+        self.c1.edit_permission.save()
+        self.assert_user_can_edit(self.user, self.c1)
+
+    def test_edit_permission_created(self):
+        """A new Channel has a edit permission created on save()."""
+        channel = models.Channel.objects.create(title='test channel')
+        self.assertIsNotNone(models.Channel.objects.get(id=channel.id).edit_permission)
+
+    def test_edit_permission_not_re_created(self):
+        """The edit_permission is not changed if a Channel is updated."""
+        channel = models.Channel.objects.create(title='test channel')
+        permission_id_1 = models.Channel.objects.get(id=channel.id).edit_permission.id
+        channel = models.Channel.objects.get(id=channel.id)
+        channel.title = 'changed'
+        channel.save()
+        permission_id_2 = models.Channel.objects.get(id=channel.id).edit_permission.id
+        self.assertEquals(permission_id_1, permission_id_2)
+
+    def assert_user_cannot_edit(self, user, channel_or_id):
+        if isinstance(channel_or_id, str):
+            channel_or_id = models.Channel.objects_including_deleted.get(id=channel_or_id)
+        self.assertFalse(
+            models.Channel.objects_including_deleted.all()
+            .filter(id=channel_or_id.id)
+            .editable_by_user(user)
+            .exists()
+        )
+        self.assertFalse(
+            models.Channel.objects_including_deleted.all()
+            .annotate_editable(user, name='TEST_editable')
+            .get(id=channel_or_id.id)
+            .TEST_editable
+        )
+
+    def assert_user_can_edit(self, user, channel_or_id):
+        if isinstance(channel_or_id, str):
+            channel_or_id = models.Channel.objects_including_deleted.get(id=channel_or_id)
+        self.assertTrue(
+            models.Channel.objects.all().editable_by_user(user)
+            .filter(id=channel_or_id.id).exists()
+        )
+        self.assertTrue(
+            models.Channel.objects_including_deleted.all()
+            .annotate_editable(user, name='TEST_editable')
+            .get(id=channel_or_id.id)
+            .TEST_editable
+        )
