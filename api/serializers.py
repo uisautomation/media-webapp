@@ -79,25 +79,16 @@ class MediaSerializer(serializers.HyperlinkedModelSerializer):
         item.
 
         """
-        new_item = super().create(validated_data)
-
+        request = None
         if self.context is not None and 'request' in self.context:
             request = self.context['request']
-            if not request.user.is_anonymous:
-                # Due to Django ORM oddness, we need to re-fetch the object to correctly modify
-                # permissions otherwise the ORM gets confused
-                new_item = (
-                    mpmodels.MediaItem.objects.all()
-                    .only()
-                    .select_related('view_permission', 'edit_permission')
-                    .get(id=new_item.id)
-                )
-                new_item.view_permission.crsids.append(request.user.username)
-                new_item.view_permission.save()
-                new_item.edit_permission.crsids.append(request.user.username)
-                new_item.edit_permission.save()
 
-        return new_item
+        if request is not None and not request.user.is_anonymous:
+            obj = mpmodels.MediaItem.objects.create_for_user(request.user, **validated_data)
+        else:
+            obj = mpmodels.MediaItem.objects.create(**validated_data)
+
+        return obj
 
     def get_duration(self, obj):
         """Return the media item's duration in ISO 8601 format."""
