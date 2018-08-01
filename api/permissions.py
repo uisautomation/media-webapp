@@ -3,6 +3,15 @@ from rest_framework import permissions
 import mediaplatform.models as mpmodels
 
 
+class ObjectNotAnnotated(RuntimeError):
+    """
+    The object passed to the permission requires the viewable or editable annotation. See
+    :py:class:`mediaplatform.models.MediaItemQuerySet.annotate_viewable` and
+    :py:class:`mediaplatform.models.MediaItemQuerySet.annotate_editable`.
+
+    """
+
+
 class MediaItemPermission(permissions.BasePermission):
     """
     A permission which allows a user access to "safe" HTTP methods if they have the view permission
@@ -13,13 +22,17 @@ class MediaItemPermission(permissions.BasePermission):
 
     Come what may, a user can do *nothing* to a deleted video.
 
+    Raises :py:exc:`~.ObjectNotAnnotated` if the object has not had the appropriate permission
+    flags annotated via :py:class:`mediaplatform.models.MediaItemQuerySet.annotate_viewable` or
+    :py:class:`mediaplatform.models.MediaItemQuerySet.annotate_editable`.
+
     """
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
 
         # Only signed in users have permissions to perform "unsafe" operations
-        if request.user is None or request.user.is_anonymous:
+        if not hasattr(request, 'user') or request.user is None or request.user.is_anonymous:
             return False
 
         return True
@@ -33,16 +46,13 @@ class MediaItemPermission(permissions.BasePermission):
         # Sanity check that the passed object is a MediaItem.
         assert isinstance(obj, mpmodels.MediaItem)
 
-        # Ask the DB what the user can do with this item.
-        item = (
-            mpmodels.MediaItem.objects.all()
-            .only()  # Don't fetch all fields; we only use the viewable and editable annotations
-            .annotate_viewable(request.user)
-            .annotate_editable(request.user)
-            .get(id=obj.id)
-        )
+        if requires_view and not hasattr(obj, 'viewable'):
+            raise ObjectNotAnnotated('Item should be annotated via annotate_viewable()')
 
-        return (not requires_view or item.viewable) and (not requires_edit or item.editable)
+        if requires_edit and not hasattr(obj, 'editable'):
+            raise ObjectNotAnnotated('Item should be annotated via annotate_editable()')
+
+        return (not requires_view or obj.viewable) and (not requires_edit or obj.editable)
 
 
 class MediaItemEditPermission(MediaItemPermission):

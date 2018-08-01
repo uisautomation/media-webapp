@@ -153,6 +153,7 @@ class MediaItemListMixin:
         return (
             super().get_queryset().all()
             .viewable_by_user(self.request.user)
+            .annotate_viewable(self.request.user)
             .annotate_editable(self.request.user)
             .select_related('jwp')
             .select_related('sms')
@@ -173,6 +174,7 @@ class MediaItemMixin:
         return (
             super().get_queryset().all()
             .viewable_by_user(self.request.user)
+            .annotate_viewable(self.request.user)
             .annotate_editable(self.request.user)
             .select_related('jwp')
             .select_related('sms')
