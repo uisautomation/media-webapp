@@ -18,7 +18,7 @@ class ViewTestCase(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.get_request = self.factory.get('/')
-        self.user = get_user_model().objects.create_user(username='test0001')
+        self.user = get_user_model().objects.get(pk=1)
         self.patch_get_jwplatform_client()
         self.patch_get_person()
         self.jwp_client = self.get_jwplatform_client()
@@ -133,6 +133,9 @@ class MediaListViewTestCase(ViewTestCase):
         response_data = self.view(self.get_request).data
         self.assertIn('results', response_data)
 
+        # sanity check that the viewable lists differ
+        self.assertNotEqual(self.viewable_by_user.count(), self.viewable_by_anon.count())
+
         self.assertNotEqual(len(response_data['results']), 0)
         self.assertEqual(len(response_data['results']), self.viewable_by_user.count())
 
@@ -145,18 +148,20 @@ class MediaViewTestCase(ViewTestCase):
     def setUp(self):
         super().setUp()
         self.view = views.MediaView().as_view()
+        self.dv_from_key_patcher = mock.patch('smsjwplatform.jwplatform.DeliveryVideo.from_key')
+        self.dv_from_key = self.dv_from_key_patcher.start()
+        self.dv_from_key.return_value = api.DeliveryVideo(DELIVERY_VIDEO_FIXTURE)
+        self.addCleanup(self.dv_from_key_patcher.stop)
 
-    @mock.patch('smsjwplatform.jwplatform.DeliveryVideo.from_key')
-    def test_success(self, mock_from_id):
+    def test_success(self):
         """Check that a media item is successfully returned"""
-        mock_from_id.return_value = api.DeliveryVideo(DELIVERY_VIDEO_FIXTURE)
         item = self.non_deleted_media.get(id='populated')
 
         # test
         response = self.view(self.get_request, pk=item.id)
         self.assertEqual(response.status_code, 200)
 
-        mock_from_id.assert_called_with(item.jwp.key)
+        self.dv_from_key.assert_called_with(item.jwp.key)
 
         self.assertEqual(response.data['key'], item.id)
         self.assertEqual(response.data['name'], item.title)
@@ -183,7 +188,23 @@ class MediaViewTestCase(ViewTestCase):
         response = self.view(self.get_request, pk=deleted_item.id)
         self.assertEqual(response.status_code, 404)
 
-    # TODO: implement ACL tests
+    def test_non_public_videos_not_found_for_anon(self):
+        """Check that a 404 is returned if the anonymous user asks for a video it can't see."""
+        user_only_items = (
+            {o.id for o in self.viewable_by_user} - {o.id for o in self.viewable_by_anon}
+        )
+        self.assertGreater(len(user_only_items), 0)
+
+        for id in user_only_items:
+            response = self.view(self.get_request, pk=id)
+            self.assertEqual(response.status_code, 404)
+
+    def test_non_public_videos_found_for_user(self):
+        """Check that a 404 is *not* returned if the user asks for a video it can."""
+        force_authenticate(self.get_request, user=self.user)
+        for obj in self.viewable_by_user:
+            response = self.view(self.get_request, pk=obj.id)
+            self.assertEqual(response.status_code, 200)
 
 
 CHANNELS_FIXTURE = [

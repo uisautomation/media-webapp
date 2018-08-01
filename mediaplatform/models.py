@@ -1,7 +1,11 @@
 import secrets
 
-from django.db import models
+import automationlookup
+from django.conf import settings
 import django.contrib.postgres.fields as pgfields
+from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from iso639 import languages
 
 
@@ -29,14 +33,80 @@ _TOKEN_LENGTH = len(_make_token())
 
 
 class MediaItemQuerySet(models.QuerySet):
-    def viewable_by_user(self, use):
+    def _permission_condition(self, fieldname, user):
+        """
+        Return a queryset expression for the permission field "fieldname" which is True if the
+        passed user has that permission.
+
+        """
+        # Start with the condition that the item must be public
+        condition = models.Q(**{fieldname + '__is_public': True})
+
+        # If a non-None user was passed and the user is not anonymous, we can add additional ways
+        # the item can be viewed
+        if user is not None and not user.is_anonymous:
+            groupids, instids = _lookup_groupids_and_instids_for_user(user)
+
+            # Irrespective of user groups/institutions, any signed in user has the is_signed_in
+            # permission
+            condition |= models.Q(**{fieldname + '__is_signed_in': True})
+
+            # The user may also be explicitly mentioned in the list of allowed crsids
+            condition |= models.Q(**{fieldname + '__crsids__contains': [user.username]})
+
+            # The user's lookup groups may overlap with the allowed set
+            condition |= models.Q(**{fieldname + '__lookup_groups__overlap': groupids})
+
+            # The user's lookup institutions may overlap with the allowed set
+            condition |= models.Q(**{fieldname + '__lookup_insts__overlap': instids})
+
+        return condition
+
+    def annotate_viewable(self, user, name='viewable'):
+        """
+        Annotate the query set with a boolean indicating if the user can view the item.
+
+        """
+        return self.annotate(**{
+            name: models.Case(
+                models.When(
+                    self._permission_condition('view_permission', user),
+                    then=models.Value(True)
+                ),
+                default=models.Value(False),
+                output_field=models.BooleanField()
+            ),
+        })
+
+    def viewable_by_user(self, user):
         """
         Filter the queryset to only those items which can be viewed by the passed Django user.
 
         """
-        # TODO: implement ACLs here
+        return self.filter(self._permission_condition('view_permission', user))
 
-        return self
+    def annotate_editable(self, user, name='editable'):
+        """
+        Annotate the query set with a boolean indicating if the user can edit the item.
+
+        """
+        return self.annotate(**{
+            name: models.Case(
+                models.When(
+                    self._permission_condition('edit_permission', user),
+                    then=models.Value(True)
+                ),
+                default=models.Value(False),
+                output_field=models.BooleanField()
+            ),
+        })
+
+    def editable_by_user(self, user):
+        """
+        Filter the queryset to only those items which can be edited by the passed Django user.
+
+        """
+        return self.filter(self._permission_condition('edit_permission', user))
 
 
 class MediaItemManager(models.Manager):
@@ -187,7 +257,7 @@ class Permission(models.Model):
     A user has permission to perform the action if *any* of the following are true:
 
     * They have a crsid and that crsid appears in :py:attr:`~.crsids`
-    * The numeric id of a lookup group which they are a member of appears in
+    * The lookup groupid of a lookup group which they are a member of appears in
       :py:attr:`~.lookup_groups`
     * The instid of an an institution they are a member of appears in
       :py:attr:`~.lookup_insts`
@@ -227,7 +297,7 @@ class Permission(models.Model):
     crsids = pgfields.ArrayField(models.TextField(), blank=True, default=[])
 
     #: List of lookup groups which users with this permission belong to
-    lookup_groups = pgfields.ArrayField(models.BigIntegerField(), blank=True, default=[])
+    lookup_groups = pgfields.ArrayField(models.TextField(), blank=True, default=[])
 
     #: List of lookup institutions which users with this permission belong to
     lookup_insts = pgfields.ArrayField(models.TextField(), blank=True, default=[])
@@ -248,7 +318,7 @@ class Permission(models.Model):
         if len(self.crsids) != 0:
             clauses.append('crsid \N{ELEMENT OF} {{ {} }}'.format(', '.join(self.crsids)))
         if len(self.lookup_groups) != 0:
-            clauses.append('lookup \N{ELEMENT OF} of {{ {} }}'.format(
+            clauses.append('lookup \N{ELEMENT OF} {{ {} }}'.format(
                 ', '.join(self.lookup_groups)))
         if len(self.lookup_insts) != 0:
             clauses.append('lookup inst \N{ELEMENT OF} {{ {} }}'.format(
@@ -266,3 +336,65 @@ class Permission(models.Model):
         self.lookup_insts = []
         self.is_public = False
         self.is_signed_in = False
+
+
+@receiver(post_save, sender=MediaItem)
+def _media_item_post_save_handler(*args, sender, instance, created, raw, **kwargs):
+    """
+    A post_save handler for :py:class:`~.MediaItem` which creates blank view and edit permissions
+    if they don't exist.
+
+    """
+    # If this is a "raw" update (e.g. from a test fixture) or was not the creation of the item,
+    # don't try to create objects.
+    if raw or not created:
+        return
+
+    if not hasattr(instance, 'view_permission'):
+        Permission.objects.create(allows_view_item=instance)
+    if not hasattr(instance, 'edit_permission'):
+        Permission.objects.create(allows_edit_item=instance)
+
+
+@receiver(post_save, sender=Collection)
+def _collection_post_save_handler(*args, sender, instance, created, raw, **kwargs):
+    """
+    A post_save handler for :py:class:`~.Collection` which creates blank view and edit permissions
+    if they don't exist.
+
+    """
+    # If this is a "raw" update (e.g. from a test fixture) or was not the creation of the item,
+    # don't try to create objects.
+    if raw or not created:
+        return
+
+    if not hasattr(instance, 'view_permission'):
+        Permission.objects.create(allows_view_collection=instance)
+    if not hasattr(instance, 'edit_permission'):
+        Permission.objects.create(allows_edit_collection=instance)
+
+
+def _lookup_groupids_and_instids_for_user(user):
+    """
+    Return a tuple containing the list of group groupids and institution instids which the
+    specified user is (publicly) a member of. The return value is cached so it is safe to call this
+    multiple times.
+
+    """
+    # automationlookup.get_person return values are cached
+    person = automationlookup.get_person(
+        identifier=user.username, scheme=getattr(settings, 'LOOKUP_SCHEME', 'crsid'),
+        fetch=['all_groups', 'all_insts']
+    )
+    # "be liberal in what you accept" - do not assume that all the fields we expect to be
+    # present in the result will be
+    return (
+        [
+            group.get('groupid') for group in person.get('groups', [])
+            if group.get('groupid') is not None
+        ],
+        [
+            inst.get('instid') for inst in person.get('institutions', [])
+            if inst.get('instid') is not None
+        ]
+    )
