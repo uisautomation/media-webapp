@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
+import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import { withStyles } from '@material-ui/core/styles';
+import DownloadIcon from '@material-ui/icons/CloudDownload';
+import AnalyticsIcon from '@material-ui/icons/ShowChart';
 
 import { BASE_SMS_URL } from '../api';
 import Page from '../components/Page';
@@ -32,31 +35,36 @@ const MediaPage = ({ mediaItem, classes }) => (
         <Grid item xs={12}>
           <RenderedMarkdown source={ mediaItem.description }/>
         </Grid>
-        <Grid item xs={6}>
-          <Typography variant="subheading">
-            {
-              mediaItem.contentUrl
-              ?
-              <a target='_blank' className={ classes.link } href={mediaItem.contentUrl} download>
-                Download media
-              </a>
-              :
-              null
-            }
-          </Typography>
+      </Grid>
+      <Grid container justify='space-between' spacing={16}>
+        <Grid item xs={12} sm={6} md={3} lg={2}>
+          {
+            mediaItem.contentUrl
+            ?
+            <Button
+              component='a' variant='outlined' target='_blank' className={ classes.link }
+              href={mediaItem.contentUrl} download fullWidth
+            >
+              Download media
+              <DownloadIcon className={ classes.rightIcon } />
+            </Button>
+            :
+            null
+          }
         </Grid>
-        <Grid item xs={6} style={{textAlign: 'right'}}>
-          <Typography variant="subheading">
-            {
-              mediaItem.legacy.statisticsUrl
-              ?
-              <a className={ classes.link } href={mediaItem.legacy.statisticsUrl}>
-                Statistics
-              </a>
-              :
-              null
-            }
-          </Typography>
+        <Grid item xs={12} sm={6} md={3} lg={2} style={{textAlign: 'right'}}>
+          {
+            mediaItem.legacy.statisticsUrl
+            ?
+            <Button component='a' variant='outlined' className={ classes.link }
+              href={mediaItem.legacy.statisticsUrl} fullWidth
+            >
+              Statistics
+              <AnalyticsIcon className={ classes.rightIcon } />
+            </Button>
+            :
+            null
+          }
         </Grid>
       </Grid>
     </section>
@@ -120,6 +128,10 @@ var styles = theme => ({
   },
   link: {
     color: theme.palette.text.secondary,
+  },
+
+  rightIcon: {
+    marginLeft: theme.spacing.unit,
   },
 });
 /* tslint:enable */
