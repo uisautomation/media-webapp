@@ -10,4 +10,4 @@ cd "$( dirname "${BASH_SOURCE[0]}")"
 
 # Execute tox runner, logging command used
 set -x
-exec ./compose.sh tox run --rm tox tox $@
+exec ./compose.sh tox run --rm $COMPOSE_ARGS tox tox $@
