@@ -30,10 +30,15 @@
     updated_at: 2010-09-15 14:40:45
 
 - model: mediaplatform.Permission
-  pk: pempty
+  pk: pemptyv
   fields:
     is_public: true
     allows_view_item: empty
+
+- model: mediaplatform.Permission
+  pk: pemptye
+  fields:
+    allows_edit_item: empty
 
 - model: mediaplatform.MediaItem
   pk: deleted

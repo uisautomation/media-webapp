@@ -11,82 +11,110 @@ import AnalyticsIcon from '@material-ui/icons/ShowChart';
 import { BASE_SMS_URL } from '../api';
 import Page from '../components/Page';
 import RenderedMarkdown from '../components/RenderedMarkdown';
+import MediaItemProvider, { withMediaItem } from '../providers/MediaItemProvider';
 
 /**
  * The media item page
  */
-const MediaPage = ({ mediaItem, classes }) => (
+const MediaPage = ({ match: { params: { pk } }, classes }) => (
   <Page>
-    <section className={ classes.playerSection }>
-      <div className={ classes.playerWrapper }>
-        <iframe
-          src={ mediaItem.embedUrl }
-          className={ classes.player }
-          frameBorder="0"
-          allowFullScreen>
-        </iframe>
-      </div>
-    </section>
-    <section className={ classes.mediaDetails }>
-      <Grid container spacing={16}>
-        <Grid item xs={12}>
-          <Typography variant="headline" component="div">{ mediaItem.name }</Typography>
-        </Grid>
-        <Grid item xs={12}>
-          <RenderedMarkdown source={ mediaItem.description }/>
-        </Grid>
-      </Grid>
-      <Grid container justify='space-between' spacing={16}>
-        <Grid item xs={12} sm={6} md={3} lg={2}>
-          {
-            mediaItem.contentUrl
-            ?
-            <Button
-              component='a' variant='outlined' target='_blank' className={ classes.link }
-              href={mediaItem.contentUrl} download fullWidth
-            >
-              Download media
-              <DownloadIcon className={ classes.rightIcon } />
-            </Button>
-            :
-            null
-          }
-        </Grid>
-        <Grid item xs={12} sm={6} md={3} lg={2} style={{textAlign: 'right'}}>
-          {
-            mediaItem.legacy.statisticsUrl
-            ?
-            <Button component='a' variant='outlined' className={ classes.link }
-              href={mediaItem.legacy.statisticsUrl} fullWidth
-            >
-              Statistics
-              <AnalyticsIcon className={ classes.rightIcon } />
-            </Button>
-            :
-            null
-          }
-        </Grid>
-      </Grid>
-    </section>
+    <MediaItemProvider id={ pk }>
+      <ConnectedMediaPageContents />
+    </MediaItemProvider>
   </Page>
 );
 
 MediaPage.propTypes = {
-  classes: PropTypes.object.isRequired,
+  match: PropTypes.shape({
+    params: PropTypes.shape({
+      pk: PropTypes.string.isRequired,
+    }).isRequired,
+  }).isRequired,
 };
 
-/**
- * A higher-order component wrapper which passes the media item to its child. At the moment the
- * media item is the JSON-parsed contents of an element with id "mediaItem".
- */
-const withMediaItem = WrappedComponent => props => {
-  let mediaItem = null;
-  const mediaItemElement = document.getElementById('mediaItem');
-  if(mediaItemElement) {
-    mediaItem = JSON.parse(mediaItemElement.textContent);
-  }
+/** Given a list of sources, return the "best" source. */
+const bestSource = sources => {
+  const videos = sources
+    .filter(item => item.mimeType === 'video/mp4')
+    .sort((a, b) => {
+      if(a.width > b.width) { return -1; }
+      if(a.width < b.width) { return 1; }
+      return 0;
+    });
 
-  return (<WrappedComponent mediaItem={mediaItem} {...props} />);
+  if(videos.length > 0) { return videos[0]; }
+
+  const audios = sources.filter(item => item.mimeType === 'audio/mp4');
+
+  if(audios.length > 0) { return audios[0]; }
+
+  return null;
+};
+
+const MediaPageContents = ({ item, classes }) => {
+  const source =
+    (item && item.links && item.links.sources) ? bestSource(item.links.sources) : null;
+
+  return (
+    <div>
+      <section className={ classes.playerSection }>
+        <div className={ classes.playerWrapper }>
+          <iframe
+            src={ (item && item.links) ? item.links.embedUrl : '' }
+            className={ classes.player }
+            frameBorder="0"
+            allowFullScreen>
+          </iframe>
+        </div>
+      </section>
+      <section className={ classes.mediaDetails }>
+        <Grid container spacing={16}>
+          <Grid item xs={12}>
+            <Typography variant="headline" component="div">{ item ? item.title : '' }</Typography>
+          </Grid>
+          <Grid item xs={12}>
+            <RenderedMarkdown source={ item ? item.description : '' }/>
+          </Grid>
+        </Grid>
+        <Grid container justify='space-between' spacing={16}>
+          <Grid item xs={12} sm={6} md={3} lg={2}>
+            {
+              source
+              ?
+              <Button
+                component='a' variant='outlined' target='_blank' className={ classes.link }
+                href={ source.url } download fullWidth
+              >
+                Download media
+                <DownloadIcon className={ classes.rightIcon } />
+              </Button>
+              :
+              null
+            }
+          </Grid>
+          <Grid item xs={12} sm={6} md={3} lg={2} style={{textAlign: 'right'}}>
+            {
+              item && item.links && item.links.legacyStatisticsUrl
+              ?
+              <Button component='a' variant='outlined' className={ classes.link }
+                href={ item.links.legacyStatisticsUrl } fullWidth
+              >
+                Statistics
+                <AnalyticsIcon className={ classes.rightIcon } />
+              </Button>
+              :
+              null
+            }
+          </Grid>
+        </Grid>
+      </section>
+    </div>
+  );
+}
+
+MediaPageContents.propTypes = {
+  classes: PropTypes.object.isRequired,
+  item: PropTypes.object,
 };
 
 /* tslint:disable object-literal-sort-keys */
@@ -135,5 +163,7 @@ var styles = theme => ({
   },
 });
 /* tslint:enable */
+
+const ConnectedMediaPageContents = withMediaItem(withStyles(styles)(MediaPageContents));
 
 export default withMediaItem(withStyles(styles)(MediaPage));

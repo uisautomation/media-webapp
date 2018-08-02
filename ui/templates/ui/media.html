@@ -1,8 +1,11 @@
 {% extends 'index.html' %}
-{% block title %}{{title}}{% endblock %}
-{% block page_name %}media{% endblock %}
+{% load to_json %}
+{% block title %}{{ resource.title }}{% endblock %}
 {% block extrabody %}
-<script id="mediaItem" type="application/ld+json">
-{% autoescape off %}{{ media_item_json }}{% endautoescape %}
+<script type="application/ld+json">
+{% autoescape off %}{{ json_ld|to_json }}{% endautoescape %}
+</script>
+<script type="application/resource+json">
+{% autoescape off %}{{ resource|to_json }}{% endautoescape %}
 </script>
 {% endblock %}

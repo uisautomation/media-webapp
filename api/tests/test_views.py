@@ -110,10 +110,10 @@ class CollectionListViewTestCase(ViewTestCase):
         self.assertEqual(call_args[1]['search'], 'foo')
 
 
-class MediaListViewTestCase(ViewTestCase):
+class MediaItemListViewTestCase(ViewTestCase):
     def setUp(self):
         super().setUp()
-        self.view = views.MediaListView().as_view()
+        self.view = views.MediaItemListView().as_view()
 
     def test_basic_list(self):
         """An anonymous user should get expected media back."""
@@ -125,7 +125,7 @@ class MediaListViewTestCase(ViewTestCase):
 
         expected_ids = set(o.id for o in self.viewable_by_anon)
         for item in response_data['results']:
-            self.assertIn(item['key'], expected_ids)
+            self.assertIn(item['id'], expected_ids)
 
     def test_auth_list(self):
         """An authenticated user should get expected media back."""
@@ -141,13 +141,13 @@ class MediaListViewTestCase(ViewTestCase):
 
         expected_ids = set(o.id for o in self.viewable_by_user)
         for item in response_data['results']:
-            self.assertIn(item['key'], expected_ids)
+            self.assertIn(item['id'], expected_ids)
 
 
-class MediaViewTestCase(ViewTestCase):
+class MediaItemViewTestCase(ViewTestCase):
     def setUp(self):
         super().setUp()
-        self.view = views.MediaView().as_view()
+        self.view = views.MediaItemView().as_view()
         self.dv_from_key_patcher = mock.patch('smsjwplatform.jwplatform.DeliveryVideo.from_key')
         self.dv_from_key = self.dv_from_key_patcher.start()
         self.dv_from_key.return_value = api.DeliveryVideo(DELIVERY_VIDEO_FIXTURE)
@@ -163,17 +163,16 @@ class MediaViewTestCase(ViewTestCase):
 
         self.dv_from_key.assert_called_with(item.jwp.key)
 
-        self.assertEqual(response.data['key'], item.id)
-        self.assertEqual(response.data['name'], item.title)
+        self.assertEqual(response.data['id'], item.id)
+        self.assertEqual(response.data['title'], item.title)
         self.assertEqual(response.data['description'], item.description)
-        self.assertEqual(dateparser.parse(response.data['uploadDate']), item.published_at)
+        self.assertEqual(dateparser.parse(response.data['publishedAt']), item.published_at)
         self.assertIn(
-            'https://cdn.jwplayer.com/thumbs/{}-1280.jpg'.format(item.jwp.key),
-            response.data['thumbnailUrl']
+            'https://cdn.jwplayer.com/thumbs/{}-640.jpg'.format(item.jwp.key),
+            response.data['posterImageUrl']
         )
         self.assertIsNotNone(response.data['duration'])
-        self.assertEqual(response.data['legacy']['id'], item.sms.id)
-        self.assertTrue(response.data['embedUrl'].startswith(
+        self.assertTrue(response.data['links']['embedUrl'].startswith(
             'https://content.jwplatform.com/players/{}-someplayer.html'.format(item.jwp.key)
         ))
 

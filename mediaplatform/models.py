@@ -125,6 +125,30 @@ class MediaItemManager(models.Manager):
             qs = qs.filter(deleted_at__isnull=True)
         return qs
 
+    def create_for_user(self, user, **kwargs):
+        """
+        Convenience wrapper for create() which will create an item but also give the passed user
+        view and edit permissions if the user is not anonymous.
+
+        """
+        obj = self.create(**kwargs)
+
+        if user is not None and not user.is_anonymous:
+            # Due to Django ORM oddness, we need to re-fetch the object to correctly modify
+            # permissions otherwise the ORM gets confused
+            new_obj = (
+                self.all()
+                .only()
+                .select_related('view_permission', 'edit_permission')
+                .get(id=obj.id)
+            )
+            new_obj.view_permission.crsids.append(user.username)
+            new_obj.view_permission.save()
+            new_obj.edit_permission.crsids.append(user.username)
+            new_obj.edit_permission.save()
+
+        return obj
+
 
 class MediaItem(models.Model):
     """
