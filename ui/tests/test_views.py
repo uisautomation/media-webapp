@@ -11,11 +11,15 @@ from api.tests.test_views import ViewTestCase, DELIVERY_VIDEO_FIXTURE
 
 
 class ViewsTestCase(ViewTestCase):
+    def setUp(self):
+        super().setUp()
+        dv_patch = mock.patch('smsjwplatform.jwplatform.DeliveryVideo.from_key')
+        self.mock_from_id = dv_patch.start()
+        self.addCleanup(dv_patch.stop)
 
-    @mock.patch('smsjwplatform.jwplatform.DeliveryVideo.from_key')
-    def test_success(self, mock_from_id):
+    def test_success(self):
         """checks that a media item is rendered successfully"""
-        mock_from_id.return_value = api.DeliveryVideo(DELIVERY_VIDEO_FIXTURE)
+        self.mock_from_id.return_value = api.DeliveryVideo(DELIVERY_VIDEO_FIXTURE)
         item = self.non_deleted_media.get(id='populated')
 
         # test
@@ -30,14 +34,42 @@ class ViewsTestCase(ViewTestCase):
             media_item_json['thumbnailUrl'],
         )
 
-    @mock.patch('smsjwplatform.jwplatform.DeliveryVideo.from_key')
-    def test_video_not_found(self, mock_from_id):
+    def test_video_not_found(self):
         """checks that a video not found results in a 404"""
-        mock_from_id.side_effect = api.VideoNotFoundError
+        self.mock_from_id.side_effect = api.VideoNotFoundError
 
         # test
         r = self.client.get(reverse('ui:media_item', kwargs={'pk': 'this-does-not-exist'}))
 
         self.assertEqual(r.status_code, 404)
 
-    # TODO: add ACL checks here
+    def test_json_ld_embedded(self):
+        """checks that HTML in descriptions, etc is correctly escaped."""
+        self.mock_from_id.return_value = api.DeliveryVideo(DELIVERY_VIDEO_FIXTURE)
+        item = self.non_deleted_media.get(id='populated')
+
+        item.title = '<script>'
+
+        r = self.client.get(reverse('ui:media_item', kwargs={'pk': item.pk}))
+
+        self.assertEqual(r.status_code, 200)
+        self.assertTemplateUsed(r, 'ui/media.html')
+        content = r.content.decode('utf8')
+        print('content: ', content)
+        self.assertIn('<script type="application/ld+json">', content)
+
+    def test_no_html_in_page(self):
+        """checks that HTML in descriptions, etc is correctly escaped."""
+        self.mock_from_id.return_value = api.DeliveryVideo(DELIVERY_VIDEO_FIXTURE)
+        item = self.non_deleted_media.get(id='populated')
+
+        item.title = '<some-tag>'
+        item.save()
+
+        r = self.client.get(reverse('ui:media_item', kwargs={'pk': item.pk}))
+
+        self.assertEqual(r.status_code, 200)
+        self.assertTemplateUsed(r, 'ui/media.html')
+        content = r.content.decode('utf8')
+        print('content: ', content)
+        self.assertNotIn('<some-tag>', content)
