@@ -15,11 +15,11 @@ class ViewsTestCase(ViewTestCase):
         super().setUp()
         dv_patch = mock.patch('smsjwplatform.jwplatform.DeliveryVideo.from_key')
         self.mock_from_id = dv_patch.start()
+        self.mock_from_id.return_value = api.DeliveryVideo(DELIVERY_VIDEO_FIXTURE)
         self.addCleanup(dv_patch.stop)
 
     def test_success(self):
         """checks that a media item is rendered successfully"""
-        self.mock_from_id.return_value = api.DeliveryVideo(DELIVERY_VIDEO_FIXTURE)
         item = self.non_deleted_media.get(id='populated')
 
         # test
@@ -44,22 +44,17 @@ class ViewsTestCase(ViewTestCase):
         self.assertEqual(r.status_code, 404)
 
     def test_json_ld_embedded(self):
-        """checks that HTML in descriptions, etc is correctly escaped."""
-        self.mock_from_id.return_value = api.DeliveryVideo(DELIVERY_VIDEO_FIXTURE)
+        """check that a JSON-LD script tag is present in the output"""
         item = self.non_deleted_media.get(id='populated')
-
-        item.title = '<script>'
-
         r = self.client.get(reverse('ui:media_item', kwargs={'pk': item.pk}))
 
         self.assertEqual(r.status_code, 200)
         self.assertTemplateUsed(r, 'ui/media.html')
         content = r.content.decode('utf8')
-        print('content: ', content)
         self.assertIn('<script type="application/ld+json">', content)
 
     def test_no_html_in_page(self):
-        """checks that HTML in descriptions, etc is correctly escaped."""
+        """checks that HTML in descriptions, etc is escaped."""
         self.mock_from_id.return_value = api.DeliveryVideo(DELIVERY_VIDEO_FIXTURE)
         item = self.non_deleted_media.get(id='populated')
 
@@ -71,7 +66,6 @@ class ViewsTestCase(ViewTestCase):
         self.assertEqual(r.status_code, 200)
         self.assertTemplateUsed(r, 'ui/media.html')
         content = r.content.decode('utf8')
-        print('content: ', content)
         self.assertNotIn('<some-tag>', content)
 
 
