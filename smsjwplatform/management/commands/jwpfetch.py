@@ -22,6 +22,7 @@ perform the database metadata synchronisation. This can be useful in combination
 
 """
 from django.core.management.base import BaseCommand
+from django.db import transaction
 
 from smsjwplatform import models
 from smsjwplatform import jwplatform
@@ -40,6 +41,7 @@ class Command(BaseCommand):
             '--skip-fetch', action='store_true', dest='skip_fetch',
             help='Do not re-fetch objects from JWP, only synchronise database objects with cache')
 
+    @transaction.atomic
     def handle(self, *args, **options):
         # Create the JWPlatform client
         self.client = jwplatform.get_jwplatform_client()
