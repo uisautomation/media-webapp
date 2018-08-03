@@ -1,5 +1,5 @@
 # Requirements for the webapp itself
-django>=2.0
+django>=2.1,<2.2
 psycopg2-binary
 # explicitly specify django-automationcommon's git repo since changes in
 # automationcommon tend to be "ad hoc" and may need testing here without a
@@ -7,7 +7,7 @@ psycopg2-binary
 # in the VCS URL.
 git+https://github.com/uisautomation/django-automationcommon.git@master#egg=django-automationcommon
 git+https://github.com/uisautomation/django-automationoauth.git@master#egg=django-automationoauth
-django-ucamwebauth>=1.4.5
+django-ucamwebauth>=1.4.8
 djangorestframework
 django-cors-headers
 drf-yasg

@@ -2,6 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/uisautomation/sms-webapp.svg?style=svg)](https://circleci.com/gh/uisautomation/sms-webapp)
 [![codecov](https://codecov.io/gh/uisautomation/sms-webapp/branch/master/graph/badge.svg)](https://codecov.io/gh/uisautomation/sms-webapp)
+[<img src="https://marker.io/vendor/img/logo/browserstack-logo.svg" height="20">](https://www.browserstack.com/)
 
 Documentation for developers, including a "getting started" guide, can be found
 at https://uisautomation.github.io/sms-webapp.
@@ -133,3 +134,16 @@ last stage. We use this feature to compile the frontend JavaScript inside a node
 container and then copy the compiled JavaScript *out* of that container and *in*
 to the actual production container. This has the strong advantage that all of
 the node-related stuff then gets thrown away after the image is built.
+
+## Loading the legacy statistics schema
+
+A current dump of the legacy statistics schema is available from a private URL.
+This dump can be downloaded and imported to the development app using the
+``copy-legacy-stats.sh`` script. Once the application is up, the script can be run as follows:
+
+```bash
+./compose.sh development exec development_app /tmp/copy-legacy-stats.sh <stats_url>
+```
+
+(the stats url can be discovered in the
+[main deployment template of the media project's deployment repository](https://github.com/uisautomation/media-deploy/blob/master/deployment/deployment.py))

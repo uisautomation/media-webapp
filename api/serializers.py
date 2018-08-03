@@ -171,3 +171,26 @@ class ProfileSerializer(serializers.Serializer):
     is_anonymous = serializers.BooleanField(source='user.is_anonymous')
     username = serializers.CharField(source='user.username')
     urls = serializers.DictField()
+
+
+class MediaAnalyticsItemSerializer(serializers.Serializer):
+    """
+    The number of viewing for a particular media item on a particular day.
+
+    """
+    date = serializers.SerializerMethodField(help_text='The day when a media was viewed')
+    views = serializers.SerializerMethodField(help_text='The number of media views on a day')
+
+    def get_date(self, row):
+        return str(row[0])
+
+    def get_views(self, row):
+        return row[1]
+
+
+class MediaAnalyticsListSerializer(serializers.Serializer):
+    """
+    A list of media analytics data points.
+
+    """
+    results = MediaAnalyticsItemSerializer(many=True, source='*')
