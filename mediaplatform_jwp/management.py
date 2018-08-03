@@ -3,7 +3,6 @@ Interactions with the JWP management API.
 
 """
 from smsjwplatform import jwplatform as jwp
-from smsjwplatform import models as jwpmodels
 
 from . import models
 from . import upload
@@ -52,8 +51,6 @@ def _perform_item_update(item):
     if hasattr(item, 'jwp'):
         # Get/create the corresponding cached JWP resource
         video_key = item.jwp.key
-        cached_resource, _ = jwpmodels.CachedResource.objects.get_or_create(
-            key=video_key, defaults={'data': {}})
 
         # Update the video using the JWP management API
         response = jwp_client.videos.update(
