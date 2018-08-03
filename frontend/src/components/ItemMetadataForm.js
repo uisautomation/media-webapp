@@ -8,19 +8,22 @@ import TextField from '@material-ui/core/TextField';
  * The onChange prop is called with a patch to the item as it is edited.
  */
 const ItemMetadataForm = ({
-  item: { name = '', description = '' },
+  item: { title = '', description = '' },
   onChange,
+  disabled,
 }) => (<div>
   <TextField
     fullWidth
+    disabled={ disabled }
     label='Title'
     margin='normal'
-    onChange={ event => onChange({ name: event.target.value }) }
-    value={ name }
+    onChange={ event => onChange({ title: event.target.value }) }
+    value={ title }
   />
 
   <TextField
     fullWidth
+    disabled={ disabled }
     label='Description'
     margin='normal'
     multiline
@@ -34,11 +37,18 @@ ItemMetadataForm.propTypes = {
   /** Media item resource. */
   item: PropTypes.shape({
     description: PropTypes.string,
-    name: PropTypes.string,
+    title: PropTypes.string,
   }).isRequired,
 
   /** Function called when the item changes. Passed a patch style object for the item. */
   onChange: PropTypes.func.isRequired,
+
+  /** Should all the form controls be disabled? */
+  disabled: PropTypes.bool,
+};
+
+ItemMetadataForm.defaultProps = {
+  disabled: false,
 };
 
 export default ItemMetadataForm;
