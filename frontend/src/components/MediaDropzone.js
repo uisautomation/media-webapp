@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import UploadIcon from '@material-ui/icons/CloudUpload';
 
 /**
- * Displau UI encouraging a user to drag and drop media files onto it or to select using the file
+ * Display UI encouraging a user to drag and drop media files onto it or to select using the file
  * picker. This is essentially a styled version of [React Dropzone](https://react-dropzone.js.org/)
  * with the accept prop pre-set to ``audio/*, video/*``. See the React Dropzone docs for details on
  * how to use the component.
