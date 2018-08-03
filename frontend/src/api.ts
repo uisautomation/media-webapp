@@ -214,7 +214,7 @@ export const mediaCreate = (body: IMediaCreateResource) : Promise<IMediaResource
 /** Retrieve a media resource. */
 export const mediaGet = (id: string) : Promise<IMediaListResponse | IError> => {
   const resource = resourceFromPageById(id);
-  if(resource) { return Promise.resolve(resource); }
+  if (resource) { return Promise.resolve(resource); }
   return apiFetch(API_ENDPOINTS.mediaList + id);
 };
 
@@ -240,7 +240,7 @@ export const collectionList = (
 };
 
 /** Fetch the user's profile. */
-export const profileGet= (): Promise<IProfileResponse | IError> => {
+export const profileGet = (): Promise<IProfileResponse | IError> => {
   return apiFetch(API_ENDPOINTS.profile);
 }
 

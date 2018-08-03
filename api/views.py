@@ -6,6 +6,8 @@ import copy
 import logging
 
 from django.conf import settings
+from django.db import connection
+from django.shortcuts import get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
@@ -218,3 +220,35 @@ class MediaItemUploadView(MediaItemMixin, generics.RetrieveUpdateAPIView):
     # Make sure that the related upload_endpoint is fetched by the queryset
     def get_queryset(self):
         return super().get_queryset().select_related('upload_endpoint')
+
+
+class MediaAnalyticsView(APIView):
+    """
+    Endpoint to retrieve the analytics for a single media item.
+
+    """
+    @swagger_auto_schema(
+        responses={200: serializers.MediaAnalyticsListSerializer()}
+    )
+    def get(self, request, pk):
+        """Handle GET request."""
+
+        media_item = get_object_or_404(
+            mpmodels.MediaItem.objects.filter(pk=pk)
+            .viewable_by_user(request.user)
+            .select_related('sms')
+        )
+        results = []
+        if hasattr(media_item, 'sms'):
+            with get_cursor() as cursor:
+                cursor.execute(
+                    "SELECT day, num_hits FROM stats.media_stats_by_day WHERE media_id=%s",
+                    [media_item.sms.id]
+                )
+                results = cursor.fetchall()
+        return Response(serializers.MediaAnalyticsListSerializer(results).data)
+
+
+def get_cursor():  # pragma: no cover
+    """Retrieve DB cursor. Method included for patching in tests"""
+    return connection.cursor()

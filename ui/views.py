@@ -29,3 +29,13 @@ class MediaView(apiviews.MediaItemMixin, generics.RetrieveAPIView):
 @login_required
 def upload(request):
     return render(request, 'ui/upload.html')
+
+
+class MediaAnalyticsView(apiviews.MediaAnalyticsView):
+    """
+    View for rendering an individual media item's analytics.
+    Extends the DRF's media item analytics view.
+
+    """
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'ui/analytics.html'

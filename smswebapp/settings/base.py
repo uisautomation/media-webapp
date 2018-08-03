@@ -96,7 +96,6 @@ DATABASES = {
     }
 }
 
-
 _db_envvar_prefix = 'DJANGO_DB_'
 for name, value in os.environ.items():
     # Only look at variables which start with the prefix we expect

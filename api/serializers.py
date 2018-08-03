@@ -187,3 +187,26 @@ class MediaUploadSerializer(serializers.Serializer):
         # TODO: abstract the creation of UploadEndpoint objects to be backend neutral
         management.create_upload_endpoint(instance)
         return instance
+
+
+class MediaAnalyticsItemSerializer(serializers.Serializer):
+    """
+    The number of viewing for a particular media item on a particular day.
+
+    """
+    date = serializers.SerializerMethodField(help_text='The day when a media was viewed')
+    views = serializers.SerializerMethodField(help_text='The number of media views on a day')
+
+    def get_date(self, row):
+        return str(row[0])
+
+    def get_views(self, row):
+        return row[1]
+
+
+class MediaAnalyticsListSerializer(serializers.Serializer):
+    """
+    A list of media analytics data points.
+
+    """
+    results = MediaAnalyticsItemSerializer(many=True, source='*')
