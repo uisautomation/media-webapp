@@ -226,7 +226,7 @@ export const mediaPatch = (item: IMediaResource) : Promise<IMediaResource | IErr
   });
 };
 
-/** Create a new media resource. */
+/** Retrieve upload endpoint for a media item. */
 export const mediaUploadGet = (item: IMediaResource) : Promise<IMediaUploadResource | IError> => {
   // TODO: decide if we want to use the URL in @id rather than key here,
   return apiFetch(API_ENDPOINTS.mediaList + item.id + '/upload');
