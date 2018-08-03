@@ -37,6 +37,9 @@ class UploadForm extends Component {
       // The current *draft* item being edited by the ItemMetadataForm.
       draftItem: { },
 
+      // An error object as returned by the API or the empty object if there are no errors.
+      errors: { },
+
       // If non-null, the file selected by the user for upload.
       fileToUpload: null,
 
@@ -60,7 +63,7 @@ class UploadForm extends Component {
   render() {
     const { classes } = this.props;
     const {
-      draftItem, fileToUpload, publishStarted, uploadProgress, uploadSucceeded
+      draftItem, errors, fileToUpload, publishStarted, uploadProgress, uploadSucceeded
     } = this.state;
 
     // If the user has not yet selected a file, show the dropzone.
@@ -80,6 +83,7 @@ class UploadForm extends Component {
 
         <ItemMetadataForm
           item={ draftItem }
+          errors={ errors }
           disabled={ publishStarted }
           onChange={ patch => this.setState({ draftItem: { ...this.state.draftItem, ...patch } }) }
         />
@@ -169,7 +173,9 @@ class UploadForm extends Component {
   publish() {
     const { draftItem, item } = this.state;
     const publishedItem = { ...item, ...draftItem };
-    mediaPatch(publishedItem).then(newItem => this.itemPublished(newItem));
+    mediaPatch(publishedItem)
+      .then(newItem => this.itemPublished(newItem))
+      .catch(({ body }) => this.setState({ publishStarted: false, errors: body }));
     this.setState({ publishStarted: true });
   }
 
