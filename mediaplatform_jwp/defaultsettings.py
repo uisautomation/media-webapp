@@ -9,3 +9,6 @@ Default settings values for the :py:mod:`mediaplatform_jwp` application.
 
 #: Should matching JWP videos should be creatred/updated when MediaItem objects change.
 JWP_SYNC_ITEMS = True
+
+#: Should we force http upload links to be https?
+JWP_FORCE_HTTPS_UPLOAD = True

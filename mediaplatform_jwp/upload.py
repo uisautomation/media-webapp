@@ -4,6 +4,7 @@ Uploading support for JWPlatform.
 """
 import datetime
 
+from django.conf import settings
 from django.utils import timezone
 
 from mediaplatform import models as mpmodels
@@ -24,6 +25,14 @@ def record_link_response(link_data, item):
     created and set an expiry of "now" plus :py:data:`~.UPLOAD_URL_LIFETIME`.
 
     """
+    # If the JWP_FORCE_HTTPS_UPLOAD setting is True and JWP has given us a HTTP link, force it to
+    # be HTTPS.
+    if link_data.get('protocol') == 'http' and settings.JWP_FORCE_HTTPS_UPLOAD:
+        new_link_data = {}
+        new_link_data.update(link_data)
+        new_link_data['protocol'] = 'https'
+        link_data = new_link_data
+
     upload_url = (
         '{protocol}://{address}{path}?api_format=json&key={query[key]}'
         '&token={query[token]}'
