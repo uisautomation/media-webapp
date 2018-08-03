@@ -2,6 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/uisautomation/sms-webapp.svg?style=svg)](https://circleci.com/gh/uisautomation/sms-webapp)
 [![codecov](https://codecov.io/gh/uisautomation/sms-webapp/branch/master/graph/badge.svg)](https://codecov.io/gh/uisautomation/sms-webapp)
+[<img src="https://marker.io/vendor/img/logo/browserstack-logo.svg" height="20">](https://www.browserstack.com/)
 
 Documentation for developers, including a "getting started" guide, can be found
 at https://uisautomation.github.io/sms-webapp.

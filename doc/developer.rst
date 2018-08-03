@@ -65,8 +65,8 @@ tox environments
 
 The following tox environments are available.
 
-py36
-    Run by default. Launch the test suite under Python 3.6. Generate a
+py3
+    Run by default. Launch the test suite under Python 3. Generate a
     code-coverage report and display a summary coverage report.
 
 doc
