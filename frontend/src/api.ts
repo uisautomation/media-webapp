@@ -96,6 +96,12 @@ export interface IMediaResource {
   links?: IMediaLinks;
 };
 
+/** A media upload resource. */
+export interface IMediaUploadResource {
+  url: string;
+  expires_at: string;
+};
+
 /** A collection resource. */
 export interface ICollectionResource {
   id: string;
@@ -171,10 +177,11 @@ export const apiFetch = (
       // tslint:disable-next-line:no-console
       console.error('API error response:', response);
 
-      // Reject the call passing the response.
-      return Promise.reject({
-        error: new Error('API request returned error response'), response
-      });
+      // Reject the call passing the response parsed as JSON.
+      return response.json().then(body => Promise.reject({
+        body,
+        error: new Error('API request returned error response'),
+      }));
     }
 
     // Parse response body as JSON
@@ -186,7 +193,7 @@ export const apiFetch = (
     console.error('API fetch error:', error);
 
     // Chain to the next error handler
-    return Promise.reject({ error });
+    return Promise.reject(error);
   })
 );
 
@@ -218,6 +225,12 @@ export const mediaPatch = (item: IMediaResource) : Promise<IMediaResource | IErr
     body: JSON.stringify(item),
     method: 'PATCH',
   });
+};
+
+/** Retrieve upload endpoint for a media item. */
+export const mediaUploadGet = (item: IMediaResource) : Promise<IMediaUploadResource | IError> => {
+  // TODO: decide if we want to use the URL in @id rather than key here,
+  return apiFetch(API_ENDPOINTS.mediaList + item.id + '/upload');
 };
 
 /** List collection resources. */

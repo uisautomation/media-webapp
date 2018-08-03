@@ -28,6 +28,7 @@ urlpatterns = [
     path('collections/', views.CollectionListView.as_view(), name='collections'),
     path('media/', views.MediaItemListView.as_view(), name='media_list'),
     path('media/<pk>', views.MediaItemView.as_view(), name='media_item'),
+    path('media/<pk>/upload', views.MediaItemUploadView.as_view(), name='media_upload'),
     path('media/<pk>/analytics', views.MediaAnalyticsView.as_view(), name='media_item_analytics'),
     path('profile/', views.ProfileView.as_view(), name='profile'),
     re_path(

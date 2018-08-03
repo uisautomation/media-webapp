@@ -5,6 +5,7 @@ from dateutil import parser as dateparser
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase
+from django.urls import reverse
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 import smsjwplatform.jwplatform as api
@@ -205,6 +206,79 @@ class MediaItemViewTestCase(ViewTestCase):
         for obj in self.viewable_by_user:
             response = self.view(self.get_request, pk=obj.id)
             self.assertEqual(response.status_code, 200)
+
+
+class UploadEndpointTestCase(ViewTestCase):
+    fixtures = ['api/tests/fixtures/mediaitems.yaml']
+
+    def setUp(self):
+        super().setUp()
+        self.view = views.MediaItemUploadView().as_view()
+        self.item = mpmodels.MediaItem.objects.get(id='populated')
+
+        # Reset any permissions on the item
+        self.item.view_permission.reset()
+        self.item.view_permission.save()
+        self.item.edit_permission.reset()
+        self.item.edit_permission.save()
+
+    def test_needs_view_permission(self):
+        """Upload endpoint should 404 if user doesn't have view permission."""
+        response = self.get_for_item()
+        self.assertEqual(response.status_code, 404)
+
+        self.client.force_login(self.user)
+        response = self.get_for_item()
+        self.assertEqual(response.status_code, 404)
+
+    def test_needs_edit_permission(self):
+        """If user has view but not edit permission, endpoint should deny permission."""
+        self.add_view_permission()
+        self.client.force_login(self.user)
+        response = self.get_for_item()
+        self.assertEqual(response.status_code, 403)
+
+    def test_allows_view_and_edit_permission(self):
+        """If user has view *and* edit permission, endpoint should succeed."""
+        self.client.force_login(self.user)
+        self.add_view_permission()
+        self.add_edit_permission()
+        response = self.get_for_item()
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body['url'], self.item.upload_endpoint.url)
+        self.assertEqual(
+            dateparser.parse(body['expires_at']),
+            self.item.upload_endpoint.expires_at
+        )
+
+    def test_create_upload_endpoint(self):
+        """PUT-ing endpoint creates a new upload endpoint."""
+        self.client.force_login(self.user)
+        self.add_view_permission()
+        self.add_edit_permission()
+
+        with mock.patch('mediaplatform_jwp.management.create_upload_endpoint') as mock_create:
+            response = self.put_for_item()
+
+        self.assertEqual(response.status_code, 200)
+        mock_create.assert_called_once()
+        item = mock_create.call_args[0][0]
+        self.assertEqual(item.id, self.item.id)
+
+    def get_for_item(self, **kwargs):
+        return self.client.get(reverse('api:media_upload', kwargs={'pk': self.item.pk}), **kwargs)
+
+    def put_for_item(self, **kwargs):
+        return self.client.put(reverse('api:media_upload', kwargs={'pk': self.item.pk}), **kwargs)
+
+    def add_view_permission(self):
+        self.item.view_permission.crsids.append(self.user.username)
+        self.item.view_permission.save()
+
+    def add_edit_permission(self):
+        self.item.edit_permission.crsids.append(self.user.username)
+        self.item.edit_permission.save()
 
 
 class MediaAnalyticsViewCase(ViewTestCase):

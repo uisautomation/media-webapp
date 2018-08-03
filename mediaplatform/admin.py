@@ -79,6 +79,11 @@ class SMSMediaItemInline(admin.StackedInline):
     link.short_description = 'Legacy SMS media item'
 
 
+class UploadEndpointInline(admin.StackedInline):
+    model = models.UploadEndpoint
+    readonly_fields = ('url', 'expires_at')
+
+
 class MediaItemAdminForm(forms.ModelForm):
     """
     A custom form for rendering a MediaItem in the admin which uses single-line input widgets for
@@ -106,6 +111,7 @@ class MediaItemAdmin(admin.ModelAdmin):
     ordering = ('-published_at', 'title', 'id')
     search_fields = ('id', 'title', 'description', 'jwp__key')
     inlines = [
+        UploadEndpointInline,
         SMSMediaItemInline,
         JWPVideoInline,
         MediaItemViewPermissionInline,

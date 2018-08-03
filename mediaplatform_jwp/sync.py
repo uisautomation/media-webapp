@@ -10,8 +10,9 @@ import mediaplatform.models as mpmodels
 import mediaplatform_jwp.models as jwpmodels
 import legacysms.models as legacymodels
 import smsjwplatform.models as smsjwpmodels
-
 from smsjwplatform import jwplatform as jwp
+
+from .signalhandlers import setting_sync_items
 
 
 @transaction.atomic
@@ -199,111 +200,119 @@ def update_related_models_from_cache(update_all=False):
         'audio': mpmodels.MediaItem.AUDIO,
         'unknown': mpmodels.MediaItem.UNKNOWN,
     }
-    for item in updated_media_items:
-        # Skip items with no associated JWP video
-        if item.data is None:
-            continue
 
-        video = jwp.Video(item.data)
-        custom = video.get('custom', {})
+    # We'll be modifying the MediaItem objects to be consistent with the JWP videos. We *don't*
+    # want the signal handlers then trying to modify the JWPlatform videos again so disable
+    # MediaItem -> JWP syncing if it is enabled.
+    with setting_sync_items(False):
+        for item in updated_media_items:
+            # Skip items with no associated JWP video
+            if item.data is None:
+                continue
 
-        item.title = _default_if_none(video.get('title'), '')
-        item.description = _default_if_none(video.get('description'), '')
-        item.type = type_map[_default_if_none(video.get('mediatype'), 'unknown')]
+            video = jwp.Video(item.data)
+            custom = video.get('custom', {})
 
-        item.downloadable = 'True' == jwp.parse_custom_field(
-                'downloadable', custom.get('sms_downloadable', 'downloadable:False:'))
+            item.title = _default_if_none(video.get('title'), '')
+            item.description = _default_if_none(video.get('description'), '')
+            item.type = type_map[_default_if_none(video.get('mediatype'), 'unknown')]
 
-        published_timestamp = video.get('date')
-        if published_timestamp is not None:
-            item.published_at = datetime.datetime.fromtimestamp(
-                published_timestamp, pytz.utc)
-        else:
-            item.published_at = None
+            item.downloadable = 'True' == jwp.parse_custom_field(
+                    'downloadable', custom.get('sms_downloadable', 'downloadable:False:'))
 
-        item.duration = video.get('duration', 0)
-
-        # The language should be a three letter code. Use [:3] to make sure that it always is even
-        # if the JWP custom prop is somehow messed up.
-        item.language = jwp.parse_custom_field(
-                'language', custom.get('sms_language', 'language::'))[:3]
-
-        item.copyright = jwp.parse_custom_field(
-                'copyright', custom.get('sms_copyright', 'copyright::'))
-
-        # Since tags have database enforced maximum lengths, make sure to truncate them if they're
-        # too long. We also strip leading or trailing whitespace.
-        item.tags = [
-            tag.strip().lower()[:max_tag_length]
-            for tag in jwp.parse_custom_field(
-                'keywords', custom.get('sms_keywords', 'keywords::')
-            ).split('|')
-            if tag.strip() != ''
-        ]
-
-        # Update view permission
-        item.view_permission.reset()
-
-        for ace in video.acl:
-            if ace == 'WORLD':
-                item.view_permission.is_public = True
-            elif ace == 'CAM':
-                item.view_permission.is_signed_in = True
-            elif ace.startswith('INST_'):
-                item.view_permission.lookup_insts.append(ace[5:])
-            elif ace.startswith('GROUP_'):
-                item.view_permission.lookup_groups.append(int(ace[6:]))
-            elif ace.startswith('USER_'):
-                item.view_permission.crsids.append(ace[5:])
-
-        item.view_permission.save()
-
-        # Update edit permission
-        item.edit_permission.reset()
-
-        # TODO: the editors group from SMS has not been copied over to the JWP custom props yet. We
-        # simply add the creator. Note that some of the videos in JWP have this prop be of the form
-        # created_by:...: and some have creator:...: :(.
-        try:
-            creator = jwp.parse_custom_field(
-                'created_by', custom.get('sms_created_by', 'created_by::'))
-        except ValueError:
-            creator = jwp.parse_custom_field(
-                'creator', custom.get('sms_created_by', 'creator::'))
-
-        item.edit_permission.crsids = [creator] if creator != '' else []
-        item.edit_permission.save()
-
-        # Update associated SMS media item (if any)
-        sms_media_id = video.media_id
-        if sms_media_id is not None:
-            # Get or create associated SMS media item. Note that hasattr is recommended in the
-            # Django docs as a way to determine isf a related objects exists.
-            # https://docs.djangoproject.com/en/dev/topics/db/examples/one_to_one/
-            if hasattr(item, 'sms') and item.sms is not None:
-                sms_media_item = item.sms
+            published_timestamp = video.get('date')
+            if published_timestamp is not None:
+                item.published_at = datetime.datetime.fromtimestamp(
+                    published_timestamp, pytz.utc)
             else:
-                sms_media_item = legacymodels.MediaItem(id=sms_media_id)
+                item.published_at = None
 
-            # Extract last updated timestamp. It should be an ISO 8601 date string.
-            last_updated = jwp.parse_custom_field(
-                'last_updated_at', custom.get('sms_last_updated_at', 'last_updated_at::'))
+            item.duration = _default_if_none(video.get('duration'), 0.)
 
-            # Update SMS media item
-            sms_media_item.item = item
-            if last_updated == '':
-                sms_media_item.last_updated_at = None
+            # The language should be a three letter code. Use [:3] to make sure that it always is
+            # even if the JWP custom prop is somehow messed up.
+            item.language = jwp.parse_custom_field(
+                    'language', custom.get('sms_language', 'language::'))[:3]
+
+            item.copyright = jwp.parse_custom_field(
+                    'copyright', custom.get('sms_copyright', 'copyright::'))
+
+            # Since tags have database enforced maximum lengths, make sure to truncate them if
+            # they're too long. We also strip leading or trailing whitespace.
+            item.tags = [
+                tag.strip().lower()[:max_tag_length]
+                for tag in jwp.parse_custom_field(
+                    'keywords', custom.get('sms_keywords', 'keywords::')
+                ).split('|')
+                if tag.strip() != ''
+            ]
+
+            # Update view permission
+            item.view_permission.reset()
+
+            for ace in video.acl:
+                if ace == 'WORLD':
+                    item.view_permission.is_public = True
+                elif ace == 'CAM':
+                    item.view_permission.is_signed_in = True
+                elif ace.startswith('INST_'):
+                    item.view_permission.lookup_insts.append(ace[5:])
+                elif ace.startswith('GROUP_'):
+                    item.view_permission.lookup_groups.append(int(ace[6:]))
+                elif ace.startswith('USER_'):
+                    item.view_permission.crsids.append(ace[5:])
+
+            item.view_permission.save()
+
+            # Update edit permission. Since our transfer of edit permissions is imperfect, do *NOT*
+            # reset it when synchonising. Instead make sure that the creator is in the edit
+            # permissions.
+
+            # TODO: the editors group from SMS has not been copied over to the JWP custom props
+            # yet. We simply add the creator. Note that some of the videos in JWP have this prop be
+            # of the form
+            # created_by:...: and some have creator:...: :(.
+            try:
+                creator = jwp.parse_custom_field(
+                    'created_by', custom.get('sms_created_by', 'created_by::'))
+            except ValueError:
+                creator = jwp.parse_custom_field(
+                    'creator', custom.get('sms_created_by', 'creator::'))
+
+            if creator != '' and creator not in item.edit_permission.crsids:
+                item.edit_permission.crsids.append(creator)
+                item.edit_permission.save()
+
+            # Update associated SMS media item (if any)
+            sms_media_id = video.media_id
+            if sms_media_id is not None:
+                # Get or create associated SMS media item. Note that hasattr is recommended in the
+                # Django docs as a way to determine isf a related objects exists.
+                # https://docs.djangoproject.com/en/dev/topics/db/examples/one_to_one/
+                if hasattr(item, 'sms') and item.sms is not None:
+                    sms_media_item = item.sms
+                else:
+                    sms_media_item = legacymodels.MediaItem(id=sms_media_id)
+
+                # Extract last updated timestamp. It should be an ISO 8601 date string.
+                last_updated = jwp.parse_custom_field(
+                    'last_updated_at', custom.get('sms_last_updated_at', 'last_updated_at::'))
+
+                # Update SMS media item
+                sms_media_item.item = item
+                if last_updated == '':
+                    sms_media_item.last_updated_at = None
+                else:
+                    sms_media_item.last_updated_at = dateutil.parser.parse(last_updated)
+
+                sms_media_item.save()
             else:
-                sms_media_item.last_updated_at = dateutil.parser.parse(last_updated)
+                # If there is no associated SMS media item, make sure that this item doesn't have
+                # one pointing to it.
+                if hasattr(item, 'sms') and item.sms is not None:
+                    item.sms.delete()
 
-            sms_media_item.save()
-        else:
-            # If there is no associated SMS media item, make sure that this item doesn't have one
-            # pointing to it.
-            if hasattr(item, 'sms') and item.sms is not None:
-                item.sms.delete()
-
-        item.save()
+            item.save()
 
 
 def _default_if_none(value, default):

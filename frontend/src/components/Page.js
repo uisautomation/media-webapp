@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { withStyles } from '@material-ui/core/styles';
+import IconButton from '@material-ui/core/IconButton';
+import UploadIcon from '@material-ui/icons/CloudUpload';
 
 import withRoot from "../pages/withRoot";
 import AppBar from "./AppBar";
@@ -17,6 +19,9 @@ const Page = (
 ) => (
       <div className={ classes.page }>
         <AppBar position="fixed" defaultSearch={defaultSearch}>
+          <IconButton color="inherit" component="a" href="/upload">
+            <UploadIcon />
+          </IconButton>
           <ProfileButtonContainer variant="flat" color="inherit" />
         </AppBar>
 

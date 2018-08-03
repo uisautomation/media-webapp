@@ -6,6 +6,7 @@ from rest_framework import serializers
 
 from smsjwplatform import jwplatform
 from mediaplatform import models as mpmodels
+from mediaplatform_jwp import management
 
 LOG = logging.getLogger(__name__)
 
@@ -54,6 +55,7 @@ class MediaItemSerializer(serializers.HyperlinkedModelSerializer):
             'publishedAt': {'source': 'published_at'},
             'updatedAt': {'source': 'updated_at'},
             'url': {'view_name': 'api:media_item'},
+            'title': {'allow_blank': False},
         }
 
     posterImageUrl = serializers.SerializerMethodField(
@@ -171,6 +173,21 @@ class ProfileSerializer(serializers.Serializer):
     is_anonymous = serializers.BooleanField(source='user.is_anonymous')
     username = serializers.CharField(source='user.username')
     urls = serializers.DictField()
+
+
+class MediaUploadSerializer(serializers.Serializer):
+    """
+    A serializer which returns an upload endpoint for a media item. Intended to be used as custom
+    serializer in an UpdateView for MediaItem models.
+
+    """
+    url = serializers.URLField(source='upload_endpoint.url', read_only=True)
+    expires_at = serializers.DateTimeField(source='upload_endpoint.expires_at', read_only=True)
+
+    def update(self, instance, verified_data):
+        # TODO: abstract the creation of UploadEndpoint objects to be backend neutral
+        management.create_upload_endpoint(instance)
+        return instance
 
 
 class MediaAnalyticsItemSerializer(serializers.Serializer):
