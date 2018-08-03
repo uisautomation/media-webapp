@@ -41,3 +41,21 @@ class ViewsTestCase(ViewTestCase):
         self.assertEqual(r.status_code, 404)
 
     # TODO: add ACL checks here
+
+
+class MediaAnalyticsViewTestCase(ViewTestCase):
+
+    @mock.patch('api.views.get_cursor')
+    def test_success(self, mock_get_cursor):
+        """checks that a media item's analytics are rendered successfully"""
+
+        mock_get_cursor.return_value.__enter__.return_value.fetchall.return_value = []
+
+        item = self.non_deleted_media.get(id='populated')
+
+        # test
+        r = self.client.get(reverse('ui:media_item_analytics', kwargs={'pk': item.pk}))
+
+        self.assertEqual(r.status_code, 200)
+        self.assertTemplateUsed(r, 'ui/analytics.html')
+        self.assertEqual(len(r.context['results']), 0)

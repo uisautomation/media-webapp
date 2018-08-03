@@ -1,3 +1,4 @@
+import datetime
 from unittest import mock
 
 from dateutil import parser as dateparser
@@ -204,6 +205,46 @@ class MediaItemViewTestCase(ViewTestCase):
         for obj in self.viewable_by_user:
             response = self.view(self.get_request, pk=obj.id)
             self.assertEqual(response.status_code, 200)
+
+
+class MediaAnalyticsViewCase(ViewTestCase):
+
+    @mock.patch('api.views.get_cursor')
+    def test_success(self, mock_get_cursor):
+        """Check that analytics for a media item is returned"""
+
+        mock_get_cursor.return_value.__enter__.return_value.fetchall.return_value = [
+            (datetime.date(2018, 5, 17), 3), (datetime.date(2018, 3, 22), 4)
+        ]
+
+        item = self.non_deleted_media.get(id='populated')
+
+        # test
+        response = views.MediaAnalyticsView().as_view()(self.get_request, pk=item.id)
+
+        self.assertEqual(response.status_code, 200)
+
+        results = response.data['results']
+
+        self.assertEqual(results[0]['date'], '2018-05-17')
+        self.assertEqual(results[0]['views'], 3)
+        self.assertEqual(results[1]['date'], '2018-03-22')
+        self.assertEqual(results[1]['views'], 4)
+
+    def test_no_legacy_sms(self):
+        """
+        Check that no analytics are returned if a media item doesn't have a legacysms.MediaItem
+        """
+        item = self.non_deleted_media.get(id='a')
+
+        # test
+        response = views.MediaAnalyticsView().as_view()(self.get_request, pk=item.id)
+
+        self.assertEqual(response.status_code, 200)
+
+        results = response.data['results']
+
+        self.assertEqual(len(results), 0)
 
 
 CHANNELS_FIXTURE = [

@@ -8,7 +8,6 @@ import { withStyles } from '@material-ui/core/styles';
 import DownloadIcon from '@material-ui/icons/CloudDownload';
 import AnalyticsIcon from '@material-ui/icons/ShowChart';
 
-import { BASE_SMS_URL } from '../api';
 import Page from '../components/Page';
 import RenderedMarkdown from '../components/RenderedMarkdown';
 import MediaItemProvider, { withMediaItem } from '../providers/MediaItemProvider';
@@ -94,10 +93,10 @@ const MediaPageContents = ({ item, classes }) => {
           </Grid>
           <Grid item xs={12} sm={6} md={3} lg={2} style={{textAlign: 'right'}}>
             {
-              item && item.links && item.links.legacyStatisticsUrl
+              item && item.id
               ?
               <Button component='a' variant='outlined' className={ classes.link }
-                href={ item.links.legacyStatisticsUrl } fullWidth
+                href={ '/media/' + item.id + '/analytics' } fullWidth
               >
                 Statistics
                 <AnalyticsIcon className={ classes.rightIcon } />

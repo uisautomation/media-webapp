@@ -15,7 +15,7 @@ RUN pip install --upgrade -r ./requirements/developer.txt
 VOLUME /usr/src/app
 
 # Copy startup script
-ADD ./compose/start-devserver.sh ./compose/wait-for-it.sh /tmp/
+ADD ./compose/start-devserver.sh ./compose/wait-for-it.sh ./compose/copy-legacy-stats.sh /tmp/
 
 # By default, use the Django development server to serve the application and use
 # developer-specific settings.
