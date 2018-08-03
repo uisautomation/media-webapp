@@ -10,7 +10,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 import MediaDropzone from '../components/MediaDropzone';
 import ItemMetadataForm from '../components/ItemMetadataForm';
-import { mediaPatch } from '../api';
+import { mediaCreate, mediaPatch, mediaUploadGet } from '../api';
 
 /**
  * A container component which takes a media item resource and upload endpoint via its props and
@@ -22,151 +22,105 @@ import { mediaPatch } from '../api';
  * proceed to enter item metadata but can only publish the item when both the original item
  * resource and upload endpoint resource have been set.
  *
- * Once the user has selected a file *AND* the upload endpoint resource is truthy, the upload URL
- * is used to upload the file. We use XMLHttpRequest to upload the file so that we can give
- * progress information to the user.
+ * Once the user has selected a file *AND* the we have retrieved an upload endpoint, we upload the
+ * file. We use XMLHttpRequest to upload the file so that we can give progress information to the
+ * user.
  *
- * Once the upload has completed and the media item resource is truthy, the publish button is no
- * longer disabled and we "publish" the item but PUT-ing the new metadata via the API.
+ * Once the upload has completed, the publish button is no longer disabled and we "publish" the
+ * item by PUT-ing the new metadata via the API.
  */
 class UploadForm extends Component {
-  constructor(props) {
-    super(props);
+  constructor() {
+    super();
+
     this.state = {
+      // The current *draft* item being edited by the ItemMetadataForm.
       draftItem: { },
+
+      // If non-null, the file selected by the user for upload.
       fileToUpload: null,
-      publishCompleted: false,
-      publishFailed: false,
-      publishSucceeded: false,
-      publishWasStarted: false,
-      publishedItem: null,
-      uploadCompleted: false,
+
+      // If non-null, the newly created item.
+      item: null,
+
+      // Has the item started to be published?
+      publishStarted: false,
+
+      // Did the item upload fail?
       uploadFailed: false,
-      uploadProgress: null,  // if non-null, current file upload progress from 0 -> 1
+
+      // If non-null, a value from 0 to 1 which reflects the current upload progress.
+      uploadProgress: null,
+
+      // Did the item upload succeed?
       uploadSucceeded: false,
-      uploadWasStarted: false,
     };
   }
 
   render() {
+    const { classes } = this.props;
     const {
-      draftItem,
-      fileToUpload,
-      publishWasStarted,
-      uploadProgress,
-      uploadSucceeded,
-      uploadWasStarted,
+      draftItem, fileToUpload, publishStarted, uploadProgress, uploadSucceeded
     } = this.state;
-    const { classes, item, url } = this.props;
 
-    // Initially, just show the upload dropzone
+    // If the user has not yet selected a file, show the dropzone.
     if(!fileToUpload) {
-      return <div>
-        <MediaDropzone onDropAccepted={ files => this.receivedFile(files[0]) } />
-      </div>;
+      return <MediaDropzone
+        onDropAccepted={ files => this.setFileToUpload(files[0]) }
+      />;
     }
 
-    // Once we have a file, show upload progress and form.
-    return <div>
-      <Typography variant='headline'>Update media information</Typography>
+    // Otherwise, show the upload progress and edit form
+    return (
+      <div>
+        <LinearProgress
+          variant={ (uploadProgress !== null) ? 'determinate' : 'indeterminate' }
+          value={ (uploadProgress !== null) ? 100 * uploadProgress : 0 }
+        />
 
-      <ItemMetadataForm
-        item={ draftItem }
-        onChange={ patch => this.patchDraftItem(patch) }
-      />
+        <ItemMetadataForm
+          item={ draftItem }
+          disabled={ publishStarted }
+          onChange={ patch => this.setState({ draftItem: { ...this.state.draftItem, ...patch } }) }
+        />
 
-      <LinearProgress
-        variant={ uploadWasStarted && (uploadProgress !== null) ? 'determinate' : 'indeterminate' }
-        value={ (uploadProgress !== null) ? 100 * uploadProgress : 0 }
-      />
-
-      <div className={ classes.buttonSet }>
-        {
-          publishWasStarted
-          ?
-          <CircularProgress />
-          :
+        <div className={ classes.buttonSet }>
           <Button
-            disabled={ !fileToUpload || !uploadSucceeded || !item }
+            disabled={ !uploadSucceeded || publishStarted }
             color='secondary'
             variant='contained'
             onClick={ () => this.publish() }
           >
             Publish
-            <PublishIcon className={ classes.rightIcon }/>
+            {
+              uploadSucceeded && !publishStarted
+              ?
+              <PublishIcon className={ classes.rightIcon } />
+              :
+              <CircularProgress size={ 24 } className={ classes.rightIcon } />
+            }
           </Button>
-        }
+        </div>
       </div>
-    </div>;
+    );
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const {
-      fileToUpload,
-      publishCompleted,
-      publishSucceeded,
-      publishedItem,
-      uploadWasStarted,
-    } = this.state;
-    const { item, url } = this.props;
-
-    // If there was not previously an upload started but we're not in a position to start one, do
-    // so. This is not done from receivedFile because when receivedFile is called, we may not yet
-    // have received the upload endpoint URL.
-    if(!uploadWasStarted && fileToUpload && url) {
-      this.startUpload();
-      this.patchDraftItem({ name: fileToUpload.name });
-    }
-
-    // If the publish started and succeeded, redirect to the media page for the item.
-    if(publishedItem && publishCompleted && publishSucceeded) {
-      window.location.href = '/media/' + publishedItem.id;
-    }
+  /** Called when the user has selected a file. */
+  setFileToUpload(fileToUpload) {
+    // Create a new media item and kick off an upload
+    const title = fileToUpload.name ? fileToUpload.name : 'Untitled';
+    mediaCreate({ title }).then(item => this.setMediaItem(item));
+    this.setState({ fileToUpload, draftItem: { title, ...this.state.draftItem } });
   }
 
-  publish() {
-    // Publishes the draft item by merging it with the item we were passed in props
-    const { item } = this.props;
-    const { draftItem } = this.state;
-    const publishedItem = { ...item, ...draftItem };
-    mediaPatch(publishedItem)
-      .then(() => this.setState({ publishCompleted: true, publishSucceeded: true }))
-      .catch(() => this.setState({ publishCompleted: true, publishFailed: true }))
-    this.setState({ publishedItem, publishWasStarted: true });
+  /** Called when a new media item has been created to receive the upload. */
+  setMediaItem(item) {
+    mediaUploadGet(item).then(({ url }) => this.setUploadUrl(url));
+    this.setState({ item, draftItem: { ...item, ...this.state.draftItem } });
   }
 
-  patchDraftItem(patch) {
-    const { draftItem } = this.state;
-    this.setState({ draftItem: { ...draftItem, ...patch } });
-  }
-
-  receivedFile(file) {
-    // Called when a file was selected by the user. Update state to record the new file and reset
-    // all the upload state. The upload itself is not started here because the url prop may not yet
-    // be set to a useful value. Instead, in componentDidUpdate, we check both the url prop *and*
-    // the fileToUpload state and initiate an upload when both are set.
-
-    if(!file) { return; }  // Sanity check arguments
-
-    this.setState({
-      fileToUpload: file,
-      publishCompleted: false,
-      publishFailed: false,
-      publishSucceeded: false,
-      publishWasStarted: false,
-      uploadCompleted: false,
-      uploadFailed: false,
-      uploadProgress: null,
-      uploadSucceeded: false,
-      uploadWasStarted: false,
-    });
-  }
-
-  startUpload() {
-    // Start upload. Should be called when the fileToUpload state variable and url prop are
-    // populated.
-
-    const { url } = this.props;
+  /** Called when a new upload endpoint has been created. */
+  setUploadUrl(url) {
     const { fileToUpload } = this.state;
 
     if(!fileToUpload || !url) { return; } // Sanity check arguments
@@ -186,9 +140,9 @@ class UploadForm extends Component {
     const loadFinished = () => {
       // Examine the status to work out if we succeeded.
       if((req.status >= 200) && (req.status < 300)) {
-        this.setState({ uploadProgress: 1, uploadCompleted: true, uploadSucceeded: true });
+        this.setState({ uploadProgress: 1, uploadSucceeded: true });
       } else {
-        this.setState({ uploadProgress: 1, uploadCompleted: true, uploadFailed: true });
+        this.setState({ uploadProgress: 1, uploadFailed: true });
       }
     };
 
@@ -208,7 +162,20 @@ class UploadForm extends Component {
     req.send(formData);
 
     // Record that we started an upload
-    this.setState({ uploadCompleted: false, uploadProgress: null, uploadWasStarted: true });
+    this.setState({ uploadProgress: 0, uploadSucceeded: false, uploadFailed: false });
+  }
+
+  /** Publishes the draft item by merging it with the new item. */
+  publish() {
+    const { draftItem, item } = this.state;
+    const publishedItem = { ...item, ...draftItem };
+    mediaPatch(publishedItem).then(newItem => this.itemPublished(newItem));
+    this.setState({ publishStarted: true });
+  }
+
+  /** The item was successfully published. */
+  itemPublished(item) {
+      window.location.href = '/media/' + item.id;
   }
 }
 
