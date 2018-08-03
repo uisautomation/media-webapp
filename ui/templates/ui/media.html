@@ -3,9 +3,9 @@
 {% block title %}{{ resource.title }}{% endblock %}
 {% block extrabody %}
 <script type="application/ld+json">
-{% autoescape off %}{{ json_ld|to_json }}{% endautoescape %}
+{{ json_ld|to_json }}
 </script>
 <script type="application/resource+json">
-{% autoescape off %}{{ resource|to_json }}{% endautoescape %}
+{{ resource|to_json }}
 </script>
 {% endblock %}
