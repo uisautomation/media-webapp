@@ -177,10 +177,11 @@ export const apiFetch = (
       // tslint:disable-next-line:no-console
       console.error('API error response:', response);
 
-      // Reject the call passing the response.
-      return Promise.reject({
-        error: new Error('API request returned error response'), response
-      });
+      // Reject the call passing the response parsed as JSON.
+      return response.json().then(body => Promise.reject({
+        body,
+        error: new Error('API request returned error response'),
+      }));
     }
 
     // Parse response body as JSON
@@ -192,7 +193,7 @@ export const apiFetch = (
     console.error('API fetch error:', error);
 
     // Chain to the next error handler
-    return Promise.reject({ error });
+    return Promise.reject(error);
   })
 );
 
