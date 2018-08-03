@@ -55,6 +55,7 @@ class MediaItemSerializer(serializers.HyperlinkedModelSerializer):
             'publishedAt': {'source': 'published_at'},
             'updatedAt': {'source': 'updated_at'},
             'url': {'view_name': 'api:media_item'},
+            'title': {'allow_blank': False},
         }
 
     posterImageUrl = serializers.SerializerMethodField(
