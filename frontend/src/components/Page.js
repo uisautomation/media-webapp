@@ -22,7 +22,9 @@ const Page = (
           <IconButton color="inherit" component="a" href="/upload">
             <UploadIcon />
           </IconButton>
-          <ProfileButtonContainer variant="flat" color="inherit" />
+          <ProfileButtonContainer
+            className={ classes.rightButton } variant="flat" color="inherit"
+          />
         </AppBar>
 
         <div className={classes.body}>
@@ -56,6 +58,10 @@ const styles = theme => ({
       paddingLeft: theme.spacing.unit * 3,
       paddingRight: theme.spacing.unit * 3,
     },
+  },
+
+  rightButton: {
+    marginRight: -1.5 * theme.spacing.unit,
   },
 });
 
