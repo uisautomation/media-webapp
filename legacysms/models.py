@@ -34,11 +34,11 @@ class Collection(models.Model):
     id = models.BigIntegerField(
         primary_key=True, editable=False, help_text='Legacy SMS collection id')
 
-    #: Corresponding :py:class:`mediaplatform.Collection`. Accessible from the
-    #: :py:class:`mediaplatform.Collection` model via the ``sms`` field. This can be NULL if there
+    #: Corresponding :py:class:`mediaplatform.Channel`. Accessible from the
+    #: :py:class:`mediaplatform.Channel` model via the ``sms`` field. This can be NULL if there
     #: is no corresponding collection hosted by the Media Platform.
-    collection = models.OneToOneField(
-        'mediaplatform.Collection', related_name='sms', on_delete=models.SET_NULL, null=True,
+    channel = models.OneToOneField(
+        'mediaplatform.Channel', related_name='sms', on_delete=models.SET_NULL, null=True,
         editable=False)
 
     #: The last updated at time from the legacy SMS. Used to determine which collections need
