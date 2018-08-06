@@ -45,6 +45,15 @@ def get_orphan_channel_id():
     return Channel.objects.get_or_create(id=_ORPHAN_CHANNEL_ID, title='Orphaned media items')[0].id
 
 
+def _blank_array():
+    """
+    Return a new blank array. Used for the default in ArrayField-s below because Django's migration
+    system cannot handle serialising lambdas.
+
+    """
+    return []
+
+
 class PermissionQuerySetMixin:
     def _permission_condition(self, fieldname, user):
         """
@@ -237,7 +246,7 @@ class MediaItem(models.Model):
         blank=True, default='', help_text='Free text describing Copyright holder')
 
     #: List of tags for video
-    tags = pgfields.ArrayField(models.CharField(max_length=256), default=[], blank=True,
+    tags = pgfields.ArrayField(models.CharField(max_length=256), default=_blank_array, blank=True,
                                help_text='Tags/keywords for item')
 
     #: Creation time
@@ -273,7 +282,7 @@ class Collection(models.Model):
     description = models.TextField(help_text='Description for collection', blank=True, default='')
 
     #: List of tags for collection
-    tags = pgfields.ArrayField(models.CharField(max_length=256), default=[],
+    tags = pgfields.ArrayField(models.CharField(max_length=256), default=_blank_array,
                                help_text='Tags/keywords for item')
 
     #: :py:class:`~.MediaItem` objects which make up this collection. Postgres does not (currently)
@@ -283,7 +292,8 @@ class Collection(models.Model):
     #: YouTube, as an example, has this problem as well since videos in playlists are sometimes
     #: replaced by a "deleted video" placeholder.
     media_items = pgfields.ArrayField(
-        models.UUIDField(), default=[], help_text='Primary keys of media items in this collection')
+        models.UUIDField(), default=_blank_array,
+        help_text='Primary keys of media items in this collection')
 
     #: Creation time
     created_at = models.DateTimeField(auto_now_add=True)
@@ -345,13 +355,13 @@ class Permission(models.Model):
     )
 
     #: List of crsids of users with this permission
-    crsids = pgfields.ArrayField(models.TextField(), blank=True, default=[])
+    crsids = pgfields.ArrayField(models.TextField(), blank=True, default=_blank_array)
 
     #: List of lookup groups which users with this permission belong to
-    lookup_groups = pgfields.ArrayField(models.TextField(), blank=True, default=[])
+    lookup_groups = pgfields.ArrayField(models.TextField(), blank=True, default=_blank_array)
 
     #: List of lookup institutions which users with this permission belong to
-    lookup_insts = pgfields.ArrayField(models.TextField(), blank=True, default=[])
+    lookup_insts = pgfields.ArrayField(models.TextField(), blank=True, default=_blank_array)
 
     #: Do all users (including anonymous ones) have this permission?
     is_public = models.BooleanField(default=False)
