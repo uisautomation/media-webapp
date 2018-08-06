@@ -20,3 +20,24 @@ class Video(models.Model):
     #: an integer field rather than a datetime filed because JWP uses timestamps and we should
     #: store the same value to make sure we compare apples to apples.
     updated = models.BigIntegerField(help_text='Last updated timestamp', editable=False)
+
+
+class Channel(models.Model):
+    """
+    A JWPlatform channel resource.
+
+    """
+
+    #: JWPlatform channel key
+    key = models.CharField(primary_key=True, max_length=64, editable=False)
+
+    #: Corresponding :py:class:`mediaplatform.Channel`. Accessible from the
+    #: :py:class:`mediaplatform.Channel` model via the ``jwp`` field. This can be NULL if there
+    #: is no corresponding media item hosted by the Media Platform.
+    channel = models.OneToOneField('mediaplatform.Channel', related_name='jwp',
+                                   on_delete=models.SET_NULL, null=True, editable=False)
+
+    #: The updated timestamp from JWPlatform. Used to determine which items need updating. This is
+    #: an integer field rather than a datetime filed because JWP uses timestamps and we should
+    #: store the same value to make sure we compare apples to apples.
+    updated = models.BigIntegerField(help_text='Last updated timestamp', editable=False)
