@@ -9,20 +9,23 @@ class CachedResourceTest(TestCase):
         # A base query set which returns all non-deletes cached videos
         self.videos = models.CachedResource.videos
 
+        # A base query set which returns all non-deletes cached channels
+        self.channels = models.CachedResource.channels
+
         # A base query set which returns *all* videos, even the deleted ones
         self.all_videos = models.CachedResource.objects.filter(type=models.CachedResource.VIDEO)
 
     def test_empty_iterable(self):
         """Cache should be updatable with empty iterable."""
-        models.set_videos([])
+        models.set_resources([], 'video')
         # There should be nothing in the cache
         self.assertEqual(self.videos.count(), 0)
 
     def test_simple_use(self):
         """Simple use of the cache should succeed."""
-        models.set_videos([
+        models.set_resources([
             {'key': 'foo', 'x': 5}, {'key': 'bar', 'y': 7}
-        ])
+        ], 'video')
 
         # We should now be able to query these values
         self.assertEqual(self.videos.count(), 2)
@@ -30,19 +33,19 @@ class CachedResourceTest(TestCase):
 
     def test_expiry(self):
         """If a resource disappears, it should disappear from the cache."""
-        models.set_videos([
+        models.set_resources([
             {'key': 'foo', 'x': 5}, {'key': 'bar', 'y': 7}
-        ])
+        ], 'video')
         self.assertEqual(self.videos.count(), 2)
-        models.set_videos([{'key': 'foo', 'x': 6}])
+        models.set_resources([{'key': 'foo', 'x': 6}], 'video')
         self.assertEqual(self.videos.count(), 1)
         self.assertEqual(self.videos.filter(data__x=6).first().key, 'foo')
         self.assertEqual(self.videos.filter(data__x=5).count(), 0)
 
     def test_updated_at(self):
         """If a value is updated, the updated_at timestamp should be after created_at."""
-        models.set_videos([{'key': 'foo', 'x': 5}])
-        models.set_videos([{'key': 'foo', 'x': 5}])
+        models.set_resources([{'key': 'foo', 'x': 5}], 'video')
+        models.set_resources([{'key': 'foo', 'x': 5}], 'video')
         obj = self.videos.get(key='foo')
         self.assertGreater(obj.updated_at, obj.created_at)
 
@@ -53,14 +56,14 @@ class CachedResourceTest(TestCase):
             yield {'key': 'bar', 'x': 7}
 
         self.assertEqual(self.videos.count(), 0)
-        models.set_videos(resources())
+        models.set_resources(resources(), 'video')
         self.assertEqual(self.videos.count(), 2)
 
     def test_duplicate_keys(self):
         """If duplicate keys are in the resource iterable, the last one wins."""
-        models.set_videos([
+        models.set_resources([
             {'key': 'foo', 'x': 5}, {'key': 'bar', 'x': 6}, {'key': 'foo', 'x': 7},
-        ])
+        ], 'video')
         obj = self.videos.get(key='foo')
         self.assertEqual(obj.data['x'], 7)
 
@@ -72,18 +75,18 @@ class CachedResourceTest(TestCase):
                 yield {'key': f'resource_{index}', 'index': index}
         # Stress test the database. If there is a performance regression, we'll notice it when
         # running the tests. Add 10,000 resources then remove 5,000 of them.
-        models.set_videos(resources(10000))
-        models.set_videos(resources(5000))
+        models.set_resources(resources(10000), 'video')
+        models.set_resources(resources(5000), 'video')
         self.assertEqual(self.videos.count(), 5000)
 
     def test_soft_delete(self):
         """If a resource disappears, it should disappear from the cache but remain in the database
         with a non-NULL deleted_at time."""
-        models.set_videos([
+        models.set_resources([
             {'key': 'foo', 'x': 5}, {'key': 'bar', 'y': 7}
-        ])
+        ], 'video')
         self.assertEqual(self.videos.count(), 2)
-        models.set_videos([{'key': 'foo', 'x': 6}])
+        models.set_resources([{'key': 'foo', 'x': 6}], 'video')
         self.assertEqual(self.videos.count(), 1)
         self.assertEqual(self.all_videos.count(), 2)
         o = self.all_videos.get(key='bar')
@@ -91,14 +94,29 @@ class CachedResourceTest(TestCase):
 
     def test_reinsertion(self):
         """If a resource disappears and re-appears, the deleted_at field should be None."""
-        models.set_videos([
+        models.set_resources([
             {'key': 'foo', 'x': 5}, {'key': 'bar', 'y': 7}
-        ])
-        models.set_videos([{'key': 'foo', 'x': 5}])
-        models.set_videos([
+        ], 'video')
+        models.set_resources([{'key': 'foo', 'x': 5}], 'video')
+        models.set_resources([
             {'key': 'foo', 'x': 5}, {'key': 'bar', 'y': 7}
-        ])
+        ], 'video')
         self.assertEqual(self.videos.count(), 2)
         self.assertEqual(self.all_videos.count(), 2)
         o = self.all_videos.get(key='bar')
         self.assertIsNone(o.deleted_at)
+
+    def test_differing_types(self):
+        """Setting two differnt types should not interfere."""
+        models.set_resources([
+            {'key': 'foo', 'x': 5}, {'key': 'bar', 'y': 7}
+        ], 'video')
+        models.set_resources([
+            {'key': 'buzz', 'z': 5},
+        ], 'channel')
+
+        # We should now be able to query these values
+        self.assertEqual(self.videos.count(), 2)
+        self.assertEqual(self.videos.filter(data__x=5).first().key, 'foo')
+        self.assertEqual(self.channels.count(), 1)
+        self.assertEqual(self.channels.filter(data__z=5).first().key, 'buzz')

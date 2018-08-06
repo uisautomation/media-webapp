@@ -49,7 +49,7 @@ class Command(BaseCommand):
         # Fetch and cache the video resources
         if not options['skip_fetch']:
             self.stdout.write('Caching video resources...')
-            models.set_videos(self.fetch_videos())
+            models.set_resources(self.fetch_videos(), 'video')
 
         # Print out the total number of videos cached
         self.stdout.write(self.style.SUCCESS('Number of cached video resources: {}'.format(

@@ -9,7 +9,7 @@ import mediaplatform.models as mpmodels
 import mediaplatform_jwp.models as jwpmodels
 import legacysms.models as legacymodels
 from smsjwplatform.jwplatform import Video
-from smsjwplatform.models import set_videos, CachedResource
+from smsjwplatform.models import set_resources, CachedResource
 
 from .. import sync
 
@@ -301,7 +301,7 @@ def set_videos_and_sync(videos, update_kwargs={}):
     argument.
 
     """
-    set_videos(videos)
+    set_resources(videos, 'video')
     sync.update_related_models_from_cache(**update_kwargs)
     return videos
 
