@@ -32,18 +32,6 @@ def _make_token():
 #: ids used by YouTube which suggests there'll be enough entropy for the time being.
 _TOKEN_LENGTH = len(_make_token())
 
-#: Special id reserved for the orphan channel.
-_ORPHAN_CHANNEL_ID = '!!ORPHAN!!'
-
-
-def get_orphan_channel_id():
-    """
-    Get the id of the dedicated channel for "orphaned" media items. The channel is created if if
-    does not exist.
-
-    """
-    return Channel.objects.get_or_create(id=_ORPHAN_CHANNEL_ID, title='Orphaned media items')[0].id
-
 
 def _blank_array():
     """
@@ -205,10 +193,10 @@ class MediaItem(models.Model):
     id = models.CharField(
         max_length=_TOKEN_LENGTH, primary_key=True, default=_make_token, editable=False)
 
-    #: Channel which contains media item
+    #: Channel which contains media item - if NULL, then the media item is in no channel.
     channel = models.ForeignKey(
-        'Channel', help_text='Channel containing media item', default=get_orphan_channel_id,
-        on_delete=models.SET_DEFAULT, related_name='items')
+        'Channel', help_text='Channel containing media item', null=True,
+        on_delete=models.SET_NULL, related_name='items')
 
     #: Media item title
     title = models.TextField(help_text='Title of media item', blank=True, default='')
