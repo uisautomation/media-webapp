@@ -342,6 +342,12 @@ class Permission(models.Model):
         null=True
     )
 
+    #: Playlist whose view permission is this object
+    allows_view_playlist = models.OneToOneField(
+        'Playlist', on_delete=models.CASCADE, related_name='view_permission', editable=False,
+        null=True
+    )
+
     #: List of crsids of users with this permission
     crsids = pgfields.ArrayField(models.TextField(), blank=True, default=_blank_array)
 
@@ -487,6 +493,91 @@ class Channel(models.Model):
         return '{} ("{}")'.format(self.id, self.title)
 
 
+class PlaylistQuerySet(PermissionQuerySetMixin, models.QuerySet):
+    def annotate_viewable(self, user, name='viewable'):
+        """
+        Annotate the query set with a boolean indicating if the user can view the item.
+
+        """
+        return self.annotate(**{
+            name: models.Case(
+                models.When(
+                    self._permission_condition('view_permission', user),
+                    then=models.Value(True)
+                ),
+                default=models.Value(False),
+                output_field=models.BooleanField()
+            ),
+        })
+
+    def viewable_by_user(self, user):
+        """
+        Filter the queryset to only those items which can be viewed by the passed Django user.
+
+        """
+        return self.filter(self._permission_condition('view_permission', user))
+
+
+class PlaylistManager(models.Manager):
+    """
+    An object manager for :py:class:`~.Playlist` objects. Accepts an additional named parameter
+    *include_deleted* which specifies if the default queryset should include deleted items.
+
+    """
+    def __init__(self, *args, include_deleted=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._include_deleted = include_deleted
+
+    def get_queryset(self):
+        qs = PlaylistQuerySet(self.model, using=self._db)
+        if not self._include_deleted:
+            qs = qs.filter(deleted_at__isnull=True)
+        return qs
+
+
+class Playlist(models.Model):
+    """
+    An individual playlist in the media platform.
+
+    """
+    #: Object manager. See :py:class:`~.PlaylistManager`. The objects returned by this manager do
+    #: not include deleted objects. See :py:attr:\~.objects_including_deleted`.
+    objects = PlaylistManager()
+
+    #: Object manager whose objects include the deleted items. This has been separated out into a
+    #: separate manager to avoid inadvertently including deleted objects in a query
+    objects_including_deleted = PlaylistManager(include_deleted=True)
+
+    #: Primary key
+    id = models.CharField(
+        max_length=_TOKEN_LENGTH, primary_key=True, default=_make_token, editable=False)
+
+    #: Channel which contains playlist
+    channel = models.ForeignKey(
+        'Channel', help_text='channel containing playlist', on_delete=models.CASCADE,
+        related_name='playlist'
+    )
+
+    #: Playlist title
+    title = models.TextField(help_text='Title of the playlist', blank=False)
+
+    #: Playlist description
+    description = models.TextField(help_text='Description of the playlist', blank=True, default='')
+
+    #: Creation time
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    #: Last update time
+    updated_at = models.DateTimeField(auto_now=True)
+
+    #: Deletion time. If non-NULL, the channel has been "deleted" and should not usually be
+    #: visible.
+    deleted_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return '{} ("{}")'.format(self.id, self.title)
+
+
 @receiver(post_save, sender=MediaItem)
 def _media_item_post_save_handler(*args, sender, instance, created, raw, **kwargs):
     """
@@ -537,6 +628,22 @@ def _channel_post_save_handler(*args, sender, instance, created, raw, **kwargs):
 
     if not hasattr(instance, 'edit_permission'):
         Permission.objects.create(allows_edit_channel=instance)
+
+
+@receiver(post_save, sender=Playlist)
+def _playlist_post_save_handler(*args, sender, instance, created, raw, **kwargs):
+    """
+    A post_save handler for :py:class:`~.Playlist` which creates a blank view permission if it
+    doesn't exist.
+
+    """
+    # If this is a "raw" update (e.g. from a test fixture) or was not the creation of the playlist,
+    # don't try to create objects.
+    if raw or not created:
+        return
+
+    if not hasattr(instance, 'view_permission'):
+        Permission.objects.create(allows_view_playlist=instance)
 
 
 def _lookup_groupids_and_instids_for_user(user):

@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.core.cache import cache
+from django.db import IntegrityError
 from django.test import TestCase, override_settings
 
 from .. import models
@@ -350,6 +351,7 @@ class ChannelTest(TestCase):
 
     def test_creation_no_fields(self):
         """A Channel object should *not* be creatable with no field values."""
+        # TODO this should fail?
         models.Channel.objects.create()
 
     def test_creation_title_only(self):
@@ -465,4 +467,123 @@ class ChannelTest(TestCase):
             .annotate_editable(user, name='TEST_editable')
             .get(id=channel_or_id.id)
             .TEST_editable
+        )
+
+
+class PlaylistTest(TestCase):
+    fixtures = ['mediaplatform/tests/fixtures/test_data.yaml']
+
+    def setUp(self):
+        self.user = User.objects.get(username='testuser')
+        self.channel1 = models.Channel.objects.get(id='channel1')
+
+        self.lookup_groupids_and_instids_for_user_patcher = mock.patch(
+                'mediaplatform.models._lookup_groupids_and_instids_for_user')
+        self.lookup_groupids_and_instids_for_user = (
+            self.lookup_groupids_and_instids_for_user_patcher.start())
+        self.lookup_groupids_and_instids_for_user.return_value = ([], [])
+        self.addCleanup(self.lookup_groupids_and_instids_for_user_patcher.stop)
+
+    def test_creation_no_fields(self):
+        """A Playlist object should *not* be creatable with no field values."""
+        self.assertRaises(IntegrityError, models.Playlist.objects.create)
+
+    def test_creation_minimum_fields(self):
+        """A Playlist object should be creatable with a title and a channel."""
+        models.Playlist.objects.create(title='XXX', channel=self.channel1)
+
+    def test_no_deleted_in_objects(self):
+        """The default queryset used by Playlist.objects contains no deleted playlists."""
+        self.assertEqual(models.Playlist.objects.filter(deleted_at__isnull=False).count(), 0)
+
+    def test_deleted_in_objects_including_deleted(self):
+        """If we explicitly ask for deleted objects, we get them."""
+        self.assertGreater(
+            models.Playlist.objects_including_deleted.filter(deleted_at__isnull=False).count(), 0)
+
+    def test_public_playlist_viewable_by_anon(self):
+        """The public playlist is viewable by anonymous."""
+        self.assert_user_can_view(AnonymousUser(), 'public')
+
+    def test_signedin_playlist_not_viewable_by_anon(self):
+        """The signedin playlist is not viewable by anonymous."""
+        self.assert_user_cannot_view(AnonymousUser(), 'signedin')
+
+    def test_user_of_none_is_treated_as_anon(self):
+        """
+        If a user of "None" is passed to viewable_by_user(), it is treated as the anonymous user.
+        """
+        self.assert_user_can_view(None, 'public')
+        self.assert_user_cannot_view(None, 'signedin')
+
+    def test_public_playlist_viewable_by_signed_in(self):
+        """The public playlist is viewable by a signed in user."""
+        self.assert_user_can_view(self.user, 'public')
+
+    def test_signedin_playlist_viewable_by_signed_in(self):
+        """The signedin playlist is viewable by a signed in user."""
+        self.assert_user_can_view(self.user, 'signedin')
+
+    def test_playlist_with_no_perms_not_viewable(self):
+        """A playlist with empty permissions is not viewable by the anonymous or signed in user."""
+        self.assert_user_cannot_view(AnonymousUser(), 'emptyperm')
+        self.assert_user_cannot_view(self.user, 'emptyperm')
+
+    def test_playlist_with_matching_crsid_viewable(self):
+        """
+        A user who's crsid is in the set of crsids for a playlist can view it.
+
+        """
+        self.assert_user_can_view(self.user, 'crsidsperm')
+
+    def test_playlist_with_matching_lookup_groups_viewable(self):
+        """
+        A user who has at least one lookup group which is in the set of lookup groups for a
+        playlist can view it.
+
+        """
+        self.lookup_groupids_and_instids_for_user.return_value = ['A', 'B', 'C'], []
+        self.assert_user_can_view(self.user, 'groupsperm')
+
+    def test_playlist_with_matching_lookup_insts_viewable(self):
+        """
+        A user who has at least one lookup institution which is in the set of lookup institutions
+        for a playlist can view it.
+
+        """
+        self.lookup_groupids_and_instids_for_user.return_value = [], ['A', 'B', 'C']
+        self.assert_user_can_view(self.user, 'instsperm')
+
+    def test_view_permission_created(self):
+        """A new Playlist has a view permission created on save()."""
+        playlist = models.Playlist.objects.create(channel=self.channel1)
+        self.assertIsNotNone(models.Playlist.objects.get(id=playlist.id).view_permission)
+
+    def assert_user_cannot_view(self, user, id):
+        if isinstance(id, str):
+            playlist = models.Playlist.objects_including_deleted.get(id=id)
+        self.assertFalse(
+            models.Playlist.objects_including_deleted.all()
+            .filter(id=playlist.id)
+            .viewable_by_user(user)
+            .exists()
+        )
+        self.assertFalse(
+            models.Playlist.objects_including_deleted.all()
+            .annotate_viewable(user, name='TEST_viewable')
+            .get(id=playlist.id)
+            .TEST_viewable
+        )
+
+    def assert_user_can_view(self, user, id):
+        if isinstance(id, str):
+            playlist = models.Playlist.objects_including_deleted.get(id=id)
+        self.assertTrue(
+            models.Playlist.objects.all().viewable_by_user(user).filter(id=playlist.id).exists()
+        )
+        self.assertTrue(
+            models.Playlist.objects_including_deleted.all()
+            .annotate_viewable(user, name='TEST_viewable')
+            .get(id=playlist.id)
+            .TEST_viewable
         )
