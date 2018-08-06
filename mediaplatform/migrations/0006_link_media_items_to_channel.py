@@ -2,17 +2,6 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import mediaplatform.models
-
-
-def reverse_orphan_channel(apps, schema_editor):
-    # We do not undo create_orphan_channel() since it is fine for it to continue to exist when
-    # reversing this migration. We need to have a reverse form to placate Django, though.
-    pass
-
-
-def create_orphan_channel(apps, schema_editor):
-    mediaplatform.models.get_orphan_channel_id()
 
 
 class Migration(migrations.Migration):
@@ -22,10 +11,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(create_orphan_channel, reverse_code=reverse_orphan_channel),
         migrations.AddField(
             model_name='mediaitem',
             name='channel',
-            field=models.ForeignKey(default=mediaplatform.models.get_orphan_channel_id, help_text='Channel containing media item', on_delete=django.db.models.deletion.SET_DEFAULT, related_name='items', to='mediaplatform.Channel'),
+            field=models.ForeignKey(null=True, help_text='Channel containing media item', on_delete=django.db.models.deletion.SET_NULL, related_name='items', to='mediaplatform.Channel'),
         ),
     ]
