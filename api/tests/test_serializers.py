@@ -6,7 +6,7 @@ from .. import serializers
 
 
 class MediaItemSerializerTestCase(TestCase):
-    def test_create_with_no_user(self):
+    def test_create(self):
         with mock.patch('mediaplatform.models.MediaItem.objects.create') as f:
             serializers.MediaItemSerializer().create(validated_data={})
         f.assert_called()
