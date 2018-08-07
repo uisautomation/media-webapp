@@ -147,11 +147,30 @@ export interface IProfileResponse {
   };
 };
 
+/** A channel resource. */
+export interface IChannelResource {
+  url?: string;
+  id?: string;
+  title: string;
+  mediaUrl: string;
+  description: string;
+  updatedAt: string;
+  createdAt: string;
+};
+
+export interface IAPIOptions {
+  /** Endpoint to use instead of default. */
+  endpoint?: string;
+};
+
+const API_BASE = window.location.protocol + '//' + window.location.host + '/api'
+
 /** The various API endpoints */
 export const API_ENDPOINTS = {
-  collectionList: '/api/collections/',
-  mediaList: '/api/media/',
-  profile: '/api/profile',
+  channelList: API_BASE + '/channels/',
+  collectionList: API_BASE + '/collections/',
+  mediaList: API_BASE + '/media/',
+  profile: API_BASE + '/profile',
 };
 
 /**
@@ -199,9 +218,11 @@ export const apiFetch = (
 
 /** List media resources. */
 export const mediaList = (
-  { search, ordering }: IMediaQuery = {}
+  { search, ordering }: IMediaQuery = {},
+  { endpoint }: IAPIOptions = {}
 ): Promise<IMediaListResponse | IError> => {
-  return apiFetch(API_ENDPOINTS.mediaList + objectToQueryPart({ search, ordering }));
+  return apiFetch(
+    appendQuery(endpoint || API_ENDPOINTS.mediaList, { search, ordering }));
 };
 
 /** Create a new media resource. */
@@ -237,7 +258,7 @@ export const mediaUploadGet = (item: IMediaResource) : Promise<IMediaUploadResou
 export const collectionList = (
   { search, ordering }: IMediaQuery = {}
 ): Promise<ICollectionListResponse | IError> => {
-  return apiFetch(API_ENDPOINTS.collectionList + objectToQueryPart({ search, ordering }));
+  return apiFetch(appendQuery(API_ENDPOINTS.collectionList, { search, ordering }));
 };
 
 /** Fetch the user's profile. */
@@ -245,16 +266,23 @@ export const profileGet = (): Promise<IProfileResponse | IError> => {
   return apiFetch(API_ENDPOINTS.profile);
 }
 
-/**
- * Convert an object with properties into a URL query string including initial '?'. If an empty
- * object is provided, the empty string is returned.
- */
-const objectToQueryPart = (o: object = {}): string => {
-  const urlParams = new URLSearchParams();
-  Object.keys(o).forEach(key => { if(o[key] !== undefined) { urlParams.append(key, o[key]); } });
-  const urlParamsString = urlParams.toString();
-  return (urlParamsString === '') ? '' : '?' + urlParamsString;
+/** Retrieve a channel resource. */
+export const channelGet = (id: string) : Promise<IChannelResource | IError> => {
+  const resource = resourceFromPageById(id);
+  if (resource) { return Promise.resolve(resource); }
+  return apiFetch(API_ENDPOINTS.channelList + id);
 };
+
+/**
+ * Append to a URL's query string based on properies from the passed object.
+ */
+const appendQuery = (endpoint: string, o: object = {}): string => {
+  const url = new URL(endpoint);
+  Object.keys(o).forEach(key => {
+    if(o[key] !== undefined) { url.searchParams.append(key, o[key]); }
+  });
+  return url.href;
+}
 
 /**
  * A function which maps an API collection resource to a media item for use by, e.g.,
