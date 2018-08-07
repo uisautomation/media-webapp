@@ -80,9 +80,17 @@ class MediaItemJSONLDSerializer(JSONLDSerializer):
 
 class MediaItemPageSerializer(serializers.Serializer):
     """
-    A serialiser for media items which renders one field, ``json_ld``, which is the representation
-    of the media item in JSON LD format.
+    A serialiser for media items which renders a ``json_ld`` field which is the representation
+    of the media item in JSON LD format along with the resource.
 
     """
     json_ld = MediaItemJSONLDSerializer(source='*')
     resource = apiserializers.MediaItemDetailSerializer(source='*')
+
+
+class ChannelPageSerializer(serializers.Serializer):
+    """
+    A serialiser for channels which renders the API resource.
+
+    """
+    resource = apiserializers.ChannelDetailSerializer(source='*')

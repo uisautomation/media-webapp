@@ -1,11 +1,8 @@
-{% extends 'index.html' %}
+{% extends 'ui/resource.html' %}
 {% load to_json %}
-{% block title %}{{ resource.title }}{% endblock %}
 {% block extrabody %}
+{{ block.super }}
 <script type="application/ld+json">
 {{ json_ld|to_json }}
-</script>
-<script type="application/resource+json">
-{{ resource|to_json }}
 </script>
 {% endblock %}
