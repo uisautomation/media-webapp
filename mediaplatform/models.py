@@ -409,6 +409,26 @@ class UploadEndpoint(models.Model):
 
 
 class ChannelQuerySet(PermissionQuerySetMixin, models.QuerySet):
+    def annotate_viewable(self, user, name='viewable'):
+        """
+        Annotate the query set with a boolean indicating if the user can view the channel.
+
+        This is always true but this method is provided for compatibility with code shared between
+        media items and channels.
+
+        """
+        return self.annotate(**{name: models.Value(True, output_field=models.BooleanField())})
+
+    def viewable_by_user(self, user):
+        """
+        Filter the queryset to only those items which can be viewed by the passed Django user.
+
+        This is a no-op filter but this method is provided for compatibility with code shared
+        between media items and channels.
+
+        """
+        return self
+
     def annotate_editable(self, user, name='editable'):
         """
         Annotate the query set with a boolean indicating if the user can edit the item.
@@ -448,6 +468,28 @@ class ChannelManager(models.Manager):
         if not self._include_deleted:
             qs = qs.filter(deleted_at__isnull=True)
         return qs
+
+    def create_for_user(self, user, **kwargs):
+        """
+        Convenience wrapper for create() which will create a channel but also give the passed user
+        edit permissions if the user is not anonymous.
+
+        """
+        obj = self.create(**kwargs)
+
+        if user is not None and not user.is_anonymous:
+            # Due to Django ORM oddness, we need to re-fetch the object to correctly modify
+            # permissions otherwise the ORM gets confused
+            new_obj = (
+                self.all()
+                .only()
+                .select_related('edit_permission')
+                .get(id=obj.id)
+            )
+            new_obj.edit_permission.crsids.append(user.username)
+            new_obj.edit_permission.save()
+
+        return obj
 
 
 class Channel(models.Model):
