@@ -344,6 +344,8 @@ def update_related_models_from_cache(update_all_videos=False, update_all_channel
 
         channel.title = _default_if_none(channel_data.get('title'), '')
         channel.description = _default_if_none(channel_data.get('description'), '')
+        channel.owning_lookup_inst = jwp.parse_custom_field(
+            'instid', custom.get('sms_instid', 'instid::'))
 
         # TODO: We should use the ACL here on the *playlist* which gets created with the channel as
         # a view ACL. We do not have playlists yet, so do nothing.

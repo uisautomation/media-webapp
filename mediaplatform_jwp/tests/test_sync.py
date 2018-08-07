@@ -257,13 +257,17 @@ class SyncTestCase(TestCase):
         self.assertEqual(mpmodels.MediaItem.objects.count(), 0)
         set_resources_and_sync(
             [make_video(title='test title', media_id='1')],
-            [make_channel(title='test channel', media_ids=['1'], collection_id='2')],
+            [make_channel(
+                title='test channel', media_ids=['1'], collection_id='2',
+                instid='UIS',
+            )],
         )
         self.assertEqual(mpmodels.MediaItem.objects.count(), 1)
         c = mpmodels.Channel.objects.filter(sms__id='2').first()
         self.assertIsNotNone(c)
         self.assertEqual(len(c.items.all()), 1)
         self.assertEqual(c.items.all()[0].title, 'test title')
+        self.assertEqual(c.owning_lookup_inst, 'UIS')
 
     def test_adding_media_to_channel(self):
         """If a new video and channel appears on JWP, objects are created."""
