@@ -13,7 +13,7 @@ from .. import models
 User = get_user_model()
 
 
-class MediaItemTest(TestCase):
+class ModelTestCase(TestCase):
     fixtures = ['mediaplatform/tests/fixtures/test_data.yaml']
 
     def setUp(self):
@@ -25,6 +25,68 @@ class MediaItemTest(TestCase):
             self.lookup_groupids_and_instids_for_user_patcher.start())
         self.lookup_groupids_and_instids_for_user.return_value = ([], [])
         self.addCleanup(self.lookup_groupids_and_instids_for_user_patcher.stop)
+
+    def assert_user_cannot_view(self, user, item_or_id):
+        if isinstance(item_or_id, str):
+            item_or_id = self.model.objects_including_deleted.get(id=item_or_id)
+        self.assertFalse(
+            self.model.objects_including_deleted.all()
+            .filter(id=item_or_id.id)
+            .viewable_by_user(user)
+            .exists()
+        )
+        self.assertFalse(
+            self.model.objects_including_deleted.all()
+            .annotate_viewable(user, name='TEST_viewable')
+            .get(id=item_or_id.id)
+            .TEST_viewable
+        )
+
+    def assert_user_can_view(self, user, item_or_id):
+        if isinstance(item_or_id, str):
+            item_or_id = self.model.objects_including_deleted.get(id=item_or_id)
+        self.assertTrue(
+            self.model.objects.all().viewable_by_user(user).filter(id=item_or_id.id).exists()
+        )
+        self.assertTrue(
+            self.model.objects_including_deleted.all()
+            .annotate_viewable(user, name='TEST_viewable')
+            .get(id=item_or_id.id)
+            .TEST_viewable
+        )
+
+    def assert_user_cannot_edit(self, user, item_or_id):
+        if isinstance(item_or_id, str):
+            item_or_id = self.model.objects_including_deleted.get(id=item_or_id)
+        self.assertFalse(
+            self.model.objects_including_deleted.all()
+            .filter(id=item_or_id.id)
+            .editable_by_user(user)
+            .exists()
+        )
+        self.assertFalse(
+            self.model.objects_including_deleted.all()
+            .annotate_editable(user, name='TEST_editable')
+            .get(id=item_or_id.id)
+            .TEST_editable
+        )
+
+    def assert_user_can_edit(self, user, item_or_id):
+        if isinstance(item_or_id, str):
+            item_or_id = self.model.objects_including_deleted.get(id=item_or_id)
+        self.assertTrue(
+            self.model.objects.all().editable_by_user(user).filter(id=item_or_id.id).exists()
+        )
+        self.assertTrue(
+            self.model.objects_including_deleted.all()
+            .annotate_editable(user, name='TEST_editable')
+            .get(id=item_or_id.id)
+            .TEST_editable
+        )
+
+class MediaItemTest(ModelTestCase):
+
+    model = models.MediaItem
 
     def test_creation(self):
         """A MediaItem object should be creatable with no field values."""
@@ -188,64 +250,6 @@ class MediaItemTest(TestCase):
         permission_id_2 = models.MediaItem.objects.get(id=item.id).edit_permission.id
         self.assertEquals(permission_id_1, permission_id_2)
 
-    def assert_user_cannot_view(self, user, item_or_id):
-        if isinstance(item_or_id, str):
-            item_or_id = models.MediaItem.objects_including_deleted.get(id=item_or_id)
-        self.assertFalse(
-            models.MediaItem.objects_including_deleted.all()
-            .filter(id=item_or_id.id)
-            .viewable_by_user(user)
-            .exists()
-        )
-        self.assertFalse(
-            models.MediaItem.objects_including_deleted.all()
-            .annotate_viewable(user, name='TEST_viewable')
-            .get(id=item_or_id.id)
-            .TEST_viewable
-        )
-
-    def assert_user_can_view(self, user, item_or_id):
-        if isinstance(item_or_id, str):
-            item_or_id = models.MediaItem.objects_including_deleted.get(id=item_or_id)
-        self.assertTrue(
-            models.MediaItem.objects.all().viewable_by_user(user).filter(id=item_or_id.id).exists()
-        )
-        self.assertTrue(
-            models.MediaItem.objects_including_deleted.all()
-            .annotate_viewable(user, name='TEST_viewable')
-            .get(id=item_or_id.id)
-            .TEST_viewable
-        )
-
-    def assert_user_cannot_edit(self, user, item_or_id):
-        if isinstance(item_or_id, str):
-            item_or_id = models.MediaItem.objects_including_deleted.get(id=item_or_id)
-        self.assertFalse(
-            models.MediaItem.objects_including_deleted.all()
-            .filter(id=item_or_id.id)
-            .editable_by_user(user)
-            .exists()
-        )
-        self.assertFalse(
-            models.MediaItem.objects_including_deleted.all()
-            .annotate_editable(user, name='TEST_editable')
-            .get(id=item_or_id.id)
-            .TEST_editable
-        )
-
-    def assert_user_can_edit(self, user, item_or_id):
-        if isinstance(item_or_id, str):
-            item_or_id = models.MediaItem.objects_including_deleted.get(id=item_or_id)
-        self.assertTrue(
-            models.MediaItem.objects.all().editable_by_user(user).filter(id=item_or_id.id).exists()
-        )
-        self.assertTrue(
-            models.MediaItem.objects_including_deleted.all()
-            .annotate_editable(user, name='TEST_editable')
-            .get(id=item_or_id.id)
-            .TEST_editable
-        )
-
 
 class CollectionTest(TestCase):
     def test_creation(self):
@@ -335,19 +339,13 @@ class LookupTest(TestCase):
             fetch=['all_groups', 'all_insts'])
 
 
-class ChannelTest(TestCase):
-    fixtures = ['mediaplatform/tests/fixtures/test_data.yaml']
+class ChannelTest(ModelTestCase):
+
+    model = models.Channel
 
     def setUp(self):
-        self.user = User.objects.get(username='testuser')
+        super().setUp()
         self.c1 = models.Channel.objects.get(id='channel1')
-
-        self.lookup_groupids_and_instids_for_user_patcher = mock.patch(
-                'mediaplatform.models._lookup_groupids_and_instids_for_user')
-        self.lookup_groupids_and_instids_for_user = (
-            self.lookup_groupids_and_instids_for_user_patcher.start())
-        self.lookup_groupids_and_instids_for_user.return_value = ([], [])
-        self.addCleanup(self.lookup_groupids_and_instids_for_user_patcher.stop)
 
     def test_creation_no_fields(self):
         """A Channel object should *not* be creatable with no field values."""
@@ -439,50 +437,14 @@ class ChannelTest(TestCase):
         permission_id_2 = models.Channel.objects.get(id=channel.id).edit_permission.id
         self.assertEquals(permission_id_1, permission_id_2)
 
-    def assert_user_cannot_edit(self, user, channel_or_id):
-        if isinstance(channel_or_id, str):
-            channel_or_id = models.Channel.objects_including_deleted.get(id=channel_or_id)
-        self.assertFalse(
-            models.Channel.objects_including_deleted.all()
-            .filter(id=channel_or_id.id)
-            .editable_by_user(user)
-            .exists()
-        )
-        self.assertFalse(
-            models.Channel.objects_including_deleted.all()
-            .annotate_editable(user, name='TEST_editable')
-            .get(id=channel_or_id.id)
-            .TEST_editable
-        )
 
-    def assert_user_can_edit(self, user, channel_or_id):
-        if isinstance(channel_or_id, str):
-            channel_or_id = models.Channel.objects_including_deleted.get(id=channel_or_id)
-        self.assertTrue(
-            models.Channel.objects.all().editable_by_user(user)
-            .filter(id=channel_or_id.id).exists()
-        )
-        self.assertTrue(
-            models.Channel.objects_including_deleted.all()
-            .annotate_editable(user, name='TEST_editable')
-            .get(id=channel_or_id.id)
-            .TEST_editable
-        )
+class PlaylistTest(ModelTestCase):
 
-
-class PlaylistTest(TestCase):
-    fixtures = ['mediaplatform/tests/fixtures/test_data.yaml']
+    model = models.Playlist
 
     def setUp(self):
-        self.user = User.objects.get(username='testuser')
+        super().setUp()
         self.channel1 = models.Channel.objects.get(id='channel1')
-
-        self.lookup_groupids_and_instids_for_user_patcher = mock.patch(
-                'mediaplatform.models._lookup_groupids_and_instids_for_user')
-        self.lookup_groupids_and_instids_for_user = (
-            self.lookup_groupids_and_instids_for_user_patcher.start())
-        self.lookup_groupids_and_instids_for_user.return_value = ([], [])
-        self.addCleanup(self.lookup_groupids_and_instids_for_user_patcher.stop)
 
     def test_creation_no_fields(self):
         """A Playlist object should *not* be creatable with no field values."""
@@ -570,32 +532,3 @@ class PlaylistTest(TestCase):
         self.assertEqual(media_items.count(), 1)
         # only 'public' can be viewed
         self.assertEqual(media_items.first().id, 'public')
-
-    def assert_user_cannot_view(self, user, id):
-        if isinstance(id, str):
-            playlist = models.Playlist.objects_including_deleted.get(id=id)
-        self.assertFalse(
-            models.Playlist.objects_including_deleted.all()
-            .filter(id=playlist.id)
-            .viewable_by_user(user)
-            .exists()
-        )
-        self.assertFalse(
-            models.Playlist.objects_including_deleted.all()
-            .annotate_viewable(user, name='TEST_viewable')
-            .get(id=playlist.id)
-            .TEST_viewable
-        )
-
-    def assert_user_can_view(self, user, id):
-        if isinstance(id, str):
-            playlist = models.Playlist.objects_including_deleted.get(id=id)
-        self.assertTrue(
-            models.Playlist.objects.all().viewable_by_user(user).filter(id=playlist.id).exists()
-        )
-        self.assertTrue(
-            models.Playlist.objects_including_deleted.all()
-            .annotate_viewable(user, name='TEST_viewable')
-            .get(id=playlist.id)
-            .TEST_viewable
-        )
