@@ -178,12 +178,6 @@ class MediaItemAdmin(admin.ModelAdmin):
         )
 
 
-@admin.register(models.Collection)
-class CollectionAdmin(admin.ModelAdmin):
-    list_display = ('title', 'created_at', 'updated_at', 'deleted_at')
-    search_fields = ('id', 'title', 'description')
-
-
 class ChannelAdminForm(forms.ModelForm):
     """
     A custom form for rendering a Channel in the admin which uses a single-line input widget for

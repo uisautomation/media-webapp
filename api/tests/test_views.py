@@ -68,50 +68,6 @@ class ProfileViewTestCase(ViewTestCase):
         self.assertIn('login', response.data['urls'])
 
 
-class CollectionListViewTestCase(ViewTestCase):
-    def setUp(self):
-        super().setUp()
-        self.view = views.CollectionListView().as_view()
-        self.jwp_client.channels.list.return_value = {
-            'status': 'ok',
-            'channels': CHANNELS_FIXTURE,
-            'limit': 10,
-            'offset': 0,
-            'total': 30,
-        }
-
-    def test_basic_list(self):
-        """An user should get all SMS channels back."""
-        response_data = self.view(self.get_request).data
-        self.assertIn('results', response_data)
-
-        # We have some results
-        self.assertNotEqual(len(response_data['results']), 0)
-
-        # How many results do we expect
-        visible_channels = [
-            c for c in CHANNELS_FIXTURE
-            if c.get('custom', {}).get('sms_collection_id') is not None
-        ]
-
-        # How many do we get
-        self.assertEqual(len(response_data['results']), len(visible_channels))
-
-    def test_jwplatform_error(self):
-        """A JWPlatform error should be reported as a bad gateway error."""
-        self.jwp_client.channels.list.return_value = {'status': 'error'}
-        response = self.view(self.get_request)
-        self.assertEqual(response.status_code, 502)
-
-    def test_search(self):
-        """A search options should be passed through to the API call."""
-        self.view(self.factory.get('/?search=foo'))
-        call_args = self.jwp_client.channels.list.call_args
-        self.assertIsNotNone(call_args)
-        self.assertIn('search', call_args[1])
-        self.assertEqual(call_args[1]['search'], 'foo')
-
-
 class MediaItemListViewTestCase(ViewTestCase):
     def setUp(self):
         super().setUp()
