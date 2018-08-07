@@ -84,6 +84,7 @@ class ModelTestCase(TestCase):
             .TEST_editable
         )
 
+
 class MediaItemTest(ModelTestCase):
 
     model = models.MediaItem
