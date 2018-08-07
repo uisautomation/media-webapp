@@ -212,7 +212,10 @@ class ChannelAdminForm(forms.ModelForm):
 
 @admin.register(models.Channel)
 class ChannelAdmin(admin.ModelAdmin):
-    fields = ('title', 'description', 'item_count', 'created_at', 'updated_at', 'deleted_at')
+    fields = (
+        'title', 'description', 'item_count', 'owning_lookup_inst', 'created_at', 'updated_at',
+        'deleted_at'
+    )
     search_fields = ('id', 'title', 'description')
     list_display = ('title', 'deleted')
     ordering = ('title', 'id')

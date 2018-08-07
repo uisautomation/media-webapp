@@ -473,6 +473,12 @@ class Channel(models.Model):
     #: Channel description
     description = models.TextField(help_text='Description of media item', blank=True, default='')
 
+    #: "Owning" lookup institution id. We default to the blank string but, aside from "special"
+    #: internal channels, there should always be a lookup institution.
+    owning_lookup_inst = models.CharField(
+        max_length=255, blank=False, default='',
+        help_text='Lookup instid for institution which "owns" this channel')
+
     #: Creation time
     created_at = models.DateTimeField(auto_now_add=True)
 
