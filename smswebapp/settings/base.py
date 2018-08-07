@@ -30,6 +30,8 @@ INSTALLED_APPS = [
     'automationlookup',
     'automationoauth',
     'corsheaders',
+    'crispy_forms',
+    'django_filters',
     'drf_yasg',
     'rest_framework',
     'ucamwebauth',

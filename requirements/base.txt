@@ -13,6 +13,8 @@ django-cors-headers
 drf-yasg
 iso-639
 python-dateutil
+django-crispy-forms
+django-filter
 
 # PRE-RELEASE WHITENOISE VERSION
 # We need at least version 4 of whitenoise to make use of the index_file
