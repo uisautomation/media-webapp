@@ -564,6 +564,12 @@ class Playlist(models.Model):
     #: Playlist description
     description = models.TextField(help_text='Description of the playlist', blank=True, default='')
 
+    #: :py:class:`~.MediaItem` objects which make up this playlist.
+    media_items = pgfields.ArrayField(
+        models.CharField(max_length=_TOKEN_LENGTH), default=_blank_array,
+        help_text='Primary keys of media items in this playlist'
+    )
+
     #: Creation time
     created_at = models.DateTimeField(auto_now_add=True)
 

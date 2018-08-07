@@ -559,6 +559,18 @@ class PlaylistTest(TestCase):
         playlist = models.Playlist.objects.create(channel=self.channel1)
         self.assertIsNotNone(models.Playlist.objects.get(id=playlist.id).view_permission)
 
+    def test_has_media_items(self):
+        """A Playlist has media items."""
+        playlist = models.Playlist.objects.get(id='public')
+        media_items = models.MediaItem.objects.filter(
+            id__in=playlist.media_items
+        ).viewable_by_user(AnonymousUser())
+        # 'signin' cannot be viewed by 'anon', 'deleted' is flagged deleted,
+        # and 'notfound' doesn't exist
+        self.assertEqual(media_items.count(), 1)
+        # only 'public' can be viewed
+        self.assertEqual(media_items.first().id, 'public')
+
     def assert_user_cannot_view(self, user, id):
         if isinstance(id, str):
             playlist = models.Playlist.objects_including_deleted.get(id=id)
