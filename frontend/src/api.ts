@@ -266,6 +266,15 @@ export const profileGet = (): Promise<IProfileResponse | IError> => {
   return apiFetch(API_ENDPOINTS.profile);
 }
 
+/** List channel resources. */
+export const channelList = (
+  { search, ordering }: IMediaQuery = {},
+  { endpoint }: IAPIOptions = {}
+): Promise<IMediaListResponse | IError> => {
+  return apiFetch(
+    appendQuery(endpoint || API_ENDPOINTS.channelList, { search, ordering }));
+};
+
 /** Retrieve a channel resource. */
 export const channelGet = (id: string) : Promise<IChannelResource | IError> => {
   const resource = resourceFromPageById(id);
