@@ -62,6 +62,8 @@ services:
         target: /usr/src/app
         read_only: true
       - "frontend_build:/tmp/frontend_build"
+    stdin_open: true
+    tty: true
     environment:
       DJANGO_FRONTEND_APP_BUILD_DIR: "/tmp/frontend_build"
     env_file:

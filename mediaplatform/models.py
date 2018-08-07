@@ -566,7 +566,7 @@ class Playlist(models.Model):
 
     #: :py:class:`~.MediaItem` objects which make up this playlist.
     media_items = pgfields.ArrayField(
-        models.CharField(max_length=_TOKEN_LENGTH), default=_blank_array,
+        models.CharField(max_length=_TOKEN_LENGTH), blank=True, default=_blank_array,
         help_text='Primary keys of media items in this playlist'
     )
 
@@ -648,8 +648,7 @@ def _playlist_post_save_handler(*args, sender, instance, created, raw, **kwargs)
     if raw or not created:
         return
 
-    if not hasattr(instance, 'view_permission'):
-        Permission.objects.create(allows_view_playlist=instance)
+    Permission.objects.get_or_create(allows_view_playlist=instance)
 
 
 def _lookup_groupids_and_instids_for_user(user):

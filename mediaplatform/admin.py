@@ -29,11 +29,6 @@ class MediaItemEditPermissionInline(PermissionInline):
     verbose_name_plural = 'Edit Permissions'
 
 
-class ChannelEditPermissionInline(PermissionInline):
-    fk_name = 'allows_edit_channel'
-    verbose_name_plural = 'Edit Permissions'
-
-
 # TODO: it would be nice to refactor the mediaplatform admin to be unaware of the JWP/SMS models
 # and use something like https://github.com/kux/django-admin-extend in the
 # mediaplatform_jwp/legacysms applications instead.
@@ -107,7 +102,7 @@ class MediaItemAdminForm(forms.ModelForm):
 @admin.register(models.MediaItem)
 class MediaItemAdmin(admin.ModelAdmin):
     fields = (
-        'preview', 'channel_link', 'type', 'title', 'description', 'formatted_duration',
+        'preview', 'channel', 'type', 'title', 'description', 'formatted_duration',
         'published_at', 'downloadable', 'tags', 'language', 'copyright', 'created_at',
         'updated_at', 'deleted_at',
     )
@@ -124,7 +119,7 @@ class MediaItemAdmin(admin.ModelAdmin):
         MediaItemEditPermissionInline,
     ]
     readonly_fields = (
-        'channel_link', 'created_at', 'deleted', 'formatted_duration', 'preview', 'type',
+        'created_at', 'deleted', 'formatted_duration', 'preview', 'type',
         'updated_at'
     )
     form = MediaItemAdminForm
@@ -135,14 +130,7 @@ class MediaItemAdmin(admin.ModelAdmin):
 
     deleted.boolean = True
 
-    def channel_link(self, obj):
-        return format_html(
-            '<a href="{}">{}</a>',
-            reverse('admin:mediaplatform_channel_change', args=(obj.channel.id,)),
-            obj.channel,
-        )
-
-    channel_link.short_description = 'Channel'
+    autocomplete_fields = ['channel']
 
     def formatted_duration(self, obj):
         """The duration of the video nicely formatted."""
@@ -210,13 +198,17 @@ class ChannelAdminForm(forms.ModelForm):
         }
 
 
+class ChannelEditPermissionInline(PermissionInline):
+    fk_name = 'allows_edit_channel'
+    verbose_name_plural = 'Edit Permissions'
+
+
 @admin.register(models.Channel)
 class ChannelAdmin(admin.ModelAdmin):
     fields = ('title', 'description', 'item_count', 'created_at', 'updated_at', 'deleted_at')
     search_fields = ('id', 'title', 'description')
     list_display = ('title', 'deleted')
     ordering = ('title', 'id')
-    search_fields = ('id', 'title', 'description')
     inlines = [
         ChannelEditPermissionInline,
     ]
@@ -233,3 +225,64 @@ class ChannelAdmin(admin.ModelAdmin):
 
     def item_count(self, obj):
         return obj.items.count()
+
+
+class PlaylistAdminForm(forms.ModelForm):
+    """
+    A custom form for rendering a Playlist in the admin which uses a single-line input widget for
+    the title.
+
+    """
+    class Meta:
+        fields = '__all__'
+        model = models.Playlist
+        widgets = {
+            'title': admin.widgets.AdminTextInputWidget,
+        }
+
+
+class PlaylistViewPermissionInline(PermissionInline):
+
+    class InlineFormset(forms.models.BaseInlineFormSet):
+        """
+        Because the _playlist_post_save_handler creates a default Permission before this saves,
+        we need to change the save_new() into a save_existing() to avoid a duplication error.
+        TODO this doesn't seem to work because the default permission isn't overridden - however
+        at least we don't get the error now.
+        """
+        def save_new(self, form, commit=True):
+            playlist = form.cleaned_data['allows_view_playlist']
+            instance = models.Permission.objects.get(allows_view_playlist=playlist)
+            return self.save_existing(form, instance, commit=commit)
+
+    fk_name = 'allows_view_playlist'
+    verbose_name_plural = 'View Permissions'
+    formset = InlineFormset
+
+
+@admin.register(models.Playlist)
+class PlaylistAdmin(admin.ModelAdmin):
+    fields = (
+        'channel', 'title', 'description', 'media_items', 'created_at', 'updated_at', 'deleted_at'
+    )
+    search_fields = ('id', 'title', 'description')
+    list_display = ('title', 'deleted')
+    ordering = ('title', 'id')
+    inlines = [
+        PlaylistViewPermissionInline,
+    ]
+    readonly_fields = (
+        'item_count', 'created_at', 'deleted', 'updated_at'
+    )
+    form = PlaylistAdminForm
+
+    autocomplete_fields = ['channel']
+
+    def deleted(self, obj):
+        """Whether the channel is marked as deleted."""
+        return obj.deleted_at is not None
+
+    deleted.boolean = True
+
+    def item_count(self, obj):
+        return len(obj.media_items)
