@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import {
-  mediaList, collectionList, mediaResourceToItem, collectionResourceToItem
+  mediaList, channelList, mediaResourceToItem, channelResourceToItem
 } from '../api';
 
 const { Provider, Consumer } = React.createContext();
@@ -60,11 +60,11 @@ class SearchResultsProvider extends Component {
     const queryPart = (urlParamsString !== '') ? ('?' + urlParamsString) : '';
 
     // Otherwise launch the query.
-    Promise.all([mediaList(query), collectionList(query)]).then(
-      ([mediaBody, collectionsBody]) => {
+    Promise.all([mediaList(query), channelList(query)]).then(
+      ([mediaBody, channelsBody]) => {
         // Ignore responses if they aren't in response to the most recent request.
         if(this.state.lastFetchIndex !== fetchIndex) { return; }
-        const resultItems = this.mergeResults(mediaBody, collectionsBody)
+        const resultItems = this.mergeResults(mediaBody, channelsBody)
         this.setState({ resultItems, error: null, isLoading: false });
       },
       error => {
@@ -75,11 +75,10 @@ class SearchResultsProvider extends Component {
     );
   }
 
-  mergeResults(mediaResults, collectionResults) {
-    // tslint:disable-next-line:no-console
+  mergeResults(mediaResults, channelResults) {
     const { maxCollectionResults } = this.props;
     return [
-      ...collectionResults.results.slice(0, maxCollectionResults).map(collectionResourceToItem),
+      ...channelResults.results.slice(0, maxCollectionResults).map(channelResourceToItem),
       ...mediaResults.results.map(mediaResourceToItem),
     ];
   }

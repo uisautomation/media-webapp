@@ -294,17 +294,17 @@ const appendQuery = (endpoint: string, o: object = {}): string => {
 }
 
 /**
- * A function which maps an API collection resource to a media item for use by, e.g.,
- * MediaItemCard. If the collection has no associated image, a default one is substituted.
+ * A function which maps an API channel resource to a media item for use by, e.g.,
+ * MediaItemCard. If the channel has no associated image, a default one is substituted.
  */
-export const collectionResourceToItem = (
-  { collection_id, title, description, poster_image_url }: ICollectionResource
+export const channelResourceToItem = (
+  { id, title, description }: IChannelResource
 ) => ({
   description,
-  imageUrl: poster_image_url || CollectionDefaultImage,
-  label: 'Collection',
+  imageUrl: CollectionDefaultImage,
+  label: 'Channel',
   title,
-  url: BASE_SMS_URL + '/collection/' + collection_id,
+  url: '/channels/' + id,
 });
 
 /**
