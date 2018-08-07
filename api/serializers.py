@@ -2,6 +2,8 @@ import logging
 from urllib import parse as urlparse
 
 from django.conf import settings
+from django.urls import reverse
+from django.utils.http import urlencode
 from rest_framework import serializers
 
 from smsjwplatform import jwplatform
@@ -211,3 +213,68 @@ class MediaAnalyticsListSerializer(serializers.Serializer):
 
     """
     results = MediaAnalyticsItemSerializer(many=True, source='*')
+
+
+class ChannelSerializer(serializers.HyperlinkedModelSerializer):
+    """
+    An individual channel.
+
+    """
+    class Meta:
+        model = mpmodels.MediaItem
+        fields = (
+            'url', 'id', 'title', 'description', 'createdAt', 'updatedAt',
+        )
+
+        read_only_fields = (
+            'url', 'id', 'createdAt', 'updatedAt',
+        )
+        extra_kwargs = {
+            'createdAt': {'source': 'created_at'},
+            'updatedAt': {'source': 'updated_at'},
+            'url': {'view_name': 'api:channel'},
+            'title': {'allow_blank': False},
+        }
+
+    def create(self, validated_data):
+        """
+        Override behaviour when creating a new object using this serializer. If the current request
+        is being passed in the context, give the request user edit and view permissions on the
+        item.
+
+        """
+        request = None
+        if self.context is not None and 'request' in self.context:
+            request = self.context['request']
+
+        if request is not None and not request.user.is_anonymous:
+            obj = mpmodels.Channel.objects.create_for_user(request.user, **validated_data)
+        else:
+            obj = mpmodels.Channel.objects.create(**validated_data)
+
+        return obj
+
+
+class ChannelDetailSerializer(ChannelSerializer):
+    """
+    An individual channel including any information which should only appear in the detail view.
+
+    """
+    class Meta(ChannelSerializer.Meta):
+        fields = ChannelSerializer.Meta.fields + ('mediaUrl',)
+
+    mediaUrl = serializers.SerializerMethodField(
+        help_text='URL pointing to list of media items for this channel'
+    )
+
+    def get_mediaUrl(self, obj):
+        # Get location of media list endpoint
+        location = reverse('api:media_list')
+
+        # Add query parameter
+        location += '?' + urlencode({'channel': obj.id})
+
+        if self.context is None or 'request' not in self.context:
+            return location
+
+        return self.context['request'].build_absolute_uri(location)
