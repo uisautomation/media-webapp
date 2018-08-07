@@ -48,7 +48,7 @@ class MediaItemSerializer(serializers.HyperlinkedModelSerializer):
         )
 
         read_only_fields = (
-            'url', 'id', 'duration', 'type', 'created_at', 'updated_at', 'posterImageUrl'
+            'url', 'id', 'duration', 'type', 'createdAt', 'updatedAt', 'posterImageUrl'
         )
         extra_kwargs = {
             'createdAt': {'source': 'created_at'},

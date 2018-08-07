@@ -207,6 +207,84 @@ class MediaItemViewTestCase(ViewTestCase):
             response = self.view(self.get_request, pk=obj.id)
             self.assertEqual(response.status_code, 200)
 
+    def test_id_immutable(self):
+        self.assert_field_immutable('id')
+
+    def test_title_mutable(self):
+        self.assert_field_mutable('title')
+
+    def test_downloadable_mutable(self):
+        self.assert_field_mutable('downloadable', True)
+        self.assert_field_mutable('downloadable', False)
+
+    def test_language_mutable(self):
+        self.assert_field_mutable('language', 'elx')
+
+    def test_copyright_mutable(self):
+        self.assert_field_mutable('copyright')
+
+    def test_tags_mutable(self):
+        self.assert_field_mutable('tags', ['a', 'b', 'c'])
+
+    def test_published_at_mutable(self):
+        item = self.non_deleted_media.get(id='populated')
+        new_date = item.published_at + datetime.timedelta(seconds=123456789)
+        self.assert_field_mutable('publishedAt', new_date.isoformat(), 'published_at', new_date)
+
+    def test_description_mutable(self):
+        self.assert_field_mutable('description')
+
+    def test_duration_immutable(self):
+        self.assert_field_immutable('duration', 9876)
+
+    def test_type_immutable(self):
+        self.assert_field_immutable('type')
+
+    def test_created_at_immutable(self):
+        self.assert_field_immutable('createdAt', '2018-08-06T15:29:45.003231Z', 'created_at')
+
+    def assert_field_mutable(
+            self, field_name, new_value='testvalue', model_field_name=None, expected_value=None):
+        expected_value = expected_value or new_value
+        model_field_name = model_field_name or field_name
+        request = self.factory.patch('/', {field_name: new_value}, format='json')
+
+        item = self.non_deleted_media.get(id='populated')
+        item.edit_permission.crsids.append(self.user.username)
+        item.edit_permission.save()
+
+        # Unauthorised request should fail
+        response = self.view(request, pk=item.id)
+        self.assertEqual(response.status_code, 403)
+
+        force_authenticate(request, user=self.user)
+        response = self.view(request, pk=item.id)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(
+            getattr(self.non_deleted_media.get(id='populated'), model_field_name), expected_value)
+
+    def assert_field_immutable(self, field_name, new_value='test value', model_field_name=None):
+        model_field_name = model_field_name or field_name
+        request = self.factory.patch('/', {field_name: new_value}, format='json')
+
+        item = self.non_deleted_media.get(id='populated')
+        item.edit_permission.crsids.append(self.user.username)
+        item.edit_permission.save()
+
+        # Unauthorised request should fail
+        response = self.view(request, pk=item.id)
+        self.assertEqual(response.status_code, 403)
+
+        # Authorised request should have no effect
+        original_value = getattr(item, model_field_name)
+        self.assertNotEqual(original_value, new_value)
+        force_authenticate(request, user=self.user)
+        response = self.view(request, pk=item.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            getattr(self.non_deleted_media.get(id='populated'), model_field_name), original_value)
+
 
 class UploadEndpointTestCase(ViewTestCase):
     fixtures = ['api/tests/fixtures/mediaitems.yaml']
