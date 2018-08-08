@@ -7,7 +7,7 @@
  * useful to document the various types which these functions can return. It also provides a
  * "safe-space" to experiment with TypeScript :).
  */
-import CollectionDefaultImage from './img/collection-default-image.jpg';
+import ChannelDefaultImage from './img/channel-default-image.jpg';
 
 // The base URL for the SMS application - used to create legacy URLs.
 export const BASE_SMS_URL = 'https://sms.cam.ac.uk';
@@ -102,26 +102,9 @@ export interface IMediaUploadResource {
   expires_at: string;
 };
 
-/** A collection resource. */
-export interface ICollectionResource {
-  id: string;
-  title: string;
-  description: string;
-  poster_image_url?: string;
-  collection_id: number;
-};
-
 /** A media list response. */
 export interface IMediaListResponse {
   results: IMediaResource[];
-  limit: number;
-  offset: number;
-  total: number;
-};
-
-/** A collection list response. */
-export interface ICollectionListResponse {
-  results: ICollectionResource[];
   limit: number;
   offset: number;
   total: number;
@@ -254,13 +237,6 @@ export const mediaUploadGet = (item: IMediaResource) : Promise<IMediaUploadResou
   return apiFetch(API_ENDPOINTS.mediaList + item.id + '/upload');
 };
 
-/** List collection resources. */
-export const collectionList = (
-  { search, ordering }: IMediaQuery = {}
-): Promise<ICollectionListResponse | IError> => {
-  return apiFetch(appendQuery(API_ENDPOINTS.collectionList, { search, ordering }));
-};
-
 /** Fetch the user's profile. */
 export const profileGet = (): Promise<IProfileResponse | IError> => {
   return apiFetch(API_ENDPOINTS.profile);
@@ -301,7 +277,7 @@ export const channelResourceToItem = (
   { id, title, description }: IChannelResource
 ) => ({
   description,
-  imageUrl: CollectionDefaultImage,
+  imageUrl: ChannelDefaultImage,
   label: 'Channel',
   title,
   url: '/channels/' + id,

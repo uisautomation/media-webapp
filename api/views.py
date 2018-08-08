@@ -2,7 +2,6 @@
 Views implementing the API endpoints.
 
 """
-import copy
 import logging
 
 from django.conf import settings
@@ -15,7 +14,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics, pagination, filters
 
-from smsjwplatform import jwplatform
 import mediaplatform.models as mpmodels
 
 from . import permissions
@@ -63,54 +61,6 @@ class ProfileView(APIView):
         return Response(serializers.ProfileSerializer({
             'user': request.user, 'urls': urls,
         }).data)
-
-
-class CollectionListView(APIView):
-    """
-    Endpoint to retrieve a list of collections.
-
-    """
-    @swagger_auto_schema(
-        query_serializer=serializers.CollectionListQuerySerializer(),
-        responses={200: serializers.CollectionListSerializer()}
-    )
-    def get(self, request):
-        """Handle GET request."""
-        client = jwplatform.get_jwplatform_client()
-
-        query_serializer = serializers.CollectionListQuerySerializer(data=request.query_params)
-        query_serializer.is_valid(raise_exception=True)
-
-        params = {}
-
-        # Add default parameters
-        params.update({
-            'result_limit': 100,
-        })
-
-        # Add parameters from query
-        for key in ['search']:
-            if query_serializer.data.get(key) is not None:
-                params[key] = query_serializer.data[key]
-
-        # Add parameters which cannot be overridden
-        params.update({
-            'http_method': 'POST',
-        })
-
-        # Create a shallow copy of the response because we modify it below
-        channel_list = copy.copy(check_api_call(jwplatform.Channel.list(params, client=client)))
-
-        # Filter channels. They must have an SMS collection id (so have originated on the SMS).
-        channel_list['channels'] = [
-            channel for channel in channel_list['channels']
-            if channel.collection_id is not None
-        ]
-
-        # TODO: filter channels by ACL - there is currently no processing of channel ACLs by the
-        # sms2jwplayer scripts.
-
-        return Response(serializers.CollectionListSerializer(channel_list).data)
 
 
 class ListPagination(pagination.CursorPagination):

@@ -126,47 +126,6 @@ class MediaItemDetailSerializer(MediaItemSerializer):
     links = MediaItemLinksSerializer(source='*', read_only=True)
 
 
-class CollectionSerializer(serializers.Serializer):
-    """
-    An individual collection.
-
-    """
-    id = serializers.CharField(source='key', help_text='Unique id for the collection')
-    title = serializers.CharField(help_text='Title of collection')
-    description = serializers.CharField(help_text='Description of collection')
-    poster_image_url = serializers.SerializerMethodField(
-        help_text='A URL of a thumbnail/poster image for the collection')
-    collection_id = serializers.SerializerMethodField(help_text='Unique id for an SMS collection')
-
-    def get_collection_id(self, obj):
-        return obj.collection_id
-
-    def get_poster_image_url(self, obj):
-        return obj.get_poster_url()
-
-
-class CollectionListSerializer(serializers.Serializer):
-    """
-    A collection list response.
-
-    """
-    results = CollectionSerializer(many=True, source='channels')
-    limit = serializers.IntegerField()
-    offset = serializers.IntegerField()
-    total = serializers.IntegerField()
-
-
-class CollectionListQuerySerializer(serializers.Serializer):
-    """
-    A collection list query.
-
-    """
-    search = serializers.CharField(
-        required=False,
-        help_text='Free text search for collection'
-    )
-
-
 class ProfileSerializer(serializers.Serializer):
     """
     The profile of the current user.
