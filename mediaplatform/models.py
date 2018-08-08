@@ -248,49 +248,6 @@ class MediaItem(models.Model):
         return '{} ("{}")'.format(self.id, self.title)
 
 
-class Collection(models.Model):
-    """
-    A collection of media items.
-
-    Most fields in this model can store blank values since they are synced from external providers
-    who may not have the degree of rigour we want. For the same reason, we have default values for
-    most fields.
-
-    """
-    #: Primary key
-    id = models.CharField(
-            max_length=_TOKEN_LENGTH, primary_key=True, default=_make_token, editable=False)
-
-    #: Collection title
-    title = models.TextField(help_text='Title of collection', blank=True, default='')
-
-    #: Collection description
-    description = models.TextField(help_text='Description for collection', blank=True, default='')
-
-    #: List of tags for collection
-    tags = pgfields.ArrayField(models.CharField(max_length=256), default=_blank_array,
-                               help_text='Tags/keywords for item')
-
-    #: :py:class:`~.MediaItem` objects which make up this collection. Postgres does not (currently)
-    #: allow array elements to have a foreign key constraint added to them so we need to represent
-    #: the links as bare UUIDs. The upshot of this is that code which uses this field needs to
-    #: handle the (rare) case that a UUID in the list does not correspond to a current video.
-    #: YouTube, as an example, has this problem as well since videos in playlists are sometimes
-    #: replaced by a "deleted video" placeholder.
-    media_items = pgfields.ArrayField(
-        models.UUIDField(), default=_blank_array,
-        help_text='Primary keys of media items in this collection')
-
-    #: Creation time
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    #: Last update time
-    updated_at = models.DateTimeField(auto_now=True)
-
-    #: Deletion time. If non-NULL, the item has been "deleted" and should not usually be visible.
-    deleted_at = models.DateTimeField(null=True, blank=True)
-
-
 class Permission(models.Model):
     """
     Specify whether a user has permission to perform some action.
@@ -313,18 +270,6 @@ class Permission(models.Model):
     #: MediaItem whose view permission is this object
     allows_view_item = models.OneToOneField(
         MediaItem, on_delete=models.CASCADE, related_name='view_permission', editable=False,
-        null=True
-    )
-
-    #: Collection whose view permission is this object
-    allows_view_collection = models.OneToOneField(
-        Collection, on_delete=models.CASCADE, related_name='view_permission', editable=False,
-        null=True
-    )
-
-    #: Collection whose edit permission is this object
-    allows_edit_collection = models.OneToOneField(
-        Collection, on_delete=models.CASCADE, related_name='edit_permission', editable=False,
         null=True
     )
 
@@ -596,24 +541,6 @@ def _media_item_post_save_handler(*args, sender, instance, created, raw, **kwarg
 
     if not hasattr(instance, 'view_permission'):
         Permission.objects.create(allows_view_item=instance)
-
-
-@receiver(post_save, sender=Collection)
-def _collection_post_save_handler(*args, sender, instance, created, raw, **kwargs):
-    """
-    A post_save handler for :py:class:`~.Collection` which creates blank view and edit permissions
-    if they don't exist.
-
-    """
-    # If this is a "raw" update (e.g. from a test fixture) or was not the creation of the item,
-    # don't try to create objects.
-    if raw or not created:
-        return
-
-    if not hasattr(instance, 'view_permission'):
-        Permission.objects.create(allows_view_collection=instance)
-    if not hasattr(instance, 'edit_permission'):
-        Permission.objects.create(allows_edit_collection=instance)
 
 
 @receiver(post_save, sender=Channel)

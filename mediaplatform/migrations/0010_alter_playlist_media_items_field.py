@@ -8,7 +8,7 @@ import mediaplatform.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mediaplatform', '0011_remove_media_item_edit_permission'),
+        ('mediaplatform', '0009_add_playlist_media_items_field'),
     ]
 
     operations = [
