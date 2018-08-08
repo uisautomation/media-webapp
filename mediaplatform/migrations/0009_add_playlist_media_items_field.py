@@ -8,7 +8,7 @@ import mediaplatform.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mediaplatform', '0008_auto_20180806_1436'),
+        ('mediaplatform', '0008_add_playlist_model'),
     ]
 
     operations = [
