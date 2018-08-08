@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mediaplatform', '0010_auto_20180807_0948'),
+        ('mediaplatform', '0010_alter_playlist_media_items_field'),
     ]
 
     operations = [
