@@ -45,11 +45,6 @@
     is_public: true
     allows_view_item: empty
 
-- model: mediaplatform.Permission
-  pk: pemptye
-  fields:
-    allows_edit_item: empty
-
 - model: mediaplatform.MediaItem
   pk: deleted
   fields:
@@ -63,11 +58,6 @@
   fields:
     is_public: true
     allows_view_item: deleted
-
-- model: mediaplatform.Permission
-  pk: pdeletede
-  fields:
-    allows_edit_item: deleted
 
 # A media item with no acl set at all
 - model: mediaplatform.MediaItem
@@ -92,11 +82,6 @@
     is_signed_in: true
     allows_view_item: signedin
 
-- model: mediaplatform.Permission
-  pk: psignedine
-  fields:
-    allows_edit_item: signedin
-
 # A media item with "is public" permission
 - model: mediaplatform.MediaItem
   pk: public
@@ -111,11 +96,6 @@
     is_public: true
     allows_view_item: public
 
-- model: mediaplatform.Permission
-  pk: ppublice
-  fields:
-    allows_edit_item: public
-
 # A media item with a default (allow none) permission
 - model: mediaplatform.MediaItem
   pk: emptyperm
@@ -128,8 +108,3 @@
   pk: pemptypermv
   fields:
     allows_view_item: emptyperm
-
-- model: mediaplatform.Permission
-  pk: pemptyperme
-  fields:
-    allows_edit_item: emptyperm

@@ -151,13 +151,11 @@ class MediaItemManager(models.Manager):
             new_obj = (
                 self.all()
                 .only()
-                .select_related('view_permission', 'edit_permission')
+                .select_related('view_permission')
                 .get(id=obj.id)
             )
             new_obj.view_permission.crsids.append(user.username)
             new_obj.view_permission.save()
-            new_obj.edit_permission.crsids.append(user.username)
-            new_obj.edit_permission.save()
 
         return obj
 
@@ -315,12 +313,6 @@ class Permission(models.Model):
     #: MediaItem whose view permission is this object
     allows_view_item = models.OneToOneField(
         MediaItem, on_delete=models.CASCADE, related_name='view_permission', editable=False,
-        null=True
-    )
-
-    #: MediaItem whose edit permission is this object
-    allows_edit_item = models.OneToOneField(
-        MediaItem, on_delete=models.CASCADE, related_name='edit_permission', editable=False,
         null=True
     )
 
@@ -507,8 +499,6 @@ def _media_item_post_save_handler(*args, sender, instance, created, raw, **kwarg
 
     if not hasattr(instance, 'view_permission'):
         Permission.objects.create(allows_view_item=instance)
-    if not hasattr(instance, 'edit_permission'):
-        Permission.objects.create(allows_edit_item=instance)
 
 
 @receiver(post_save, sender=Collection)

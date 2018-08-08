@@ -133,9 +133,6 @@ def update_related_models_from_cache(update_all_videos=False, update_all_channel
     mpmodels.Permission.objects.bulk_create([
         mpmodels.Permission(allows_view_item=item) for _, item in jwp_keys_and_items
     ])
-    mpmodels.Permission.objects.bulk_create([
-        mpmodels.Permission(allows_edit_item=item) for _, item in jwp_keys_and_items
-    ])  # TODO: remove once edit permissions are on channel
 
     # Add the corresponding media item link to the JWP videos.
     for key, item in jwp_keys_and_items:
@@ -267,10 +264,6 @@ def update_related_models_from_cache(update_all_videos=False, update_all_channel
             item.view_permission.reset()
             _set_permission_from_acl(item.view_permission, video.acl)
             item.view_permission.save()
-
-            # Reset edit permission (TODO: remove this when we move edit permissions to channel)
-            item.edit_permission.reset()
-            item.edit_permission.save()
 
             # Update associated SMS media item (if any)
             sms_media_id = video.media_id

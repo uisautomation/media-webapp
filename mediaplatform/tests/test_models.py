@@ -172,21 +172,6 @@ class MediaItemTest(TestCase):
         permission_id_2 = models.MediaItem.objects.get(id=item.id).view_permission.id
         self.assertEquals(permission_id_1, permission_id_2)
 
-    def test_edit_permission_created(self):
-        """A new MediaItem has a edit permission created on save()."""
-        item = models.MediaItem.objects.create()
-        self.assertIsNotNone(models.MediaItem.objects.get(id=item.id).edit_permission)
-
-    def test_edit_permission_not_re_created(self):
-        """The edit_permission is not changes if a MediaItem is updated."""
-        item = models.MediaItem.objects.create()
-        permission_id_1 = models.MediaItem.objects.get(id=item.id).edit_permission.id
-        item = models.MediaItem.objects.get(id=item.id)
-        item.title = 'changed'
-        item.save()
-        permission_id_2 = models.MediaItem.objects.get(id=item.id).edit_permission.id
-        self.assertEquals(permission_id_1, permission_id_2)
-
     def assert_user_cannot_view(self, user, item_or_id):
         if isinstance(item_or_id, str):
             item_or_id = models.MediaItem.objects_including_deleted.get(id=item_or_id)
@@ -272,13 +257,13 @@ class CollectionTest(TestCase):
         self.assertIsNotNone(models.Collection.objects.get(id=item.id).edit_permission)
 
     def test_edit_permission_not_re_created(self):
-        """The edit_permission is not changes if a MediaItem is updated."""
-        item = models.MediaItem.objects.create()
-        permission_id_1 = models.MediaItem.objects.get(id=item.id).edit_permission.id
-        item = models.MediaItem.objects.get(id=item.id)
+        """The edit_permission is not changes if a Collection is updated."""
+        item = models.Collection.objects.create()
+        permission_id_1 = models.Collection.objects.get(id=item.id).edit_permission.id
+        item = models.Collection.objects.get(id=item.id)
         item.title = 'changed'
         item.save()
-        permission_id_2 = models.MediaItem.objects.get(id=item.id).edit_permission.id
+        permission_id_2 = models.Collection.objects.get(id=item.id).edit_permission.id
         self.assertEquals(permission_id_1, permission_id_2)
 
 

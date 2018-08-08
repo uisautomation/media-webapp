@@ -165,12 +165,6 @@ class SyncTestCase(TestCase):
         self.assertFalse(i1.view_permission.is_public)
         self.assertFalse(i1.view_permission.is_signed_in)
 
-        self.assertEqual(i1.edit_permission.crsids, [])
-        self.assertEqual(i1.edit_permission.lookup_groups, [])
-        self.assertEqual(i1.edit_permission.lookup_insts, [])
-        self.assertFalse(i1.edit_permission.is_public)
-        self.assertFalse(i1.edit_permission.is_signed_in)
-
     def test_view_acls(self):
         """A video with ACLs maps to view permission."""
         v1, v2, v3 = set_resources_and_sync([
