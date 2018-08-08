@@ -86,7 +86,9 @@ const MediaListSection = withStyles(mediaListSectionStyles)((
     <Typography variant='display1' gutterBottom>
       { title }
     </Typography>
-    <Typography cariant='body'><RenderedMarkdown source={ description } /></Typography>
+    <Typography variant='body1' component='div'>
+      <RenderedMarkdown source={ description } />
+    </Typography>
     <Typography variant='headline' gutterBottom>
       Media items
     </Typography>
