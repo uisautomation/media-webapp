@@ -105,7 +105,7 @@ class MediaItemQuerySet(PermissionQuerySetMixin, models.QuerySet):
         return self.annotate(**{
             name: models.Case(
                 models.When(
-                    self._permission_condition('edit_permission', user),
+                    self._permission_condition('channel__edit_permission', user),
                     then=models.Value(True)
                 ),
                 default=models.Value(False),
@@ -118,7 +118,7 @@ class MediaItemQuerySet(PermissionQuerySetMixin, models.QuerySet):
         Filter the queryset to only those items which can be edited by the passed Django user.
 
         """
-        return self.filter(self._permission_condition('edit_permission', user))
+        return self.filter(self._permission_condition('channel__edit_permission', user))
 
 
 class MediaItemManager(models.Manager):
@@ -151,13 +151,11 @@ class MediaItemManager(models.Manager):
             new_obj = (
                 self.all()
                 .only()
-                .select_related('view_permission', 'edit_permission')
+                .select_related('view_permission')
                 .get(id=obj.id)
             )
             new_obj.view_permission.crsids.append(user.username)
             new_obj.view_permission.save()
-            new_obj.edit_permission.crsids.append(user.username)
-            new_obj.edit_permission.save()
 
         return obj
 
@@ -272,12 +270,6 @@ class Permission(models.Model):
     #: MediaItem whose view permission is this object
     allows_view_item = models.OneToOneField(
         MediaItem, on_delete=models.CASCADE, related_name='view_permission', editable=False,
-        null=True
-    )
-
-    #: MediaItem whose edit permission is this object
-    allows_edit_item = models.OneToOneField(
-        MediaItem, on_delete=models.CASCADE, related_name='edit_permission', editable=False,
         null=True
     )
 
@@ -466,6 +458,12 @@ class Channel(models.Model):
     #: Channel description
     description = models.TextField(help_text='Description of media item', blank=True, default='')
 
+    #: "Owning" lookup institution id. We default to the blank string but, aside from "special"
+    #: internal channels, there should always be a lookup institution.
+    owning_lookup_inst = models.CharField(
+        max_length=255, blank=False, default='',
+        help_text='Lookup instid for institution which "owns" this channel')
+
     #: Creation time
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -585,8 +583,6 @@ def _media_item_post_save_handler(*args, sender, instance, created, raw, **kwarg
 
     if not hasattr(instance, 'view_permission'):
         Permission.objects.create(allows_view_item=instance)
-    if not hasattr(instance, 'edit_permission'):
-        Permission.objects.create(allows_edit_item=instance)
 
 
 @receiver(post_save, sender=Channel)

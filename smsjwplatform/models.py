@@ -36,7 +36,7 @@ class CachedResource(models.Model):
 
     .. code::
 
-        set_videos((video['key'], video) for video in fetch_videos())
+        set_resources((video['key'], video) for video in fetch_videos())
 
     N.B. Since we use Postgres-specific field types (JSONB), this model requires that Postgres be
     the database.
@@ -45,8 +45,12 @@ class CachedResource(models.Model):
     #: video resource type
     VIDEO = 'video'
 
+    #: channel resource type
+    CHANNEL = 'channel'
+
     TYPE_CHOICES = (
         (VIDEO, 'Video'),
+        (CHANNEL, 'Channel'),
     )
 
     key = models.CharField(
@@ -79,11 +83,14 @@ class CachedResource(models.Model):
         help_text='The date and time at which this cached resource was deleted',
     )
 
+    #: Since we add an object manager, we need to explicitly add back the default one
+    objects = models.Manager()
+
     #: Convenience manager instance whose base queryset is all the non-deleted videos
     videos = CachedResourceTypeManager(VIDEO)
 
-    #: Since we add an object manager, we need to explicitly add back the default one
-    objects = models.Manager()
+    #: Convenience manager instance whose base queryset is all the non-deleted channels
+    channels = CachedResourceTypeManager(CHANNEL)
 
     class Meta:
         indexes = [
@@ -98,13 +105,15 @@ class CachedResource(models.Model):
 
 
 @transaction.atomic
-def set_videos(resources):
+def set_resources(resources, resource_type):
     """
     Helper function which updates the cached resources and marks resources as deleted if no
     longer present.
 
-    :param resources: iterable of dicts representing the JWPlatform video resources
+    :param resources: iterable of dicts representing the JWPlatform resources
     :type resources: iterable
+    :param resource_type: type of JWPlatform resource (e.g. "video")
+    :type resource_type: str
 
     Iterates over all of the dicts in *resources* adding or updating corresponding
     :py:class:`~.CachedResource` models as it goes. After all resources have been added, any
@@ -192,7 +201,7 @@ def set_videos(resources):
             )
             INSERT INTO inserted_or_updated_keys (key) SELECT key FROM insert_result
         ''', (
-            {'key': data['key'], 'data': json.dumps(data), 'type': 'video'}
+            {'key': data['key'], 'data': json.dumps(data), 'type': resource_type}
             for data in iter(resources)
         ))
 
@@ -204,6 +213,6 @@ def set_videos(resources):
             WHERE
                 key NOT IN (SELECT key from inserted_or_updated_keys)
                 AND type = %(type)s
-        ''', {'type': 'video'})
+        ''', {'type': resource_type})
 
         cursor.execute('''DROP TABLE inserted_or_updated_keys''')

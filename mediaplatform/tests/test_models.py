@@ -166,8 +166,8 @@ class MediaItemTest(ModelTestCase):
         item = models.MediaItem.objects.get(id='emptyperm')
         self.assert_user_cannot_edit(AnonymousUser(), item)
         self.assert_user_cannot_edit(None, item)
-        item.edit_permission.is_public = True
-        item.edit_permission.save()
+        item.channel.edit_permission.is_public = True
+        item.channel.edit_permission.save()
         self.assert_user_can_edit(AnonymousUser(), item)
         self.assert_user_can_edit(None, item)
 
@@ -177,8 +177,8 @@ class MediaItemTest(ModelTestCase):
         self.assert_user_cannot_edit(AnonymousUser(), item)
         self.assert_user_cannot_edit(None, item)
         self.assert_user_cannot_edit(self.user, item)
-        item.edit_permission.is_signed_in = True
-        item.edit_permission.save()
+        item.channel.edit_permission.is_signed_in = True
+        item.channel.edit_permission.save()
         self.assert_user_cannot_edit(AnonymousUser(), item)
         self.assert_user_cannot_edit(None, item)
         self.assert_user_can_edit(self.user, item)
@@ -191,8 +191,8 @@ class MediaItemTest(ModelTestCase):
     def test_item_with_matching_crsid_editable(self):
         item = models.MediaItem.objects.get(id='emptyperm')
         self.assert_user_cannot_edit(self.user, item)
-        item.edit_permission.crsids.extend(['spqr1', self.user.username, 'abcd1'])
-        item.edit_permission.save()
+        item.channel.edit_permission.crsids.extend(['spqr1', self.user.username, 'abcd1'])
+        item.channel.edit_permission.save()
         self.assert_user_can_edit(self.user, item)
 
     def test_item_with_matching_lookup_groups_editable(self):
@@ -204,8 +204,8 @@ class MediaItemTest(ModelTestCase):
         self.lookup_groupids_and_instids_for_user.return_value = ['A', 'B', 'C'], []
         item = models.MediaItem.objects.get(id='emptyperm')
         self.assert_user_cannot_edit(self.user, item)
-        item.edit_permission.lookup_groups.extend(['X', 'Y', 'A', 'B', 'Z'])
-        item.edit_permission.save()
+        item.channel.edit_permission.lookup_groups.extend(['X', 'Y', 'A', 'B', 'Z'])
+        item.channel.edit_permission.save()
         self.assert_user_can_edit(self.user, item)
 
     def test_item_with_matching_lookup_insts_editable(self):
@@ -217,8 +217,8 @@ class MediaItemTest(ModelTestCase):
         self.lookup_groupids_and_instids_for_user.return_value = [], ['A', 'B', 'C']
         item = models.MediaItem.objects.get(id='emptyperm')
         self.assert_user_cannot_edit(self.user, item)
-        item.edit_permission.lookup_insts.extend(['X', 'Y', 'A', 'B', 'Z'])
-        item.edit_permission.save()
+        item.channel.edit_permission.lookup_insts.extend(['X', 'Y', 'A', 'B', 'Z'])
+        item.channel.edit_permission.save()
         self.assert_user_can_edit(self.user, item)
 
     def test_view_permission_created(self):
@@ -236,20 +236,63 @@ class MediaItemTest(ModelTestCase):
         permission_id_2 = models.MediaItem.objects.get(id=item.id).view_permission.id
         self.assertEquals(permission_id_1, permission_id_2)
 
-    def test_edit_permission_created(self):
-        """A new MediaItem has a edit permission created on save()."""
-        item = models.MediaItem.objects.create()
-        self.assertIsNotNone(models.MediaItem.objects.get(id=item.id).edit_permission)
+    def assert_user_cannot_view(self, user, item_or_id):
+        if isinstance(item_or_id, str):
+            item_or_id = models.MediaItem.objects_including_deleted.get(id=item_or_id)
+        self.assertFalse(
+            models.MediaItem.objects_including_deleted.all()
+            .filter(id=item_or_id.id)
+            .viewable_by_user(user)
+            .exists()
+        )
+        self.assertFalse(
+            models.MediaItem.objects_including_deleted.all()
+            .annotate_viewable(user, name='TEST_viewable')
+            .get(id=item_or_id.id)
+            .TEST_viewable
+        )
 
-    def test_edit_permission_not_re_created(self):
-        """The edit_permission is not changes if a MediaItem is updated."""
-        item = models.MediaItem.objects.create()
-        permission_id_1 = models.MediaItem.objects.get(id=item.id).edit_permission.id
-        item = models.MediaItem.objects.get(id=item.id)
-        item.title = 'changed'
-        item.save()
-        permission_id_2 = models.MediaItem.objects.get(id=item.id).edit_permission.id
-        self.assertEquals(permission_id_1, permission_id_2)
+    def assert_user_can_view(self, user, item_or_id):
+        if isinstance(item_or_id, str):
+            item_or_id = models.MediaItem.objects_including_deleted.get(id=item_or_id)
+        self.assertTrue(
+            models.MediaItem.objects.all().viewable_by_user(user).filter(id=item_or_id.id).exists()
+        )
+        self.assertTrue(
+            models.MediaItem.objects_including_deleted.all()
+            .annotate_viewable(user, name='TEST_viewable')
+            .get(id=item_or_id.id)
+            .TEST_viewable
+        )
+
+    def assert_user_cannot_edit(self, user, item_or_id):
+        if isinstance(item_or_id, str):
+            item_or_id = models.MediaItem.objects_including_deleted.get(id=item_or_id)
+        self.assertFalse(
+            models.MediaItem.objects_including_deleted.all()
+            .filter(id=item_or_id.id)
+            .editable_by_user(user)
+            .exists()
+        )
+        self.assertFalse(
+            models.MediaItem.objects_including_deleted.all()
+            .annotate_editable(user, name='TEST_editable')
+            .get(id=item_or_id.id)
+            .TEST_editable
+        )
+
+    def assert_user_can_edit(self, user, item_or_id):
+        if isinstance(item_or_id, str):
+            item_or_id = models.MediaItem.objects_including_deleted.get(id=item_or_id)
+        self.assertTrue(
+            models.MediaItem.objects.all().editable_by_user(user).filter(id=item_or_id.id).exists()
+        )
+        self.assertTrue(
+            models.MediaItem.objects_including_deleted.all()
+            .annotate_editable(user, name='TEST_editable')
+            .get(id=item_or_id.id)
+            .TEST_editable
+        )
 
 
 class PermissionTest(TestCase):

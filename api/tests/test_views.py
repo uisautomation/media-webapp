@@ -208,8 +208,8 @@ class MediaItemViewTestCase(ViewTestCase):
         request = self.factory.patch('/', {field_name: new_value}, format='json')
 
         item = self.non_deleted_media.get(id='populated')
-        item.edit_permission.crsids.append(self.user.username)
-        item.edit_permission.save()
+        item.channel.edit_permission.crsids.append(self.user.username)
+        item.channel.edit_permission.save()
 
         # Unauthorised request should fail
         response = self.view(request, pk=item.id)
@@ -227,8 +227,8 @@ class MediaItemViewTestCase(ViewTestCase):
         request = self.factory.patch('/', {field_name: new_value}, format='json')
 
         item = self.non_deleted_media.get(id='populated')
-        item.edit_permission.crsids.append(self.user.username)
-        item.edit_permission.save()
+        item.channel.edit_permission.crsids.append(self.user.username)
+        item.channel.edit_permission.save()
 
         # Unauthorised request should fail
         response = self.view(request, pk=item.id)
@@ -255,8 +255,8 @@ class UploadEndpointTestCase(ViewTestCase):
         # Reset any permissions on the item
         self.item.view_permission.reset()
         self.item.view_permission.save()
-        self.item.edit_permission.reset()
-        self.item.edit_permission.save()
+        self.item.channel.edit_permission.reset()
+        self.item.channel.edit_permission.save()
 
     def test_needs_view_permission(self):
         """Upload endpoint should 404 if user doesn't have view permission."""
@@ -313,8 +313,8 @@ class UploadEndpointTestCase(ViewTestCase):
         self.item.view_permission.save()
 
     def add_edit_permission(self):
-        self.item.edit_permission.crsids.append(self.user.username)
-        self.item.edit_permission.save()
+        self.item.channel.edit_permission.crsids.append(self.user.username)
+        self.item.channel.edit_permission.save()
 
 
 class MediaAnalyticsViewCase(ViewTestCase):

@@ -42,7 +42,6 @@
   fields:
     allows_edit_channel: delchan
 
-
 # Test media item fixtures
 - model: mediaplatform.MediaItem
   pk: a
@@ -75,11 +74,6 @@
   fields:
     is_public: true
     allows_view_item: empty
-
-- model: mediaplatform.Permission
-  pk: pemptye
-  fields:
-    allows_edit_item: empty
 
 - model: mediaplatform.MediaItem
   pk: deleted
@@ -118,11 +112,6 @@
   fields:
     is_public: true
     allows_view_item: populated
-
-- model: mediaplatform.Permission
-  pk: populatede
-  fields:
-    allows_edit_item: populated
 
 - model: mediaplatform_jwp.Video
   pk: jwpvid1
