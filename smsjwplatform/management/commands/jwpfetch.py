@@ -40,12 +40,6 @@ class Command(BaseCommand):
             '--sync-all', action='store_true', dest='sync_all',
             help='Synchronise all objects from JWP cache, not only those which have been updated')
         parser.add_argument(
-            '--sync-all-videos', action='store_true', dest='sync_all_videos',
-            help='Synchronise all videos from JWP cache, not only those which have been updated')
-        parser.add_argument(
-            '--sync-all-channels', action='store_true', dest='sync_all_channels',
-            help='Synchronise all channels from JWP cache, not only those which have been updated')
-        parser.add_argument(
             '--skip-fetch', action='store_true', dest='skip_fetch',
             help=('Do not re-fetch any resources from JWP, only synchronise database '
                   'objects with cache'))
@@ -81,10 +75,7 @@ class Command(BaseCommand):
         )))
 
         # Synchronise cached resources into main application state
-        sync.update_related_models_from_cache(
-            update_all_videos=options['sync_all'] or options['sync_all_videos'],
-            update_all_channels=options['sync_all'] or options['sync_all_channels']
-        )
+        sync.update_related_models_from_cache(update_all_videos=options['sync_all'])
 
         # Print out the total number of media items
         self.stdout.write(self.style.SUCCESS('Number of media items: {}'.format(

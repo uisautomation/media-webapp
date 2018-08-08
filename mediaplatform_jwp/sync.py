@@ -16,7 +16,7 @@ from .signalhandlers import setting_sync_items
 
 
 @transaction.atomic
-def update_related_models_from_cache(update_all_videos=False, update_all_channels=False):
+def update_related_models_from_cache(update_all_videos=False):
     """
     Atomically update the database to reflect the current state of the CachedResource table. If a
     video is deleted from JWP, the corresponding MediaItem is marked as deleted. Similarly, if it
@@ -26,9 +26,10 @@ def update_related_models_from_cache(update_all_videos=False, update_all_channel
     For video resources whose updated timestamp has increased, the JWP and SMS metadata is
     synchronised to mediaplatform.MediaItem or an associated legacysms.MediaItem as appropriate.
 
-    The *update_all_...* flags may be set to True in which case a synchronisation of *all*
-    MediaItems and/or Channels with the associated CachedResource is performed irrespective of the
-    updated_at timestamp.
+    The update_all_videos flag may be set to True in which case a synchronisation of *all*
+    MediaItems with the associated CachedResource is performed irrespective of the
+    updated_at timestamp. Come what may, all channels are synchronised since there is no equivalent
+    of the updated timestamp for JWP channels.
 
     TODO: no attempt is yet made to synchronise the edit permission with that of the containing
     collection for media items. This needs a bit more thought about how the SMS permission model
@@ -92,7 +93,7 @@ def update_related_models_from_cache(update_all_videos=False, update_all_channel
     updated_jwp_video_keys = _ensure_resources(
         jwpmodels.Video, smsjwpmodels.CachedResource.videos)
 
-    updated_jwp_channel_keys = _ensure_resources(
+    _ensure_resources(
         jwpmodels.Channel, smsjwpmodels.CachedResource.channels)
 
     # 3) Insert missing mediaplatform.MediaItem and mediaplatform.Channel objects
@@ -318,14 +319,6 @@ def update_related_models_from_cache(update_all_videos=False, update_all_channel
         ))
     )
 
-    # Unless we were asked to update the metadata in all objects, only update those which were last
-    # updated before the corresponding JWP channel resource.
-    if not update_all_channels:
-        updated_channels = (
-            updated_channels
-            .filter(jwp__key__in=updated_jwp_channel_keys)
-        )
-
     for channel in updated_channels:
         # Skip channels with no associated JWP channel
         if channel.data is None:
@@ -432,7 +425,7 @@ def _set_permission_from_acl(permission, acl):
 def _ensure_resources(jwp_model, resource_queryset):
     """
     Given a model from mediaplatform_jwp and a queryset of CachedResource object corresponding to
-    that model, make sure that objects of the appropriate mdoel exist for each CachedResource
+    that model, make sure that objects of the appropriate model exist for each CachedResource
     object and that their updated timestamps are correct.
 
     Returns a list of all JWP resource keys for resources which were updated/created.
