@@ -211,6 +211,20 @@ To run the flake8 tests manually, specify the tox environment:
 
     $ ./compose.sh tox run --rm tox -e flake8
 
+Debugging
+`````````
+
+If you need to debug the application running in docker-compose, configuration is included to allow
+you debug along the lines described in this post on
+`using PDB with docker-compose <https://blog.lucasferreira.org/howto/2017/06/03/running-pdb-with-docker-and-gunicorn.html/>`_.
+Also `PuDB <https://documen.tician.de/pudb/>`_, a full-screen, console-based visual debugger, is installed in
+development as a more sophisticated alternative to PDB. To use PuDB simply set breakpoints as follows:
+
+.. code:: python
+
+    import pudb; pudb.set_trace()
+
+
 Documentation
 `````````````
 

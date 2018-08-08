@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mediaplatform', '0008_add_owner_inst_to_channel'),
+        ('mediaplatform', '0010_add_owner_inst_to_channel'),
     ]
 
     operations = [
