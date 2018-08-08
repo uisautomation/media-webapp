@@ -61,6 +61,21 @@ class ChannelSerializer(serializers.HyperlinkedModelSerializer):
         return obj
 
 
+class MediaItemRelatedChannelIdField(serializers.PrimaryKeyRelatedField):
+    """
+    Related field serialiser for media items which asserts that the channel field can only be set
+    to a channel which the current user has edit permissions on. If there is no user, the empty
+    queryset is returned.
+    """
+    def get_queryset(self):
+        if self.context is None or 'request' not in self.context:
+            return mpmodels.Channel.objects.all().none()
+
+        user = self.context['request'].user
+
+        return mpmodels.Channel.objects.all().editable_by_user(user)
+
+
 class MediaItemSerializer(serializers.HyperlinkedModelSerializer):
     """
     An individual media item.
@@ -71,7 +86,7 @@ class MediaItemSerializer(serializers.HyperlinkedModelSerializer):
         fields = (
             'url', 'id', 'title', 'description', 'duration', 'type', 'publishedAt',
             'downloadable', 'language', 'copyright', 'tags', 'createdAt',
-            'updatedAt', 'posterImageUrl',
+            'updatedAt', 'posterImageUrl', 'channelId',
         )
 
         read_only_fields = (
@@ -87,6 +102,10 @@ class MediaItemSerializer(serializers.HyperlinkedModelSerializer):
 
     posterImageUrl = serializers.SerializerMethodField(
         help_text='A URL of a thumbnail/poster image for the media', read_only=True)
+
+    channelId = MediaItemRelatedChannelIdField(
+        source='channel', required=True, help_text='Unique id of owning channel resource',
+        write_only=True)
 
     def create(self, validated_data):
         """
@@ -105,6 +124,19 @@ class MediaItemSerializer(serializers.HyperlinkedModelSerializer):
             obj = mpmodels.MediaItem.objects.create(**validated_data)
 
         return obj
+
+    def update(self, instance, validated_data):
+        """
+        Override behaviour when updating a media item to stop the user changing the channel of an
+        existing item.
+        """
+        # Note: channelId will already have been mapped into a channel object.
+        if 'channel' in validated_data:
+            raise serializers.ValidationError({
+                'channelId': 'This field cannot be changed',
+            })
+
+        return super().update(instance, validated_data)
 
     def get_posterImageUrl(self, obj):
         if not hasattr(obj, 'jwp'):
@@ -194,9 +226,11 @@ class MediaItemDetailSerializer(MediaItemSerializer):
 
     """
     class Meta(MediaItemSerializer.Meta):
-        fields = MediaItemSerializer.Meta.fields + ('links',)
+        fields = MediaItemSerializer.Meta.fields + ('links', 'channel')
 
     links = MediaItemLinksSerializer(source='*', read_only=True)
+
+    channel = ChannelSerializer(read_only=True)
 
 
 class MediaAnalyticsItemSerializer(serializers.Serializer):

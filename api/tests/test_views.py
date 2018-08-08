@@ -74,6 +74,10 @@ class MediaItemListViewTestCase(ViewTestCase):
     def setUp(self):
         super().setUp()
         self.view = views.MediaItemListView().as_view()
+        self.channel = mpmodels.Channel.objects.get(id='channel1')
+        self.channel.edit_permission.reset()
+        self.channel.edit_permission.crsids.append(self.user.username)
+        self.channel.edit_permission.save()
 
     def test_basic_list(self):
         """An anonymous user should get expected media back."""
@@ -102,6 +106,32 @@ class MediaItemListViewTestCase(ViewTestCase):
         expected_ids = set(o.id for o in self.viewable_by_user)
         for item in response_data['results']:
             self.assertIn(item['id'], expected_ids)
+
+    def test_create(self):
+        """Basic creation of a media item succeeds."""
+        request = self.factory.post('/', {'title': 'foo', 'channelId': self.channel.id})
+        force_authenticate(request, user=self.user)
+        response = self.view(request)
+        self.assertEqual(response.status_code, 201)
+        new_item = mpmodels.MediaItem.objects.get(id=response.data['id'])
+        self.assertEqual(new_item.channel.id, self.channel.id)
+        self.assertEqual(new_item.title, 'foo')
+
+    def test_create_requires_channel(self):
+        """Creation requires channel id."""
+        request = self.factory.post('/', {'title': 'foo'})
+        force_authenticate(request, user=self.user)
+        response = self.view(request)
+        self.assertEqual(response.status_code, 400)
+
+    def test_create_requires_channel_user_can_edit(self):
+        """Creation requires channel id for channel the user can edit."""
+        self.channel.edit_permission.reset()
+        self.channel.edit_permission.save()
+        request = self.factory.post('/', {'title': 'foo', 'channelId': self.channel.id})
+        force_authenticate(request, user=self.user)
+        response = self.view(request)
+        self.assertEqual(response.status_code, 400)
 
 
 class MediaItemViewTestCase(ViewTestCase):
@@ -211,6 +241,33 @@ class MediaItemViewTestCase(ViewTestCase):
 
     def test_created_at_immutable(self):
         self.assert_field_immutable('createdAt', '2018-08-06T15:29:45.003231Z', 'created_at')
+
+    def test_update(self):
+        """Basic update of a media item succeeds."""
+        item = self.non_deleted_media.get(id='populated')
+        item.channel.edit_permission.crsids.append(self.user.username)
+        item.channel.edit_permission.save()
+        new_title = item.title + '---with-change'
+        request = self.factory.patch('/', {'title': new_title})
+        force_authenticate(request, user=self.user)
+        response = self.view(request, pk=item.id)
+        self.assertEqual(response.status_code, 200)
+        new_item = mpmodels.MediaItem.objects.get(id=item.id)
+        self.assertEqual(new_item.title, new_title)
+
+    def test_update_channel(self):
+        """Cannot change the channel of a media item, even if user has all the right edit
+        permissions."""
+        item = self.non_deleted_media.get(id='populated')
+        item.channel.edit_permission.crsids.append(self.user.username)
+        item.channel.edit_permission.save()
+        new_channel = mpmodels.Channel.objects.create(title='new channel')
+        new_channel.edit_permission.crsids.append(self.user.username)
+        new_channel.edit_permission.save()
+        request = self.factory.patch('/', {'channelId': new_channel.id})
+        force_authenticate(request, user=self.user)
+        response = self.view(request, pk=item.id)
+        self.assertEqual(response.status_code, 400)
 
     def assert_field_mutable(
             self, field_name, new_value='testvalue', model_field_name=None, expected_value=None):
