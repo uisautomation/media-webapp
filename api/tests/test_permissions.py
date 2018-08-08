@@ -38,9 +38,9 @@ class MediaItemPermissionTestCase(TestCase):
             self.assert_safe_object_has_permission(self.fetch_item())
 
     def test_unsafe_requires_viewable_object(self):
-        self.item.edit_permission.reset()
-        self.item.edit_permission.is_public = True
-        self.item.edit_permission.save()
+        self.item.channel.edit_permission.reset()
+        self.item.channel.edit_permission.is_public = True
+        self.item.channel.edit_permission.save()
 
         self.item.view_permission.reset()
         self.item.view_permission.save()
@@ -59,12 +59,12 @@ class MediaItemPermissionTestCase(TestCase):
         self.item.view_permission.is_public = True
         self.item.view_permission.save()
 
-        self.item.edit_permission.reset()
-        self.item.edit_permission.save()
+        self.item.channel.edit_permission.reset()
+        self.item.channel.edit_permission.save()
         self.assert_unsafe_object_does_not_have_permission(
             self.fetch_item(annotate_viewable=True, annotate_editable=True))
-        self.item.edit_permission.is_public = True
-        self.item.edit_permission.save()
+        self.item.channel.edit_permission.is_public = True
+        self.item.channel.edit_permission.save()
         self.assert_unsafe_object_has_permission(
             self.fetch_item(annotate_viewable=True, annotate_editable=True))
 
@@ -111,9 +111,9 @@ class MediaItemEditPermissionTestCase(MediaItemPermissionTestCase):
         self.permission = permissions.MediaItemEditPermission()
 
     def test_safe_requires_viewable_object(self):
-        self.item.edit_permission.reset()
-        self.item.edit_permission.is_public = True
-        self.item.edit_permission.save()
+        self.item.channel.edit_permission.reset()
+        self.item.channel.edit_permission.is_public = True
+        self.item.channel.edit_permission.save()
 
         self.item.view_permission.reset()
         self.item.view_permission.save()
@@ -135,13 +135,13 @@ class MediaItemEditPermissionTestCase(MediaItemPermissionTestCase):
         self.item.view_permission.is_public = True
         self.item.view_permission.save()
 
-        self.item.edit_permission.reset()
-        self.item.edit_permission.save()
+        self.item.channel.edit_permission.reset()
+        self.item.channel.edit_permission.save()
 
         self.assert_safe_object_does_not_have_permission(
             self.fetch_item(annotate_viewable=True, annotate_editable=True))
-        self.item.edit_permission.is_public = True
-        self.item.edit_permission.save()
+        self.item.channel.edit_permission.is_public = True
+        self.item.channel.edit_permission.save()
         self.assert_safe_object_has_permission(
             self.fetch_item(annotate_viewable=True, annotate_editable=True))
 

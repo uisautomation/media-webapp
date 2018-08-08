@@ -79,18 +79,6 @@ class MediaItemSyncTestCase(TestCase):
         self.assertEqual(self.schedule_item_update.call_args[0][0].id, i1.id)
         self.assertIn('spqr1', self.schedule_item_update.call_args[0][0].view_permission.crsids)
 
-    def test_edit_permission(self):
-        """
-        Modifying a media item's edit permisson should synchronise the change with JWP.
-
-        """
-        i1 = mpmodels.MediaItem.objects.get(id='empty')
-        i1.edit_permission.crsids.append('spqr1')
-        i1.edit_permission.save()
-        self.schedule_item_update.assert_called_once()
-        self.assertEqual(self.schedule_item_update.call_args[0][0].id, i1.id)
-        self.assertIn('spqr1', self.schedule_item_update.call_args[0][0].edit_permission.crsids)
-
     def test_not_called_if_sync_disabled(self):
         """
         Disabling synchronsiation should not call schedule_item_update.

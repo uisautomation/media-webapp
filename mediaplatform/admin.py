@@ -24,8 +24,8 @@ class MediaItemViewPermissionInline(PermissionInline):
     verbose_name_plural = 'View Permissions'
 
 
-class MediaItemEditPermissionInline(PermissionInline):
-    fk_name = 'allows_edit_item'
+class ChannelEditPermissionInline(PermissionInline):
+    fk_name = 'allows_edit_channel'
     verbose_name_plural = 'Edit Permissions'
 
 
@@ -116,7 +116,6 @@ class MediaItemAdmin(admin.ModelAdmin):
         SMSMediaItemInline,
         JWPVideoInline,
         MediaItemViewPermissionInline,
-        MediaItemEditPermissionInline,
     ]
     readonly_fields = (
         'created_at', 'deleted', 'formatted_duration', 'preview', 'type',
@@ -174,7 +173,6 @@ class MediaItemAdmin(admin.ModelAdmin):
             .select_related('jwp')
             .select_related('sms')
             .select_related('view_permission')
-            .select_related('edit_permission')
         )
 
 
@@ -192,14 +190,12 @@ class ChannelAdminForm(forms.ModelForm):
         }
 
 
-class ChannelEditPermissionInline(PermissionInline):
-    fk_name = 'allows_edit_channel'
-    verbose_name_plural = 'Edit Permissions'
-
-
 @admin.register(models.Channel)
 class ChannelAdmin(admin.ModelAdmin):
-    fields = ('title', 'description', 'item_count', 'created_at', 'updated_at', 'deleted_at')
+    fields = (
+        'title', 'description', 'item_count', 'owning_lookup_inst', 'created_at', 'updated_at',
+        'deleted_at'
+    )
     search_fields = ('id', 'title', 'description')
     list_display = ('title', 'deleted')
     ordering = ('title', 'id')
