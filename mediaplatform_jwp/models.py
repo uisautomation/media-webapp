@@ -17,7 +17,7 @@ class Video(models.Model):
                                 on_delete=models.SET_NULL, null=True, editable=False)
 
     #: The updated timestamp from JWPlatform. Used to determine which items need updating. This is
-    #: an integer field rather than a datetime filed because JWP uses timestamps and we should
+    #: an integer field rather than a datetime field because JWP uses timestamps and we should
     #: store the same value to make sure we compare apples to apples.
     updated = models.BigIntegerField(help_text='Last updated timestamp', editable=False)
 
@@ -38,6 +38,6 @@ class Channel(models.Model):
                                    on_delete=models.SET_NULL, null=True, editable=False)
 
     #: The updated timestamp from JWPlatform. Used to determine which items need updating. This is
-    #: an integer field rather than a datetime filed because JWP uses timestamps and we should
+    #: an integer field rather than a datetime field because JWP uses timestamps and we should
     #: store the same value to make sure we compare apples to apples.
     updated = models.BigIntegerField(help_text='Last updated timestamp', editable=False)

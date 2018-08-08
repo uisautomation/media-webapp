@@ -385,7 +385,7 @@ def update_related_models_from_cache(update_all_videos=False, update_all_channel
         sms_collection_id = channel_data.collection_id
         if sms_collection_id is not None:
             # Get or create associated SMS collection. Note that hasattr is recommended in the
-            # Django docs as a way to determine isf a related objects exists.
+            # Django docs as a way to determine if a related objects exists.
             # https://docs.djangoproject.com/en/dev/topics/db/examples/one_to_one/
             if hasattr(channel, 'sms') and channel.sms is not None:
                 sms_channel = channel.sms
