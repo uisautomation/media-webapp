@@ -18,7 +18,9 @@ from time to time to make sure that all videos are in sync.
 
 The ``--skip-fetch`` flag may be given to skip updating the cached resources from JWP and to only
 perform the database metadata synchronisation. This can be useful in combination with the
-``--sync-all`` flag to make sure the database is consistent with all cached resources.
+``--sync-all`` flag to make sure the database is consistent with all cached resources. Skipping
+only video or channel resources is controlled via the ``--skip-video-fetch`` and
+``--skip-channel-fetch`` flags.
 
 """
 from django.core.management.base import BaseCommand
