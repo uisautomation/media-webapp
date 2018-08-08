@@ -250,7 +250,7 @@ class PlaylistViewPermissionInline(PermissionInline):
         TODO this doesn't seem to work because the default permission isn't overridden - however
         at least we don't get the error now.
         """
-        def save_new(self, form, commit=True):
+        def save_new(self, form, commit=True):  # pragma: no cover
             playlist = form.cleaned_data['allows_view_playlist']
             instance = models.Permission.objects.get(allows_view_playlist=playlist)
             return self.save_existing(form, instance, commit=commit)
@@ -278,11 +278,11 @@ class PlaylistAdmin(admin.ModelAdmin):
 
     autocomplete_fields = ['channel']
 
-    def deleted(self, obj):
+    def deleted(self, obj):  # pragma: no cover
         """Whether the channel is marked as deleted."""
         return obj.deleted_at is not None
 
     deleted.boolean = True
 
-    def item_count(self, obj):
+    def item_count(self, obj):  # pragma: no cover
         return len(obj.media_items)
