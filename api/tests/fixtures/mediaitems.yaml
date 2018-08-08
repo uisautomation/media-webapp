@@ -4,10 +4,22 @@
   fields:
     username: testuser
 
+- model: mediaplatform.Channel
+  pk: channel1
+  fields:
+    created_at: 2010-09-15 14:40:45
+    updated_at: 2010-09-15 14:40:45
+
+- model: mediaplatform.Permission
+  pk: echannel1
+  fields:
+    allows_edit_channel: channel1
+
 # Test media item fixtures
 - model: mediaplatform.MediaItem
   pk: a
   fields:
+    channel: channel1
     title: item a, xxx
     description: description of item a, yyy
     tags:
@@ -26,6 +38,7 @@
 - model: mediaplatform.MediaItem
   pk: empty
   fields:
+    channel: channel1
     created_at: 2010-09-15 14:40:45
     updated_at: 2010-09-15 14:40:45
 
@@ -43,6 +56,7 @@
 - model: mediaplatform.MediaItem
   pk: deleted
   fields:
+    channel: channel1
     deleted_at: 2011-09-15 12:00:00
     created_at: 2010-09-15 14:40:45
     updated_at: 2010-09-15 14:40:45
@@ -56,6 +70,7 @@
 - model: mediaplatform.MediaItem
   pk: populated
   fields:
+    channel: channel1
     title: a fully populated item
     description: description of daid
     duration: 34
@@ -103,6 +118,7 @@
 - model: mediaplatform.MediaItem
   pk: useronly
   fields:
+    channel: channel1
     created_at: 2010-09-15 14:40:45
     updated_at: 2010-09-15 14:40:45
 

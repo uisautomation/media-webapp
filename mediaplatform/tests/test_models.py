@@ -102,8 +102,8 @@ class MediaItemTest(TestCase):
         item = models.MediaItem.objects.get(id='emptyperm')
         self.assert_user_cannot_edit(AnonymousUser(), item)
         self.assert_user_cannot_edit(None, item)
-        item.edit_permission.is_public = True
-        item.edit_permission.save()
+        item.channel.edit_permission.is_public = True
+        item.channel.edit_permission.save()
         self.assert_user_can_edit(AnonymousUser(), item)
         self.assert_user_can_edit(None, item)
 
@@ -113,8 +113,8 @@ class MediaItemTest(TestCase):
         self.assert_user_cannot_edit(AnonymousUser(), item)
         self.assert_user_cannot_edit(None, item)
         self.assert_user_cannot_edit(self.user, item)
-        item.edit_permission.is_signed_in = True
-        item.edit_permission.save()
+        item.channel.edit_permission.is_signed_in = True
+        item.channel.edit_permission.save()
         self.assert_user_cannot_edit(AnonymousUser(), item)
         self.assert_user_cannot_edit(None, item)
         self.assert_user_can_edit(self.user, item)
@@ -127,8 +127,8 @@ class MediaItemTest(TestCase):
     def test_item_with_matching_crsid_editable(self):
         item = models.MediaItem.objects.get(id='emptyperm')
         self.assert_user_cannot_edit(self.user, item)
-        item.edit_permission.crsids.extend(['spqr1', self.user.username, 'abcd1'])
-        item.edit_permission.save()
+        item.channel.edit_permission.crsids.extend(['spqr1', self.user.username, 'abcd1'])
+        item.channel.edit_permission.save()
         self.assert_user_can_edit(self.user, item)
 
     def test_item_with_matching_lookup_groups_editable(self):
@@ -140,8 +140,8 @@ class MediaItemTest(TestCase):
         self.lookup_groupids_and_instids_for_user.return_value = ['A', 'B', 'C'], []
         item = models.MediaItem.objects.get(id='emptyperm')
         self.assert_user_cannot_edit(self.user, item)
-        item.edit_permission.lookup_groups.extend(['X', 'Y', 'A', 'B', 'Z'])
-        item.edit_permission.save()
+        item.channel.edit_permission.lookup_groups.extend(['X', 'Y', 'A', 'B', 'Z'])
+        item.channel.edit_permission.save()
         self.assert_user_can_edit(self.user, item)
 
     def test_item_with_matching_lookup_insts_editable(self):
@@ -153,8 +153,8 @@ class MediaItemTest(TestCase):
         self.lookup_groupids_and_instids_for_user.return_value = [], ['A', 'B', 'C']
         item = models.MediaItem.objects.get(id='emptyperm')
         self.assert_user_cannot_edit(self.user, item)
-        item.edit_permission.lookup_insts.extend(['X', 'Y', 'A', 'B', 'Z'])
-        item.edit_permission.save()
+        item.channel.edit_permission.lookup_insts.extend(['X', 'Y', 'A', 'B', 'Z'])
+        item.channel.edit_permission.save()
         self.assert_user_can_edit(self.user, item)
 
     def test_view_permission_created(self):

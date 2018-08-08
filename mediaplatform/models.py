@@ -105,7 +105,7 @@ class MediaItemQuerySet(PermissionQuerySetMixin, models.QuerySet):
         return self.annotate(**{
             name: models.Case(
                 models.When(
-                    self._permission_condition('edit_permission', user),
+                    self._permission_condition('channel__edit_permission', user),
                     then=models.Value(True)
                 ),
                 default=models.Value(False),
@@ -118,7 +118,7 @@ class MediaItemQuerySet(PermissionQuerySetMixin, models.QuerySet):
         Filter the queryset to only those items which can be edited by the passed Django user.
 
         """
-        return self.filter(self._permission_condition('edit_permission', user))
+        return self.filter(self._permission_condition('channel__edit_permission', user))
 
 
 class MediaItemManager(models.Manager):
