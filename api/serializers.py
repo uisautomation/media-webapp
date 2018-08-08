@@ -107,7 +107,7 @@ class MediaItemLinksSerializer(serializers.Serializer):
 
     def get_sources(self, obj):
         if not obj.downloadable or not hasattr(obj, 'jwp'):
-            return None
+            return []
 
         try:
             video = jwplatform.DeliveryVideo.from_key(obj.jwp.key)
@@ -115,7 +115,7 @@ class MediaItemLinksSerializer(serializers.Serializer):
             # this can occur if the video is still transcoding - better to set the sources to none
             # than fail completely
             LOG.warning("unable to generate download sources as the JW video is not yet available")
-            return None
+            return []
 
         return SourceSerializer(video.get('sources'), many=True).data
 
