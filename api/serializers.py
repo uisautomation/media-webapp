@@ -14,32 +14,56 @@ from smsjwplatform.jwplatform import VideoNotFoundError
 LOG = logging.getLogger(__name__)
 
 
-class SourceSerializer(serializers.Serializer):
+# Model serialisers
+#
+# The following serialisers are to be used for list views and include minimial (if any) related
+# resources.
+
+
+class ChannelSerializer(serializers.HyperlinkedModelSerializer):
     """
-    A download source for a particular media type.
+    An individual channel.
 
     """
-    mimeType = serializers.CharField(source='type', help_text="The resource's MIME type")
-    url = serializers.URLField(source='file', help_text="The resource's URL")
-    width = serializers.IntegerField(help_text='The video width', required=False)
-    height = serializers.IntegerField(help_text='The video height', required=False)
+    class Meta:
+        model = mpmodels.Channel
+        fields = (
+            'url', 'id', 'title', 'description', 'owningLookupInst', 'createdAt', 'updatedAt',
+        )
 
+        read_only_fields = (
+            'url', 'id', 'createdAt', 'updatedAt',
+        )
+        extra_kwargs = {
+            'createdAt': {'source': 'created_at'},
+            'updatedAt': {'source': 'updated_at'},
+            'owningLookupInst': {'source': 'owning_lookup_inst'},
+            'url': {'view_name': 'api:channel'},
+            'title': {'allow_blank': False},
+        }
 
-class LegacySMSMediaSerializer(serializers.Serializer):
-    id = serializers.IntegerField(help_text='Unique id for an SMS media')
-    statisticsUrl = serializers.SerializerMethodField(help_text='Link to statistics page')
+    def create(self, validated_data):
+        """
+        Override behaviour when creating a new object using this serializer. If the current request
+        is being passed in the context, give the request user edit and view permissions on the
+        item.
 
-    def get_statisticsUrl(self, obj):
-        return urlparse.urljoin(
-            settings.LEGACY_SMS_FRONTEND_URL, f'media/{obj.id:d}/statistics')
+        """
+        request = None
+        if self.context is not None and 'request' in self.context:
+            request = self.context['request']
+
+        if request is not None and not request.user.is_anonymous:
+            obj = mpmodels.Channel.objects.create_for_user(request.user, **validated_data)
+        else:
+            obj = mpmodels.Channel.objects.create(**validated_data)
+
+        return obj
 
 
 class MediaItemSerializer(serializers.HyperlinkedModelSerializer):
     """
     An individual media item.
-
-    This schema corresponds to Google's recommended layout for a Video object
-    (https://developers.google.com/search/docs/data-types/video).
 
     """
     class Meta:
@@ -88,6 +112,48 @@ class MediaItemSerializer(serializers.HyperlinkedModelSerializer):
         return jwplatform.Video({'key': obj.jwp.key}).get_poster_url(width=640)
 
 
+# Detail serialisers
+#
+# The following serialiser are to be used in individual resource views and include more information
+# on related resources.
+
+
+class ProfileSerializer(serializers.Serializer):
+    """
+    The profile of the current user.
+
+    """
+    is_anonymous = serializers.BooleanField(source='user.is_anonymous')
+    username = serializers.CharField(source='user.username')
+    urls = serializers.DictField()
+
+
+class SourceSerializer(serializers.Serializer):
+    """
+    A download source for a particular media type.
+
+    """
+    mimeType = serializers.CharField(source='type', help_text="The resource's MIME type")
+    url = serializers.URLField(source='file', help_text="The resource's URL")
+    width = serializers.IntegerField(help_text='The video width', required=False)
+    height = serializers.IntegerField(help_text='The video height', required=False)
+
+
+class MediaUploadSerializer(serializers.Serializer):
+    """
+    A serializer which returns an upload endpoint for a media item. Intended to be used as custom
+    serializer in an UpdateView for MediaItem models.
+
+    """
+    url = serializers.URLField(source='upload_endpoint.url', read_only=True)
+    expires_at = serializers.DateTimeField(source='upload_endpoint.expires_at', read_only=True)
+
+    def update(self, instance, verified_data):
+        # TODO: abstract the creation of UploadEndpoint objects to be backend neutral
+        management.create_upload_endpoint(instance)
+        return instance
+
+
 class MediaItemLinksSerializer(serializers.Serializer):
     legacyStatisticsUrl = serializers.SerializerMethodField()
     embedUrl = serializers.SerializerMethodField()
@@ -124,38 +190,13 @@ class MediaItemLinksSerializer(serializers.Serializer):
 
 class MediaItemDetailSerializer(MediaItemSerializer):
     """
-    Serialize a media object with greater detail for an individual media detail response
+    An individual media item including related resources.
 
     """
     class Meta(MediaItemSerializer.Meta):
         fields = MediaItemSerializer.Meta.fields + ('links',)
 
     links = MediaItemLinksSerializer(source='*', read_only=True)
-
-
-class ProfileSerializer(serializers.Serializer):
-    """
-    The profile of the current user.
-
-    """
-    is_anonymous = serializers.BooleanField(source='user.is_anonymous')
-    username = serializers.CharField(source='user.username')
-    urls = serializers.DictField()
-
-
-class MediaUploadSerializer(serializers.Serializer):
-    """
-    A serializer which returns an upload endpoint for a media item. Intended to be used as custom
-    serializer in an UpdateView for MediaItem models.
-
-    """
-    url = serializers.URLField(source='upload_endpoint.url', read_only=True)
-    expires_at = serializers.DateTimeField(source='upload_endpoint.expires_at', read_only=True)
-
-    def update(self, instance, verified_data):
-        # TODO: abstract the creation of UploadEndpoint objects to be backend neutral
-        management.create_upload_endpoint(instance)
-        return instance
 
 
 class MediaAnalyticsItemSerializer(serializers.Serializer):
@@ -181,50 +222,9 @@ class MediaAnalyticsListSerializer(serializers.Serializer):
     results = MediaAnalyticsItemSerializer(many=True, source='*')
 
 
-class ChannelSerializer(serializers.HyperlinkedModelSerializer):
-    """
-    An individual channel.
-
-    """
-    class Meta:
-        model = mpmodels.Channel
-        fields = (
-            'url', 'id', 'title', 'description', 'owningLookupInst', 'createdAt', 'updatedAt',
-        )
-
-        read_only_fields = (
-            'url', 'id', 'createdAt', 'updatedAt',
-        )
-        extra_kwargs = {
-            'createdAt': {'source': 'created_at'},
-            'updatedAt': {'source': 'updated_at'},
-            'owningLookupInst': {'source': 'owning_lookup_inst'},
-            'url': {'view_name': 'api:channel'},
-            'title': {'allow_blank': False},
-        }
-
-    def create(self, validated_data):
-        """
-        Override behaviour when creating a new object using this serializer. If the current request
-        is being passed in the context, give the request user edit and view permissions on the
-        item.
-
-        """
-        request = None
-        if self.context is not None and 'request' in self.context:
-            request = self.context['request']
-
-        if request is not None and not request.user.is_anonymous:
-            obj = mpmodels.Channel.objects.create_for_user(request.user, **validated_data)
-        else:
-            obj = mpmodels.Channel.objects.create(**validated_data)
-
-        return obj
-
-
 class ChannelDetailSerializer(ChannelSerializer):
     """
-    An individual channel including any information which should only appear in the detail view.
+    An individual channel including related resources.
 
     """
     class Meta(ChannelSerializer.Meta):
