@@ -165,6 +165,17 @@ class MediaItemViewTestCase(ViewTestCase):
             response = self.view(self.get_request, pk=obj.id)
             self.assertEqual(response.status_code, 200)
 
+    def test_success_if_jw_item_not_yet_available(self):
+        """Check that the get still succeeds, even tho the JW api throws a VideoNotFoundError"""
+        self.dv_from_key.side_effect = api.VideoNotFoundError
+        item = self.non_deleted_media.get(id='populated')
+
+        # test
+        response = self.view(self.get_request, pk=item.id)
+        self.assertEqual(response.status_code, 200)
+        # sources cannot be generated and so are set as []
+        self.assertEqual(response.data['links']['sources'], [])
+
     def test_id_immutable(self):
         self.assert_field_immutable('id')
 
