@@ -171,8 +171,8 @@ class MediaItemViewTestCase(ViewTestCase):
         # test
         response = self.view(self.get_request, pk=item.id)
         self.assertEqual(response.status_code, 200)
-        # sources cannot be generated and so are set as None
-        self.assertFalse(response.data['links']['sources'])
+        # sources cannot be generated and so are set as []
+        self.assertEqual(response.data['links']['sources'], [])
 
 
 class UploadEndpointTestCase(ViewTestCase):
