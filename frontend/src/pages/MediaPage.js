@@ -52,7 +52,7 @@ const bestSource = sources => {
 
 const MediaPageContents = ({ item, classes }) => {
   const source =
-    (item && item.links && item.links.sources) ? bestSource(item.links.sources) : null;
+    (item && item.sources) ? bestSource(item.sources) : null;
 
   return (
     <div>

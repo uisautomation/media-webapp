@@ -204,7 +204,7 @@ class MediaItemViewTestCase(ViewTestCase):
         response = self.view(self.get_request, pk=item.id)
         self.assertEqual(response.status_code, 200)
         # sources cannot be generated and so are set as []
-        self.assertEqual(response.data['links']['sources'], [])
+        self.assertEqual(response.data['sources'], [])
 
     def test_id_immutable(self):
         self.assert_field_immutable('id')
