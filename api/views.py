@@ -6,7 +6,6 @@ import logging
 
 from django.db import models
 from django_filters import rest_framework as df_filters
-from rest_framework.exceptions import APIException
 from rest_framework import generics, pagination, filters
 
 import mediaplatform.models as mpmodels
@@ -16,30 +15,6 @@ from . import serializers
 
 
 LOG = logging.getLogger(__name__)
-
-
-class JWPAPIException(APIException):
-    """
-    DRF :py:exc:`APIException` sub-class which indicates that the request could not be handled
-    because the JWPlatform API request failed.
-
-    """
-    status_code = 502  # Bad Gateway
-    default_detail = 'Bad Gateway'
-    default_code = 'jwplatform_api_error'
-
-
-def check_api_call(response):
-    """
-    Take a response from a JWPlatform API call and raise :py:exc:`JWPAPIException` if the status
-    was not ``ok``.
-
-    """
-    if response.get('status') == 'ok':
-        return response
-
-    LOG.error('API call error: %r', response)
-    raise JWPAPIException()
 
 
 class ProfileView(generics.RetrieveAPIView):
