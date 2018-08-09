@@ -6,7 +6,7 @@ import logging
 
 from django.db import models
 from django.conf import settings
-from django_filters.rest_framework import DjangoFilterBackend
+from django_filters import rest_framework as df_filters
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
@@ -143,13 +143,14 @@ class MediaItemListView(MediaItemListMixin, generics.ListCreateAPIView):
     Endpoint to retrieve a list of media.
 
     """
-    filter_backends = (filters.OrderingFilter, MediaItemListSearchFilter, DjangoFilterBackend)
+    filter_backends = (
+        filters.OrderingFilter, MediaItemListSearchFilter, df_filters.DjangoFilterBackend)
     ordering = '-publishedAt'
     ordering_fields = ('publishedAt',)
     pagination_class = ListPagination
     search_fields = ('title', 'description', 'tags')
     serializer_class = serializers.MediaItemSerializer
-    filter_fields = ('channel',)
+    filterset_fields = ('channel',)
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -209,17 +210,32 @@ class ChannelMixin(ChannelListMixin):
     """
 
 
+class ChannelListFilterSet(df_filters.FilterSet):
+    class Meta:
+        model = mpmodels.Channel
+        fields = ('editable',)
+
+    editable = df_filters.BooleanFilter(
+        label='Editable', help_text='Filter by whether the user can edit this channel')
+
+
 class ChannelListView(ChannelListMixin, generics.ListCreateAPIView):
     """
     Endpoint to retrieve a list of channels.
 
     """
-    filter_backends = (filters.OrderingFilter, filters.SearchFilter)
-    ordering = '-created_at'
-    ordering_fields = ('created_at', 'title')
+    filter_backends = (
+        filters.OrderingFilter, filters.SearchFilter, df_filters.DjangoFilterBackend)
+    ordering = '-createdAt'
+    ordering_fields = ('createdAt', 'title')
     pagination_class = ListPagination
     search_fields = ('title', 'description')
     serializer_class = serializers.ChannelSerializer
+    filterset_class = ChannelListFilterSet
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.annotate(createdAt=models.F('created_at'))
 
 
 class ChannelView(ChannelMixin, generics.RetrieveUpdateAPIView):
