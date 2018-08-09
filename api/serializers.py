@@ -7,6 +7,7 @@ from rest_framework import serializers
 from smsjwplatform import jwplatform
 from mediaplatform import models as mpmodels
 from mediaplatform_jwp import management
+from smsjwplatform.jwplatform import VideoNotFoundError
 
 LOG = logging.getLogger(__name__)
 
@@ -106,9 +107,15 @@ class MediaItemLinksSerializer(serializers.Serializer):
 
     def get_sources(self, obj):
         if not obj.downloadable or not hasattr(obj, 'jwp'):
-            return None
+            return []
 
-        video = jwplatform.DeliveryVideo.from_key(obj.jwp.key)
+        try:
+            video = jwplatform.DeliveryVideo.from_key(obj.jwp.key)
+        except VideoNotFoundError as e:
+            # this can occur if the video is still transcoding - better to set the sources to none
+            # than fail completely
+            LOG.warning("unable to generate download sources as the JW video is not yet available")
+            return []
 
         return SourceSerializer(video.get('sources'), many=True).data
 
