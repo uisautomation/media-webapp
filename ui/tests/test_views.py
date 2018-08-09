@@ -72,6 +72,16 @@ class MediaViewTestCase(ViewTestCase):
         content = r.content.decode('utf8')
         self.assertNotIn('<some-tag>', content)
 
+    def test_profile(self):
+        """check that the user's profile is embedded in the page."""
+        item = self.non_deleted_media.get(id='populated')
+        r = self.client.get(reverse('ui:media_item', kwargs={'pk': item.pk}))
+
+        self.assertEqual(r.status_code, 200)
+        self.assertTemplateUsed(r, 'ui/media.html')
+        content = r.content.decode('utf8')
+        self.assertIn('<script type="application/profile+json">', content)
+
 
 class UploadViewTestCase(ViewTestCase):
     def setUp(self):
