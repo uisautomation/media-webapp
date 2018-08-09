@@ -159,6 +159,12 @@ class ProfileSerializer(serializers.Serializer):
     """
     isAnonymous = serializers.BooleanField(source='is_anonymous')
     username = serializers.CharField()
+    channels = serializers.SerializerMethodField(
+        help_text="List of channels which the user has edit rights on")
+
+    def get_channels(self, obj):
+        qs = mpmodels.Channel.objects.all().editable_by_user(obj)
+        return ChannelSerializer(qs, many=True, context=self.context).data
 
 
 class SourceSerializer(serializers.Serializer):

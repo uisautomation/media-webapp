@@ -65,6 +65,32 @@ class ProfileViewTestCase(ViewTestCase):
         self.assertFalse(response.data['isAnonymous'])
         self.assertEqual(response.data['username'], self.user.username)
 
+    def test_anonymous_channels(self):
+        """An anonymous user should have no editable channels"""
+        response = self.view(self.get_request)
+        channels = mpmodels.Channel.objects.all().editable_by_user(self.user)
+        self.assertFalse(channels.exists())
+        self.assertEqual(response.data['channels'], [])
+
+    def test_authenticated_channels(self):
+        """An authenticated user should get their channels back."""
+        c1 = mpmodels.Channel.objects.create(title='c1')
+        c1.edit_permission.reset()
+        c1.edit_permission.save()
+        c2 = mpmodels.Channel.objects.create(title='c2')
+        c2.edit_permission.crsids.append(self.user.username)
+        c2.edit_permission.save()
+
+        expected_channels = mpmodels.Channel.objects.all().editable_by_user(self.user)
+        self.assertTrue(expected_channels.exists())
+
+        expected_ids = set(c.id for c in expected_channels)
+        force_authenticate(self.get_request, user=self.user)
+        response = self.view(self.get_request)
+        received_ids = set(c['id'] for c in response.data['channels'])
+
+        self.assertEqual(expected_ids, received_ids)
+
 
 class MediaItemListViewTestCase(ViewTestCase):
     def setUp(self):
