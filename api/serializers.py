@@ -157,9 +157,8 @@ class ProfileSerializer(serializers.Serializer):
     The profile of the current user.
 
     """
-    is_anonymous = serializers.BooleanField(source='user.is_anonymous')
-    username = serializers.CharField(source='user.username')
-    urls = serializers.DictField()
+    isAnonymous = serializers.BooleanField(source='is_anonymous')
+    username = serializers.CharField()
 
 
 class SourceSerializer(serializers.Serializer):

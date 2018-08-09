@@ -56,19 +56,14 @@ class ProfileViewTestCase(ViewTestCase):
     def test_anonymous(self):
         """An anonymous user should have is_anonymous set to True."""
         response = self.view(self.get_request)
-        self.assertTrue(response.data['is_anonymous'])
+        self.assertTrue(response.data['isAnonymous'])
 
     def test_authenticated(self):
         """An anonymous user should have is_anonymous set to False and username set."""
         force_authenticate(self.get_request, user=self.user)
         response = self.view(self.get_request)
-        self.assertFalse(response.data['is_anonymous'])
+        self.assertFalse(response.data['isAnonymous'])
         self.assertEqual(response.data['username'], self.user.username)
-
-    def test_urls(self):
-        """The profile should include a login URL."""
-        response = self.view(self.get_request)
-        self.assertIn('login', response.data['urls'])
 
 
 class MediaItemListViewTestCase(ViewTestCase):

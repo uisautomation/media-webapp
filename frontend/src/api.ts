@@ -123,11 +123,9 @@ export interface ICollectionQuery {
 
 /** A profile response. */
 export interface IProfileResponse {
-  is_anonymous: boolean;
+  isAnonymous: boolean;
   username?: string;
-  urls: {
-    login: string;
-  };
+  channels: IChannelResource[];
 };
 
 /** A channel resource. */

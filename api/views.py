@@ -5,12 +5,8 @@ Views implementing the API endpoints.
 import logging
 
 from django.db import models
-from django.conf import settings
 from django_filters import rest_framework as df_filters
-from drf_yasg.utils import swagger_auto_schema
 from rest_framework.exceptions import APIException
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework import generics, pagination, filters
 
 import mediaplatform.models as mpmodels
@@ -46,20 +42,15 @@ def check_api_call(response):
     raise JWPAPIException()
 
 
-class ProfileView(APIView):
+class ProfileView(generics.RetrieveAPIView):
     """
     Endpoint to retrieve the profile of the current user.
 
     """
-    @swagger_auto_schema(
-        responses={200: serializers.ProfileSerializer()}
-    )
-    def get(self, request):
-        """Handle GET request."""
-        urls = {'login': settings.LOGIN_URL}
-        return Response(serializers.ProfileSerializer({
-            'user': request.user, 'urls': urls,
-        }).data)
+    serializer_class = serializers.ProfileSerializer
+
+    def get_object(self):
+        return self.request.user
 
 
 class ListPagination(pagination.CursorPagination):
