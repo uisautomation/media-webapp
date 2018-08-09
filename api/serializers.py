@@ -1,6 +1,8 @@
+from collections import namedtuple
 import logging
 from urllib import parse as urlparse
 
+from django.db import connection
 from django.conf import settings
 from django.urls import reverse
 from django.utils.http import urlencode
@@ -234,27 +236,40 @@ class MediaItemDetailSerializer(MediaItemSerializer):
         return SourceSerializer(video.get('sources'), many=True).data
 
 
-class MediaAnalyticsItemSerializer(serializers.Serializer):
+class MediaItemAnalyticsSerializer(serializers.Serializer):
     """
     The number of viewing for a particular media item on a particular day.
 
     """
-    date = serializers.SerializerMethodField(help_text='The day when a media was viewed')
-    views = serializers.SerializerMethodField(help_text='The number of media views on a day')
-
-    def get_date(self, row):
-        return str(row[0])
-
-    def get_views(self, row):
-        return row[1]
+    date = serializers.DateField(
+        source='day', help_text='The day when a media was viewed', read_only=True)
+    views = serializers.IntegerField(
+        source='num_hits', help_text='The number of media views on a day', read_only=True)
 
 
-class MediaAnalyticsListSerializer(serializers.Serializer):
+class MediaItemAnalyticsListSerializer(serializers.Serializer):
     """
     A list of media analytics data points.
 
     """
-    results = MediaAnalyticsItemSerializer(many=True, source='*')
+    results = serializers.SerializerMethodField()
+
+    ResultRow = namedtuple('ResultRow', 'day num_hits')
+
+    def get_results(self, obj):
+        results = []
+        if hasattr(obj, 'sms'):
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT day, num_hits FROM stats.media_stats_by_day WHERE media_id=%s",
+                    [obj.sms.id]
+                )
+                results = [
+                    MediaItemAnalyticsListSerializer.ResultRow._make(row)
+                    for row in cursor.fetchall()
+                ]
+
+        return MediaItemAnalyticsSerializer(results, many=True).data
 
 
 class ChannelDetailSerializer(ChannelSerializer):

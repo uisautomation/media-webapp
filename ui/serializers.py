@@ -94,3 +94,12 @@ class ChannelPageSerializer(serializers.Serializer):
 
     """
     resource = apiserializers.ChannelDetailSerializer(source='*')
+
+
+class MediaItemAnalyticsPageSerializer(serializers.Serializer):
+    """
+    A serialiser for media items which renders the media item resource and analytics into the view.
+
+    """
+    resource = apiserializers.MediaItemDetailSerializer(source='*')
+    analytics = apiserializers.MediaItemAnalyticsListSerializer(source='*')

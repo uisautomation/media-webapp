@@ -8,10 +8,11 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 import smsjwplatform.jwplatform as api
-from api.tests.test_views import ViewTestCase, DELIVERY_VIDEO_FIXTURE
+from api.tests import create_stats_table, delete_stats_table
+from api.tests.test_views import ViewTestCase as _ViewTestCase, DELIVERY_VIDEO_FIXTURE
 
 
-class ViewsTestCase(ViewTestCase):
+class ViewTestCase(_ViewTestCase):
     def setUp(self):
         super().setUp()
         dv_patch = mock.patch('smsjwplatform.jwplatform.DeliveryVideo.from_key')
@@ -19,6 +20,8 @@ class ViewsTestCase(ViewTestCase):
         self.mock_from_id.return_value = api.DeliveryVideo(DELIVERY_VIDEO_FIXTURE)
         self.addCleanup(dv_patch.stop)
 
+
+class MediaViewTestCase(ViewTestCase):
     def test_success(self):
         """checks that a media item is rendered successfully"""
         item = self.non_deleted_media.get(id='populated')
@@ -72,6 +75,7 @@ class ViewsTestCase(ViewTestCase):
 
 class UploadViewTestCase(ViewTestCase):
     def setUp(self):
+        super().setUp()
         self.user = get_user_model().objects.create(username='spqr1')
 
     def test_requires_login(self):
@@ -82,13 +86,14 @@ class UploadViewTestCase(ViewTestCase):
         self.assertEqual(r.status_code, 200)
 
 
-class MediaAnalyticsViewTestCase(ViewTestCase):
+class MediaItemAnalyticsViewTestCase(ViewTestCase):
+    def setUp(self):
+        super().setUp()
+        create_stats_table()
+        self.addCleanup(delete_stats_table)
 
-    @mock.patch('api.views.get_cursor')
-    def test_success(self, mock_get_cursor):
+    def test_success(self):
         """checks that a media item's analytics are rendered successfully"""
-
-        mock_get_cursor.return_value.__enter__.return_value.fetchall.return_value = []
 
         item = self.non_deleted_media.get(id='populated')
 
@@ -97,4 +102,4 @@ class MediaAnalyticsViewTestCase(ViewTestCase):
 
         self.assertEqual(r.status_code, 200)
         self.assertTemplateUsed(r, 'ui/analytics.html')
-        self.assertEqual(len(r.context['results']), 0)
+        self.assertEqual(len(r.context['analytics']['results']), 0)

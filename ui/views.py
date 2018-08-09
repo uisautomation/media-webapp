@@ -31,12 +31,15 @@ def upload(request):
     return render(request, 'ui/upload.html')
 
 
-class MediaAnalyticsView(apiviews.MediaAnalyticsView):
+# The UI views are not part of the API and should not appear in the swagger docs
+@method_decorator(name='get', decorator=swagger_auto_schema(auto_schema=None))
+class MediaItemAnalyticsView(apiviews.MediaItemMixin, generics.RetrieveAPIView):
     """
     View for rendering an individual media item's analytics.
     Extends the DRF's media item analytics view.
 
     """
+    serializer_class = serializers.MediaItemAnalyticsPageSerializer
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'ui/analytics.html'
 

@@ -11,6 +11,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 import smsjwplatform.jwplatform as api
 import mediaplatform.models as mpmodels
 
+from . import create_stats_table, delete_stats_table, add_stat
 from .. import views
 
 
@@ -385,20 +386,21 @@ class UploadEndpointTestCase(ViewTestCase):
         self.item.channel.edit_permission.save()
 
 
-class MediaAnalyticsViewCase(ViewTestCase):
+class MediaItemAnalyticsViewCase(ViewTestCase):
+    def setUp(self):
+        super().setUp()
+        create_stats_table()
+        self.addCleanup(delete_stats_table)
 
-    @mock.patch('api.views.get_cursor')
-    def test_success(self, mock_get_cursor):
+    def test_success(self):
         """Check that analytics for a media item is returned"""
-
-        mock_get_cursor.return_value.__enter__.return_value.fetchall.return_value = [
-            (datetime.date(2018, 5, 17), 3), (datetime.date(2018, 3, 22), 4)
-        ]
-
         item = self.non_deleted_media.get(id='populated')
+        media_id = item.sms.id
+        add_stat(day=datetime.date(2018, 5, 17), num_hits=3, media_id=media_id)
+        add_stat(day=datetime.date(2018, 3, 22), num_hits=4, media_id=media_id)
 
         # test
-        response = views.MediaAnalyticsView().as_view()(self.get_request, pk=item.id)
+        response = views.MediaItemAnalyticsView().as_view()(self.get_request, pk=item.id)
 
         self.assertEqual(response.status_code, 200)
 
@@ -416,7 +418,7 @@ class MediaAnalyticsViewCase(ViewTestCase):
         item = self.non_deleted_media.get(id='a')
 
         # test
-        response = views.MediaAnalyticsView().as_view()(self.get_request, pk=item.id)
+        response = views.MediaItemAnalyticsView().as_view()(self.get_request, pk=item.id)
 
         self.assertEqual(response.status_code, 200)
 
