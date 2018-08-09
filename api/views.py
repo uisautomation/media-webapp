@@ -4,6 +4,7 @@ Views implementing the API endpoints.
 """
 import logging
 
+from django.db import models
 from django.conf import settings
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
@@ -143,12 +144,16 @@ class MediaItemListView(MediaItemListMixin, generics.ListCreateAPIView):
 
     """
     filter_backends = (filters.OrderingFilter, MediaItemListSearchFilter, DjangoFilterBackend)
-    ordering = '-published_at'
-    ordering_fields = ('published_at',)
+    ordering = '-publishedAt'
+    ordering_fields = ('publishedAt',)
     pagination_class = ListPagination
     search_fields = ('title', 'description', 'tags')
     serializer_class = serializers.MediaItemSerializer
     filter_fields = ('channel',)
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.annotate(publishedAt=models.F('published_at'))
 
 
 class MediaItemView(MediaItemMixin, generics.RetrieveUpdateAPIView):
