@@ -1,7 +1,5 @@
 from rest_framework import permissions
 
-import mediaplatform.models as mpmodels
-
 
 class ObjectNotAnnotated(RuntimeError):
     """
@@ -12,7 +10,7 @@ class ObjectNotAnnotated(RuntimeError):
     """
 
 
-class MediaItemPermission(permissions.BasePermission):
+class MediaPlatformPermission(permissions.BasePermission):
     """
     A permission which allows a user access to "safe" HTTP methods if they have the view permission
     and *additionally* requires the edit permission for "unsafe" HTTP methods.
@@ -38,14 +36,11 @@ class MediaItemPermission(permissions.BasePermission):
         return True
 
     def has_object_permission(self, request, view, obj):
-        return self.has_media_item_permission(
+        return self._has_object_permissions(
             request, obj, requires_view=True,
             requires_edit=request.method not in permissions.SAFE_METHODS)
 
-    def has_media_item_permission(self, request, obj, requires_view, requires_edit):
-        # Sanity check that the passed object is a MediaItem.
-        assert isinstance(obj, mpmodels.MediaItem)
-
+    def _has_object_permissions(self, request, obj, requires_view, requires_edit):
         if requires_view and not hasattr(obj, 'viewable'):
             raise ObjectNotAnnotated('Item should be annotated via annotate_viewable()')
 
@@ -55,12 +50,12 @@ class MediaItemPermission(permissions.BasePermission):
         return (not requires_view or obj.viewable) and (not requires_edit or obj.editable)
 
 
-class MediaItemEditPermission(MediaItemPermission):
+class MediaPlatformEditPermission(MediaPlatformPermission):
     """
-    Like :py:class:`~.MediaItemPermission` except that the edit permission must *always* be
+    Like :py:class:`~.MediaPlatformPermission` except that the edit permission must *always* be
     present.
 
     """
     def has_object_permission(self, request, view, obj):
-        return self.has_media_item_permission(
+        return self._has_object_permissions(
             request, obj, requires_view=True, requires_edit=True)

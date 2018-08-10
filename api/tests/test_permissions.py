@@ -7,7 +7,7 @@ import mediaplatform.models as mpmodels
 from .. import permissions
 
 
-class MediaItemPermissionTestCase(TestCase):
+class MediaPlatformPermissionTestCase(TestCase):
     fixtures = ['api/tests/fixtures/mediaitems.yaml']
 
     def setUp(self):
@@ -15,8 +15,8 @@ class MediaItemPermissionTestCase(TestCase):
         self.safe_request = self.factory.get('/')
         self.unsafe_request = self.factory.post('/')
         self.item = mpmodels.MediaItem.objects.get(id='empty')
-        self.permission = permissions.MediaItemPermission()
-        self.view = None  # if MediaItemPermission start using this, we need to set it
+        self.permission = permissions.MediaPlatformPermission()
+        self.view = None  # if MediaPlatformPermission start using this, we need to set it
 
     def test_safe_allowed_in_general(self):
         self.assert_safe_has_permission()
@@ -105,10 +105,10 @@ class MediaItemPermissionTestCase(TestCase):
         return qs.get(id=self.item.id)
 
 
-class MediaItemEditPermissionTestCase(MediaItemPermissionTestCase):
+class MediaPlatformEditPermissionTestCase(MediaPlatformPermissionTestCase):
     def setUp(self):
         super().setUp()
-        self.permission = permissions.MediaItemEditPermission()
+        self.permission = permissions.MediaPlatformEditPermission()
 
     def test_safe_requires_viewable_object(self):
         self.item.channel.edit_permission.reset()

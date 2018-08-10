@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import {
-  mediaList, mediaResourceToItem
+  mediaList, channelList, mediaResourceToItem, channelResourceToItem
 } from '../api';
 
 const { Provider, Consumer } = React.createContext();
 
 /**
- * Provide media search results to descendent components. The query prop is
+ * Provide combined media and collection search results to descendent components. The query prop is
  * an object which provides the query which is passed to the API. For the moment this query object
  * has one key: search, a text field which is matched against title and description.
  */
@@ -47,7 +47,7 @@ class SearchResultsProvider extends Component {
 
     // If there is no query, simply blank all results and return.
     if(query === null) {
-      this.setState({ resultItems: null, isLoading: false});
+      this.setState({ mediaResults: null, collectionResults: null, isLoading: false});
       return;
     }
 
@@ -60,11 +60,11 @@ class SearchResultsProvider extends Component {
     const queryPart = (urlParamsString !== '') ? ('?' + urlParamsString) : '';
 
     // Otherwise launch the query.
-    mediaList(query).then(
-      (mediaBody) => {
+    Promise.all([mediaList(query), channelList(query)]).then(
+      ([mediaBody, channelsBody]) => {
         // Ignore responses if they aren't in response to the most recent request.
         if(this.state.lastFetchIndex !== fetchIndex) { return; }
-        const resultItems = mediaBody.results.map(mediaResourceToItem);
+        const resultItems = this.mergeResults(mediaBody, channelsBody)
         this.setState({ resultItems, error: null, isLoading: false });
       },
       error => {
@@ -73,6 +73,14 @@ class SearchResultsProvider extends Component {
         this.setState({ results: null, error, isLoading: false });
       }
     );
+  }
+
+  mergeResults(mediaResults, channelResults) {
+    const { maxCollectionResults } = this.props;
+    return [
+      ...channelResults.results.slice(0, maxCollectionResults).map(channelResourceToItem),
+      ...mediaResults.results.map(mediaResourceToItem),
+    ];
   }
 
   render() {

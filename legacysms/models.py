@@ -36,9 +36,17 @@ class Collection(models.Model):
 
     #: Corresponding :py:class:`mediaplatform.Channel`. Accessible from the
     #: :py:class:`mediaplatform.Channel` model via the ``sms`` field. This can be NULL if there
-    #: is no corresponding collection hosted by the Media Platform.
+    #: is no corresponding channel hosted by the Media Platform.
     channel = models.OneToOneField(
         'mediaplatform.Channel', related_name='sms', on_delete=models.SET_NULL, null=True,
+        editable=False)
+
+    #: Every *sms* Collection has exactly one 'shadow' playlist.
+    #: Corresponding :py:class:`mediaplatform.Playlist`.
+    #: Accessible from the :py:class:`mediaplatform.Playlist` model via the ``sms`` field.
+    #: This can be NULL if there is no corresponding playlist hosted by the Media Platform.
+    playlist = models.OneToOneField(
+        'mediaplatform.Playlist', related_name='sms', on_delete=models.SET_NULL, null=True,
         editable=False)
 
     #: The last updated at time from the legacy SMS. Used to determine which collections need

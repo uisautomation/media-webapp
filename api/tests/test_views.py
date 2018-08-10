@@ -28,6 +28,8 @@ class ViewTestCase(TestCase):
         self.media_including_deleted = mpmodels.MediaItem.objects_including_deleted.all()
         self.viewable_by_anon = self.non_deleted_media.viewable_by_user(AnonymousUser())
         self.viewable_by_user = self.non_deleted_media.viewable_by_user(self.user)
+        self.channels = mpmodels.Channel.objects.all()
+        self.channels_including_deleted = mpmodels.Channel.objects_including_deleted.all()
 
     def patch_get_jwplatform_client(self):
         self.get_jwplatform_client_patcher = mock.patch(
@@ -174,6 +176,84 @@ class MediaItemViewTestCase(ViewTestCase):
         # sources cannot be generated and so are set as []
         self.assertEqual(response.data['links']['sources'], [])
 
+    def test_id_immutable(self):
+        self.assert_field_immutable('id')
+
+    def test_title_mutable(self):
+        self.assert_field_mutable('title')
+
+    def test_downloadable_mutable(self):
+        self.assert_field_mutable('downloadable', True)
+        self.assert_field_mutable('downloadable', False)
+
+    def test_language_mutable(self):
+        self.assert_field_mutable('language', 'elx')
+
+    def test_copyright_mutable(self):
+        self.assert_field_mutable('copyright')
+
+    def test_tags_mutable(self):
+        self.assert_field_mutable('tags', ['a', 'b', 'c'])
+
+    def test_published_at_mutable(self):
+        item = self.non_deleted_media.get(id='populated')
+        new_date = item.published_at + datetime.timedelta(seconds=123456789)
+        self.assert_field_mutable('publishedAt', new_date.isoformat(), 'published_at', new_date)
+
+    def test_description_mutable(self):
+        self.assert_field_mutable('description')
+
+    def test_duration_immutable(self):
+        self.assert_field_immutable('duration', 9876)
+
+    def test_type_immutable(self):
+        self.assert_field_immutable('type')
+
+    def test_created_at_immutable(self):
+        self.assert_field_immutable('createdAt', '2018-08-06T15:29:45.003231Z', 'created_at')
+
+    def assert_field_mutable(
+            self, field_name, new_value='testvalue', model_field_name=None, expected_value=None):
+        expected_value = expected_value or new_value
+        model_field_name = model_field_name or field_name
+        request = self.factory.patch('/', {field_name: new_value}, format='json')
+
+        item = self.non_deleted_media.get(id='populated')
+        item.channel.edit_permission.crsids.append(self.user.username)
+        item.channel.edit_permission.save()
+
+        # Unauthorised request should fail
+        response = self.view(request, pk=item.id)
+        self.assertEqual(response.status_code, 403)
+
+        force_authenticate(request, user=self.user)
+        response = self.view(request, pk=item.id)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(
+            getattr(self.non_deleted_media.get(id='populated'), model_field_name), expected_value)
+
+    def assert_field_immutable(self, field_name, new_value='test value', model_field_name=None):
+        model_field_name = model_field_name or field_name
+        request = self.factory.patch('/', {field_name: new_value}, format='json')
+
+        item = self.non_deleted_media.get(id='populated')
+        item.channel.edit_permission.crsids.append(self.user.username)
+        item.channel.edit_permission.save()
+
+        # Unauthorised request should fail
+        response = self.view(request, pk=item.id)
+        self.assertEqual(response.status_code, 403)
+
+        # Authorised request should have no effect
+        original_value = getattr(item, model_field_name)
+        self.assertNotEqual(original_value, new_value)
+        force_authenticate(request, user=self.user)
+        response = self.view(request, pk=item.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            getattr(self.non_deleted_media.get(id='populated'), model_field_name), original_value)
+
 
 class UploadEndpointTestCase(ViewTestCase):
     fixtures = ['api/tests/fixtures/mediaitems.yaml']
@@ -286,6 +366,103 @@ class MediaAnalyticsViewCase(ViewTestCase):
         results = response.data['results']
 
         self.assertEqual(len(results), 0)
+
+
+class ChannelListViewTestCase(ViewTestCase):
+    def setUp(self):
+        super().setUp()
+        self.view = views.ChannelListView().as_view()
+
+    def test_basic_list(self):
+        """An anonymous user should get expected channels back."""
+        response_data = self.view(self.get_request).data
+        self.assertIn('results', response_data)
+
+        self.assertNotEqual(len(response_data['results']), 0)
+        self.assertEqual(len(response_data['results']), self.channels.count())
+
+        expected_ids = set(o.id for o in self.channels)
+        for item in response_data['results']:
+            self.assertIn(item['id'], expected_ids)
+
+
+class ChannelViewTestCase(ViewTestCase):
+    def setUp(self):
+        super().setUp()
+        self.view = views.ChannelView().as_view()
+        # A suitable test channel
+        self.channel = self.channels.get(id='channel1')
+
+    def test_success(self):
+        """Check that a channel is successfully returned"""
+        response = self.view(self.get_request, pk=self.channel.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['id'], self.channel.id)
+        self.assertEqual(response.data['title'], self.channel.title)
+
+    def test_not_found(self):
+        """Check that a 404 is returned if no channel is found"""
+        response = self.view(self.get_request, pk='this-channel-id-does-not-exist')
+        self.assertEqual(response.status_code, 404)
+
+    def test_deleted_not_found(self):
+        """Check that a 404 is returned if a deleted channel item is asked for."""
+        deleted_item = self.channels_including_deleted.filter(deleted_at__isnull=False).first()
+        self.assertIsNotNone(deleted_item)
+        response = self.view(self.get_request, pk=deleted_item.id)
+        self.assertEqual(response.status_code, 404)
+
+    def test_id_immutable(self):
+        self.assert_field_immutable('id')
+
+    def test_title_mutable(self):
+        self.assert_field_mutable('title')
+
+    def test_description_mutable(self):
+        self.assert_field_mutable('description')
+
+    def test_created_at_immutable(self):
+        self.assert_field_immutable('createdAt', '2018-08-06T15:29:45.003231Z', 'created_at')
+
+    def assert_field_mutable(
+            self, field_name, new_value='testvalue', model_field_name=None, expected_value=None):
+        expected_value = expected_value or new_value
+        model_field_name = model_field_name or field_name
+        request = self.factory.patch('/', {field_name: new_value}, format='json')
+
+        self.channel.edit_permission.crsids.append(self.user.username)
+        self.channel.edit_permission.save()
+
+        # Unauthorised request should fail
+        response = self.view(request, pk=self.channel.id)
+        self.assertEqual(response.status_code, 403)
+
+        force_authenticate(request, user=self.user)
+        response = self.view(request, pk=self.channel.id)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(
+            getattr(self.channels.get(id=self.channel.id), model_field_name), expected_value)
+
+    def assert_field_immutable(self, field_name, new_value='test value', model_field_name=None):
+        model_field_name = model_field_name or field_name
+        request = self.factory.patch('/', {field_name: new_value}, format='json')
+
+        self.channel.edit_permission.crsids.append(self.user.username)
+        self.channel.edit_permission.save()
+
+        # Unauthorised request should fail
+        response = self.view(request, pk=self.channel.id)
+        self.assertEqual(response.status_code, 403)
+
+        # Authorised request should have no effect
+        original_value = getattr(self.channel, model_field_name)
+        self.assertNotEqual(original_value, new_value)
+        force_authenticate(request, user=self.user)
+        response = self.view(request, pk=self.channel.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            getattr(self.channels.get(id=self.channel.id), model_field_name), original_value)
 
 
 CHANNELS_FIXTURE = [

@@ -1,0 +1,8 @@
+{% extends 'index.html' %}
+{% load to_json %}
+{% block title %}{{ resource.title }}{% endblock %}
+{% block extrabody %}
+<script type="application/resource+json">
+{{ resource|to_json }}
+</script>
+{% endblock %}
