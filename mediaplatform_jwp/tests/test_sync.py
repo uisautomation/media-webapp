@@ -263,6 +263,27 @@ class SyncTestCase(TestCase):
         self.assertEqual(c.items.all()[0].title, 'test title')
         self.assertEqual(c.owning_lookup_inst, 'UIS')
 
+    def test_basic_playlist_functionality(self):
+        """If a new video and channel appears on JWP, objects are created."""
+        self.assertEqual(mpmodels.MediaItem.objects.count(), 0)
+        set_resources_and_sync(
+            [make_video(title='test title', media_id='1')],
+            [make_channel(
+                title='Didius Julianus',
+                description='What evil have I done?',
+                media_ids=['1'],
+                collection_id='2',
+                instid='UIS',
+            )],
+        )
+        media_item = mpmodels.MediaItem.objects.first()
+        playlist = mpmodels.Playlist.objects.filter(sms__id='2').first()
+
+        self.assertEqual(playlist.title, 'Didius Julianus')
+        self.assertEqual(playlist.description, 'What evil have I done?')
+        self.assertEqual(len(playlist.media_items), 1)
+        self.assertEqual(playlist.media_items[0], media_item.id)
+
     def test_adding_media_to_channel(self):
         """If a new video and channel appears on JWP, objects are created."""
         videos = [
@@ -278,6 +299,9 @@ class SyncTestCase(TestCase):
         channels[0]['updated'] += 1
         set_resources_and_sync(videos, channels)
         self.assertEqual(len(c.items.all()), 2)
+        # also check playlist
+        playlist = mpmodels.Playlist.objects.filter(sms__id='3').first()
+        self.assertEqual(len(playlist.media_items), 2)
 
     def test_edit_acls(self):
         videos = [
@@ -335,6 +359,10 @@ class SyncTestCase(TestCase):
         self.assertEqual(c1.sms.id, 2)
         self.assertEqual(legacymodels.Collection.objects.filter(id=2).count(), 1)
 
+        # check the Playlist has SMS object
+        playlist = mpmodels.Playlist.objects.filter(sms__id='2').first()
+        self.assertTrue(hasattr(playlist, 'sms'))
+
         # Simulate a SMS delete
         del channels[0]['custom']['sms_collection_id']
         channels[0]['updated'] += 1
@@ -344,6 +372,10 @@ class SyncTestCase(TestCase):
         c1_v2 = mpmodels.Channel.objects.get(jwp__key=channels[0].key)
         self.assertFalse(hasattr(c1_v2, 'sms'))
         self.assertEqual(legacymodels.Collection.objects.filter(id=2).count(), 0)
+
+        # check the Playlist doesn't have SMS object
+        playlist = mpmodels.Playlist.objects.get(id=playlist.id)
+        self.assertFalse(hasattr(playlist, 'sms'))
 
     def assert_attribute_sync(self, video_attr, model_attr=None, test_value='testing'):
         """

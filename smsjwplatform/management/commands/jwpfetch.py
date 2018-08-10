@@ -69,7 +69,7 @@ class Command(BaseCommand):
             self.stdout.write('Fetching channels...')
             models.set_resources(self.fetch_channels(), 'channel')
 
-        # Print out the total number of videos cached
+        # Print out the total number of channels cached
         self.stdout.write(self.style.SUCCESS('Number of cached channel resources: {}'.format(
             models.CachedResource.channels.count()
         )))
@@ -82,7 +82,7 @@ class Command(BaseCommand):
             mediaplatform.models.MediaItem.objects.count()
         )))
 
-        # Print out the total number of videos cached
+        # Print out the total number of channels
         self.stdout.write(self.style.SUCCESS('Number of channels: {}'.format(
             mediaplatform.models.Channel.objects.count()
         )))
