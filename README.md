@@ -72,7 +72,7 @@ $ ./tox.sh -e flake8
 $ ./manage_development.sh migrate
 
 # Run tests and write coverage/documentation to build directory
-$ COMPOSE_ARGS="-v ./build:/tmp/tox-data/artefacts" ./tox.sh
+$ ./compose.sh tox run -v $PWD:/tmp/workspace -e TOXINI_ARTEFACT_DIR=/tmp/workspace/build --rm tox
 ```
 
 ## Dockerfile configuration

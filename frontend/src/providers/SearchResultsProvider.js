@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import {
-  mediaList, collectionList, mediaResourceToItem, collectionResourceToItem
+  mediaList, mediaResourceToItem
 } from '../api';
 
 const { Provider, Consumer } = React.createContext();
 
 /**
- * Provide combined media and collection search results to descendent components. The query prop is
+ * Provide media search results to descendent components. The query prop is
  * an object which provides the query which is passed to the API. For the moment this query object
  * has one key: search, a text field which is matched against title and description.
  */
@@ -47,7 +47,7 @@ class SearchResultsProvider extends Component {
 
     // If there is no query, simply blank all results and return.
     if(query === null) {
-      this.setState({ mediaResults: null, collectionResults: null, isLoading: false});
+      this.setState({ resultItems: null, isLoading: false});
       return;
     }
 
@@ -60,11 +60,11 @@ class SearchResultsProvider extends Component {
     const queryPart = (urlParamsString !== '') ? ('?' + urlParamsString) : '';
 
     // Otherwise launch the query.
-    Promise.all([mediaList(query), collectionList(query)]).then(
-      ([mediaBody, collectionsBody]) => {
+    mediaList(query).then(
+      (mediaBody) => {
         // Ignore responses if they aren't in response to the most recent request.
         if(this.state.lastFetchIndex !== fetchIndex) { return; }
-        const resultItems = this.mergeResults(mediaBody, collectionsBody)
+        const resultItems = mediaBody.results.map(mediaResourceToItem);
         this.setState({ resultItems, error: null, isLoading: false });
       },
       error => {
@@ -73,15 +73,6 @@ class SearchResultsProvider extends Component {
         this.setState({ results: null, error, isLoading: false });
       }
     );
-  }
-
-  mergeResults(mediaResults, collectionResults) {
-    // tslint:disable-next-line:no-console
-    const { maxCollectionResults } = this.props;
-    return [
-      ...collectionResults.results.slice(0, maxCollectionResults).map(collectionResourceToItem),
-      ...mediaResults.results.map(mediaResourceToItem),
-    ];
   }
 
   render() {

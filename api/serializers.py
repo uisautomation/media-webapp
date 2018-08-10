@@ -7,6 +7,7 @@ from rest_framework import serializers
 from smsjwplatform import jwplatform
 from mediaplatform import models as mpmodels
 from mediaplatform_jwp import management
+from smsjwplatform.jwplatform import VideoNotFoundError
 
 LOG = logging.getLogger(__name__)
 
@@ -106,9 +107,15 @@ class MediaItemLinksSerializer(serializers.Serializer):
 
     def get_sources(self, obj):
         if not obj.downloadable or not hasattr(obj, 'jwp'):
-            return None
+            return []
 
-        video = jwplatform.DeliveryVideo.from_key(obj.jwp.key)
+        try:
+            video = jwplatform.DeliveryVideo.from_key(obj.jwp.key)
+        except VideoNotFoundError as e:
+            # this can occur if the video is still transcoding - better to set the sources to none
+            # than fail completely
+            LOG.warning("unable to generate download sources as the JW video is not yet available")
+            return []
 
         return SourceSerializer(video.get('sources'), many=True).data
 
@@ -122,47 +129,6 @@ class MediaItemDetailSerializer(MediaItemSerializer):
         fields = MediaItemSerializer.Meta.fields + ('links',)
 
     links = MediaItemLinksSerializer(source='*', read_only=True)
-
-
-class CollectionSerializer(serializers.Serializer):
-    """
-    An individual collection.
-
-    """
-    id = serializers.CharField(source='key', help_text='Unique id for the collection')
-    title = serializers.CharField(help_text='Title of collection')
-    description = serializers.CharField(help_text='Description of collection')
-    poster_image_url = serializers.SerializerMethodField(
-        help_text='A URL of a thumbnail/poster image for the collection')
-    collection_id = serializers.SerializerMethodField(help_text='Unique id for an SMS collection')
-
-    def get_collection_id(self, obj):
-        return obj.collection_id
-
-    def get_poster_image_url(self, obj):
-        return obj.get_poster_url()
-
-
-class CollectionListSerializer(serializers.Serializer):
-    """
-    A collection list response.
-
-    """
-    results = CollectionSerializer(many=True, source='channels')
-    limit = serializers.IntegerField()
-    offset = serializers.IntegerField()
-    total = serializers.IntegerField()
-
-
-class CollectionListQuerySerializer(serializers.Serializer):
-    """
-    A collection list query.
-
-    """
-    search = serializers.CharField(
-        required=False,
-        help_text='Free text search for collection'
-    )
 
 
 class ProfileSerializer(serializers.Serializer):

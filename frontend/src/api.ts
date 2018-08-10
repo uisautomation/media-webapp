@@ -7,7 +7,6 @@
  * useful to document the various types which these functions can return. It also provides a
  * "safe-space" to experiment with TypeScript :).
  */
-import CollectionDefaultImage from './img/collection-default-image.jpg';
 
 // The base URL for the SMS application - used to create legacy URLs.
 export const BASE_SMS_URL = 'https://sms.cam.ac.uk';
@@ -102,26 +101,9 @@ export interface IMediaUploadResource {
   expires_at: string;
 };
 
-/** A collection resource. */
-export interface ICollectionResource {
-  id: string;
-  title: string;
-  description: string;
-  poster_image_url?: string;
-  collection_id: number;
-};
-
 /** A media list response. */
 export interface IMediaListResponse {
   results: IMediaResource[];
-  limit: number;
-  offset: number;
-  total: number;
-};
-
-/** A collection list response. */
-export interface ICollectionListResponse {
-  results: ICollectionResource[];
   limit: number;
   offset: number;
   total: number;
@@ -233,13 +215,6 @@ export const mediaUploadGet = (item: IMediaResource) : Promise<IMediaUploadResou
   return apiFetch(API_ENDPOINTS.mediaList + item.id + '/upload');
 };
 
-/** List collection resources. */
-export const collectionList = (
-  { search, ordering }: IMediaQuery = {}
-): Promise<ICollectionListResponse | IError> => {
-  return apiFetch(API_ENDPOINTS.collectionList + objectToQueryPart({ search, ordering }));
-};
-
 /** Fetch the user's profile. */
 export const profileGet = (): Promise<IProfileResponse | IError> => {
   return apiFetch(API_ENDPOINTS.profile);
@@ -255,20 +230,6 @@ const objectToQueryPart = (o: object = {}): string => {
   const urlParamsString = urlParams.toString();
   return (urlParamsString === '') ? '' : '?' + urlParamsString;
 };
-
-/**
- * A function which maps an API collection resource to a media item for use by, e.g.,
- * MediaItemCard. If the collection has no associated image, a default one is substituted.
- */
-export const collectionResourceToItem = (
-  { collection_id, title, description, poster_image_url }: ICollectionResource
-) => ({
-  description,
-  imageUrl: poster_image_url || CollectionDefaultImage,
-  label: 'Collection',
-  title,
-  url: BASE_SMS_URL + '/collection/' + collection_id,
-});
 
 /**
  * A function which maps an API media resource to a media item for use by, e.g., MediaItemCard.

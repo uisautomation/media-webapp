@@ -306,6 +306,19 @@ class Channel(Resource):
             return None
         return parse_custom_field('collection', field)
 
+    @property
+    def acl(self):
+        """
+        The parsed ACL custom prop on the resource. If no ACL is present, or if the ACL is empty,
+        the WORLD ACL is assumed.
+
+        """
+        field = parse_custom_field('acl', self.get('sms_acl', 'acl:WORLD:'))
+        acl = [acl.strip() for acl in field.split(',') if acl.strip() != '']
+        if acl == []:
+            return ['WORLD']
+        return acl
+
     def get_poster_url(self):
         # TODO: find some solution for channel thumbnails
         field = self.get('custom', {}).get('sms_image_id')

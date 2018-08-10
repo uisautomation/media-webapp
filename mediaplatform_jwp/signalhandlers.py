@@ -70,8 +70,6 @@ def permission_post_save_handler(*args, instance, raw, **kwargs):
 
     if instance.allows_view_item is not None:
         management.schedule_item_update(instance.allows_view_item)
-    if instance.allows_edit_item is not None:
-        management.schedule_item_update(instance.allows_edit_item)
 
 
 def _should_sync_items():

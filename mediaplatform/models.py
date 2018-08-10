@@ -33,7 +33,16 @@ def _make_token():
 _TOKEN_LENGTH = len(_make_token())
 
 
-class MediaItemQuerySet(models.QuerySet):
+def _blank_array():
+    """
+    Return a new blank array. Used for the default in ArrayField-s below because Django's migration
+    system cannot handle serialising lambdas.
+
+    """
+    return []
+
+
+class PermissionQuerySetMixin:
     def _permission_condition(self, fieldname, user):
         """
         Return a queryset expression for the permission field "fieldname" which is True if the
@@ -63,6 +72,8 @@ class MediaItemQuerySet(models.QuerySet):
 
         return condition
 
+
+class MediaItemQuerySet(PermissionQuerySetMixin, models.QuerySet):
     def annotate_viewable(self, user, name='viewable'):
         """
         Annotate the query set with a boolean indicating if the user can view the item.
@@ -94,7 +105,7 @@ class MediaItemQuerySet(models.QuerySet):
         return self.annotate(**{
             name: models.Case(
                 models.When(
-                    self._permission_condition('edit_permission', user),
+                    self._permission_condition('channel__edit_permission', user),
                     then=models.Value(True)
                 ),
                 default=models.Value(False),
@@ -107,7 +118,7 @@ class MediaItemQuerySet(models.QuerySet):
         Filter the queryset to only those items which can be edited by the passed Django user.
 
         """
-        return self.filter(self._permission_condition('edit_permission', user))
+        return self.filter(self._permission_condition('channel__edit_permission', user))
 
 
 class MediaItemManager(models.Manager):
@@ -140,13 +151,11 @@ class MediaItemManager(models.Manager):
             new_obj = (
                 self.all()
                 .only()
-                .select_related('view_permission', 'edit_permission')
+                .select_related('view_permission')
                 .get(id=obj.id)
             )
             new_obj.view_permission.crsids.append(user.username)
             new_obj.view_permission.save()
-            new_obj.edit_permission.crsids.append(user.username)
-            new_obj.edit_permission.save()
 
         return obj
 
@@ -181,6 +190,11 @@ class MediaItem(models.Model):
     #: Primary key
     id = models.CharField(
         max_length=_TOKEN_LENGTH, primary_key=True, default=_make_token, editable=False)
+
+    #: Channel which contains media item - if NULL, then the media item is in no channel.
+    channel = models.ForeignKey(
+        'Channel', help_text='Channel containing media item', null=True,
+        on_delete=models.SET_NULL, related_name='items')
 
     #: Media item title
     title = models.TextField(help_text='Title of media item', blank=True, default='')
@@ -218,7 +232,7 @@ class MediaItem(models.Model):
         blank=True, default='', help_text='Free text describing Copyright holder')
 
     #: List of tags for video
-    tags = pgfields.ArrayField(models.CharField(max_length=256), default=[], blank=True,
+    tags = pgfields.ArrayField(models.CharField(max_length=256), default=_blank_array, blank=True,
                                help_text='Tags/keywords for item')
 
     #: Creation time
@@ -232,48 +246,6 @@ class MediaItem(models.Model):
 
     def __str__(self):
         return '{} ("{}")'.format(self.id, self.title)
-
-
-class Collection(models.Model):
-    """
-    A collection of media items.
-
-    Most fields in this model can store blank values since they are synced from external providers
-    who may not have the degree of rigour we want. For the same reason, we have default values for
-    most fields.
-
-    """
-    #: Primary key
-    id = models.CharField(
-            max_length=_TOKEN_LENGTH, primary_key=True, default=_make_token, editable=False)
-
-    #: Collection title
-    title = models.TextField(help_text='Title of collection', blank=True, default='')
-
-    #: Collection description
-    description = models.TextField(help_text='Description for collection', blank=True, default='')
-
-    #: List of tags for collection
-    tags = pgfields.ArrayField(models.CharField(max_length=256), default=[],
-                               help_text='Tags/keywords for item')
-
-    #: :py:class:`~.MediaItem` objects which make up this collection. Postgres does not (currently)
-    #: allow array elements to have a foreign key constraint added to them so we need to represent
-    #: the links as bare UUIDs. The upshot of this is that code which uses this field needs to
-    #: handle the (rare) case that a UUID in the list does not correspond to a current video.
-    #: YouTube, as an example, has this problem as well since videos in playlists are sometimes
-    #: replaced by a "deleted video" placeholder.
-    media_items = pgfields.ArrayField(
-        models.UUIDField(), default=[], help_text='Primary keys of media items in this collection')
-
-    #: Creation time
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    #: Last update time
-    updated_at = models.DateTimeField(auto_now=True)
-
-    #: Deletion time. If non-NULL, the item has been "deleted" and should not usually be visible.
-    deleted_at = models.DateTimeField(null=True, blank=True)
 
 
 class Permission(models.Model):
@@ -301,32 +273,26 @@ class Permission(models.Model):
         null=True
     )
 
-    #: MediaItem whose edit permission is this object
-    allows_edit_item = models.OneToOneField(
-        MediaItem, on_delete=models.CASCADE, related_name='edit_permission', editable=False,
+    #: Channel whose edit permission is this object
+    allows_edit_channel = models.OneToOneField(
+        'Channel', on_delete=models.CASCADE, related_name='edit_permission', editable=False,
         null=True
     )
 
-    #: Collection whose view permission is this object
-    allows_view_collection = models.OneToOneField(
-        Collection, on_delete=models.CASCADE, related_name='view_permission', editable=False,
-        null=True
-    )
-
-    #: Collection whose edit permission is this object
-    allows_edit_collection = models.OneToOneField(
-        Collection, on_delete=models.CASCADE, related_name='edit_permission', editable=False,
+    #: Playlist whose view permission is this object
+    allows_view_playlist = models.OneToOneField(
+        'Playlist', on_delete=models.CASCADE, related_name='view_permission', editable=False,
         null=True
     )
 
     #: List of crsids of users with this permission
-    crsids = pgfields.ArrayField(models.TextField(), blank=True, default=[])
+    crsids = pgfields.ArrayField(models.TextField(), blank=True, default=_blank_array)
 
     #: List of lookup groups which users with this permission belong to
-    lookup_groups = pgfields.ArrayField(models.TextField(), blank=True, default=[])
+    lookup_groups = pgfields.ArrayField(models.TextField(), blank=True, default=_blank_array)
 
     #: List of lookup institutions which users with this permission belong to
-    lookup_insts = pgfields.ArrayField(models.TextField(), blank=True, default=[])
+    lookup_insts = pgfields.ArrayField(models.TextField(), blank=True, default=_blank_array)
 
     #: Do all users (including anonymous ones) have this permission?
     is_public = models.BooleanField(default=False)
@@ -385,6 +351,182 @@ class UploadEndpoint(models.Model):
     expires_at = models.DateTimeField(editable=False, help_text='Expiry time of URL')
 
 
+class ChannelQuerySet(PermissionQuerySetMixin, models.QuerySet):
+    def annotate_editable(self, user, name='editable'):
+        """
+        Annotate the query set with a boolean indicating if the user can edit the item.
+
+        """
+        return self.annotate(**{
+            name: models.Case(
+                models.When(
+                    self._permission_condition('edit_permission', user),
+                    then=models.Value(True)
+                ),
+                default=models.Value(False),
+                output_field=models.BooleanField()
+            ),
+        })
+
+    def editable_by_user(self, user):
+        """
+        Filter the queryset to only those items which can be edited by the passed Django user.
+
+        """
+        return self.filter(self._permission_condition('edit_permission', user))
+
+
+class ChannelManager(models.Manager):
+    """
+    An object manager for :py:class:`~.Channel` objects. Accepts an additional named parameter
+    *include_deleted* which specifies if the default queryset should include deleted items.
+
+    """
+    def __init__(self, *args, include_deleted=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._include_deleted = include_deleted
+
+    def get_queryset(self):
+        qs = ChannelQuerySet(self.model, using=self._db)
+        if not self._include_deleted:
+            qs = qs.filter(deleted_at__isnull=True)
+        return qs
+
+
+class Channel(models.Model):
+    """
+    An individual channel in the media platform.
+
+    """
+    #: Object manager. See :py:class:`~.ChannelManager`. The objects returned by this manager do
+    #: not include deleted objects. See :py:attr:\~.objects_including_deleted`.
+    objects = ChannelManager()
+
+    #: Object manager whose objects include the deleted items. This has been separated out into a
+    #: separate manager to avoid inadvertently including deleted objects in a query
+    objects_including_deleted = ChannelManager(include_deleted=True)
+
+    #: Primary key
+    id = models.CharField(
+        max_length=_TOKEN_LENGTH, primary_key=True, default=_make_token, editable=False)
+
+    #: Channel title
+    title = models.TextField(help_text='Title of media item', blank=False)
+
+    #: Channel description
+    description = models.TextField(help_text='Description of media item', blank=True, default='')
+
+    #: "Owning" lookup institution id. We default to the blank string but, aside from "special"
+    #: internal channels, there should always be a lookup institution.
+    owning_lookup_inst = models.CharField(
+        max_length=255, blank=False, default='',
+        help_text='Lookup instid for institution which "owns" this channel')
+
+    #: Creation time
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    #: Last update time
+    updated_at = models.DateTimeField(auto_now=True)
+
+    #: Deletion time. If non-NULL, the channel has been "deleted" and should not usually be
+    #: visible.
+    deleted_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return '{} ("{}")'.format(self.id, self.title)
+
+
+class PlaylistQuerySet(PermissionQuerySetMixin, models.QuerySet):
+    def annotate_viewable(self, user, name='viewable'):
+        """
+        Annotate the query set with a boolean indicating if the user can view the item.
+
+        """
+        return self.annotate(**{
+            name: models.Case(
+                models.When(
+                    self._permission_condition('view_permission', user),
+                    then=models.Value(True)
+                ),
+                default=models.Value(False),
+                output_field=models.BooleanField()
+            ),
+        })
+
+    def viewable_by_user(self, user):
+        """
+        Filter the queryset to only those items which can be viewed by the passed Django user.
+
+        """
+        return self.filter(self._permission_condition('view_permission', user))
+
+
+class PlaylistManager(models.Manager):
+    """
+    An object manager for :py:class:`~.Playlist` objects. Accepts an additional named parameter
+    *include_deleted* which specifies if the default queryset should include deleted items.
+
+    """
+    def __init__(self, *args, include_deleted=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._include_deleted = include_deleted
+
+    def get_queryset(self):
+        qs = PlaylistQuerySet(self.model, using=self._db)
+        if not self._include_deleted:
+            qs = qs.filter(deleted_at__isnull=True)
+        return qs
+
+
+class Playlist(models.Model):
+    """
+    An individual playlist in the media platform.
+
+    """
+    #: Object manager. See :py:class:`~.PlaylistManager`. The objects returned by this manager do
+    #: not include deleted objects. See :py:attr:\~.objects_including_deleted`.
+    objects = PlaylistManager()
+
+    #: Object manager whose objects include the deleted items. This has been separated out into a
+    #: separate manager to avoid inadvertently including deleted objects in a query
+    objects_including_deleted = PlaylistManager(include_deleted=True)
+
+    #: Primary key
+    id = models.CharField(
+        max_length=_TOKEN_LENGTH, primary_key=True, default=_make_token, editable=False)
+
+    #: Channel which contains playlist
+    channel = models.ForeignKey(
+        'Channel', help_text='channel containing playlist', on_delete=models.CASCADE,
+        related_name='playlist'
+    )
+
+    #: Playlist title
+    title = models.TextField(help_text='Title of the playlist', blank=False)
+
+    #: Playlist description
+    description = models.TextField(help_text='Description of the playlist', blank=True, default='')
+
+    #: :py:class:`~.MediaItem` objects which make up this playlist.
+    media_items = pgfields.ArrayField(
+        models.CharField(max_length=_TOKEN_LENGTH), blank=True, default=_blank_array,
+        help_text='Primary keys of media items in this playlist'
+    )
+
+    #: Creation time
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    #: Last update time
+    updated_at = models.DateTimeField(auto_now=True)
+
+    #: Deletion time. If non-NULL, the channel has been "deleted" and should not usually be
+    #: visible.
+    deleted_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return '{} ("{}")'.format(self.id, self.title)
+
+
 @receiver(post_save, sender=MediaItem)
 def _media_item_post_save_handler(*args, sender, instance, created, raw, **kwargs):
     """
@@ -399,26 +541,37 @@ def _media_item_post_save_handler(*args, sender, instance, created, raw, **kwarg
 
     if not hasattr(instance, 'view_permission'):
         Permission.objects.create(allows_view_item=instance)
-    if not hasattr(instance, 'edit_permission'):
-        Permission.objects.create(allows_edit_item=instance)
 
 
-@receiver(post_save, sender=Collection)
-def _collection_post_save_handler(*args, sender, instance, created, raw, **kwargs):
+@receiver(post_save, sender=Channel)
+def _channel_post_save_handler(*args, sender, instance, created, raw, **kwargs):
     """
-    A post_save handler for :py:class:`~.Collection` which creates blank view and edit permissions
-    if they don't exist.
+    A post_save handler for :py:class:`~.Channel` which creates a blank edit permission if it don't
+    exist.
 
     """
-    # If this is a "raw" update (e.g. from a test fixture) or was not the creation of the item,
+    # If this is a "raw" update (e.g. from a test fixture) or was not the creation of the channel,
     # don't try to create objects.
     if raw or not created:
         return
 
-    if not hasattr(instance, 'view_permission'):
-        Permission.objects.create(allows_view_collection=instance)
     if not hasattr(instance, 'edit_permission'):
-        Permission.objects.create(allows_edit_collection=instance)
+        Permission.objects.create(allows_edit_channel=instance)
+
+
+@receiver(post_save, sender=Playlist)
+def _playlist_post_save_handler(*args, sender, instance, created, raw, **kwargs):
+    """
+    A post_save handler for :py:class:`~.Playlist` which creates a blank view permission if it
+    doesn't exist.
+
+    """
+    # If this is a "raw" update (e.g. from a test fixture) or was not the creation of the playlist,
+    # don't try to create objects.
+    if raw or not created:
+        return
+
+    Permission.objects.get_or_create(allows_view_playlist=instance)
 
 
 def _lookup_groupids_and_instids_for_user(user):

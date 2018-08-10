@@ -10,11 +10,6 @@
     is_public: true
     allows_view_item: empty
 
-- model: mediaplatform.Permission
-  pk: emptye
-  fields:
-    allows_edit_item: empty
-
 # A media item with existing JWP video
 - model: mediaplatform.MediaItem
   pk: existing
@@ -27,11 +22,6 @@
   fields:
     is_public: true
     allows_view_item: existing
-
-- model: mediaplatform.Permission
-  pk: existinge
-  fields:
-    allows_edit_item: existing
 
 - model: mediaplatform_jwp.Video
   pk: video1
