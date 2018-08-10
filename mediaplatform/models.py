@@ -280,6 +280,9 @@ class Permission(models.Model):
     )
 
     #: Playlist whose view permission is this object
+    #: It looks like an SMS collection is ALWAYS public, which makes this property redundant.
+    #: However, for now, we leave it here and set is_public=True in the
+    # _playlist_post_save_handler(). TODO remove this at some later date.
     allows_view_playlist = models.OneToOneField(
         'Playlist', on_delete=models.CASCADE, related_name='view_permission', editable=False,
         null=True
@@ -562,7 +565,7 @@ def _channel_post_save_handler(*args, sender, instance, created, raw, **kwargs):
 @receiver(post_save, sender=Playlist)
 def _playlist_post_save_handler(*args, sender, instance, created, raw, **kwargs):
     """
-    A post_save handler for :py:class:`~.Playlist` which creates a blank view permission if it
+    A post_save handler for :py:class:`~.Playlist` which creates an IS_PUBLIC permission if it
     doesn't exist.
 
     """
@@ -571,7 +574,7 @@ def _playlist_post_save_handler(*args, sender, instance, created, raw, **kwargs)
     if raw or not created:
         return
 
-    Permission.objects.get_or_create(allows_view_playlist=instance)
+    Permission.objects.get_or_create(allows_view_playlist=instance, is_public=True)
 
 
 def _lookup_groupids_and_instids_for_user(user):

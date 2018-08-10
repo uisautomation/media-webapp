@@ -70,6 +70,11 @@ def update_related_models_from_cache(update_all_videos=False):
     deleted_sms_collections = (
         legacymodels.Collection.objects.filter(channel__in=deleted_channels))
 
+    # Mark 'shadow' playlists associated with deleted collections as deleted.
+    mpmodels.Playlist.objects.filter(sms__in=deleted_sms_collections).update(
+        deleted_at=timezone.now()
+    )
+
     # Mark matching MediaItem models as deleted and delete corresponding SMS and JWP objects. The
     # order here is important since the queries are not actually run until the corresponding
     # update()/delete() calls.
@@ -77,7 +82,7 @@ def update_related_models_from_cache(update_all_videos=False):
     deleted_media_items.update(deleted_at=timezone.now())
     deleted_jwp_videos.delete()
 
-    # Move media items which are in deleted channels to the orphan channel, mark the original
+    # Move media items which are in deleted channels to have no channel, mark the original
     # channel as deleted and delete SMS/JWP objects
     mpmodels.MediaItem.objects.filter(channel__in=deleted_channels).update(channel=None)
     deleted_sms_collections.delete()
@@ -101,7 +106,7 @@ def update_related_models_from_cache(update_all_videos=False):
     # After this stage, all mediaplatform_jwp.Video objects which lack a mediaplatform.MediaItem
     # and mediaplatform_jwp.Channel object which lack a mediaplatform.Channel will have one. The
     # newly created mediaplatform.MediaItem objects will be blank but have an updated_at timestamp
-    # well before the coressponding mediaplatform_jwp.Video object.
+    # well before the corresponding mediaplatform_jwp.Video object.
 
     # A queryset of all JWP Video objects which lack a mediaplatform.MediaItem annotated with the
     # data from the corresponding CachedResource
@@ -139,9 +144,9 @@ def update_related_models_from_cache(update_all_videos=False):
     for key, item in jwp_keys_and_items:
         jwpmodels.Video.objects.filter(key=key).update(item=item)
 
-    # A queryset of all JWP Channel objects which lack a mediaplatform.MediaItem annotated with the
+    # A queryset of all JWP Channel objects which lack a mediaplatform.Channel annotated with the
     # data from the corresponding CachedResource
-    channels_needing_items = (
+    jw_channels_needing_channels = (
         jwpmodels.Channel.objects
         .filter(channel__isnull=True)
         .annotate(data=models.Subquery(
@@ -154,10 +159,10 @@ def update_related_models_from_cache(update_all_videos=False):
     # For all channels needing a mediaplatform.Channel, create a blank one.
     jwp_keys_and_channels = [
         (
-            channel.key,
+            jw_channel.key,
             mpmodels.Channel(),
         )
-        for channel in channels_needing_items
+        for jw_channel in jw_channels_needing_channels
     ]
 
     # Insert all the channels in an efficient manner.
@@ -333,9 +338,6 @@ def update_related_models_from_cache(update_all_videos=False):
         channel.owning_lookup_inst = jwp.parse_custom_field(
             'instid', custom.get('sms_instid', 'instid::'))
 
-        # TODO: We should use the ACL here on the *playlist* which gets created with the channel as
-        # a view ACL. We do not have playlists yet, so do nothing.
-
         # Update edit permission
         channel.edit_permission.reset()
 
@@ -357,15 +359,16 @@ def update_related_models_from_cache(update_all_videos=False):
         channel.edit_permission.save()
 
         # Update contents
-        collection_media_ids = [
+        sms_collection_media_ids = [
             int(media_id.strip())
             for media_id in jwp.parse_custom_field(
                 'media_ids', custom.get('sms_media_ids', 'media_ids::')
             ).split(',') if media_id.strip() != ''
         ]
-        channel.items.set(
-            mpmodels.MediaItem.objects.filter(sms__id__in=collection_media_ids).only('id')
+        collection_media_ids = (
+            mpmodels.MediaItem.objects.filter(sms__id__in=sms_collection_media_ids).only('id')
         )
+        channel.items.set(collection_media_ids)
 
         # Update associated SMS collection (if any)
         sms_collection_id = channel_data.collection_id
@@ -389,7 +392,17 @@ def update_related_models_from_cache(update_all_videos=False):
             else:
                 sms_channel.last_updated_at = dateutil.parser.parse(last_updated)
 
+            if sms_channel.playlist is None:
+                # If the 'shadow' playlist doesn't exist, create it.
+                sms_channel.playlist = mpmodels.Playlist(channel=channel)
+
             sms_channel.save()
+
+            # Update the Playlist
+            sms_channel.playlist.title = channel.title
+            sms_channel.playlist.description = channel.description
+            sms_channel.playlist.media_items = [item.id for item in collection_media_ids]
+            sms_channel.playlist.save()
         else:
             # If there is no associated SMS collection, make sure that this channel doesn't have
             # one pointing to it.
