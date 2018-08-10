@@ -7,6 +7,7 @@
  * useful to document the various types which these functions can return. It also provides a
  * "safe-space" to experiment with TypeScript :).
  */
+import ChannelDefaultImage from './img/channel-default-image.jpg';
 
 // The base URL for the SMS application - used to create legacy URLs.
 export const BASE_SMS_URL = 'https://sms.cam.ac.uk';
@@ -129,11 +130,30 @@ export interface IProfileResponse {
   };
 };
 
+/** A channel resource. */
+export interface IChannelResource {
+  url?: string;
+  id?: string;
+  title: string;
+  mediaUrl: string;
+  description: string;
+  updatedAt: string;
+  createdAt: string;
+};
+
+export interface IAPIOptions {
+  /** Endpoint to use instead of default. */
+  endpoint?: string;
+};
+
+const API_BASE = window.location.protocol + '//' + window.location.host + '/api'
+
 /** The various API endpoints */
 export const API_ENDPOINTS = {
-  collectionList: '/api/collections/',
-  mediaList: '/api/media/',
-  profile: '/api/profile',
+  channelList: API_BASE + '/channels/',
+  collectionList: API_BASE + '/collections/',
+  mediaList: API_BASE + '/media/',
+  profile: API_BASE + '/profile',
 };
 
 /**
@@ -181,9 +201,11 @@ export const apiFetch = (
 
 /** List media resources. */
 export const mediaList = (
-  { search, ordering }: IMediaQuery = {}
+  { search, ordering }: IMediaQuery = {},
+  { endpoint }: IAPIOptions = {}
 ): Promise<IMediaListResponse | IError> => {
-  return apiFetch(API_ENDPOINTS.mediaList + objectToQueryPart({ search, ordering }));
+  return apiFetch(
+    appendQuery(endpoint || API_ENDPOINTS.mediaList, { search, ordering }));
 };
 
 /** Create a new media resource. */
@@ -220,16 +242,46 @@ export const profileGet = (): Promise<IProfileResponse | IError> => {
   return apiFetch(API_ENDPOINTS.profile);
 }
 
-/**
- * Convert an object with properties into a URL query string including initial '?'. If an empty
- * object is provided, the empty string is returned.
- */
-const objectToQueryPart = (o: object = {}): string => {
-  const urlParams = new URLSearchParams();
-  Object.keys(o).forEach(key => { if(o[key] !== undefined) { urlParams.append(key, o[key]); } });
-  const urlParamsString = urlParams.toString();
-  return (urlParamsString === '') ? '' : '?' + urlParamsString;
+/** List channel resources. */
+export const channelList = (
+  { search, ordering }: IMediaQuery = {},
+  { endpoint }: IAPIOptions = {}
+): Promise<IMediaListResponse | IError> => {
+  return apiFetch(
+    appendQuery(endpoint || API_ENDPOINTS.channelList, { search, ordering }));
 };
+
+/** Retrieve a channel resource. */
+export const channelGet = (id: string) : Promise<IChannelResource | IError> => {
+  const resource = resourceFromPageById(id);
+  if (resource) { return Promise.resolve(resource); }
+  return apiFetch(API_ENDPOINTS.channelList + id);
+};
+
+/**
+ * Append to a URL's query string based on properies from the passed object.
+ */
+const appendQuery = (endpoint: string, o: object = {}): string => {
+  const url = new URL(endpoint);
+  Object.keys(o).forEach(key => {
+    if(o[key] !== undefined) { url.searchParams.append(key, o[key]); }
+  });
+  return url.href;
+}
+
+/**
+ * A function which maps an API channel resource to a media item for use by, e.g.,
+ * MediaItemCard. If the channel has no associated image, a default one is substituted.
+ */
+export const channelResourceToItem = (
+  { id, title, description }: IChannelResource
+) => ({
+  description,
+  imageUrl: ChannelDefaultImage,
+  label: 'Channel',
+  title,
+  url: '/channels/' + id,
+});
 
 /**
  * A function which maps an API media resource to a media item for use by, e.g., MediaItemCard.

@@ -445,6 +445,51 @@ class ChannelTest(ModelTestCase):
         permission_id_2 = models.Channel.objects.get(id=channel.id).edit_permission.id
         self.assertEquals(permission_id_1, permission_id_2)
 
+    def test_view_permission(self):
+        """A channel can be viewed by everyone."""
+        self.assert_user_can_view(AnonymousUser(), self.c1)
+        self.assert_user_can_view(None, self.c1)
+        self.assert_user_can_view(self.user, self.c1)
+
+    def test_create_for_user(self):
+        """The create_for_user helper sets the edit permission."""
+        new_channel = models.Channel.objects.create_for_user(self.user)
+
+        # Re-fetch from DB to make sure changes have been applied
+        channel = models.Channel.objects.get(id=new_channel.id)
+
+        self.assertIn(self.user.username, channel.edit_permission.crsids)
+
+    def assert_user_can_view(self, user, channel_or_id):
+        if isinstance(channel_or_id, str):
+            channel_or_id = models.Channel.objects_including_deleted.get(id=channel_or_id)
+        self.assertTrue(
+            models.Channel.objects.all().viewable_by_user(user)
+            .filter(id=channel_or_id.id).exists()
+        )
+        self.assertTrue(
+            models.Channel.objects_including_deleted.all()
+            .annotate_viewable(user, name='TEST_viewable')
+            .get(id=channel_or_id.id)
+            .TEST_viewable
+        )
+
+    def assert_user_cannot_edit(self, user, channel_or_id):
+        if isinstance(channel_or_id, str):
+            channel_or_id = models.Channel.objects_including_deleted.get(id=channel_or_id)
+        self.assertFalse(
+            models.Channel.objects_including_deleted.all()
+            .filter(id=channel_or_id.id)
+            .editable_by_user(user)
+            .exists()
+        )
+        self.assertFalse(
+            models.Channel.objects_including_deleted.all()
+            .annotate_editable(user, name='TEST_editable')
+            .get(id=channel_or_id.id)
+            .TEST_editable
+        )
+
 
 class PlaylistTest(ModelTestCase):
 

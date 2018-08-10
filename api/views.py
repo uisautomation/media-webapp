@@ -7,6 +7,7 @@ import logging
 from django.conf import settings
 from django.db import connection
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
@@ -62,8 +63,30 @@ class ProfileView(APIView):
         }).data)
 
 
-class MediaItemListPagination(pagination.CursorPagination):
+class ListPagination(pagination.CursorPagination):
     page_size = 50
+
+
+class ListMixinBase:
+    """
+    Base class for the various ListView mixin classes which ensures that the list only contains
+    resources viewable by the user, annotates the resources with the viewable and editable
+    flags and selects related JWPlatform and SMS objects.
+
+    Sets permission_classes to :py:class:`~.permissions.MediaPlatformPermission` so that safe and
+    unsafe operations are appropriately restricted.
+
+    """
+    permission_classes = [permissions.MediaPlatformPermission]
+
+    def get_queryset(self):
+        return (
+            super().get_queryset().all()
+            .viewable_by_user(self.request.user)
+            .annotate_viewable(self.request.user)
+            .annotate_editable(self.request.user)
+            .select_related('sms')
+        )
 
 
 class MediaItemListSearchFilter(filters.SearchFilter):
@@ -91,7 +114,7 @@ class MediaItemListSearchFilter(filters.SearchFilter):
         return filtered_qs
 
 
-class MediaItemListMixin:
+class MediaItemListMixin(ListMixinBase):
     """
     A mixin class for DRF generic views which has all of the specialisations necessary for listing
     (and possibly creating/deleting) media items. Use this mixin with ListAPIView or
@@ -99,38 +122,21 @@ class MediaItemListMixin:
 
     """
     queryset = mpmodels.MediaItem.objects
-    permission_classes = [permissions.MediaItemPermission]
 
     def get_queryset(self):
         return (
             super().get_queryset().all()
-            .viewable_by_user(self.request.user)
-            .annotate_viewable(self.request.user)
-            .annotate_editable(self.request.user)
             .select_related('jwp')
-            .select_related('sms')
         )
 
 
-class MediaItemMixin:
+class MediaItemMixin(MediaItemListMixin):
     """
     A mixin class for DRF generic views which has all of the specialisations necessary for
     retrieving (and possibly updating) individual media items. Use this mixin with RetrieveAPIView
     or RetrieveUpdateAPIView to form a concrete view class.
 
     """
-    queryset = mpmodels.MediaItem.objects
-    permission_classes = [permissions.MediaItemPermission]
-
-    def get_queryset(self):
-        return (
-            super().get_queryset().all()
-            .viewable_by_user(self.request.user)
-            .annotate_viewable(self.request.user)
-            .annotate_editable(self.request.user)
-            .select_related('jwp')
-            .select_related('sms')
-        )
 
 
 class MediaItemListView(MediaItemListMixin, generics.ListCreateAPIView):
@@ -138,12 +144,13 @@ class MediaItemListView(MediaItemListMixin, generics.ListCreateAPIView):
     Endpoint to retrieve a list of media.
 
     """
-    filter_backends = (filters.OrderingFilter, MediaItemListSearchFilter)
+    filter_backends = (filters.OrderingFilter, MediaItemListSearchFilter, DjangoFilterBackend)
     ordering = '-published_at'
     ordering_fields = ('published_at',)
-    pagination_class = MediaItemListPagination
+    pagination_class = ListPagination
     search_fields = ('title', 'description', 'tags')
     serializer_class = serializers.MediaItemSerializer
+    filter_fields = ('channel',)
 
 
 class MediaItemView(MediaItemMixin, generics.RetrieveUpdateAPIView):
@@ -163,7 +170,7 @@ class MediaItemUploadView(MediaItemMixin, generics.RetrieveUpdateAPIView):
     """
     # To access the upload API, the user must always have the edit permission.
     permission_classes = MediaItemListMixin.permission_classes + [
-        permissions.MediaItemEditPermission
+        permissions.MediaPlatformEditPermission
     ]
     serializer_class = serializers.MediaUploadSerializer
 
@@ -202,3 +209,43 @@ class MediaAnalyticsView(APIView):
 def get_cursor():  # pragma: no cover
     """Retrieve DB cursor. Method included for patching in tests"""
     return connection.cursor()
+
+
+class ChannelListMixin(ListMixinBase):
+    """
+    A mixin class for DRF generic views which has all of the specialisations necessary for listing
+    (and possibly creating/deleting) channels. Use this mixin with ListAPIView or
+    ListCreateAPIView to form a concrete view class.
+
+    """
+    queryset = mpmodels.Channel.objects
+
+
+class ChannelMixin(ChannelListMixin):
+    """
+    A mixin class for DRF generic views which has all of the specialisations necessary for
+    retrieving (and possibly updating) individual channels. Use this mixin with RetrieveAPIView
+    or RetrieveUpdateAPIView to form a concrete view class.
+
+    """
+
+
+class ChannelListView(ChannelListMixin, generics.ListCreateAPIView):
+    """
+    Endpoint to retrieve a list of channels.
+
+    """
+    filter_backends = (filters.OrderingFilter, filters.SearchFilter)
+    ordering = '-created_at'
+    ordering_fields = ('created_at', 'title')
+    pagination_class = ListPagination
+    search_fields = ('title', 'description')
+    serializer_class = serializers.ChannelSerializer
+
+
+class ChannelView(ChannelMixin, generics.RetrieveUpdateAPIView):
+    """
+    Endpoint to retrieve a single media item.
+
+    """
+    serializer_class = serializers.ChannelDetailSerializer

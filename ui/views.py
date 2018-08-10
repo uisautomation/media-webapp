@@ -39,3 +39,12 @@ class MediaAnalyticsView(apiviews.MediaAnalyticsView):
     """
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'ui/analytics.html'
+
+
+# The UI views are not part of the API and should not appear in the swagger docs
+@method_decorator(name='get', decorator=swagger_auto_schema(auto_schema=None))
+class ChannelView(apiviews.ChannelMixin, generics.RetrieveAPIView):
+    """View for rendering an individual channel. Extends the DRF's channel view."""
+    serializer_class = serializers.ChannelPageSerializer
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'ui/resource.html'

@@ -6,7 +6,7 @@ from .. import serializers
 
 
 class MediaItemSerializerTestCase(TestCase):
-    def test_create_with_no_user(self):
+    def test_create(self):
         with mock.patch('mediaplatform.models.MediaItem.objects.create') as f:
             serializers.MediaItemSerializer().create(validated_data={})
         f.assert_called()
@@ -16,4 +16,18 @@ class MediaItemSerializerTestCase(TestCase):
         request.user.username = 'testuser'
         with mock.patch('mediaplatform.models.MediaItem.objects.create_for_user') as f:
             serializers.MediaItemSerializer(context={'request': request}).create(validated_data={})
+        f.assert_called()
+
+
+class ChannelSerializerTestCase(TestCase):
+    def test_create(self):
+        with mock.patch('mediaplatform.models.Channel.objects.create') as f:
+            serializers.ChannelSerializer().create(validated_data={})
+        f.assert_called()
+
+        request = mock.MagicMock()
+        request.user.is_anonymous = False
+        request.user.username = 'testuser'
+        with mock.patch('mediaplatform.models.Channel.objects.create_for_user') as f:
+            serializers.ChannelSerializer(context={'request': request}).create(validated_data={})
         f.assert_called()
