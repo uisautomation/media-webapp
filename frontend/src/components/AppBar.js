@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import MuiAppBar from '@material-ui/core/AppBar';
-import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
@@ -11,6 +10,8 @@ import { withStyles } from '@material-ui/core/styles';
 import BackIcon from '@material-ui/icons/ArrowBack';
 import SearchIcon from '@material-ui/icons/Search';
 import SearchForm from './SearchForm';
+
+import LogoImage from '../img/logo.png';
 
 // The location for a redirected search request
 // TODO this is to be refactored as per https://github.com/uisautomation/sms-webapp/issues/102
@@ -70,7 +71,9 @@ class AppBar extends Component {
       :
       <Toolbar>
           <Typography variant="title" color="inherit">
-            Media Platform
+            <a href='/'>
+              <img src={LogoImage} alt="Media Platform" style={{verticalAlign: 'bottom', height: '1.8em'}} />
+            </a>
           </Typography>
           <div className={ classes.centreSection }>
             <div className={ classes.searchFormContainer }>{ searchForm }</div>
