@@ -187,7 +187,7 @@ class ChannelSerializer(serializers.HyperlinkedModelSerializer):
 
     """
     class Meta:
-        model = mpmodels.MediaItem
+        model = mpmodels.Channel
         fields = (
             'url', 'id', 'title', 'description', 'createdAt', 'updatedAt',
         )
