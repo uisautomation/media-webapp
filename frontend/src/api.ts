@@ -182,7 +182,10 @@ export const apiFetch = (
       return response.json().then(body => Promise.reject({
         body,
         error: new Error('API request returned error response'),
-      }));
+      })).catch(error => {
+        // tslint:disable-next-line:no-console
+        console.error('error parsing response:', error);
+      })
     }
 
     // Parse response body as JSON
