@@ -469,31 +469,6 @@ class ChannelViewTestCase(ViewTestCase):
             getattr(self.channels.get(id=self.channel.id), model_field_name), original_value)
 
 
-CHANNELS_FIXTURE = [
-    {
-        'key': 'mock1',
-        'title': 'Mock 1',
-        'description': 'Description for mock 1',
-        'custom': {
-            'sms_collection_id': 'collection:1234:',
-        },
-    },
-    {
-        'key': 'mock2',
-        'title': 'Mock 2',
-        'description': 'Description for mock 2',
-        'custom': {
-            'sms_collection_id': 'collection:1235:',
-        },
-    },
-    {
-        'key': 'mock3',
-        'title': 'Mock 3',
-        'description': 'Not a SMS collection',
-    },
-]
-
-
 DELIVERY_VIDEO_FIXTURE = {
     'key': 'mock1',
     'title': 'Mock 1',
