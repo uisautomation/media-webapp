@@ -38,7 +38,7 @@ class ChannelSerializerTestCase(TestCase):
         f.assert_called()
 
 
-class MediaItemRelatedChannelIdField(TestCase):
+class RelatedChannelIdField(TestCase):
     fixtures = ['api/tests/fixtures/mediaitems.yaml']
 
     def setUp(self):

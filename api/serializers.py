@@ -63,11 +63,11 @@ class ChannelSerializer(serializers.HyperlinkedModelSerializer):
         return obj
 
 
-class MediaItemRelatedChannelIdField(serializers.PrimaryKeyRelatedField):
+class RelatedChannelIdField(serializers.PrimaryKeyRelatedField):
     """
-    Related field serialiser for media items which asserts that the channel field can only be set
-    to a channel which the current user has edit permissions on. If there is no user, the empty
-    queryset is returned.
+    Related field serializer for media items or playlists which asserts that the channel field
+    can only be set to a channel which the current user has edit permissions on. If there is no
+    user, the empty queryset is returned.
     """
     def get_queryset(self):
         if self.context is None or 'request' not in self.context:
@@ -105,7 +105,7 @@ class MediaItemSerializer(serializers.HyperlinkedModelSerializer):
     posterImageUrl = serializers.SerializerMethodField(
         help_text='A URL of a thumbnail/poster image for the media', read_only=True)
 
-    channelId = MediaItemRelatedChannelIdField(
+    channelId = RelatedChannelIdField(
         source='channel', required=True, help_text='Unique id of owning channel resource',
         write_only=True)
 
