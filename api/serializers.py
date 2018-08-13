@@ -13,12 +13,13 @@ from mediaplatform import models as mpmodels
 from mediaplatform_jwp import management
 from smsjwplatform.jwplatform import VideoNotFoundError
 
+
 LOG = logging.getLogger(__name__)
 
 
-# Model serialisers
+# Model serializers
 #
-# The following serialisers are to be used for list views and include minimial (if any) related
+# The following serializers are to be used for list views and include minimal (if any) related
 # resources.
 
 
@@ -76,6 +77,46 @@ class RelatedChannelIdField(serializers.PrimaryKeyRelatedField):
         user = self.context['request'].user
 
         return mpmodels.Channel.objects.all().editable_by_user(user)
+
+
+class PlaylistSerializer(serializers.HyperlinkedModelSerializer):
+    """
+    An individual playlist.
+
+    """
+    channelId = RelatedChannelIdField(
+        source='channel', required=True, help_text='Unique id of owning channel resource',
+        write_only=True)
+
+    def update(self, instance, validated_data):
+        """
+        Override behaviour when updating a playlist to stop the user changing the channel of an
+        existing one.
+        """
+        # Note: channelId will already have been mapped into a channel object.
+        if 'channel' in validated_data:
+            raise serializers.ValidationError({
+                'channelId': 'This field cannot be changed',
+            })
+
+        return super().update(instance, validated_data)
+
+    class Meta:
+        model = mpmodels.Playlist
+        fields = (
+            'url', 'id', 'title', 'description', 'media_items', 'channelId',
+            'createdAt', 'updatedAt',
+        )
+
+        read_only_fields = (
+            'url', 'id', 'createdAt', 'updatedAt'
+        )
+        extra_kwargs = {
+            'createdAt': {'source': 'created_at'},
+            'updatedAt': {'source': 'updated_at'},
+            'url': {'view_name': 'api:playlist'},
+            'title': {'allow_blank': False},
+        }
 
 
 class MediaItemSerializer(serializers.HyperlinkedModelSerializer):
@@ -299,6 +340,34 @@ class ChannelDetailSerializer(ChannelSerializer):
 
         # Add query parameter
         location += '?' + urlencode({'channel': obj.id})
+
+        if self.context is None or 'request' not in self.context:
+            return location
+
+        return self.context['request'].build_absolute_uri(location)
+
+
+class PlaylistDetailSerializer(PlaylistSerializer):
+    """
+    An individual playlist including any information which should only appear in the detail view.
+
+    """
+
+    mediaUrl = serializers.SerializerMethodField(
+        help_text='URL pointing to list of media items for this playlist', read_only=True
+    )
+
+    channel = ChannelSerializer(read_only=True)
+
+    class Meta(PlaylistSerializer.Meta):
+        fields = PlaylistSerializer.Meta.fields + ('channel', 'mediaUrl')
+
+    def get_mediaUrl(self, obj):
+        # Get location of media list endpoint
+        location = reverse('api:media_list')
+
+        # Add query parameter
+        location += '?' + urlencode({'playlist': obj.id})
 
         if self.context is None or 'request' not in self.context:
             return location
