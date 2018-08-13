@@ -11,7 +11,7 @@ import BackIcon from '@material-ui/icons/ArrowBack';
 import SearchIcon from '@material-ui/icons/Search';
 import SearchForm from './SearchForm';
 
-import LogoImage from '../img/logo.png';
+import LogoImage from '../img/logo.svg';
 
 // The location for a redirected search request
 // TODO this is to be refactored as per https://github.com/uisautomation/sms-webapp/issues/102
