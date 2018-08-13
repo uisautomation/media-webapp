@@ -245,7 +245,7 @@ class ChannelListView(ChannelListMixin, generics.ListCreateAPIView):
 
 class ChannelView(ChannelMixin, generics.RetrieveUpdateAPIView):
     """
-    Endpoint to retrieve a single media item.
+    Endpoint to retrieve an individual channel.
 
     """
     serializer_class = serializers.ChannelDetailSerializer

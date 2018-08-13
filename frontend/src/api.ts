@@ -151,7 +151,6 @@ const API_BASE = window.location.protocol + '//' + window.location.host + '/api'
 /** The various API endpoints */
 export const API_ENDPOINTS = {
   channelList: API_BASE + '/channels/',
-  collectionList: API_BASE + '/collections/',
   mediaList: API_BASE + '/media/',
   profile: API_BASE + '/profile',
 };

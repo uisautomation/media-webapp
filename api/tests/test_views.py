@@ -399,6 +399,7 @@ class ChannelViewTestCase(ViewTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['id'], self.channel.id)
         self.assertEqual(response.data['title'], self.channel.title)
+        self.assertEqual(response.data['owningLookupInst'], self.channel.owning_lookup_inst)
 
     def test_not_found(self):
         """Check that a 404 is returned if no channel is found"""
@@ -420,6 +421,9 @@ class ChannelViewTestCase(ViewTestCase):
 
     def test_description_mutable(self):
         self.assert_field_mutable('description')
+
+    def test_owning_lookup_inst_mutable(self):
+        self.assert_field_mutable('owningLookupInst', 'ENG', 'owning_lookup_inst')
 
     def test_created_at_immutable(self):
         self.assert_field_immutable('createdAt', '2018-08-06T15:29:45.003231Z', 'created_at')
@@ -463,31 +467,6 @@ class ChannelViewTestCase(ViewTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             getattr(self.channels.get(id=self.channel.id), model_field_name), original_value)
-
-
-CHANNELS_FIXTURE = [
-    {
-        'key': 'mock1',
-        'title': 'Mock 1',
-        'description': 'Description for mock 1',
-        'custom': {
-            'sms_collection_id': 'collection:1234:',
-        },
-    },
-    {
-        'key': 'mock2',
-        'title': 'Mock 2',
-        'description': 'Description for mock 2',
-        'custom': {
-            'sms_collection_id': 'collection:1235:',
-        },
-    },
-    {
-        'key': 'mock3',
-        'title': 'Mock 3',
-        'description': 'Not a SMS collection',
-    },
-]
 
 
 DELIVERY_VIDEO_FIXTURE = {

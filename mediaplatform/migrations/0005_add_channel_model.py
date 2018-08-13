@@ -16,8 +16,8 @@ class Migration(migrations.Migration):
             name='Channel',
             fields=[
                 ('id', models.CharField(default=mediaplatform.models._make_token, editable=False, max_length=11, primary_key=True, serialize=False)),
-                ('title', models.TextField(help_text='Title of media item')),
-                ('description', models.TextField(blank=True, default='', help_text='Description of media item')),
+                ('title', models.TextField(help_text='Title of the channel')),
+                ('description', models.TextField(blank=True, default='', help_text='Description of the channel')),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('deleted_at', models.DateTimeField(blank=True, null=True)),
