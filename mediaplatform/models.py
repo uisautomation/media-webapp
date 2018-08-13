@@ -456,10 +456,10 @@ class Channel(models.Model):
         max_length=_TOKEN_LENGTH, primary_key=True, default=_make_token, editable=False)
 
     #: Channel title
-    title = models.TextField(help_text='Title of media item', blank=False)
+    title = models.TextField(help_text='Title of the channel', blank=False)
 
     #: Channel description
-    description = models.TextField(help_text='Description of media item', blank=True, default='')
+    description = models.TextField(help_text='Description of the channel', blank=True, default='')
 
     #: "Owning" lookup institution id. We default to the blank string but, aside from "special"
     #: internal channels, there should always be a lookup institution.
