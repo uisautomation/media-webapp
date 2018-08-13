@@ -1,64 +1,21 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import MuiAppBar from '@material-ui/core/AppBar';
-import Grid from '@material-ui/core/Grid';
+import IconButton from '@material-ui/core/IconButton';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 
+import BackIcon from '@material-ui/icons/ArrowBack';
+import SearchIcon from '@material-ui/icons/Search';
 import SearchForm from './SearchForm';
 
-import ShieldImage from '../img/shield.svg';
+import LogoImage from '../img/logo.svg';
 
 // The location for a redirected search request
 // TODO this is to be refactored as per https://github.com/uisautomation/sms-webapp/issues/102
 const SEARCH_LOCATION = '/';
-
-const styles = theme => ({
-  root: { /* no default styles */ },
-
-  appBarLeft: {
-    display: 'flex',
-    justifyContent: 'flex-start',
-    paddingRight: theme.spacing.unit * 3,
-
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
-  },
-
-  appBarMiddle: {
-    display: 'flex',
-    justifyContent: 'center',
-  },
-
-  appBarRight: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    paddingLeft: theme.spacing.unit * 3,
-
-    [theme.breakpoints.down('xs')]: {
-      display: 'none',
-    }
-  },
-
-  searchFormRoot: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    border: 'none',
-    maxWidth: '640px',
-    width: '100%',
-  },
-
-  searchFormButtonRoot: {
-    backgroundColor: 'rgba(0, 0, 0, 0.2)',
-    color: theme.palette.common.white,
-  },
-
-  searchFormInputRoot: {
-    color: theme.palette.common.white,
-  },
-});
 
 /**
  * AppBar component for the media service. Children appear in the right-most part of the bar for
@@ -66,39 +23,78 @@ const styles = theme => ({
  *
  * Any unknown properties supplied will be spread to the root component.
  */
-const AppBar = (
-  { classes, defaultSearch, onSearch, color, children, autoFocus, ...otherProps }
-) => (
-  <MuiAppBar position="static" color={color} className={classes.root} {...otherProps}>
-    <Grid container component={Toolbar}>
-      <Grid item xs={3} className={classes.appBarLeft}>
-        <Typography variant="title" color="inherit">
-          <img src={ShieldImage} alt="The University of Cambridge Media Platform" style={{verticalAlign: 'bottom', height: '1.8em'}} />
-        </Typography>
-      </Grid>
-      <Grid item xs={12} sm={9} md={6} className={classes.appBarMiddle}>
-        <SearchForm
-          autoFocus={autoFocus}
-          color={color}
-          classes={{
-            root: classes.searchFormRoot,
-            searchButtonRoot: classes.searchFormButtonRoot,
-            searchInputRoot: classes.searchFormInputRoot,
-          }}
-          onSubmit={event => handleSubmit(event, onSearch)}
-          InputProps={{
-            defaultValue: defaultSearch,
-            name: 'q',
-            placeholder: 'Search',
-          }}
-        />
-      </Grid>
-      <Grid item xs={3} className={classes.appBarRight}>
-        { children }
-      </Grid>
-    </Grid>
-  </MuiAppBar>
-);
+class AppBar extends Component {
+  constructor() {
+    super();
+    this.state = { searchBarVisible: false };
+  }
+
+  render() {
+    const {
+      classes, defaultSearch, onSearch, color, children, autoFocus, ...otherProps
+    } = this.props;
+    const { searchBarVisible } = this.state;
+
+    const searchForm = (
+      <SearchForm
+        autoFocus={autoFocus}
+        color={color}
+        classes={{
+          root: classes.searchFormRoot,
+          searchButtonRoot: classes.searchFormButtonRoot,
+          searchInputInput: classes.searchFormInputInput,
+          searchInputRoot: classes.searchFormInputRoot,
+        }}
+        onSubmit={
+          event => { this.setState({ searchBarVisible: false }); handleSubmit(event, onSearch); }
+        }
+        InputProps={{
+          defaultValue: defaultSearch,
+          name: 'q',
+          placeholder: 'Search',
+        }}
+      />
+    );
+
+    const toolBar = (
+      searchBarVisible
+      ?
+      <Toolbar>
+        <IconButton
+          color="inherit" aria-label="Back" className={ classes.leftButton }
+          onClick={ () => this.setState({ searchBarVisible: false }) }
+        >
+          <BackIcon />
+        </IconButton>
+        { searchForm }
+      </Toolbar>
+      :
+      <Toolbar>
+          <Typography variant="title" color="inherit">
+            <a href='/'>
+              <img src={LogoImage} alt="Media Platform" style={{verticalAlign: 'bottom', height: '1.8em'}} />
+            </a>
+          </Typography>
+          <div className={ classes.centreSection }>
+            <div className={ classes.searchFormContainer }>{ searchForm }</div>
+          </div>
+          <IconButton
+            color="inherit" aria-label="Search" className={ classes.searchButton }
+            onClick={ () => this.setState({ searchBarVisible: true }) }
+          >
+            <SearchIcon />
+          </IconButton>
+          { children }
+      </Toolbar>
+    );
+
+    return (
+      <MuiAppBar position="static" color={color} className={classes.root} {...otherProps}>
+        { toolBar }
+      </MuiAppBar>
+    );
+  }
+}
 
 AppBar.propTypes = {
   /** If true, the search form input will be focussed. */
@@ -113,7 +109,7 @@ AppBar.propTypes = {
   /** Function called with search text. If not provided, the submit redirects with the search
    * params: ``?q={text}``
    */
-  onSearch: PropTypes.func
+  onSearch: PropTypes.func,
 };
 
 AppBar.defaultProps = {
@@ -142,5 +138,58 @@ const handleSubmit = (event, onSearch) => {
     location = SEARCH_LOCATION + '?q=' + encodeURI(query);
   }
 };
+
+const styles = theme => ({
+  root: { /* no default styles */ },
+
+  centreSection: {
+    display: 'flex',
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
+
+  leftButton: {
+    marginLeft: -1.5 * theme.spacing.unit,
+    marginRight: 1.5 * theme.spacing.unit,
+  },
+
+  searchButton: {
+    [theme.breakpoints.up('md')]: {
+      display: 'none',
+    },
+  },
+
+  searchFormContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginLeft: theme.spacing.unit * 2,
+    maxWidth: theme.spacing.unit * 80,
+    width: '100%',
+
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
+
+  searchFormRoot: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    border: 'none',
+    width: '100%',
+  },
+
+  searchFormInputInput: {
+    width: '100%',
+  },
+
+  searchFormButtonRoot: {
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    color: theme.palette.common.white,
+  },
+
+  searchFormInputRoot: {
+    color: theme.palette.common.white,
+    width: '100%',
+  },
+});
 
 export default withStyles(styles)(AppBar);

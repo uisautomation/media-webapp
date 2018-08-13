@@ -45,6 +45,10 @@ const styles = theme => ({
 
   link: {
     color: theme.palette.text.secondary,
+
+    [theme.breakpoints.down('xs')]: {
+      display: 'none',
+    },
   },
 });
 
