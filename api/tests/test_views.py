@@ -31,6 +31,10 @@ class ViewTestCase(TestCase):
         self.viewable_by_user = self.non_deleted_media.viewable_by_user(self.user)
         self.channels = mpmodels.Channel.objects.all()
         self.channels_including_deleted = mpmodels.Channel.objects_including_deleted.all()
+        self.playlists = mpmodels.Playlist.objects.all()
+        self.playlists_visibile_by_anon = (self.playlists.viewable_by_user(AnonymousUser()))
+        self.playlists_visibile_by_user = (self.playlists.viewable_by_user(self.user))
+        self.playlists_including_deleted = mpmodels.Playlist.objects_including_deleted.all()
 
     def patch_get_jwplatform_client(self):
         self.get_jwplatform_client_patcher = mock.patch(
@@ -154,6 +158,64 @@ class MediaItemListViewTestCase(ViewTestCase):
         force_authenticate(request, user=self.user)
         response = self.view(request)
         self.assertEqual(response.status_code, 400)
+
+    def test_basic_playlist_filter(self):
+        """Filtering by playlist works."""
+        playlist = self.playlists.get(id='public')
+        playlist.channel.edit_permission.reset()
+        playlist.channel.edit_permission.save()
+        playlist.media_items.extend(
+            item.id for item in
+            mpmodels.MediaItem.objects.all()
+            .viewable_by_user(self.user)[:1]
+        )
+        playlist.save()
+
+        self.assertTrue(
+            mpmodels.Playlist.objects.all().viewable_by_user(self.user)
+            .filter(id=playlist.id).exists()
+        )
+
+        request = self.factory.get('/?playlist=' + playlist.id)
+        force_authenticate(request, user=self.user)
+
+        response = self.view(request)
+        self.assertEqual(response.status_code, 200)
+
+        received_ids = set(item['id'] for item in response.data['results'])
+        expected_ids = set(
+            item.id for item in
+            mpmodels.MediaItem.objects.all()
+            .viewable_by_user(self.user)
+            .filter(id__in=playlist.media_items)
+        )
+        self.assertNotEqual(expected_ids, set())
+        self.assertEqual(received_ids, expected_ids)
+
+    def test_non_viewable_playlist_filter(self):
+        # Filtering returns no results if playlist has no view permission
+        playlist = self.playlists.get(id='public')
+        playlist.channel.edit_permission.reset()
+        playlist.channel.edit_permission.save()
+        playlist.view_permission.reset()
+        playlist.view_permission.save()
+        playlist.media_items.extend(
+            item.id for item in
+            mpmodels.MediaItem.objects.all()
+            .viewable_by_user(self.user)[:1]
+        )
+        playlist.save()
+
+        self.assertFalse(
+            mpmodels.Playlist.objects.all().viewable_by_user(self.user)
+            .filter(id=playlist.id).exists()
+        )
+
+        request = self.factory.get('/?playlist=' + playlist.id)
+        force_authenticate(request, user=self.user)
+
+        response = self.view(request)
+        self.assertEqual(response.status_code, 400)  # bad request: playlist doesn't exist
 
 
 class MediaItemViewTestCase(ViewTestCase):
@@ -568,6 +630,176 @@ class ChannelViewTestCase(ViewTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             getattr(self.channels.get(id=self.channel.id), model_field_name), original_value)
+
+
+class PlaylistListViewTestCase(ViewTestCase):
+    def setUp(self):
+        super().setUp()
+        self.view = views.PlaylistListView().as_view()
+        self.channel = mpmodels.Channel.objects.get(id='channel1')
+        self.channel.edit_permission.reset()
+        self.channel.edit_permission.crsids.append(self.user.username)
+        self.channel.edit_permission.save()
+
+    def test_basic_list(self):
+        """An anonymous user should get expected playlists back."""
+        response_data = self.view(self.get_request).data
+        self.assertIn('results', response_data)
+
+        self.assertNotEqual(len(response_data['results']), 0)
+        self.assertEqual(len(response_data['results']), self.playlists_visibile_by_anon.count())
+
+        expected_ids = set(o.id for o in self.playlists_visibile_by_anon)
+        for item in response_data['results']:
+            self.assertIn(item['id'], expected_ids)
+
+    def test_auth_list(self):
+        """An authenticated user should get expected playlists back."""
+        force_authenticate(self.get_request, user=self.user)
+        response_data = self.view(self.get_request).data
+        self.assertIn('results', response_data)
+
+        # sanity check that the viewable lists differ
+        self.assertNotEqual(self.playlists_visibile_by_user.count(),
+                            self.playlists_visibile_by_anon.count())
+
+        self.assertNotEqual(len(response_data['results']), 0)
+        self.assertEqual(len(response_data['results']), self.playlists_visibile_by_user.count())
+
+        expected_ids = set(o.id for o in self.playlists_visibile_by_user)
+        for item in response_data['results']:
+            self.assertIn(item['id'], expected_ids)
+
+    def test_create(self):
+        """Basic creation of a playlist succeeds."""
+        request = self.factory.post('/', {'title': 'foo', 'channelId': self.channel.id})
+        force_authenticate(request, user=self.user)
+        response = self.view(request)
+        self.assertEqual(response.status_code, 201)
+        new_playlist = mpmodels.Playlist.objects.get(id=response.data['id'])
+        self.assertEqual(new_playlist.channel.id, self.channel.id)
+        self.assertEqual(new_playlist.title, 'foo')
+
+    def test_create_requires_channel(self):
+        """Creation requires channel id."""
+        request = self.factory.post('/', {'title': 'foo'})
+        force_authenticate(request, user=self.user)
+        response = self.view(request)
+        self.assertEqual(response.status_code, 400)
+
+    def test_create_requires_channel_user_can_edit(self):
+        """Creation requires channel id for channel the user can edit."""
+        self.channel.edit_permission.reset()
+        self.channel.edit_permission.save()
+        request = self.factory.post('/', {'title': 'foo', 'channelId': self.channel.id})
+        force_authenticate(request, user=self.user)
+        response = self.view(request)
+        self.assertEqual(response.status_code, 400)
+
+
+class PlaylistViewTestCase(ViewTestCase):
+    def setUp(self):
+        super().setUp()
+        self.view = views.PlaylistView().as_view()
+
+    def test_success(self):
+        """Check that a playlist is successfully returned"""
+        playlist = self.playlists.get(id='public')
+        response = self.view(self.get_request, pk=playlist.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['id'], playlist.id)
+        self.assertEqual(response.data['title'], playlist.title)
+        self.assertEqual(response.data['description'], playlist.description)
+        self.assertEqual(response.data['mediaIds'], playlist.media_items)
+
+    def test_no_permissions(self):
+        """Check that a playlist is not returned if user does not have permission to view"""
+        response = self.view(self.get_request, pk='crsidsperm')
+        self.assertEqual(response.status_code, 404)
+
+    def test_not_found(self):
+        """Check that a 404 is returned if no playlist is found"""
+        response = self.view(self.get_request, pk='this-playlist-id-does-not-exist')
+        self.assertEqual(response.status_code, 404)
+
+    def test_deleted_not_found(self):
+        """Check that a 404 is returned if a deleted playlist is asked for."""
+        deleted_playlist = (
+            self.playlists_including_deleted.filter(deleted_at__isnull=False).first())
+        self.assertIsNotNone(deleted_playlist)
+        response = self.view(self.get_request, pk=deleted_playlist.id)
+        self.assertEqual(response.status_code, 404)
+
+    def test_id_immutable(self):
+        self.assert_field_immutable('id')
+
+    def test_title_mutable(self):
+        self.assert_field_mutable('title')
+
+    def test_description_mutable(self):
+        self.assert_field_mutable('description')
+
+    def test_media_items_mutable(self):
+        self.assert_field_mutable('mediaIds', ['public'], 'media_items')
+
+    def test_channel_id_immutable(self):
+        new_channel = mpmodels.Channel.objects.get(id='channel2')
+        new_channel.edit_permission.crsids.append(self.user.username)
+        new_channel.edit_permission.save()
+        self.assert_field_immutable('channel_id', new_channel.id)
+
+    def test_channel_immutable(self):
+        new_channel = mpmodels.Channel.objects.get(id='channel2')
+        new_channel.edit_permission.crsids.append(self.user.username)
+        new_channel.edit_permission.save()
+        self.assert_field_immutable('channel', new_channel.id)
+
+    def test_created_at_immutable(self):
+        self.assert_field_immutable('createdAt', '2018-08-06T15:29:45.003231Z', 'created_at')
+
+    def assert_field_mutable(
+            self, field_name, new_value='testvalue', model_field_name=None, expected_value=None):
+        expected_value = expected_value or new_value
+        model_field_name = model_field_name or field_name
+        request = self.factory.patch('/', {field_name: new_value}, format='json')
+
+        playlist = self.playlists.get(id='emptyperm')
+
+        playlist.channel.edit_permission.crsids.append(self.user.username)
+        playlist.channel.edit_permission.save()
+
+        # Unauthorised request should fail
+        response = self.view(request, pk=playlist.id)
+        self.assertEqual(response.status_code, 403)
+
+        force_authenticate(request, user=self.user)
+        response = self.view(request, pk=playlist.id)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(
+            getattr(self.playlists.get(id=playlist.id), model_field_name), expected_value)
+
+    def assert_field_immutable(self, field_name, new_value='test value', model_field_name=None):
+        model_field_name = model_field_name or field_name
+        request = self.factory.patch('/', {field_name: new_value}, format='json')
+
+        playlist = self.playlists.get(id='emptyperm')
+
+        playlist.channel.edit_permission.crsids.append(self.user.username)
+        playlist.channel.edit_permission.save()
+
+        # Unauthorised request should fail
+        response = self.view(request, pk=playlist.id)
+        self.assertEqual(response.status_code, 403)
+
+        # Authorised request should have no effect
+        original_value = getattr(playlist, model_field_name)
+        self.assertNotEqual(original_value, new_value)
+        force_authenticate(request, user=self.user)
+        response = self.view(request, pk=playlist.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            getattr(self.playlists.get(id=playlist.id), model_field_name), original_value)
 
 
 DELIVERY_VIDEO_FIXTURE = {

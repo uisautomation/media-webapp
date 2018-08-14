@@ -5,6 +5,7 @@ import automationlookup
 from django.conf import settings
 import django.contrib.postgres.fields as pgfields
 from django.db import models
+from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from iso639 import languages
@@ -82,7 +83,8 @@ class MediaItemQuerySet(PermissionQuerySetMixin, models.QuerySet):
         return self.annotate(**{
             name: models.Case(
                 models.When(
-                    self._permission_condition('view_permission', user),
+                    Q(self._permission_condition('view_permission', user) |
+                      self._permission_condition('channel__edit_permission', user)),
                     then=models.Value(True)
                 ),
                 default=models.Value(False),
@@ -95,7 +97,8 @@ class MediaItemQuerySet(PermissionQuerySetMixin, models.QuerySet):
         Filter the queryset to only those items which can be viewed by the passed Django user.
 
         """
-        return self.filter(self._permission_condition('view_permission', user))
+        return self.filter(Q(self._permission_condition('view_permission', user) |
+                             self._permission_condition('channel__edit_permission', user)))
 
     def _editable_condition(self, user):
         # For the moment, we make sure that *all* SMS-derived objects are immutble to guard against
@@ -507,7 +510,8 @@ class PlaylistQuerySet(PermissionQuerySetMixin, models.QuerySet):
         return self.annotate(**{
             name: models.Case(
                 models.When(
-                    self._permission_condition('view_permission', user),
+                    Q(self._permission_condition('view_permission', user) |
+                      self._permission_condition('channel__edit_permission', user)),
                     then=models.Value(True)
                 ),
                 default=models.Value(False),
@@ -520,7 +524,31 @@ class PlaylistQuerySet(PermissionQuerySetMixin, models.QuerySet):
         Filter the queryset to only those items which can be viewed by the passed Django user.
 
         """
-        return self.filter(self._permission_condition('view_permission', user))
+        return self.filter(Q(self._permission_condition('view_permission', user) |
+                             self._permission_condition('channel__edit_permission', user)))
+
+    def annotate_editable(self, user, name='editable'):
+        """
+        Annotate the query set with a boolean indicating if the user can edit the playlist.
+
+        """
+        return self.annotate(**{
+            name: models.Case(
+                models.When(
+                    self._permission_condition('channel__edit_permission', user),
+                    then=models.Value(True)
+                ),
+                default=models.Value(False),
+                output_field=models.BooleanField()
+            ),
+        })
+
+    def editable_by_user(self, user):
+        """
+        Filter the queryset to only those playlists which can be edited by the passed Django user.
+
+        """
+        return self.filter(self._permission_condition('channel__edit_permission', user))
 
 
 class PlaylistManager(models.Manager):
