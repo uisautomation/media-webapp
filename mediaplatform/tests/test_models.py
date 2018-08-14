@@ -503,6 +503,11 @@ class PlaylistTest(ModelTestCase):
         """A Playlist object should *not* be creatable with no field values."""
         self.assertRaises(IntegrityError, models.Playlist.objects.create)
 
+    def test_creation_no_channel(self):
+        """A Playlist object should *not* be creatable with no channel."""
+        with self.assertRaises(IntegrityError):
+            models.Playlist.objects.create(title='XXX')
+
     def test_creation_minimum_fields(self):
         """A Playlist object should be creatable with a title and a channel."""
         models.Playlist.objects.create(title='XXX', channel=self.channel1)
@@ -585,3 +590,68 @@ class PlaylistTest(ModelTestCase):
         self.assertEqual(media_items.count(), 1)
         # only 'public' can be viewed
         self.assertEqual(media_items.first().id, 'public')
+
+    def test_playlist_in_public_channel_editable_by_anon(self):
+        """An playlist in a channel with public editable permissions is editable by anonymous."""
+        playlist = models.Playlist.objects.get(id='emptyperm')
+        self.assert_user_cannot_edit(AnonymousUser(), playlist)
+        self.assert_user_cannot_edit(None, playlist)
+        playlist.channel.edit_permission.is_public = True
+        playlist.channel.edit_permission.save()
+        self.assert_user_can_edit(AnonymousUser(), playlist)
+        self.assert_user_can_edit(None, playlist)
+
+    def test_playlist_in_channel_with_signed_in_edit_permissions(self):
+        """An playlist in a channel with signed in edit permissions is not editable by
+        anonymous."""
+        playlist = models.Playlist.objects.get(id='emptyperm')
+        self.assert_user_cannot_edit(AnonymousUser(), playlist)
+        self.assert_user_cannot_edit(None, playlist)
+        self.assert_user_cannot_edit(self.user, playlist)
+        playlist.channel.edit_permission.is_signed_in = True
+        playlist.channel.edit_permission.save()
+        self.assert_user_cannot_edit(AnonymousUser(), playlist)
+        self.assert_user_cannot_edit(None, playlist)
+        self.assert_user_can_edit(self.user, playlist)
+
+    def test_playlist_in_channel_with_no_perms_not_editable(self):
+        """An playlist in a channel with empty permissions is not editable by the anonymous
+        or signed in user."""
+        playlist = models.Playlist.objects.get(id='emptyperm')
+        playlist.channel.edit_permission.reset()
+        playlist.channel.edit_permission.save()
+        self.assert_user_cannot_edit(AnonymousUser(), playlist)
+        self.assert_user_cannot_edit(self.user, playlist)
+
+    def test_playlist_in_channel_with_matching_crsid_editable(self):
+        playlist = models.Playlist.objects.get(id='emptyperm')
+        self.assert_user_cannot_edit(self.user, playlist)
+        playlist.channel.edit_permission.crsids.extend(['spqr1', self.user.username, 'abcd1'])
+        playlist.channel.edit_permission.save()
+        self.assert_user_can_edit(self.user, playlist)
+
+    def test_playlist_in_channel_with_matching_lookup_groups_editable(self):
+        """
+        A user who has at least one lookup group which is in the set of lookup groups for a media
+        self.playlist.channel can edit it.
+
+        """
+        playlist = models.Playlist.objects.get(id='emptyperm')
+        self.lookup_groupids_and_instids_for_user.return_value = ['A', 'B', 'C'], []
+        self.assert_user_cannot_edit(self.user, playlist)
+        playlist.channel.edit_permission.lookup_groups.extend(['X', 'Y', 'A', 'B', 'Z'])
+        playlist.channel.edit_permission.save()
+        self.assert_user_can_edit(self.user, playlist)
+
+    def test_playlist_inchannel_with_matching_lookup_insts_editable(self):
+        """
+        A user who has at least one lookup institution which is in the set of lookup institutions
+        for a media self.playlist.channel can edit it.
+
+        """
+        playlist = models.Playlist.objects.get(id='emptyperm')
+        self.lookup_groupids_and_instids_for_user.return_value = [], ['A', 'B', 'C']
+        self.assert_user_cannot_edit(self.user, playlist)
+        playlist.channel.edit_permission.lookup_insts.extend(['X', 'Y', 'A', 'B', 'Z'])
+        playlist.channel.edit_permission.save()
+        self.assert_user_can_edit(self.user, playlist)
