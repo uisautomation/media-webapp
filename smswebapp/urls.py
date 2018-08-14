@@ -19,6 +19,8 @@ from django.urls import path, include
 
 import automationcommon.views
 
+from . import apiurls
+
 # Django debug toolbar is only installed in developer builds
 try:
     import debug_toolbar.urls
@@ -31,9 +33,8 @@ urlpatterns = [
     path('', include('ucamwebauth.urls')),
     path('healthz', automationcommon.views.status, name='status'),
     path('legacy/', include('legacysms.urls', namespace='legacysms')),
-    path('api/', include('api.urls', namespace='api')),
     path('', include('ui.urls', namespace='ui')),
-]
+] + apiurls.urlpatterns
 
 # Selectively enable django debug toolbar URLs. Only if the toolbar is
 # installed *and* DEBUG is True.

@@ -78,7 +78,20 @@ class MediaItemJSONLDSerializer(JSONLDSerializer):
         ]
 
 
-class MediaItemPageSerializer(serializers.Serializer):
+class ResourcePageSerializer(serializers.Serializer):
+    """
+    Generic serializer for a page representing a resource. Adds the current user's profile to the
+    context under the "profile" key.
+
+    """
+    profile = serializers.SerializerMethodField()
+
+    def get_profile(self, obj):
+        return apiserializers.ProfileSerializer(
+            self.context['request'].user, context=self.context).data
+
+
+class MediaItemPageSerializer(ResourcePageSerializer):
     """
     A serialiser for media items which renders a ``json_ld`` field which is the representation
     of the media item in JSON LD format along with the resource.
@@ -88,9 +101,18 @@ class MediaItemPageSerializer(serializers.Serializer):
     resource = apiserializers.MediaItemDetailSerializer(source='*')
 
 
-class ChannelPageSerializer(serializers.Serializer):
+class ChannelPageSerializer(ResourcePageSerializer):
     """
     A serialiser for channels which renders the API resource.
 
     """
     resource = apiserializers.ChannelDetailSerializer(source='*')
+
+
+class MediaItemAnalyticsPageSerializer(ResourcePageSerializer):
+    """
+    A serialiser for media items which renders the media item resource and analytics into the view.
+
+    """
+    resource = apiserializers.MediaItemDetailSerializer(source='*')
+    analytics = apiserializers.MediaItemAnalyticsListSerializer(source='*')

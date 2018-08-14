@@ -1,7 +1,8 @@
-{% extends 'index.html' %}
+{% extends 'ui/resource.html' %}
 {% load to_json %}
 {% block extrabody %}
+{{ block.super }}
 <script>
-  window.mediaItemAnalytics = {% autoescape off %}{{ results|to_json }}{% endautoescape %};
+  window.mediaItemAnalytics = {% autoescape off %}{{ analytics.results|to_json }}{% endautoescape %};
 </script>
 {% endblock %}
