@@ -58,7 +58,7 @@ class MediaItemListSearchFilter(filters.SearchFilter):
     """
     Custom filter based on :py:class:`rest_framework.filters.SearchFilter` specialised to search
     :py:class:`mediaplatform.models.MediaItem` objects. If the "tags" field is specified in the
-    view's ``search_fields`` attribute, then the tags field is dearched for any tag matching the
+    view's ``search_fields`` attribute, then the tags field is searched for any tag matching the
     lower cased search term.
 
     """
@@ -75,6 +75,34 @@ class MediaItemListSearchFilter(filters.SearchFilter):
         if 'tags' in getattr(view, 'search_fields', ()):
             search_term = self.get_search_term(request)
             filtered_qs |= queryset.filter(tags__contains=[search_term.lower()])
+
+        return filtered_qs
+
+
+class MediaItemPlaylistSearchFilter(filters.SearchFilter):
+    """
+    Custom filter based on :py:class:`rest_framework.filters.SearchFilter` specialised to search
+    :py:class:`mediaplatform.models.MediaItem` objects inside Playlists. If the "playlist" field
+    is specified in the view's ``search_fields`` attribute, then the filter will only return
+    media items if they are in the given playlist.
+
+    """
+    search_param = 'playlist'
+
+    def get_search_term(self, request):
+        return request.query_params.get(self.search_param, '')
+
+    def get_search_terms(self, request):
+        return [self.get_search_term(request)]
+
+    def filter_queryset(self, request, queryset, view):
+        filtered_qs = super().filter_queryset(request, queryset, view)
+
+        if self.search_param in request.query_params.keys():
+            search_term = self.get_search_term(request)
+            playlist = mpmodels.Playlist.objects.filter(id=search_term)
+            if playlist:
+                filtered_qs |= queryset.filter(id__in=playlist[0].media_items)
 
         return filtered_qs
 
@@ -109,8 +137,8 @@ class MediaItemListView(MediaItemListMixin, generics.ListCreateAPIView):
     Endpoint to retrieve a list of media.
 
     """
-    filter_backends = (
-        filters.OrderingFilter, MediaItemListSearchFilter, df_filters.DjangoFilterBackend)
+    filter_backends = (filters.OrderingFilter, MediaItemListSearchFilter,
+                       MediaItemPlaylistSearchFilter, df_filters.DjangoFilterBackend)
     ordering = '-publishedAt'
     ordering_fields = ('publishedAt',)
     pagination_class = ListPagination
