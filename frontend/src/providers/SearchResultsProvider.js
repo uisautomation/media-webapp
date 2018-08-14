@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import {
-  mediaList, channelList, mediaResourceToItem, channelResourceToItem
+  mediaList, channelList, playlistList,
+  mediaResourceToItem, channelResourceToItem, playlistResourceToItem
 } from '../api';
 
 const { Provider, Consumer } = React.createContext();
@@ -60,11 +61,11 @@ class SearchResultsProvider extends Component {
     const queryPart = (urlParamsString !== '') ? ('?' + urlParamsString) : '';
 
     // Otherwise launch the query.
-    Promise.all([mediaList(query), channelList(query)]).then(
-      ([mediaBody, channelsBody]) => {
+    Promise.all([mediaList(query), channelList(query), playlistList(query)]).then(
+      ([mediaBody, channelsBody, playlistsBody]) => {
         // Ignore responses if they aren't in response to the most recent request.
         if(this.state.lastFetchIndex !== fetchIndex) { return; }
-        const resultItems = this.mergeResults(mediaBody, channelsBody)
+        const resultItems = this.mergeResults(mediaBody, channelsBody, playlistsBody);
         this.setState({ resultItems, error: null, isLoading: false });
       },
       error => {
@@ -75,10 +76,11 @@ class SearchResultsProvider extends Component {
     );
   }
 
-  mergeResults(mediaResults, channelResults) {
-    const { maxCollectionResults } = this.props;
+  mergeResults(mediaResults, channelResults, playlistResults) {
+    const { maxChannelsResults } = this.props;
     return [
-      ...channelResults.results.slice(0, maxCollectionResults).map(channelResourceToItem),
+      ...channelResults.results.slice(0, maxChannelsResults).map(channelResourceToItem),
+      ...playlistResults.results.slice(0, maxChannelsResults).map(playlistResourceToItem),
       ...mediaResults.results.map(mediaResourceToItem),
     ];
   }
@@ -95,8 +97,8 @@ class SearchResultsProvider extends Component {
 }
 
 SearchResultsProvider.propTypes = {
-  /** Maximum number of collection results to return. */
-  maxCollectionResults: PropTypes.number,
+  /** Maximum number of channels or playlists results to return. */
+  maxChannelsResults: PropTypes.number,
 
   /** Search query. */
   query: PropTypes.shape({

@@ -58,7 +58,7 @@ class MediaItemListSearchFilter(filters.SearchFilter):
     """
     Custom filter based on :py:class:`rest_framework.filters.SearchFilter` specialised to search
     :py:class:`mediaplatform.models.MediaItem` objects. If the "tags" field is specified in the
-    view's ``search_fields`` attribute, then the tags field is dearched for any tag matching the
+    view's ``search_fields`` attribute, then the tags field is searched for any tag matching the
     lower cased search term.
 
     """
@@ -104,19 +104,48 @@ class MediaItemMixin(MediaItemListMixin):
     """
 
 
+def _user_playlists(request):
+    """
+    Return a queryset from a request which contains all the playlists which are viewable by the
+    user making the request.
+
+    """
+    user = request.user if request is not None else None
+    return mpmodels.Playlist.objects.all().viewable_by_user(user)
+
+
+class MediaItemFilter(df_filters.FilterSet):
+    class Meta:
+        model = mpmodels.MediaItem
+        fields = ('channel', 'playlist')
+
+    playlist = df_filters.ModelChoiceFilter(
+        label='Playlist', method='filter_playlist',
+        help_text='Only media items from this playlist will be listed',
+        queryset=_user_playlists)
+
+    def filter_playlist(self, queryset, name, value):
+        """
+        Filter media items to only those which appear in a selected playlist. Since the playlist
+        filter field is a ModelChoiceFilter, the "value" is the playlist object itself.
+
+        """
+        return queryset.filter(id__in=value.media_items)
+
+
 class MediaItemListView(MediaItemListMixin, generics.ListCreateAPIView):
     """
     Endpoint to retrieve a list of media.
 
     """
-    filter_backends = (
-        filters.OrderingFilter, MediaItemListSearchFilter, df_filters.DjangoFilterBackend)
+    filter_backends = (filters.OrderingFilter, MediaItemListSearchFilter,
+                       df_filters.DjangoFilterBackend)
     ordering = '-publishedAt'
     ordering_fields = ('publishedAt',)
     pagination_class = ListPagination
     search_fields = ('title', 'description', 'tags')
     serializer_class = serializers.MediaItemSerializer
-    filterset_fields = ('channel',)
+    filterset_class = MediaItemFilter
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -210,3 +239,59 @@ class ChannelView(ChannelMixin, generics.RetrieveUpdateAPIView):
 
     """
     serializer_class = serializers.ChannelDetailSerializer
+
+
+class PlaylistListMixin(ListMixinBase):
+    """
+    A mixin class for DRF generic views which has all of the specialisations necessary for listing
+    (and possibly creating/deleting) playlists. Use this mixin with ListAPIView or
+    ListCreateAPIView to form a concrete view class.
+
+    """
+    queryset = mpmodels.Playlist.objects
+
+
+class PlaylistMixin(PlaylistListMixin):
+    """
+    A mixin class for DRF generic views which has all of the specialisations necessary for
+    retrieving (and possibly updating) individual playlists. Use this mixin with RetrieveAPIView
+    or RetrieveUpdateAPIView to form a concrete view class.
+
+    """
+
+
+class PlaylistListFilterSet(df_filters.FilterSet):
+    class Meta:
+        model = mpmodels.Playlist
+        fields = ('editable',)
+
+    editable = df_filters.BooleanFilter(
+        label='Editable', help_text='Filter by whether the user can edit this channel')
+
+
+class PlaylistListView(PlaylistListMixin, generics.ListCreateAPIView):
+    """
+    Endpoint to retrieve a list of playlists.
+
+    """
+    filter_backends = (
+        filters.OrderingFilter, filters.SearchFilter, df_filters.DjangoFilterBackend)
+    ordering = '-updatedAt'
+    ordering_fields = ('updatedAt', 'createdAt', 'title')
+    pagination_class = ListPagination
+    search_fields = ('title', 'description')
+    serializer_class = serializers.PlaylistSerializer
+    filter_fields = ('channel',)
+    filterset_class = PlaylistListFilterSet
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.annotate(createdAt=models.F('created_at'), updatedAt=models.F('updated_at'))
+
+
+class PlaylistView(PlaylistMixin, generics.RetrieveUpdateAPIView):
+    """
+    Endpoint to retrieve an individual playlists.
+
+    """
+    serializer_class = serializers.PlaylistDetailSerializer

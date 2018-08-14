@@ -25,48 +25,61 @@ class MediaPlatformPermissionTestCase(TestCase):
         self.assert_unsafe_does_not_have_permission()
 
     def test_safe_requires_viewable_object(self):
-        self.item.view_permission.reset()
-        self.item.view_permission.save()
-        self.assert_safe_object_does_not_have_permission(
-            self.fetch_item(annotate_viewable=True))
-        self.item.view_permission.is_public = True
-        self.item.view_permission.save()
-        self.assert_safe_object_has_permission(
-            self.fetch_item(annotate_viewable=True))
-
-        with self.assertRaises(permissions.ObjectNotAnnotated):
-            self.assert_safe_object_has_permission(self.fetch_item())
-
-    def test_unsafe_requires_viewable_object(self):
         self.item.channel.edit_permission.reset()
-        self.item.channel.edit_permission.is_public = True
         self.item.channel.edit_permission.save()
 
         self.item.view_permission.reset()
         self.item.view_permission.save()
-        self.assert_unsafe_object_does_not_have_permission(
-            self.fetch_item(annotate_viewable=True, annotate_editable=True))
+
+        item = self.fetch_item(annotate_viewable=True, annotate_editable=True)
+        self.assertFalse(item.viewable)
+        self.assertFalse(item.editable)
+        self.assert_safe_object_does_not_have_permission(item)
         self.item.view_permission.is_public = True
         self.item.view_permission.save()
-        self.assert_unsafe_object_has_permission(
-            self.fetch_item(annotate_viewable=True, annotate_editable=True))
+        item = self.fetch_item(annotate_viewable=True, annotate_editable=True)
+        self.assertTrue(item.viewable)
+        self.assertFalse(item.editable)
+        self.assert_safe_object_has_permission(item)
+        self.item.channel.edit_permission.is_public = True
+        self.item.channel.edit_permission.save()
+        item = self.fetch_item(annotate_viewable=True, annotate_editable=True)
+        self.assertTrue(item.viewable)
+        self.assertTrue(item.editable)
+        self.assert_unsafe_object_has_permission(item)
 
         with self.assertRaises(permissions.ObjectNotAnnotated):
             self.assert_unsafe_object_has_permission(self.fetch_item(annotate_editable=True))
 
-    def test_unsafe_requires_editable_object(self):
-        self.item.view_permission.reset()
-        self.item.view_permission.is_public = True
-        self.item.view_permission.save()
+        with self.assertRaises(permissions.ObjectNotAnnotated):
+            self.assert_unsafe_object_has_permission(self.fetch_item(annotate_viewable=True))
 
+    def test_unsafe_requires_editable_object(self):
         self.item.channel.edit_permission.reset()
         self.item.channel.edit_permission.save()
-        self.assert_unsafe_object_does_not_have_permission(
-            self.fetch_item(annotate_viewable=True, annotate_editable=True))
+
+        self.item.view_permission.reset()
+        self.item.view_permission.save()
+
+        item = self.fetch_item(annotate_viewable=True, annotate_editable=True)
+        self.assertFalse(item.viewable)
+        self.assertFalse(item.editable)
+        self.assert_unsafe_object_does_not_have_permission(item)
+        self.item.view_permission.is_public = True
+        self.item.view_permission.save()
+        item = self.fetch_item(annotate_viewable=True, annotate_editable=True)
+        self.assertTrue(item.viewable)
+        self.assertFalse(item.editable)
+        self.assert_unsafe_object_does_not_have_permission(item)
         self.item.channel.edit_permission.is_public = True
         self.item.channel.edit_permission.save()
-        self.assert_unsafe_object_has_permission(
-            self.fetch_item(annotate_viewable=True, annotate_editable=True))
+        item = self.fetch_item(annotate_viewable=True, annotate_editable=True)
+        self.assertTrue(item.viewable)
+        self.assertTrue(item.editable)
+        self.assert_unsafe_object_has_permission(item)
+
+        with self.assertRaises(permissions.ObjectNotAnnotated):
+            self.assert_unsafe_object_has_permission(self.fetch_item(annotate_editable=True))
 
         with self.assertRaises(permissions.ObjectNotAnnotated):
             self.assert_unsafe_object_has_permission(self.fetch_item(annotate_viewable=True))
@@ -112,17 +125,26 @@ class MediaPlatformEditPermissionTestCase(MediaPlatformPermissionTestCase):
 
     def test_safe_requires_viewable_object(self):
         self.item.channel.edit_permission.reset()
-        self.item.channel.edit_permission.is_public = True
         self.item.channel.edit_permission.save()
 
         self.item.view_permission.reset()
         self.item.view_permission.save()
-        self.assert_safe_object_does_not_have_permission(
-            self.fetch_item(annotate_viewable=True, annotate_editable=True))
+        item = self.fetch_item(annotate_viewable=True, annotate_editable=True)
+        self.assertFalse(item.viewable)
+        self.assertFalse(item.editable)
+        self.assert_safe_object_does_not_have_permission(item)
         self.item.view_permission.is_public = True
         self.item.view_permission.save()
-        self.assert_safe_object_has_permission(
-            self.fetch_item(annotate_viewable=True, annotate_editable=True))
+        item = self.fetch_item(annotate_viewable=True, annotate_editable=True)
+        self.assertTrue(item.viewable)
+        self.assertFalse(item.editable)
+        self.assert_safe_object_does_not_have_permission(item)
+        self.item.channel.edit_permission.is_public = True
+        self.item.channel.edit_permission.save()
+        item = self.fetch_item(annotate_viewable=True, annotate_editable=True)
+        self.assertTrue(item.viewable)
+        self.assertTrue(item.editable)
+        self.assert_safe_object_has_permission(item)
 
         with self.assertRaises(permissions.ObjectNotAnnotated):
             self.assert_safe_object_has_permission(self.fetch_item(annotate_viewable=True))
@@ -130,20 +152,28 @@ class MediaPlatformEditPermissionTestCase(MediaPlatformPermissionTestCase):
         with self.assertRaises(permissions.ObjectNotAnnotated):
             self.assert_safe_object_has_permission(self.fetch_item(annotate_editable=True))
 
-    def test_safe_requires_editable_object(self):
-        self.item.view_permission.reset()
-        self.item.view_permission.is_public = True
-        self.item.view_permission.save()
-
+    def test_unsafe_requires_editable_object(self):
         self.item.channel.edit_permission.reset()
         self.item.channel.edit_permission.save()
 
-        self.assert_safe_object_does_not_have_permission(
-            self.fetch_item(annotate_viewable=True, annotate_editable=True))
+        self.item.view_permission.reset()
+        self.item.view_permission.save()
+        item = self.fetch_item(annotate_viewable=True, annotate_editable=True)
+        self.assertFalse(item.viewable)
+        self.assertFalse(item.editable)
+        self.assert_unsafe_object_does_not_have_permission(item)
+        self.item.view_permission.is_public = True
+        self.item.view_permission.save()
+        item = self.fetch_item(annotate_viewable=True, annotate_editable=True)
+        self.assertTrue(item.viewable)
+        self.assertFalse(item.editable)
+        self.assert_unsafe_object_does_not_have_permission(item)
         self.item.channel.edit_permission.is_public = True
         self.item.channel.edit_permission.save()
-        self.assert_safe_object_has_permission(
-            self.fetch_item(annotate_viewable=True, annotate_editable=True))
+        item = self.fetch_item(annotate_viewable=True, annotate_editable=True)
+        self.assertTrue(item.viewable)
+        self.assertTrue(item.editable)
+        self.assert_unsafe_object_has_permission(item)
 
         with self.assertRaises(permissions.ObjectNotAnnotated):
             self.assert_safe_object_has_permission(self.fetch_item(annotate_viewable=True))
