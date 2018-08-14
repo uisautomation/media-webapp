@@ -44,7 +44,7 @@ class RelatedChannelIdField(TestCase):
     def setUp(self):
         self.patch_get_person()
         self.item = mpmodels.MediaItem.objects.get(id='empty')
-        self.playlist = mpmodels.Playlist.objects.get(id='playlist1')
+        self.playlist = mpmodels.Playlist.objects.get(id='crsidsperm')
         self.assertEqual(self.item.channel, self.playlist.channel)
         self.user = get_user_model().objects.first()
         self.item.channel.edit_permission.reset()
