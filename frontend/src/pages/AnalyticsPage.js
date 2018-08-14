@@ -7,7 +7,6 @@ import {Chart} from "react-google-charts";
 import Page from "../containers/Page";
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ShowChartIcon from '@material-ui/icons/ShowChart';
 import {mediaGet} from "../api";
 import Typography from '@material-ui/core/Typography';

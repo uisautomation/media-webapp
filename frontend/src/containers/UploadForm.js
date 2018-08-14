@@ -5,7 +5,6 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import PublishIcon from '@material-ui/icons/Publish';
 import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 
 import MediaDropzone from '../components/MediaDropzone';
@@ -85,7 +84,7 @@ class UploadForm extends Component {
           item={ draftItem }
           errors={ errors }
           disabled={ publishStarted }
-          onChange={ patch => this.setState({ draftItem: { ...this.state.draftItem, ...patch } }) }
+          onChange={ patch => this.setState({ draftItem: { ...draftItem, ...patch } }) }
         />
 
         <div className={ classes.buttonSet }>
