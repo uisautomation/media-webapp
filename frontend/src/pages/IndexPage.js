@@ -6,7 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { mediaList, mediaResourceToItem } from '../api';
 import MediaList from '../components/MediaList';
 import SearchResultsProvider, { withSearchResults } from '../providers/SearchResultsProvider';
-import Page from "../components/Page";
+import Page from "../containers/Page";
 
 /**
  * The index page for the web application. Upon mount, it fetches a list of the latest media items

@@ -20,7 +20,7 @@ const ItemMetadataForm = ({
     disabled={ disabled }
     label='Title'
     margin='normal'
-    onChange={ event => onChange({ title: event.target.value }) }
+    onChange={ event => onChange && onChange({ title: event.target.value }) }
     value={ title }
   />
 
@@ -32,7 +32,7 @@ const ItemMetadataForm = ({
     label='Description'
     margin='normal'
     multiline
-    onChange={ event => onChange({ description: event.target.value }) }
+    onChange={ event => onChange && onChange({ description: event.target.value }) }
     rows={ 4 }
     value={ description }
   />
@@ -46,7 +46,7 @@ ItemMetadataForm.propTypes = {
   }).isRequired,
 
   /** Function called when the item changes. Passed a patch style object for the item. */
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
 
   /** Should all the form controls be disabled? */
   disabled: PropTypes.bool,

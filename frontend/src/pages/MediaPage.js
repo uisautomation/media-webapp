@@ -8,7 +8,7 @@ import { withStyles } from '@material-ui/core/styles';
 import DownloadIcon from '@material-ui/icons/CloudDownload';
 import AnalyticsIcon from '@material-ui/icons/ShowChart';
 
-import Page from '../components/Page';
+import Page from '../containers/Page';
 import RenderedMarkdown from '../components/RenderedMarkdown';
 import MediaItemProvider, { withMediaItem } from '../providers/MediaItemProvider';
 
