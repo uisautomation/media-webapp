@@ -8,6 +8,7 @@
  * "safe-space" to experiment with TypeScript :).
  */
 import ChannelDefaultImage from './img/channel-default-image.jpg';
+import PlaylistDefaultImage from './img/playlist-default-image.jpg';
 
 // The base URL for the SMS application - used to create legacy URLs.
 export const BASE_SMS_URL = 'https://sms.cam.ac.uk';
@@ -141,8 +142,20 @@ export interface IChannelResource {
   url?: string;
   id?: string;
   title: string;
-  mediaUrl: string;
   description: string;
+  mediaUrl: string;
+  updatedAt: string;
+  createdAt: string;
+};
+
+/** A channel resource. */
+export interface IPlaylistResource {
+  url?: string;
+  id?: string;
+  title: string;
+  description: string;
+  channel: IChannelResource;
+  mediaUrl: string;
   updatedAt: string;
   createdAt: string;
 };
@@ -158,6 +171,7 @@ const API_BASE = window.location.protocol + '//' + window.location.host + '/api'
 export const API_ENDPOINTS = {
   channelList: API_BASE + '/channels/',
   mediaList: API_BASE + '/media/',
+  playlistList: API_BASE + '/playlists/',
   profile: API_BASE + '/profile',
 };
 
@@ -264,6 +278,22 @@ export const channelGet = (id: string) : Promise<IChannelResource | IError> => {
   return apiFetch(API_ENDPOINTS.channelList + id);
 };
 
+/** List playlist resources. */
+export const playlistList = (
+  { search, ordering }: IMediaQuery = {},
+  { endpoint }: IAPIOptions = {}
+): Promise<IMediaListResponse | IError> => {
+  return apiFetch(
+    appendQuery(endpoint || API_ENDPOINTS.playlistList, { search, ordering }));
+};
+
+/** Retrieve a playlist resource. */
+export const playlistGet = (id: string) : Promise<IPlaylistResource | IError> => {
+  const resource = resourceFromPageById(id);
+  if (resource) { return Promise.resolve(resource); }
+  return apiFetch(API_ENDPOINTS.playlistList + id);
+};
+
 /**
  * Append to a URL's query string based on properies from the passed object.
  */
@@ -287,6 +317,20 @@ export const channelResourceToItem = (
   label: 'Channel',
   title,
   url: '/channels/' + id,
+});
+
+/**
+ * A function which maps an API playlist resource to a media item for use by, e.g.,
+ * MediaItemCard. If the channel has no associated image, a default one is substituted.
+ */
+export const playlistResourceToItem = (
+  { id, title, description }: IPlaylistResource
+) => ({
+  description,
+  imageUrl: PlaylistDefaultImage,
+  label: 'Playlist',
+  title,
+  url: '/playlists/' + id,
 });
 
 /**

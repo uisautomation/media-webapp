@@ -93,7 +93,7 @@ class ResourcePageSerializer(serializers.Serializer):
 
 class MediaItemPageSerializer(ResourcePageSerializer):
     """
-    A serialiser for media items which renders a ``json_ld`` field which is the representation
+    A serializer for media items which renders a ``json_ld`` field which is the representation
     of the media item in JSON LD format along with the resource.
 
     """
@@ -103,15 +103,23 @@ class MediaItemPageSerializer(ResourcePageSerializer):
 
 class ChannelPageSerializer(ResourcePageSerializer):
     """
-    A serialiser for channels which renders the API resource.
+    A serializer for channels which renders the API resource.
 
     """
     resource = apiserializers.ChannelDetailSerializer(source='*')
 
 
+class PlaylistPageSerializer(ResourcePageSerializer):
+    """
+    A serializer for playlists which renders the API resource.
+
+    """
+    resource = apiserializers.PlaylistDetailSerializer(source='*')
+
+
 class MediaItemAnalyticsPageSerializer(ResourcePageSerializer):
     """
-    A serialiser for media items which renders the media item resource and analytics into the view.
+    A serializer for media items which renders the media item resource and analytics into the view.
 
     """
     resource = apiserializers.MediaItemDetailSerializer(source='*')
