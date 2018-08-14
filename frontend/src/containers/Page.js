@@ -9,6 +9,7 @@ import withRoot from "../pages/withRoot";
 import AppBar from "../components/AppBar";
 import MotdBanner from "../components/MotdBanner";
 import ProfileButtonContainer from "./ProfileButtonContainer";
+import Snackbar from "./Snackbar";
 
 /**
  * A top level component that wraps all pages to give then elements common to all page, the ``AppBar``
@@ -31,6 +32,8 @@ const Page = (
           <MotdBanner />
           { children }
         </div>
+
+        <Snackbar/>
       </div>
 );
 
