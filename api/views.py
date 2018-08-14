@@ -79,34 +79,6 @@ class MediaItemListSearchFilter(filters.SearchFilter):
         return filtered_qs
 
 
-class MediaItemPlaylistSearchFilter(filters.SearchFilter):
-    """
-    Custom filter based on :py:class:`rest_framework.filters.SearchFilter` specialised to search
-    :py:class:`mediaplatform.models.MediaItem` objects inside Playlists. If the "playlist" field
-    is specified in the view's ``search_fields`` attribute, then the filter will only return
-    media items if they are in the given playlist.
-
-    """
-    search_param = 'playlist'
-
-    def get_search_term(self, request):
-        return request.query_params.get(self.search_param, '')
-
-    def get_search_terms(self, request):
-        return [self.get_search_term(request)]
-
-    def filter_queryset(self, request, queryset, view):
-        filtered_qs = super().filter_queryset(request, queryset, view)
-
-        if self.search_param in request.query_params.keys():
-            search_term = self.get_search_term(request)
-            playlist = mpmodels.Playlist.objects.filter(id=search_term)
-            if playlist:
-                filtered_qs |= queryset.filter(id__in=playlist[0].media_items)
-
-        return filtered_qs
-
-
 class MediaItemListMixin(ListMixinBase):
     """
     A mixin class for DRF generic views which has all of the specialisations necessary for listing
@@ -132,19 +104,48 @@ class MediaItemMixin(MediaItemListMixin):
     """
 
 
+def _user_playlists(request):
+    """
+    Return a queryset from a request which contains all the playlists which are viewable by the
+    user making the request.
+
+    """
+    user = request.user if request is not None else None
+    return mpmodels.Playlist.objects.all().viewable_by_user(user)
+
+
+class MediaItemFilter(df_filters.FilterSet):
+    class Meta:
+        model = mpmodels.MediaItem
+        fields = ('channel', 'playlist')
+
+    playlist = df_filters.ModelChoiceFilter(
+        label='Playlist', method='filter_playlist',
+        help_text='Only media items from this playlist will be listed',
+        queryset=_user_playlists)
+
+    def filter_playlist(self, queryset, name, value):
+        """
+        Filter media items to only those which appear in a selected playlist. Since the playlist
+        filter field is a ModelChoiceFilter, the "value" is the playlist object itself.
+
+        """
+        return queryset.filter(id__in=value.media_items)
+
+
 class MediaItemListView(MediaItemListMixin, generics.ListCreateAPIView):
     """
     Endpoint to retrieve a list of media.
 
     """
     filter_backends = (filters.OrderingFilter, MediaItemListSearchFilter,
-                       MediaItemPlaylistSearchFilter, df_filters.DjangoFilterBackend)
+                       df_filters.DjangoFilterBackend)
     ordering = '-publishedAt'
     ordering_fields = ('publishedAt',)
     pagination_class = ListPagination
     search_fields = ('title', 'description', 'tags')
     serializer_class = serializers.MediaItemSerializer
-    filterset_fields = ('channel',)
+    filterset_class = MediaItemFilter
 
     def get_queryset(self):
         qs = super().get_queryset()
