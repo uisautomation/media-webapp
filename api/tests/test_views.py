@@ -159,6 +159,64 @@ class MediaItemListViewTestCase(ViewTestCase):
         response = self.view(request)
         self.assertEqual(response.status_code, 400)
 
+    def test_basic_playlist_filter(self):
+        """Filtering by playlist works."""
+        playlist = self.playlists.get(id='public')
+        playlist.channel.edit_permission.reset()
+        playlist.channel.edit_permission.save()
+        playlist.media_items.extend(
+            item.id for item in
+            mpmodels.MediaItem.objects.all()
+            .viewable_by_user(self.user)[:1]
+        )
+        playlist.save()
+
+        self.assertTrue(
+            mpmodels.Playlist.objects.all().viewable_by_user(self.user)
+            .filter(id=playlist.id).exists()
+        )
+
+        request = self.factory.get('/?playlist=' + playlist.id)
+        force_authenticate(request, user=self.user)
+
+        response = self.view(request)
+        self.assertEqual(response.status_code, 200)
+
+        received_ids = set(item['id'] for item in response.data['results'])
+        expected_ids = set(
+            item.id for item in
+            mpmodels.MediaItem.objects.all()
+            .viewable_by_user(self.user)
+            .filter(id__in=playlist.media_items)
+        )
+        self.assertNotEqual(expected_ids, set())
+        self.assertEqual(received_ids, expected_ids)
+
+    def test_non_viewable_playlist_filter(self):
+        # Filtering returns no results if playlist has no view permission
+        playlist = self.playlists.get(id='public')
+        playlist.channel.edit_permission.reset()
+        playlist.channel.edit_permission.save()
+        playlist.view_permission.reset()
+        playlist.view_permission.save()
+        playlist.media_items.extend(
+            item.id for item in
+            mpmodels.MediaItem.objects.all()
+            .viewable_by_user(self.user)[:1]
+        )
+        playlist.save()
+
+        self.assertFalse(
+            mpmodels.Playlist.objects.all().viewable_by_user(self.user)
+            .filter(id=playlist.id).exists()
+        )
+
+        request = self.factory.get('/?playlist=' + playlist.id)
+        force_authenticate(request, user=self.user)
+
+        response = self.view(request)
+        self.assertEqual(response.status_code, 400)  # bad request: playlist doesn't exist
+
 
 class MediaItemViewTestCase(ViewTestCase):
     def setUp(self):
