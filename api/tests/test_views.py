@@ -631,7 +631,7 @@ class PlaylistViewTestCase(ViewTestCase):
         self.assertEqual(response.data['id'], playlist.id)
         self.assertEqual(response.data['title'], playlist.title)
         self.assertEqual(response.data['description'], playlist.description)
-        self.assertEqual(response.data['media_items'], playlist.media_items)
+        self.assertEqual(response.data['mediaIds'], playlist.media_items)
 
     def test_no_permissions(self):
         """Check that a playlist is not returned if user does not have permission to view"""
@@ -661,7 +661,7 @@ class PlaylistViewTestCase(ViewTestCase):
         self.assert_field_mutable('description')
 
     def test_media_items_mutable(self):
-        self.assert_field_mutable('media_items', ['public'])
+        self.assert_field_mutable('mediaIds', ['public'], 'media_items')
 
     def test_channel_id_immutable(self):
         new_channel = mpmodels.Channel.objects.get(id='channel2')

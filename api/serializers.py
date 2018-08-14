@@ -79,19 +79,20 @@ class RelatedChannelIdField(serializers.PrimaryKeyRelatedField):
         return mpmodels.Channel.objects.all().editable_by_user(user)
 
 
-class PlaylistSerializer(serializers.HyperlinkedModelSerializer):
+class ChannelOwnedResourceModelSerializer(serializers.HyperlinkedModelSerializer):
     """
-    An individual playlist.
+    Shared ModelSerializer between Media Items and Playlists as both are owned by a channel
 
     """
+
     channelId = RelatedChannelIdField(
         source='channel', required=True, help_text='Unique id of owning channel resource',
         write_only=True)
 
     def update(self, instance, validated_data):
         """
-        Override behaviour when updating a playlist to stop the user changing the channel of an
-        existing one.
+        Override behaviour when updating a media item or a playlist to stop the user changing
+        the channel of an existing object.
         """
         # Note: channelId will already have been mapped into a channel object.
         if 'channel' in validated_data:
@@ -101,29 +102,53 @@ class PlaylistSerializer(serializers.HyperlinkedModelSerializer):
 
         return super().update(instance, validated_data)
 
+
+class PlaylistSerializer(ChannelOwnedResourceModelSerializer):
+    """
+    An individual playlist.
+
+    """
+
+    mediaUrl = serializers.SerializerMethodField(
+        help_text='URL pointing to list of media items for this playlist', read_only=True
+    )
+
+    def get_mediaUrl(self, obj):
+        # Get location of media list endpoint
+        location = reverse('api:media_list')
+
+        # Add query parameter
+        location += '?' + urlencode({'playlist': obj.id})
+
+        if self.context is None or 'request' not in self.context:
+            return location
+
+        return self.context['request'].build_absolute_uri(location)
+
     class Meta:
         model = mpmodels.Playlist
         fields = (
-            'url', 'id', 'title', 'description', 'media_items', 'channelId',
+            'url', 'id', 'title', 'description', 'mediaIds', 'mediaUrl', 'channelId',
             'createdAt', 'updatedAt',
         )
-
         read_only_fields = (
-            'url', 'id', 'createdAt', 'updatedAt'
+            'url', 'id', 'mediaUrl', 'createdAt', 'updatedAt'
         )
         extra_kwargs = {
             'createdAt': {'source': 'created_at'},
             'updatedAt': {'source': 'updated_at'},
             'url': {'view_name': 'api:playlist'},
             'title': {'allow_blank': False},
+            'mediaIds': {'source': 'media_items'}
         }
 
 
-class MediaItemSerializer(serializers.HyperlinkedModelSerializer):
+class MediaItemSerializer(ChannelOwnedResourceModelSerializer):
     """
     An individual media item.
 
     """
+
     class Meta:
         model = mpmodels.MediaItem
         fields = (
@@ -146,10 +171,6 @@ class MediaItemSerializer(serializers.HyperlinkedModelSerializer):
     posterImageUrl = serializers.SerializerMethodField(
         help_text='A URL of a thumbnail/poster image for the media', read_only=True)
 
-    channelId = RelatedChannelIdField(
-        source='channel', required=True, help_text='Unique id of owning channel resource',
-        write_only=True)
-
     def create(self, validated_data):
         """
         Override behaviour when creating a new object using this serializer. If the current request
@@ -167,19 +188,6 @@ class MediaItemSerializer(serializers.HyperlinkedModelSerializer):
             obj = mpmodels.MediaItem.objects.create(**validated_data)
 
         return obj
-
-    def update(self, instance, validated_data):
-        """
-        Override behaviour when updating a media item to stop the user changing the channel of an
-        existing item.
-        """
-        # Note: channelId will already have been mapped into a channel object.
-        if 'channel' in validated_data:
-            raise serializers.ValidationError({
-                'channelId': 'This field cannot be changed',
-            })
-
-        return super().update(instance, validated_data)
 
     def get_posterImageUrl(self, obj):
         if not hasattr(obj, 'jwp'):
@@ -353,23 +361,7 @@ class PlaylistDetailSerializer(PlaylistSerializer):
 
     """
 
-    mediaUrl = serializers.SerializerMethodField(
-        help_text='URL pointing to list of media items for this playlist', read_only=True
-    )
-
     channel = ChannelSerializer(read_only=True)
 
     class Meta(PlaylistSerializer.Meta):
-        fields = PlaylistSerializer.Meta.fields + ('channel', 'mediaUrl')
-
-    def get_mediaUrl(self, obj):
-        # Get location of media list endpoint
-        location = reverse('api:media_list')
-
-        # Add query parameter
-        location += '?' + urlencode({'playlist': obj.id})
-
-        if self.context is None or 'request' not in self.context:
-            return location
-
-        return self.context['request'].build_absolute_uri(location)
+        fields = PlaylistSerializer.Meta.fields + ('channel', )
