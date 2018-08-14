@@ -3,7 +3,7 @@ import React from 'react';
 import Grid from '@material-ui/core/Grid';
 import { withStyles } from '@material-ui/core/styles';
 
-import Page from '../components/Page';
+import Page from '../containers/Page';
 import UploadForm from '../containers/UploadForm';
 
 /**
