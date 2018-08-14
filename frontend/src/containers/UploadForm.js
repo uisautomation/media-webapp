@@ -1,15 +1,26 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import LinearProgress from '@material-ui/core/LinearProgress';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import PublishIcon from '@material-ui/icons/Publish';
+
 import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
+import Step from '@material-ui/core/Step';
+import StepContent from '@material-ui/core/StepContent';
+import StepLabel from '@material-ui/core/StepLabel';
+import Stepper from '@material-ui/core/Stepper';
+import Typography from '@material-ui/core/Typography';
+
 import { withStyles } from '@material-ui/core/styles';
 
 import MediaDropzone from '../components/MediaDropzone';
 import ItemMetadataForm from '../components/ItemMetadataForm';
-import { mediaCreate, mediaPatch, mediaUploadGet } from '../api';
+import { mediaCreate, mediaPatch, mediaUploadGet, profileGet } from '../api';
 
 /**
  * A container component which takes a media item resource and upload endpoint via its props and
@@ -33,6 +44,12 @@ class UploadForm extends Component {
     super();
 
     this.state = {
+      // Active step of the upload process.
+      activeStep: 0,
+
+      // Channel to upload to
+      channelId: null,
+
       // The current *draft* item being edited by the ItemMetadataForm.
       draftItem: { },
 
@@ -48,6 +65,9 @@ class UploadForm extends Component {
       // Has the item started to be published?
       publishStarted: false,
 
+      // The current user's profile
+      profile: null,
+
       // Did the item upload fail?
       uploadFailed: false,
 
@@ -62,58 +82,113 @@ class UploadForm extends Component {
   render() {
     const { classes } = this.props;
     const {
-      draftItem, errors, fileToUpload, publishStarted, uploadProgress, uploadSucceeded
+      activeStep,
+      channelId,
+      draftItem,
+      errors,
+      fileToUpload,
+      profile,
+      publishStarted,
+      uploadProgress,
+      uploadSucceeded,
     } = this.state;
+    const channels = profile ? profile.channels : [];
 
-    // If the user has not yet selected a file, show the dropzone.
-    if(!fileToUpload) {
-      return <MediaDropzone
-        onDropAccepted={ files => this.setFileToUpload(files[0]) }
-      />;
-    }
-
-    // Otherwise, show the upload progress and edit form
     return (
-      <div>
-        <LinearProgress
-          variant={ (uploadProgress !== null) ? 'determinate' : 'indeterminate' }
-          value={ (uploadProgress !== null) ? 100 * uploadProgress : 0 }
-        />
+      <Stepper activeStep={ activeStep  } orientation='vertical'>
+        <Step>
+          <StepLabel>Select channel</StepLabel>
+          <StepContent>
+            <Typography>
+              Select which of your channels this media item should be uploaded to.
+            </Typography>
 
-        <ItemMetadataForm
-          item={ draftItem }
-          errors={ errors }
-          disabled={ publishStarted }
-          onChange={ patch => this.setState({ draftItem: { ...draftItem, ...patch } }) }
-        />
+            <FormControl fullWidth>
+              <InputLabel htmlFor="upload-channelId">Channel</InputLabel>
+              <Select
+                value={ channelId !== null ? channelId : '' }
+                onChange={
+                  event => this.setState({ channelId: event.target.value, activeStep: 1 })
+                }
+                inputProps={{
+                  id: 'upload-channelId',
+                }}
+              >
+                {
+                  channels.map(channel => (
+                    <MenuItem key={ channel.id } value={ channel.id }>
+                      { channel.title }
+                    </MenuItem>
+                  ))
+                }
+              </Select>
+            </FormControl>
+          </StepContent>
+        </Step>
 
-        <div className={ classes.buttonSet }>
-          <Button
-            disabled={ !uploadSucceeded || publishStarted }
-            color='secondary'
-            variant='contained'
-            onClick={ () => this.publish() }
-          >
-            Publish
-            {
-              uploadSucceeded && !publishStarted
-              ?
-              <PublishIcon className={ classes.rightIcon } />
-              :
-              <CircularProgress size={ 24 } className={ classes.rightIcon } />
-            }
-          </Button>
-        </div>
-      </div>
+        <Step>
+          <StepLabel>Choose file to upload</StepLabel>
+          <StepContent>
+            <MediaDropzone
+              disabled={ activeStep !== 1}
+              onDropAccepted={ files => this.setFileToUpload(files[0]) }
+            />
+          </StepContent>
+        </Step>
+
+        <Step>
+          <StepLabel>Edit video metadata</StepLabel>
+          <StepContent>
+            <ItemMetadataForm
+              item={ draftItem }
+              errors={ errors }
+              disabled={ publishStarted }
+              onChange={ patch => this.setState({ draftItem: { ...this.state.draftItem, ...patch } }) }
+            />
+
+            <LinearProgress
+              variant={ (uploadProgress !== null) ? 'determinate' : 'indeterminate' }
+              value={ (uploadProgress !== null) ? 100 * uploadProgress : 0 }
+            />
+
+            <div className={ classes.buttonSet }>
+              <Button
+                disabled={ !uploadSucceeded || publishStarted }
+                color='secondary'
+                variant='contained'
+                onClick={ () => this.publish() }
+              >
+                Publish
+                {
+                  !uploadSucceeded || publishStarted
+                  ?
+                  <CircularProgress size={ 24 } className={ classes.rightIcon } />
+                  :
+                  <PublishIcon className={ classes.rightIcon } />
+                }
+              </Button>
+            </div>
+          </StepContent>
+        </Step>
+      </Stepper>
     );
+  }
+
+  componentDidMount() {
+    profileGet().then(profile => this.setState({ profile }));
   }
 
   /** Called when the user has selected a file. */
   setFileToUpload(fileToUpload) {
     // Create a new media item and kick off an upload
     const title = fileToUpload.name ? fileToUpload.name : 'Untitled';
-    mediaCreate({ title }).then(item => this.setMediaItem(item));
-    this.setState({ fileToUpload, draftItem: { title, ...this.state.draftItem } });
+    const { channelId } = this.state;
+    mediaCreate({ title, channelId }).then(item => this.setMediaItem(item));
+    this.setState({
+      activeStep: 2,
+      draftItem: { title, ...this.state.draftItem },
+      fileToUpload,
+    });
   }
 
   /** Called when a new media item has been created to receive the upload. */
@@ -185,13 +260,6 @@ class UploadForm extends Component {
 }
 
 UploadForm.propTypes = {
-  /** Media item resource which this form will modify. */
-  item: PropTypes.object,
-
-  /** Upload endpoint resource which this form uses to upload the selected file. */
-  upload: PropTypes.shape({
-    url: PropTypes.string,
-  }),
 };
 
 const styles = theme => ({

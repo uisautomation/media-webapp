@@ -34,6 +34,14 @@ const RESOURCES_FROM_PAGE = new Map(
   .map((resource): [string, any] => [resource.id, resource])
 );
 
+// Extract the user's profile if it is embedded in the page
+const PROFILE_FROM_PAGE = (
+  Array.from(document.getElementsByTagName('script'))
+  .filter((element: HTMLScriptElement) => element.type === 'application/profile+json')
+  .map((element: HTMLScriptElement) => JSON.parse(element.text))
+  [0]
+);
+
 /**
  * A function which retrieves a resource from the page by id. Note that, to avoid caching problems,
  * once retrieved, the resource is then removed from the RESOURCES_FROM_PAGE object.
@@ -123,11 +131,9 @@ export interface ICollectionQuery {
 
 /** A profile response. */
 export interface IProfileResponse {
-  is_anonymous: boolean;
+  isAnonymous: boolean;
   username?: string;
-  urls: {
-    login: string;
-  };
+  channels: IChannelResource[];
 };
 
 /** A channel resource. */
@@ -238,6 +244,7 @@ export const mediaUploadGet = (item: IMediaResource) : Promise<IMediaUploadResou
 
 /** Fetch the user's profile. */
 export const profileGet = (): Promise<IProfileResponse | IError> => {
+  if(PROFILE_FROM_PAGE) { return Promise.resolve(PROFILE_FROM_PAGE); }
   return apiFetch(API_ENDPOINTS.profile);
 }
 

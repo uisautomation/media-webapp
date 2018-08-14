@@ -4,14 +4,8 @@ Views implementing the API endpoints.
 """
 import logging
 
-from django.conf import settings
-from django.db import connection
-from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
-from drf_yasg.utils import swagger_auto_schema
-from rest_framework.exceptions import APIException
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from django.db import models
+from django_filters import rest_framework as df_filters
 from rest_framework import generics, pagination, filters
 
 import mediaplatform.models as mpmodels
@@ -23,44 +17,15 @@ from . import serializers
 LOG = logging.getLogger(__name__)
 
 
-class JWPAPIException(APIException):
-    """
-    DRF :py:exc:`APIException` sub-class which indicates that the request could not be handled
-    because the JWPlatform API request failed.
-
-    """
-    status_code = 502  # Bad Gateway
-    default_detail = 'Bad Gateway'
-    default_code = 'jwplatform_api_error'
-
-
-def check_api_call(response):
-    """
-    Take a response from a JWPlatform API call and raise :py:exc:`JWPAPIException` if the status
-    was not ``ok``.
-
-    """
-    if response.get('status') == 'ok':
-        return response
-
-    LOG.error('API call error: %r', response)
-    raise JWPAPIException()
-
-
-class ProfileView(APIView):
+class ProfileView(generics.RetrieveAPIView):
     """
     Endpoint to retrieve the profile of the current user.
 
     """
-    @swagger_auto_schema(
-        responses={200: serializers.ProfileSerializer()}
-    )
-    def get(self, request):
-        """Handle GET request."""
-        urls = {'login': settings.LOGIN_URL}
-        return Response(serializers.ProfileSerializer({
-            'user': request.user, 'urls': urls,
-        }).data)
+    serializer_class = serializers.ProfileSerializer
+
+    def get_object(self):
+        return self.request.user
 
 
 class ListPagination(pagination.CursorPagination):
@@ -144,13 +109,18 @@ class MediaItemListView(MediaItemListMixin, generics.ListCreateAPIView):
     Endpoint to retrieve a list of media.
 
     """
-    filter_backends = (filters.OrderingFilter, MediaItemListSearchFilter, DjangoFilterBackend)
-    ordering = '-published_at'
-    ordering_fields = ('published_at',)
+    filter_backends = (
+        filters.OrderingFilter, MediaItemListSearchFilter, df_filters.DjangoFilterBackend)
+    ordering = '-publishedAt'
+    ordering_fields = ('publishedAt',)
     pagination_class = ListPagination
     search_fields = ('title', 'description', 'tags')
     serializer_class = serializers.MediaItemSerializer
-    filter_fields = ('channel',)
+    filterset_fields = ('channel',)
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.annotate(publishedAt=models.F('published_at'))
 
 
 class MediaItemView(MediaItemMixin, generics.RetrieveUpdateAPIView):
@@ -179,36 +149,12 @@ class MediaItemUploadView(MediaItemMixin, generics.RetrieveUpdateAPIView):
         return super().get_queryset().select_related('upload_endpoint')
 
 
-class MediaAnalyticsView(APIView):
+class MediaItemAnalyticsView(MediaItemMixin, generics.RetrieveAPIView):
     """
     Endpoint to retrieve the analytics for a single media item.
 
     """
-    @swagger_auto_schema(
-        responses={200: serializers.MediaAnalyticsListSerializer()}
-    )
-    def get(self, request, pk):
-        """Handle GET request."""
-
-        media_item = get_object_or_404(
-            mpmodels.MediaItem.objects.filter(pk=pk)
-            .viewable_by_user(request.user)
-            .select_related('sms')
-        )
-        results = []
-        if hasattr(media_item, 'sms'):
-            with get_cursor() as cursor:
-                cursor.execute(
-                    "SELECT day, num_hits FROM stats.media_stats_by_day WHERE media_id=%s",
-                    [media_item.sms.id]
-                )
-                results = cursor.fetchall()
-        return Response(serializers.MediaAnalyticsListSerializer(results).data)
-
-
-def get_cursor():  # pragma: no cover
-    """Retrieve DB cursor. Method included for patching in tests"""
-    return connection.cursor()
+    serializer_class = serializers.MediaItemAnalyticsListSerializer
 
 
 class ChannelListMixin(ListMixinBase):
@@ -230,17 +176,32 @@ class ChannelMixin(ChannelListMixin):
     """
 
 
+class ChannelListFilterSet(df_filters.FilterSet):
+    class Meta:
+        model = mpmodels.Channel
+        fields = ('editable',)
+
+    editable = df_filters.BooleanFilter(
+        label='Editable', help_text='Filter by whether the user can edit this channel')
+
+
 class ChannelListView(ChannelListMixin, generics.ListCreateAPIView):
     """
     Endpoint to retrieve a list of channels.
 
     """
-    filter_backends = (filters.OrderingFilter, filters.SearchFilter)
-    ordering = '-created_at'
-    ordering_fields = ('created_at', 'title')
+    filter_backends = (
+        filters.OrderingFilter, filters.SearchFilter, df_filters.DjangoFilterBackend)
+    ordering = '-createdAt'
+    ordering_fields = ('createdAt', 'title')
     pagination_class = ListPagination
     search_fields = ('title', 'description')
     serializer_class = serializers.ChannelSerializer
+    filterset_class = ChannelListFilterSet
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.annotate(createdAt=models.F('created_at'))
 
 
 class ChannelView(ChannelMixin, generics.RetrieveUpdateAPIView):

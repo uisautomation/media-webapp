@@ -21,7 +21,8 @@ from . import views
 app_name = 'ui'
 
 urlpatterns = [
-    path('media/<pk>/analytics', views.MediaAnalyticsView.as_view(), name='media_item_analytics'),
+    path('media/<pk>/analytics', views.MediaItemAnalyticsView.as_view(),
+         name='media_item_analytics'),
     path('media/<pk>/edit', views.MediaEditView.as_view(), name='media_item_edit'),
     path('media/<pk>', views.MediaView.as_view(), name='media_item'),
     path('channels/<pk>', views.ChannelView.as_view(), name='channel'),
