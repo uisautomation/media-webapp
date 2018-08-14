@@ -12,6 +12,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import Page from '../containers/Page';
 import RenderedMarkdown from '../components/RenderedMarkdown';
 import MediaItemProvider, { withMediaItem } from '../providers/MediaItemProvider';
+import {withProfile} from "../providers/ProfileProvider";
 
 /**
  * The media item page
@@ -51,7 +52,13 @@ const bestSource = sources => {
   return null;
 };
 
-const MediaPageContents = ({ item, classes }) => {
+const MediaPageContents = ({ profile, item, classes }) => {
+  // Check if the item is editable by checking it's channel against the list of editable channels
+  // in the profile.
+  let editable = (
+    profile && item && item.channel && profile.channels.find((el) => (el.id === item.channel.id))
+  );
+
   const source =
     (item && item.sources) ? bestSource(item.sources) : null;
 
@@ -92,7 +99,7 @@ const MediaPageContents = ({ item, classes }) => {
               null
             }
             {
-              item && item.editable
+              editable
               ?
               <Button component='a' variant='outlined' className={ classes.link }
                 href={ '/media/' + item.id + '/edit' } fullWidth
@@ -178,6 +185,8 @@ var styles = theme => ({
 });
 /* tslint:enable */
 
-const ConnectedMediaPageContents = withMediaItem(withStyles(styles)(MediaPageContents));
+const ConnectedMediaPageContents = withProfile(withMediaItem(
+  withStyles(styles)(MediaPageContents)
+));
 
 export default withStyles(styles)(MediaPage);
