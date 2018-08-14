@@ -7,6 +7,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Page from '../containers/Page';
 import ItemMetadataForm from "../components/ItemMetadataForm";
 import {mediaGet, mediaPatch} from "../api";
+import { snackbarMessage } from "../containers/Snackbar";
 
 /**
  * A page which allows the user to edit a media item's metadata.
@@ -38,8 +39,12 @@ class MediaEditPage extends Component {
    */
   save() {
     mediaPatch(this.state.item)
-      .then(savedItem => { location = '/media/' + this.pk })
-      .catch(({ body }) => this.setState({ errors: body }));
+      .then(savedItem => {
+        snackbarMessage('The media item has been updated.');
+        location = '/media/' + this.pk
+      })
+      .catch(({ body }) => this.setState({ errors: body })
+    );
   }
 
   render() {
