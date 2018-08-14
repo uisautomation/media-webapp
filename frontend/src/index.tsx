@@ -7,6 +7,7 @@ import AnalyticsPage from './pages/AnalyticsPage';
 import ChannelPage from './pages/ChannelPage';
 import IndexPage from './pages/IndexPage';
 import MediaPage from './pages/MediaPage';
+import MediaEditPage from './pages/MediaEditPage';
 import UploadPage from './pages/UploadPage';
 
 ReactDOM.render(
@@ -15,6 +16,7 @@ ReactDOM.render(
       <Route exact={true} path="/" component={IndexPage} />
       <Route exact={true} path="/media/:pk" component={MediaPage} />
       <Route exact={true} path="/media/:pk/analytics" component={AnalyticsPage} />
+      <Route exact={true} path="/media/:pk/edit" component={MediaEditPage} />
       <Route exact={true} path="/upload" component={UploadPage} />
       <Route exact={true} path="/channels/:pk" component={ChannelPage} />
     </div>
