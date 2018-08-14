@@ -39,5 +39,5 @@ If you want to show an error state, set the errors object:
 const item = { title: 'The Dead Parrot Sketch' };
 const errors = { title: ['The parrot is alive.', 'It is sleeping.'] };
 
-<ItemMetadataForm item={ item } errors={ errors } onChange={ _ => {} } />
+<ItemMetadataForm item={ item } errors={ errors } />
 ```
