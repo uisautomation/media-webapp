@@ -7,7 +7,7 @@ import { channelGet, mediaList, mediaResourceToItem } from '../api';
 import MediaList from '../components/MediaList';
 import RenderedMarkdown from '../components/RenderedMarkdown';
 import SearchResultsProvider, { withSearchResults } from '../providers/SearchResultsProvider';
-import Page from "../components/Page";
+import Page from "../containers/Page";
 
 /**
  * A list of media for a channel. Upon mount, it fetches the channel details and then a list of the

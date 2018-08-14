@@ -6,9 +6,9 @@ import IconButton from '@material-ui/core/IconButton';
 import UploadIcon from '@material-ui/icons/CloudUpload';
 
 import withRoot from "../pages/withRoot";
-import AppBar from "./AppBar";
-import MotdBanner from "./MotdBanner";
-import ProfileButtonContainer from "../containers/ProfileButtonContainer";
+import AppBar from "../components/AppBar";
+import MotdBanner from "../components/MotdBanner";
+import ProfileButtonContainer from "./ProfileButtonContainer";
 
 /**
  * A top level component that wraps all pages to give then elements common to all page, the ``AppBar``

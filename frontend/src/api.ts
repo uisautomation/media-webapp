@@ -182,7 +182,7 @@ export const apiFetch = (
       return response.json().then(body => Promise.reject({
         body,
         error: new Error('API request returned error response'),
-      }));
+      }))
     }
 
     // Parse response body as JSON

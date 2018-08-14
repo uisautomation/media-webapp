@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 
 import {Chart} from "react-google-charts";
-import Page from "../components/Page";
+import Page from "../containers/Page";
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
