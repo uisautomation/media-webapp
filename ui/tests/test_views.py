@@ -82,6 +82,20 @@ class UploadViewTestCase(ViewTestCase):
         self.assertEqual(r.status_code, 200)
 
 
+class MediaEditViewTestCase(ViewTestCase):
+    def test_media_item_edit_visibility(self):
+        """
+        ui:media_item_edit is only accessible if the user has edit permission on the item's channel
+        """
+        self.client.force_login(self.user)
+        item_a = self.non_deleted_media.get(id='a')
+        r = self.client.get(reverse('ui:media_item_edit', kwargs={'pk': item_a.pk}))
+        self.assertEqual(r.status_code, 403)
+        item_editable = self.non_deleted_media.get(id='editable')
+        r = self.client.get(reverse('ui:media_item_edit', kwargs={'pk': item_editable.pk}))
+        self.assertEqual(r.status_code, 200)
+
+
 class MediaAnalyticsViewTestCase(ViewTestCase):
 
     @mock.patch('api.views.get_cursor')
