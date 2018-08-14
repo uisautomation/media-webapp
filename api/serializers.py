@@ -71,7 +71,7 @@ class MediaItemRelatedChannelIdField(serializers.PrimaryKeyRelatedField):
     """
     def get_queryset(self):
         if self.context is None or 'request' not in self.context:
-            return mpmodels.Channel.objects.all().none()
+            return mpmodels.Channel.objects.none()
 
         user = self.context['request'].user
 
