@@ -261,6 +261,10 @@ class MediaItemAnalyticsListSerializer(serializers.Serializer):
 
     ResultRow = namedtuple('ResultRow', 'day num_hits')
 
+    # HACK: TODO: this should actually be done as some form of annotation on the media item. This
+    # requires that we either a) work our how to make a non-Djanog managed table interract nicely
+    # with QuerySet or b) work out how to annotate objects returned from a queryset with Python
+    # objects. b) would be preferable since we could re-use it for the download sources.
     def get_results(self, obj):
         results = []
         if hasattr(obj, 'sms'):
