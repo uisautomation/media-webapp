@@ -128,9 +128,10 @@ class MediaItemDetailSerializer(MediaItemSerializer):
 
     """
     class Meta(MediaItemSerializer.Meta):
-        fields = MediaItemSerializer.Meta.fields + ('links',)
+        fields = MediaItemSerializer.Meta.fields + ('links', 'editable')
 
     links = MediaItemLinksSerializer(source='*', read_only=True)
+    editable = serializers.BooleanField()
 
 
 class ProfileSerializer(serializers.Serializer):

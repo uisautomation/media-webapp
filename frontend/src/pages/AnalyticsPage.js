@@ -77,7 +77,8 @@ class AnalyticsPage extends Component {
             </Grid>
           </Grid>
           <Grid container justify='space-between' spacing={16}>
-            <Grid item xs={12} sm={6} md={3} lg={2}>
+            <Grid item xs={12} sm={6} md={3} lg={2}/>
+            <Grid item xs={12} sm={6} md={3} lg={2} style={{textAlign: 'right'}}>
               {
                 mediaItem && mediaItem.links && mediaItem.links.legacyStatisticsUrl
                 ?
@@ -91,7 +92,6 @@ class AnalyticsPage extends Component {
                 null
               }
             </Grid>
-            <Grid item xs={12} sm={6} md={3} lg={2} style={{textAlign: 'right'}}/>
           </Grid>
         </section>
       </Page>

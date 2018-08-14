@@ -19,10 +19,10 @@ class MediaEditPage extends Component {
     this.pk = pk;
 
     this.state = {
-      // The media item being edited by the ItemMetadataForm.
-      item: {},
       // An error object as returned by the API or the empty object if there are no errors.
       errors: {},
+      // The media item being edited by the ItemMetadataForm.
+      item: {},
     };
   }
 
@@ -72,15 +72,15 @@ class MediaEditPage extends Component {
 }
 
 const styles = theme => ({
-  section: {
-    marginTop: theme.spacing.unit,
-  },
   buttonSet: {
     '& button': {
       marginLeft: theme.spacing.unit,
     },
     marginTop: theme.spacing.unit,
     textAlign: 'right',
+  },
+  section: {
+    marginTop: theme.spacing.unit,
   },
 });
 

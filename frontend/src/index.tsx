@@ -6,8 +6,8 @@ import { BrowserRouter, Route } from 'react-router-dom'
 import AnalyticsPage from './pages/AnalyticsPage';
 import ChannelPage from './pages/ChannelPage';
 import IndexPage from './pages/IndexPage';
-import MediaPage from './pages/MediaPage';
 import MediaEditPage from './pages/MediaEditPage';
+import MediaPage from './pages/MediaPage';
 import UploadPage from './pages/UploadPage';
 
 ReactDOM.render(
