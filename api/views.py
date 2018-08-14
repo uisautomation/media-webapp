@@ -238,3 +238,59 @@ class ChannelView(ChannelMixin, generics.RetrieveUpdateAPIView):
 
     """
     serializer_class = serializers.ChannelDetailSerializer
+
+
+class PlaylistListMixin(ListMixinBase):
+    """
+    A mixin class for DRF generic views which has all of the specialisations necessary for listing
+    (and possibly creating/deleting) playlists. Use this mixin with ListAPIView or
+    ListCreateAPIView to form a concrete view class.
+
+    """
+    queryset = mpmodels.Playlist.objects
+
+
+class PlaylistMixin(PlaylistListMixin):
+    """
+    A mixin class for DRF generic views which has all of the specialisations necessary for
+    retrieving (and possibly updating) individual playlists. Use this mixin with RetrieveAPIView
+    or RetrieveUpdateAPIView to form a concrete view class.
+
+    """
+
+
+class PlaylistListFilterSet(df_filters.FilterSet):
+    class Meta:
+        model = mpmodels.Playlist
+        fields = ('editable',)
+
+    editable = df_filters.BooleanFilter(
+        label='Editable', help_text='Filter by whether the user can edit this channel')
+
+
+class PlaylistListView(PlaylistListMixin, generics.ListCreateAPIView):
+    """
+    Endpoint to retrieve a list of playlists.
+
+    """
+    filter_backends = (
+        filters.OrderingFilter, filters.SearchFilter, df_filters.DjangoFilterBackend)
+    ordering = '-updatedAt'
+    ordering_fields = ('updatedAt', 'createdAt', 'title')
+    pagination_class = ListPagination
+    search_fields = ('title', 'description')
+    serializer_class = serializers.PlaylistSerializer
+    filter_fields = ('channel',)
+    filterset_class = PlaylistListFilterSet
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.annotate(createdAt=models.F('created_at'), updatedAt=models.F('updated_at'))
+
+
+class PlaylistView(PlaylistMixin, generics.RetrieveUpdateAPIView):
+    """
+    Endpoint to retrieve an individual playlists.
+
+    """
+    serializer_class = serializers.PlaylistDetailSerializer
