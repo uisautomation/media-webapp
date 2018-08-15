@@ -55,7 +55,7 @@ const bestSource = sources => {
 const MediaPageContents = ({ profile, item, classes }) => {
   // Check if the item is editable by checking it's channel against the list of editable channels
   // in the profile.
-  let editable = (
+  const editable = (
     profile && item && item.channel && profile.channels.find((el) => (el.id === item.channel.id))
   );
 

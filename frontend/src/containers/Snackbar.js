@@ -6,7 +6,7 @@ const MESSAGE_KEY = 'snackbar_message';
 
 /**
  * Wraps the material-ui Snackbar component and displays a message if it finds one set in
- * localStorage by the exported snackbarMessage() method.
+ * localStorage by the exported setMessageForNextPageLoad() method.
  */
 class Snackbar extends Component {
   constructor() {
@@ -43,6 +43,6 @@ class Snackbar extends Component {
 
 export default Snackbar;
 
-export const snackbarMessage = (message) => {
+export const setMessageForNextPageLoad = (message) => {
   localStorage.setItem(MESSAGE_KEY, message)
 };

@@ -7,7 +7,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Page from '../containers/Page';
 import ItemMetadataForm from "../components/ItemMetadataForm";
 import {mediaGet, mediaPatch} from "../api";
-import { snackbarMessage } from "../containers/Snackbar";
+import { setMessageForNextPageLoad } from "../containers/Snackbar";
 
 /**
  * A page which allows the user to edit a media item's metadata.
@@ -16,10 +16,9 @@ class MediaEditPage extends Component {
   constructor({ match: { params: { pk } } }) {
     super();
 
-    // remember the media item's key for convenience
-    this.pk = pk;
-
     this.state = {
+      // remember the media item's key for convenience
+      pk,
       // An error object as returned by the API or the empty object if there are no errors.
       errors: {},
       // The media item being edited by the ItemMetadataForm.
@@ -31,7 +30,7 @@ class MediaEditPage extends Component {
    * Retrieve the item.
    */
   componentWillMount() {
-    mediaGet(this.pk).then(item => this.setState({ item }));
+    mediaGet(this.state.pk).then(item => this.setState({ item }));
   }
 
   /**
@@ -40,8 +39,8 @@ class MediaEditPage extends Component {
   save() {
     mediaPatch(this.state.item)
       .then(savedItem => {
-        snackbarMessage('The media item has been updated.');
-        location = '/media/' + this.pk
+        setMessageForNextPageLoad('The media item has been updated.');
+        window.location = '/media/' + this.state.pk
       })
       .catch(({ body }) => this.setState({ errors: body })
     );
@@ -61,10 +60,10 @@ class MediaEditPage extends Component {
                 onChange={patch => this.setState({item: {...item, ...patch}})}
               />
               <div className={ classes.buttonSet }>
-                <Button variant='outlined' href={ '/media/' + this.pk } >
+                <Button variant='outlined' href={ '/media/' + this.state.pk } >
                   Cancel
                 </Button>
-                <Button color='primary' variant='outlined' onClick={ () => this.save() } >
+                <Button color='secondary' variant='contained' onClick={ () => this.save() } >
                   Save
                 </Button>
               </div>
