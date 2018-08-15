@@ -4,7 +4,9 @@ Tests for views.
 """
 from unittest import mock
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.test import override_settings
 from django.urls import reverse
 
 import smsjwplatform.jwplatform as api
@@ -113,3 +115,29 @@ class MediaItemAnalyticsViewTestCase(ViewTestCase):
         self.assertEqual(r.status_code, 200)
         self.assertTemplateUsed(r, 'ui/analytics.html')
         self.assertEqual(len(r.context['analytics']['results']), 0)
+
+
+class IndexViewTestCase(ViewTestCase):
+    def test_gtag(self):
+        """Checks that the gtag is rendered into the page"""
+        gtag_id = 'fjwbgrbgwywevywevwebjknwekjberhbgj'
+
+        # Tag doesn't appear by default if setting is absent
+        with override_settings(GTAG_ID=gtag_id):
+            del settings.GTAG_ID
+            r = self.client.get(reverse('ui:home'))
+            self.assertNotIn(gtag_id, r.content.decode('utf8'))
+
+        # Tag doesn't appear is setting is blank or None
+        with self.settings(GTAG_ID=''):
+            r = self.client.get(reverse('ui:home'))
+        self.assertNotIn(gtag_id, r.content.decode('utf8'))
+
+        with self.settings(GTAG_ID=None):
+            r = self.client.get(reverse('ui:home'))
+        self.assertNotIn(gtag_id, r.content.decode('utf8'))
+
+        # Tag appears if setting is set
+        with self.settings(GTAG_ID=gtag_id):
+            r = self.client.get(reverse('ui:home'))
+        self.assertIn(gtag_id, r.content.decode('utf8'))
