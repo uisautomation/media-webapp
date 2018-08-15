@@ -230,6 +230,8 @@ class MediaItemViewTestCase(ViewTestCase):
     def test_success(self):
         """Check that a media item is successfully returned"""
         item = self.non_deleted_media.get(id='populated')
+        # Remove the associated SMS media items so that editing succeeds
+        item.sms.delete()
 
         # test
         response = self.view(self.get_request, pk=item.id)
@@ -283,6 +285,8 @@ class MediaItemViewTestCase(ViewTestCase):
         """Check that the get still succeeds, even tho the JW api throws a VideoNotFoundError"""
         self.dv_from_key.side_effect = api.VideoNotFoundError
         item = self.non_deleted_media.get(id='populated')
+        # Remove the associated SMS media items so that editing succeeds
+        item.sms.delete()
 
         # test
         response = self.view(self.get_request, pk=item.id)
@@ -311,6 +315,8 @@ class MediaItemViewTestCase(ViewTestCase):
 
     def test_published_at_mutable(self):
         item = self.non_deleted_media.get(id='populated')
+        # Remove the associated SMS media items so that editing succeeds
+        item.sms.delete()
         new_date = item.published_at + datetime.timedelta(seconds=123456789)
         self.assert_field_mutable('publishedAt', new_date.isoformat(), 'published_at', new_date)
 
@@ -329,6 +335,8 @@ class MediaItemViewTestCase(ViewTestCase):
     def test_update(self):
         """Basic update of a media item succeeds."""
         item = self.non_deleted_media.get(id='populated')
+        # Remove the associated SMS media items so that editing succeeds
+        item.sms.delete()
         item.channel.edit_permission.crsids.append(self.user.username)
         item.channel.edit_permission.save()
         new_title = item.title + '---with-change'
@@ -343,6 +351,8 @@ class MediaItemViewTestCase(ViewTestCase):
         """Cannot change the channel of a media item, even if user has all the right edit
         permissions."""
         item = self.non_deleted_media.get(id='populated')
+        # Remove the associated SMS media items so that editing succeeds
+        item.sms.delete()
         item.channel.edit_permission.crsids.append(self.user.username)
         item.channel.edit_permission.save()
         new_channel = mpmodels.Channel.objects.create(title='new channel')
@@ -363,6 +373,10 @@ class MediaItemViewTestCase(ViewTestCase):
         item.channel.edit_permission.crsids.append(self.user.username)
         item.channel.edit_permission.save()
 
+        # Remove any associated SMS media items so item is editable
+        if hasattr(item, 'sms'):
+            item.sms.delete()
+
         # Unauthorised request should fail
         response = self.view(request, pk=item.id)
         self.assertEqual(response.status_code, 403)
@@ -381,6 +395,10 @@ class MediaItemViewTestCase(ViewTestCase):
         item = self.non_deleted_media.get(id='populated')
         item.channel.edit_permission.crsids.append(self.user.username)
         item.channel.edit_permission.save()
+
+        # Remove any associated SMS media items so item is editable
+        if hasattr(item, 'sms'):
+            item.sms.delete()
 
         # Unauthorised request should fail
         response = self.view(request, pk=item.id)
@@ -403,6 +421,9 @@ class UploadEndpointTestCase(ViewTestCase):
         super().setUp()
         self.view = views.MediaItemUploadView().as_view()
         self.item = mpmodels.MediaItem.objects.get(id='populated')
+
+        # Remove the associated SMS media items
+        self.item.sms.delete()
 
         # Reset any permissions on the item
         self.item.view_permission.reset()
