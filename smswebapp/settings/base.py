@@ -254,3 +254,5 @@ else:
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 LOOKUP_SCHEME = 'crsid'
+
+GTAG_ID = os.environ.get('GTAG_ID', '')
