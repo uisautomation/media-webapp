@@ -26,6 +26,7 @@ urlpatterns = [
     path('media/<pk>/edit', views.MediaEditView.as_view(), name='media_item_edit'),
     path('media/<pk>', views.MediaView.as_view(), name='media_item'),
     path('channels/<pk>', views.ChannelView.as_view(), name='channel'),
+    path('playlists/<pk>', views.PlaylistView.as_view(), name='playlist'),
     path('upload', views.upload, name='upload'),
     path('about', TemplateView.as_view(template_name="ui/about.html"), name='about'),
     path('', TemplateView.as_view(template_name="index.html"), name='home'),

@@ -51,3 +51,10 @@ class ChannelView(apiviews.ChannelMixin, generics.RetrieveAPIView):
     serializer_class = serializers.ChannelPageSerializer
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'ui/resource.html'
+
+
+class PlaylistView(apiviews.PlaylistMixin, generics.RetrieveAPIView):
+    """View for rendering an individual playlist. Extends the DRF's channel view."""
+    serializer_class = serializers.PlaylistPageSerializer
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'ui/resource.html'
