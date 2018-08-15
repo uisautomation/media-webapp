@@ -10,6 +10,8 @@ import AppBar from "../components/AppBar";
 import MotdBanner from "../components/MotdBanner";
 import ProfileButtonContainer from "./ProfileButtonContainer";
 
+import { withProfile } from "../providers/ProfileProvider";
+
 /**
  * A top level component that wraps all pages to give then elements common to all page, the ``AppBar``
  * etc.
@@ -19,9 +21,11 @@ const Page = (
 ) => (
       <div className={ classes.page }>
         <AppBar position="fixed" defaultSearch={defaultSearch}>
-          <IconButton color="inherit" component="a" href="/upload">
-            <UploadIcon />
-          </IconButton>
+          <HiddenIfNoChannels>
+            <IconButton color="inherit" component="a" href="/upload">
+              <UploadIcon />
+            </IconButton>
+          </HiddenIfNoChannels>
           <ProfileButtonContainer
             className={ classes.rightButton } variant="flat" color="inherit"
           />
@@ -66,3 +70,25 @@ const styles = theme => ({
 });
 
 export default withRoot(withStyles(styles)(Page));
+
+/** A component which renders its children only if the profile has editable channels. */
+const HiddenIfNoChannels = withProfile(({ profile, children, component: Component }) => (
+  <Component>
+    {
+      (profile && profile.channels && (profile.channels.length > 0))
+      ?
+      children
+      :
+      null
+    }
+  </Component>
+));
+
+HiddenIfNoChannels.propTypes = {
+  /** Component to wrap children in. */
+  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+};
+
+HiddenIfNoChannels.defaultProps = {
+  component: 'div',
+};
