@@ -1,3 +1,4 @@
+{% load gtag_script_tag %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -22,6 +23,7 @@
     <title>{% block title %}The University of Cambridge Media Platform{% endblock %}</title>
 
     {% block extra_head %}{% endblock %}
+    {% gtag_script_tag %}
   </head>
   <body>
     {# Include Django's CSRF token in the page for the API to read. #}
