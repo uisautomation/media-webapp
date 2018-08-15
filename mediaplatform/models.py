@@ -100,6 +100,15 @@ class MediaItemQuerySet(PermissionQuerySetMixin, models.QuerySet):
         return self.filter(Q(self._permission_condition('view_permission', user) |
                              self._permission_condition('channel__edit_permission', user)))
 
+    def _editable_condition(self, user):
+        # For the moment, we make sure that *all* SMS-derived objects are immutble to guard against
+        # accidents.
+        return (
+            self._permission_condition('channel__edit_permission', user) &
+            models.Q(sms__isnull=True) &
+            models.Q(channel__sms__isnull=True)
+        )
+
     def annotate_editable(self, user, name='editable'):
         """
         Annotate the query set with a boolean indicating if the user can edit the item.
@@ -108,7 +117,7 @@ class MediaItemQuerySet(PermissionQuerySetMixin, models.QuerySet):
         return self.annotate(**{
             name: models.Case(
                 models.When(
-                    self._permission_condition('channel__edit_permission', user),
+                    self._editable_condition(user),
                     then=models.Value(True)
                 ),
                 default=models.Value(False),
@@ -121,7 +130,7 @@ class MediaItemQuerySet(PermissionQuerySetMixin, models.QuerySet):
         Filter the queryset to only those items which can be edited by the passed Django user.
 
         """
-        return self.filter(self._permission_condition('channel__edit_permission', user))
+        return self.filter(self._editable_condition(user))
 
 
 class MediaItemManager(models.Manager):
@@ -378,6 +387,14 @@ class ChannelQuerySet(PermissionQuerySetMixin, models.QuerySet):
         """
         return self
 
+    def _editable_condition(self, user):
+        # For the moment, we make sure that *all* SMS-derived objects are immutble to guard against
+        # accidents.
+        return (
+            self._permission_condition('edit_permission', user) &
+            models.Q(sms__isnull=True)
+        )
+
     def annotate_editable(self, user, name='editable'):
         """
         Annotate the query set with a boolean indicating if the user can edit the item.
@@ -386,7 +403,7 @@ class ChannelQuerySet(PermissionQuerySetMixin, models.QuerySet):
         return self.annotate(**{
             name: models.Case(
                 models.When(
-                    self._permission_condition('edit_permission', user),
+                    self._editable_condition(user),
                     then=models.Value(True)
                 ),
                 default=models.Value(False),
@@ -399,7 +416,7 @@ class ChannelQuerySet(PermissionQuerySetMixin, models.QuerySet):
         Filter the queryset to only those items which can be edited by the passed Django user.
 
         """
-        return self.filter(self._permission_condition('edit_permission', user))
+        return self.filter(self._editable_condition(user))
 
 
 class ChannelManager(models.Manager):
