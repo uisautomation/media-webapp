@@ -17,12 +17,12 @@ class MediaEditPage extends Component {
     super();
 
     this.state = {
-      // remember the media item's key for convenience
-      pk,
       // An error object as returned by the API or the empty object if there are no errors.
       errors: {},
       // The media item being edited by the ItemMetadataForm.
       item: {},
+      // remember the media item's key for convenience (read-only)
+      pk,
     };
   }
 
