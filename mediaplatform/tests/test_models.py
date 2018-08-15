@@ -7,6 +7,7 @@ from django.core.cache import cache
 from django.db import IntegrityError
 from django.test import TestCase, override_settings
 
+from legacysms import models as legacymodels
 from .. import models
 
 
@@ -236,6 +237,25 @@ class MediaItemTest(ModelTestCase):
         permission_id_2 = models.MediaItem.objects.get(id=item.id).view_permission.id
         self.assertEquals(permission_id_1, permission_id_2)
 
+    def test_sms_item_not_editable(self):
+        """An item with associated SMS media item or channel is not editable."""
+        item = models.MediaItem.objects.get(id='emptyperm')
+        item.channel.edit_permission.is_public = True
+        item.channel.edit_permission.save()
+        self.assert_user_can_edit(self.user, item)
+
+        # If there is a SMS media item, the editable permission goes away
+        sms = legacymodels.MediaItem.objects.create(id=12345, item=item)
+        self.assert_user_cannot_edit(self.user, item)
+        sms.delete()
+        self.assert_user_can_edit(self.user, item)
+
+        # If there is a SMS collection, the editable permission goes away
+        sms = legacymodels.Collection.objects.create(id=12345, channel=item.channel)
+        self.assert_user_cannot_edit(self.user, item)
+        sms.delete()
+        self.assert_user_can_edit(self.user, item)
+
     def assert_user_cannot_view(self, user, item_or_id):
         if isinstance(item_or_id, str):
             item_or_id = models.MediaItem.objects_including_deleted.get(id=item_or_id)
@@ -459,6 +479,19 @@ class ChannelTest(ModelTestCase):
         channel = models.Channel.objects.get(id=new_channel.id)
 
         self.assertIn(self.user.username, channel.edit_permission.crsids)
+
+    def test_sms_collection_not_editable(self):
+        """An item with associated SMS media item or channel is not editable."""
+        self.c1.edit_permission.is_public = True
+        self.c1.edit_permission.save()
+
+        self.assert_user_can_edit(self.user, self.c1)
+
+        # If there is a SMS collection, the editable permission goes away
+        sms = legacymodels.Collection.objects.create(id=12345, channel=self.c1)
+        self.assert_user_cannot_edit(self.user, self.c1)
+        sms.delete()
+        self.assert_user_can_edit(self.user, self.c1)
 
     def assert_user_can_view(self, user, channel_or_id):
         if isinstance(channel_or_id, str):
