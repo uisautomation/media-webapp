@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import Button from '@material-ui/core/Button';
@@ -7,10 +7,12 @@ import Grid from '@material-ui/core/Grid';
 import { withStyles } from '@material-ui/core/styles';
 import DownloadIcon from '@material-ui/icons/CloudDownload';
 import AnalyticsIcon from '@material-ui/icons/ShowChart';
+import EditIcon from '@material-ui/icons/Edit';
 
 import Page from '../containers/Page';
 import RenderedMarkdown from '../components/RenderedMarkdown';
 import MediaItemProvider, { withMediaItem } from '../providers/MediaItemProvider';
+import {withProfile} from "../providers/ProfileProvider";
 
 /**
  * The media item page
@@ -50,7 +52,13 @@ const bestSource = sources => {
   return null;
 };
 
-const MediaPageContents = ({ item, classes }) => {
+const MediaPageContents = ({ profile, item, classes }) => {
+  // Check if the item is editable by checking it's channel against the list of editable channels
+  // in the profile.
+  const editable = (
+    profile && item && item.channel && profile.channels.find((el) => (el.id === item.channel.id))
+  );
+
   const source =
     (item && item.sources) ? bestSource(item.sources) : null;
 
@@ -68,15 +76,15 @@ const MediaPageContents = ({ item, classes }) => {
       </section>
       <section className={ classes.mediaDetails }>
         <Grid container spacing={16}>
-          <Grid item xs={12}>
-            <Typography variant="headline" component="div">{ item ? item.title : '' }</Typography>
+          <Grid container item xs={12} md={9} lg={10}>
+            <Grid item xs={12}>
+              <Typography variant="headline" component="div">{ item ? item.title : '' }</Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <RenderedMarkdown source={ item ? item.description : '' }/>
+            </Grid>
           </Grid>
-          <Grid item xs={12}>
-            <RenderedMarkdown source={ item ? item.description : '' }/>
-          </Grid>
-        </Grid>
-        <Grid container justify='space-between' spacing={16}>
-          <Grid item xs={12} sm={6} md={3} lg={2}>
+          <Grid container item xs={12} md={3} lg={2} className={classes.buttonStack}>
             {
               source
               ?
@@ -84,14 +92,24 @@ const MediaPageContents = ({ item, classes }) => {
                 component='a' variant='outlined' target='_blank' className={ classes.link }
                 href={ source.url } download fullWidth
               >
-                Download media
+                Download
                 <DownloadIcon className={ classes.rightIcon } />
               </Button>
               :
               null
             }
-          </Grid>
-          <Grid item xs={12} sm={6} md={3} lg={2} style={{textAlign: 'right'}}>
+            {
+              editable
+              ?
+              <Button component='a' variant='outlined' className={ classes.link }
+                href={ '/media/' + item.id + '/edit' } fullWidth
+              >
+                Edit
+                <EditIcon className={ classes.rightIcon } />
+              </Button>
+              :
+              null
+            }
             {
               item && item.id
               ?
@@ -156,13 +174,19 @@ var styles = theme => ({
   link: {
     color: theme.palette.text.secondary,
   },
-
   rightIcon: {
     marginLeft: theme.spacing.unit,
+  },
+  buttonStack: {
+    '& a': {
+      marginBottom: theme.spacing.unit,
+    },
   },
 });
 /* tslint:enable */
 
-const ConnectedMediaPageContents = withMediaItem(withStyles(styles)(MediaPageContents));
+const ConnectedMediaPageContents = withProfile(withMediaItem(
+  withStyles(styles)(MediaPageContents)
+));
 
-export default withMediaItem(withStyles(styles)(MediaPage));
+export default withStyles(styles)(MediaPage);
