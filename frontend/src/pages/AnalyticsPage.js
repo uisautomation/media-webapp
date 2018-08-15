@@ -7,7 +7,6 @@ import {Chart} from "react-google-charts";
 import Page from "../containers/Page";
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ShowChartIcon from '@material-ui/icons/ShowChart';
 import {mediaGet} from "../api";
 import Typography from '@material-ui/core/Typography';
@@ -78,7 +77,8 @@ class AnalyticsPage extends Component {
             </Grid>
           </Grid>
           <Grid container justify='space-between' spacing={16}>
-            <Grid item xs={12} sm={6} md={3} lg={2}>
+            <Grid item xs={12} sm={6} md={3} lg={2}/>
+            <Grid item xs={12} sm={6} md={3} lg={2} style={{textAlign: 'right'}}>
               {
                 mediaItem && mediaItem.links && mediaItem.links.legacyStatisticsUrl
                 ?
@@ -92,7 +92,6 @@ class AnalyticsPage extends Component {
                 null
               }
             </Grid>
-            <Grid item xs={12} sm={6} md={3} lg={2} style={{textAlign: 'right'}}/>
           </Grid>
         </section>
       </Page>
