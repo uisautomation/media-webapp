@@ -13,9 +13,6 @@ When a development environment is created via ``./compose.sh development up``,
 the following endpoints are available:
 
 * http://localhost:8000/ - the web application itself.
-* http://localhost:3000/ - a version of the web application served from the
-    create-react-app environment. Supports live reload of the UI when the
-    underlying JavaScript changes.
 * http://localhost:7000/ - a Swagger UI instance configured to point to the
     application's REST-ful API.
 * http://localhost:6060/ - live generated documentation for the React components
@@ -95,23 +92,17 @@ See the [Dockerfile](Dockerfile).
 ## Connecting the React world and the Django world
 
 This section talks about the configuration required to get the React frontend
-app to be served by the Django application retaining the ability to make use of
-the live-reloading create-react-app server when necessary. It also outlines how
-we build the frontend in production without littering the production container
-with various node-related detritus.
+app to be served by the Django application retaining the live code recompiling
+offered by create-react-app. It also outlines how we build the frontend in
+production without littering the production container with various node-related
+detritus.
 
-The easiest requirement to satisfy is that the frontend at
-http://localhost:3000/ works. We simply have a service in the docker-compose
-configuration which runs "npm start" and exposes port 3000 to the host. We make
-use of create-react-app's built in proxying support to proxy requests to the API
-through to the Django development app.
-
-Of course in production, we want the frontend to be served by the Django app and
-we'd like to be able to test this when developing. To allow Django to serve the
-app, we have some whitenoise configuration which arranges to serve files from a
-frontend build directory (configured via a setting) from /. If a request to /foo
-can be satisfied by a file from this directory, it is so otherwise the Django
-app takes a turn to satisfy the request.
+In production, we want the frontend to be served by the Django app and we'd like
+to be able to test this when developing. To allow Django to serve the app, we
+have some whitenoise configuration which arranges to serve files from a frontend
+build directory (configured via a setting) from /. If a request to /foo can be
+satisfied by a file from this directory, it is so otherwise the Django app takes
+a turn to satisfy the request.
 
 We have an additional docker-compose service which makes use of the watch script
 we added to the frontend to watch for changes and build a new bundle of
