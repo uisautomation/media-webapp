@@ -9,6 +9,7 @@ import withRoot from "../pages/withRoot";
 import AppBar from "../components/AppBar";
 import MotdBanner from "../components/MotdBanner";
 import ProfileButtonContainer from "./ProfileButtonContainer";
+import Snackbar from "./Snackbar";
 
 import { withProfile } from "../providers/ProfileProvider";
 
@@ -35,6 +36,8 @@ const Page = (
           <MotdBanner />
           { children }
         </div>
+
+        <Snackbar/>
       </div>
 );
 
