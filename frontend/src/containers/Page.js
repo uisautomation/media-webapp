@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
 import UploadIcon from '@material-ui/icons/CloudUpload';
+import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
 
 import withRoot from "../pages/withRoot";
 import AppBar from "../components/AppBar";
@@ -25,6 +26,9 @@ const Page = (
           <HiddenIfNoChannels>
             <IconButton color="inherit" component="a" href="/upload">
               <UploadIcon />
+            </IconButton>
+            <IconButton color="inherit" component="a" href="/create_playlist">
+              <PlaylistAddIcon />
             </IconButton>
           </HiddenIfNoChannels>
           <ProfileButtonContainer
