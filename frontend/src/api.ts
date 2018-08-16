@@ -77,8 +77,9 @@ export interface IMediaLinks {
   legacyStatisticsUrl: string;
 }
 
-/** A media resource. */
+/** A media create resource. */
 export interface IMediaCreateResource {
+  channelId: string;
   title: string;
   description: string;
   language: string;
@@ -125,11 +126,6 @@ export interface IMediaQuery {
   ordering?: string;
 };
 
-/** A query to the collection list endpoint. */
-export interface ICollectionQuery {
-  search?: string;
-};
-
 /** A profile response. */
 export interface IProfileResponse {
   isAnonymous: boolean;
@@ -148,7 +144,14 @@ export interface IChannelResource {
   createdAt: string;
 };
 
-/** A channel resource. */
+/** A playlist create resource. */
+export interface IPlaylistCreateResource {
+  channelId: string;
+  title: string;
+  description: string;
+}
+
+/** A playlist resource. */
 export interface IPlaylistResource {
   url?: string;
   id?: string;
@@ -292,6 +295,14 @@ export const playlistGet = (id: string) : Promise<IPlaylistResource | IError> =>
   const resource = resourceFromPageById(id);
   if (resource) { return Promise.resolve(resource); }
   return apiFetch(API_ENDPOINTS.playlistList + id);
+};
+
+/** Create a new playlist resource. */
+export const playlistCreate = (body: IPlaylistCreateResource) : Promise<IPlaylistResource | IError> => {
+  return apiFetch(API_ENDPOINTS.playlistList, {
+    body: JSON.stringify(body),
+    method: 'POST',
+  });
 };
 
 /**
