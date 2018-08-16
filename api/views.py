@@ -4,9 +4,12 @@ Views implementing the API endpoints.
 """
 import logging
 
+import automationlookup
+from django.conf import settings
 from django.db import models
 from django_filters import rest_framework as df_filters
 from rest_framework import generics, pagination, filters
+import requests
 
 import mediaplatform.models as mpmodels
 
@@ -17,6 +20,26 @@ from . import serializers
 LOG = logging.getLogger(__name__)
 
 
+def get_profile(request):
+    """
+    Return an object representing what is known about a user from a reques. Contains two keys:
+    ``user`` which is simply the user object from the request and ``person`` which is the lookup
+    person resource for the user is non-anoymous.
+
+    """
+    obj = {'user': request.user}
+    if not request.user.is_anonymous:
+        try:
+            obj['person'] = automationlookup.get_person(
+                identifier=request.user.username,
+                scheme=getattr(settings, 'LOOKUP_SCHEME', 'crsid'),
+                fetch=['jpegPhoto'],
+            )
+        except requests.HTTPError as e:
+            LOG.warning('Error fetching person: %s', e)
+    return obj
+
+
 class ProfileView(generics.RetrieveAPIView):
     """
     Endpoint to retrieve the profile of the current user.
@@ -25,7 +48,7 @@ class ProfileView(generics.RetrieveAPIView):
     serializer_class = serializers.ProfileSerializer
 
     def get_object(self):
-        return self.request.user
+        return get_profile(self.request)
 
 
 class ListPagination(pagination.CursorPagination):
