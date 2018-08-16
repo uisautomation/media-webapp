@@ -4,8 +4,6 @@ Views
 """
 import logging
 
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.renderers import TemplateHTMLRenderer
 
