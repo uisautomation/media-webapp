@@ -14,25 +14,6 @@ import RenderedMarkdown from '../components/RenderedMarkdown';
 import MediaItemProvider, { withMediaItem } from '../providers/MediaItemProvider';
 import {withProfile} from "../providers/ProfileProvider";
 
-/**
- * The media item page
- */
-const MediaPage = ({ match: { params: { pk } }, classes }) => (
-  <Page>
-    <MediaItemProvider id={ pk }>
-      <ConnectedMediaPageContents />
-    </MediaItemProvider>
-  </Page>
-);
-
-MediaPage.propTypes = {
-  match: PropTypes.shape({
-    params: PropTypes.shape({
-      pk: PropTypes.string.isRequired,
-    }).isRequired,
-  }).isRequired,
-};
-
 /** Given a list of sources, return the "best" source. */
 const bestSource = sources => {
   const videos = sources
@@ -189,4 +170,23 @@ const ConnectedMediaPageContents = withProfile(withMediaItem(
   withStyles(styles)(MediaPageContents)
 ));
 
-export default withStyles(styles)(MediaPage);
+/**
+ * The media item page
+ */
+const MediaPage = ({ match: { params: { pk } } }) => (
+  <Page>
+    <MediaItemProvider id={ pk }>
+      <ConnectedMediaPageContents />
+    </MediaItemProvider>
+  </Page>
+);
+
+MediaPage.propTypes = {
+  match: PropTypes.shape({
+    params: PropTypes.shape({
+      pk: PropTypes.string.isRequired,
+    }).isRequired,
+  }).isRequired,
+};
+
+export default MediaPage;

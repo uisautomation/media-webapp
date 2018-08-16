@@ -30,11 +30,6 @@ class MediaEditView(MediaView):
     ]
 
 
-@login_required
-def upload(request):
-    return render(request, 'ui/upload.html')
-
-
 class MediaItemAnalyticsView(apiviews.MediaItemMixin, generics.RetrieveAPIView):
     """
     View for rendering an individual media item's analytics.

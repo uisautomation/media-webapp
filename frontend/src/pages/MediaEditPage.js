@@ -13,8 +13,8 @@ import { setMessageForNextPageLoad } from "../containers/Snackbar";
  * A page which allows the user to edit a media item's metadata.
  */
 class MediaEditPage extends Component {
-  constructor({ match: { params: { pk } } }) {
-    super();
+  constructor(props) {
+    super(props);
 
     this.state = {
       // An error object as returned by the API or the empty object if there are no errors.
@@ -22,7 +22,7 @@ class MediaEditPage extends Component {
       // The media item being edited by the ItemMetadataForm.
       item: {},
       // remember the media item's key for convenience (read-only)
-      pk,
+      pk: props.match.params.pk,
     };
   }
 

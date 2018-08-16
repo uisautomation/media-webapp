@@ -13,6 +13,7 @@ You can use the default mapping by adding the following to your global ``urlpatt
     ]
 
 """
+from django.contrib.auth.decorators import login_required
 from django.urls import path
 from django.views.generic import TemplateView
 
@@ -27,7 +28,11 @@ urlpatterns = [
     path('media/<pk>', views.MediaView.as_view(), name='media_item'),
     path('channels/<pk>', views.ChannelView.as_view(), name='channel'),
     path('playlists/<pk>', views.PlaylistView.as_view(), name='playlist'),
-    path('upload', views.upload, name='upload'),
+    path(
+        'upload',
+        login_required(TemplateView.as_view(template_name="ui/upload.html")),
+        name='upload'
+    ),
     path('about', TemplateView.as_view(template_name="ui/about.html"), name='about'),
     path('', TemplateView.as_view(template_name="index.html"), name='home'),
 ]
