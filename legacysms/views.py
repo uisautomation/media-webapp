@@ -10,6 +10,7 @@ from django.urls import reverse
 import requests
 
 from smsjwplatform import jwplatform as api
+from mediaplatform import models as mpmodels
 
 from . import redirect as legacyredirect
 
@@ -196,18 +197,13 @@ def media(request, media_id):
     In :py:mod:`~.urls` this view is named ``legacysms:media``.
 
     """
-    try:
-        video = api.Video.from_media_id(media_id, preferred_media_type='video')
-    except api.VideoNotFoundError:
-        # If we cannot find the item, simply redirect to the legacy SMS. We ignore the format
-        # parameter here because this redirect will only be for new media items and the embedding
-        # HTML no longer includes the format parameter.
+    item = (
+        mpmodels.MediaItem.objects.all().viewable_by_user(request.user)
+        .filter(sms__id=media_id).first()
+    )
+
+    # If we can't find the item, redirect back to SMS to see if it knows about it
+    if item is None:
         return legacyredirect.media_page(media_id)
 
-    # If the user cannot access the media, redirect to legacy sms which will show an error page.
-    try:
-        video.check_user_access(request.user)
-    except api.ResourceACLPermissionDenied:
-        return legacyredirect.media_page(media_id)
-
-    return redirect(reverse('ui:media_item', kwargs={'pk': video.key}))
+    return redirect(reverse('ui:media_item', kwargs={'pk': item.id}))
