@@ -1,17 +1,13 @@
 import React, { Component } from 'react';
 
 import Button from '@material-ui/core/Button';
-import FormControl from '@material-ui/core/FormControl';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import Grid from '@material-ui/core/Grid';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
 import Typography from '@material-ui/core/Typography';
 
 import { withStyles } from '@material-ui/core/styles';
 
 import Page from '../containers/Page';
+import ChannelSelect from '../containers/ChannelSelect';
 import ItemMetadataForm from "../components/ItemMetadataForm";
 import {withProfile} from "../providers/ProfileProvider";
 import {playlistCreate} from "../api";
@@ -66,28 +62,9 @@ class PlaylistCreatePageContents extends Component {
             <Typography variant="headline" component="div" className={classes.heading}>
               Create a new playlist.
             </Typography>
-            {/* TODO componentise this */}
-            <FormControl fullWidth error={ !!errors.channelId }>
-              <InputLabel htmlFor="playlist-channelId">Channel</InputLabel>
-              <Select
-                value={ playlist.channelId ? playlist.channelId : '' }
-                onChange={
-                  event => this.setState({playlist: {...playlist, channelId: event.target.value}})
-                }
-                inputProps={{
-                  id: 'playlist-channelId',
-                }}
-              >
-                {
-                  channels.map(channel => (
-                    <MenuItem key={ channel.id } value={ channel.id }>
-                      { channel.title }
-                    </MenuItem>
-                  ))
-                }
-              </Select>
-              <FormHelperText>{ errors.channelId ? errors.channelId.join(' ') : null }</FormHelperText>
-            </FormControl>
+            <ChannelSelect errors={ errors.channelId } channelId={ playlist.channelId } onChange={
+              event => this.setState({playlist: {...playlist, channelId: event.target.value}})
+            } />
             <ItemMetadataForm
               item={playlist}
               errors={errors}
