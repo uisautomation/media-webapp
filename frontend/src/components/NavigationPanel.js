@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import Avatar from '@material-ui/core/Avatar';
+import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -29,7 +30,14 @@ const NavigationPanel = ({ profile, classes }) => <div className={ classes.root 
         <Typography variant='caption'>{ profile.username }</Typography>
       </div>
       :
-      null
+      <div>
+        <Button
+          variant='raised' color='secondary' fullWidth size='small'
+          component='a' href='/accounts/login'
+        >
+          Sign in with Raven
+        </Button>
+      </div>
     }
   </div>
   <Divider />
@@ -42,15 +50,6 @@ const NavigationPanel = ({ profile, classes }) => <div className={ classes.root 
       ?
       <ListItem button component='a' href='/accounts/logout'>
         <ListItemText primary="Sign out" />
-      </ListItem>
-      :
-      null
-    }
-    {
-      !profile || profile.isAnonymous
-      ?
-      <ListItem button component='a' href='/accounts/login'>
-        <ListItemText primary="Sign in" />
       </ListItem>
       :
       null
