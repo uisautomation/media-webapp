@@ -73,6 +73,7 @@ class ChannelPage extends Component {
 
 const mediaListSectionStyles = theme => ({
   root: {
+    ...theme.mixins.bodySection,
     marginBottom: theme.spacing.unit * 4,
     marginTop: theme.spacing.unit * 2,
   },

@@ -158,6 +158,7 @@ const addDays = (date, days) => {
 /* tslint:disable object-literal-sort-keys */
 var styles = theme => ({
   section: {
+    ...theme.mixins.bodySection,
     marginTop: theme.spacing.unit,
   },
   chartContainer: {

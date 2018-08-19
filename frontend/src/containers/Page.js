@@ -78,6 +78,8 @@ class Page extends React.Component {
           </Drawer>
         </Hidden>
 
+        <div className={classes.appBarSpacer}/>
+
         <div className={classes.body}>
           <MotdBanner />
           { children }
@@ -104,25 +106,19 @@ const styles = theme => ({
     },
   },
 
+  appBarSpacer: theme.mixins.toolbar,
+
   drawerPaper: {
     width: theme.dimensions.drawerWidth,
   },
 
   page: {
     minHeight: '100vh',
-    paddingTop: theme.spacing.unit * 8,
     width: '100%',
   },
 
   body: {
     margin: [[0, 'auto']],
-    paddingLeft: theme.spacing.unit * 2,
-    paddingRight: theme.spacing.unit * 2,
-
-    [theme.breakpoints.up('sm')]: {
-      paddingLeft: theme.spacing.unit * 3,
-      paddingRight: theme.spacing.unit * 3,
-    },
 
     [theme.breakpoints.up('md')]: {
       marginLeft: theme.dimensions.drawerWidth,

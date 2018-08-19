@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import Typography from '@material-ui/core/Typography';
-import Divider from '@material-ui/core/Divider';
 import { withStyles } from '@material-ui/core/styles';
 
 import ReleaseTag from './ReleaseTag';
@@ -21,7 +20,6 @@ const MotdBanner = ({
       {' '}This service is in development.{' '} { /* whitespace coalescing in JSX sux! */ }
       <a className={classes.link} href="/about#help-us">Help us improve it.</a>
     </div>
-    <Divider />
   </Component>
 )
 
@@ -36,12 +34,14 @@ MotdBanner.defaultProps = {
 
 const styles = theme => ({
   root: {
-    marginTop: theme.spacing.unit * 2,
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.08)',
+    display: 'flex',
+    ...theme.mixins.toolbar,
+    ...theme.mixins.bodySection,
   },
 
-  message: {
-    paddingBottom: theme.spacing.unit,
-  },
+  message: { /* No default styles */ },
 
   link: {
     color: theme.palette.text.secondary,
