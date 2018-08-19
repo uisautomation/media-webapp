@@ -9,6 +9,7 @@ import defaultCodeHandler from 'mdast-util-to-hast/lib/handlers/code';
 
 import Typography from '@material-ui/core/Typography';
 import TeXMath from './TeXMath';
+import MathJaxProvider from '../providers/MathJaxProvider';
 
 /**
  * A wrapper for `Typography` which renders its source prop as markdown.
@@ -22,7 +23,9 @@ import TeXMath from './TeXMath';
  * ``</$>`` tags. Display math can be represented by a code block with the language being "math".
  */
 const RenderedMarkdown = ({ source, component, ...otherProps }) => (
-  <Typography component={ component } {...otherProps}>{ renderMarkdown(source) }</Typography>
+  <MathJaxProvider>
+    <Typography component={ component } {...otherProps}>{ renderMarkdown(source) }</Typography>
+  </MathJaxProvider>
 );
 
 RenderedMarkdown.propTypes = {
