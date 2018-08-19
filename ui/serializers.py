@@ -2,7 +2,7 @@ import logging
 
 from rest_framework import serializers
 
-from api import serializers as apiserializers
+from api import serializers as apiserializers, views as apiviews
 from smsjwplatform import jwplatform
 
 LOG = logging.getLogger(__name__)
@@ -88,7 +88,7 @@ class ResourcePageSerializer(serializers.Serializer):
 
     def get_profile(self, obj):
         return apiserializers.ProfileSerializer(
-            self.context['request'].user, context=self.context).data
+            apiviews.get_profile(self.context['request']), context=self.context).data
 
 
 class MediaItemPageSerializer(ResourcePageSerializer):

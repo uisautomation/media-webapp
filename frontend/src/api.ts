@@ -135,6 +135,8 @@ export interface IProfileResponse {
   isAnonymous: boolean;
   username?: string;
   channels: IChannelResource[];
+  displayName?: string;
+  avatarImageUrl?: string;
 };
 
 /** A channel resource. */
