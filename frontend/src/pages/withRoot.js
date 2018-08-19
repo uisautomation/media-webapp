@@ -1,10 +1,8 @@
 import React from 'react';
-import { MuiThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 
 import ProfileProvider from '../providers/ProfileProvider';
 import MathJaxProvider from '../providers/MathJaxProvider';
-import theme from '../theme';
 
 /**
  * Wrap a component which is intended to be the top-level component for a page
@@ -19,10 +17,8 @@ function withRoot(Component) {
     return (
       <MathJaxProvider>
         <ProfileProvider>
-          <MuiThemeProvider theme={theme}>
-            <CssBaseline />
-            <Component {...props} />
-          </MuiThemeProvider>
+          <CssBaseline />
+          <Component {...props} />
         </ProfileProvider>
       </MathJaxProvider>
     );
