@@ -4,6 +4,7 @@ from unittest import mock
 from dateutil import parser as dateparser
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
+from django.http import QueryDict
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from rest_framework.test import APIRequestFactory, force_authenticate
@@ -467,6 +468,58 @@ class MediaItemEmbedTestCase(ViewTestCase):
         self.assertNotIn(login_url, response.content.decode('utf8'))
 
 
+class MediaItemSourceViewTestCase(ViewTestCase):
+    def setUp(self):
+        super().setUp()
+        self.view = views.MediaItemSourceView().as_view()
+        self.item = self.non_deleted_media.get(id='populated')
+        self.dv_from_key_patcher = mock.patch('smsjwplatform.jwplatform.DeliveryVideo.from_key')
+        self.dv_from_key = self.dv_from_key_patcher.start()
+        self.dv_from_key.return_value = api.DeliveryVideo(DELIVERY_VIDEO_FIXTURE)
+        self.addCleanup(self.dv_from_key_patcher.stop)
+
+        # Make sure item is downloadable
+        self.item.downloadable = True
+        self.item.save()
+
+    def test_basic_functionality(self):
+        source = DELIVERY_VIDEO_FIXTURE['sources'][0]
+        response = self.get(
+            mime_type=source['type'], width=source['width'], height=source['height'])
+        self.assertRedirects(response, source['file'], fetch_redirect_response=False)
+
+    def test_visibility(self):
+        """If an item has no visibility, the source view should 404."""
+        self.item.view_permission.reset()
+        self.item.view_permission.save()
+        self.item.channel.edit_permission.reset()
+        self.item.channel.edit_permission.save()
+        source = DELIVERY_VIDEO_FIXTURE['sources'][0]
+        response = self.get(
+            mime_type=source['type'], width=source['width'], height=source['height'])
+        self.assertEqual(response.status_code, 404)
+
+    def test_bad_width(self):
+        """Non-integer width raises 400"""
+        response = self.get(mime_type='video/mp4', width='1.23', height='1')
+        self.assertEqual(response.status_code, 400)
+
+    def test_bad_height(self):
+        """Non-integer height raises 400"""
+        response = self.get(mime_type='video/mp4', height='1.23', width='1')
+        self.assertEqual(response.status_code, 400)
+
+    def get(self, mime_type, width, height, item=None):
+        item = item if item is not None else self.item
+        query = QueryDict(mutable=True)
+        query['mimeType'] = mime_type
+        query['width'] = f'{width}'
+        query['height'] = f'{height}'
+        return self.client.get(
+            reverse('api:media_source', kwargs={'pk': item.id}) + '?' + query.urlencode()
+        )
+
+
 class UploadEndpointTestCase(ViewTestCase):
     fixtures = ['api/tests/fixtures/mediaitems.yaml']
 
@@ -863,4 +916,14 @@ DELIVERY_VIDEO_FIXTURE = {
     'duration': 54,
     'sms_acl': 'acl:WORLD:',
     'sms_media_id': 'media:1234:',
+    'sources': [
+        {
+            'type': 'video/mp4', 'width': 1920, 'height': 1080,
+            'file': 'http://cdn.invalid/vid1.mp4',
+        },
+        {
+            'type': 'video/mp4', 'width': 720, 'height': 406,
+            'file': 'http://cdn.invalid/vid2.mp4',
+        },
+    ],
 }

@@ -8,7 +8,9 @@ from django.conf import settings
 from django.db import models
 from django.http import Http404
 from django_filters import rest_framework as df_filters
+from drf_yasg import inspectors, openapi
 from rest_framework import generics, pagination, filters, views
+from rest_framework.exceptions import ParseError
 from django.shortcuts import redirect, render
 
 import mediaplatform.models as mpmodels
@@ -208,6 +210,62 @@ class MediaItemEmbedView(MediaItemMixin, generics.RetrieveAPIView):
             raise Http404()
 
         return redirect(url)
+
+
+class MediaItemSourceViewInspector(inspectors.ViewInspector):
+    def get_operation(self, operation_keys):
+        return openapi.Operation(
+            operation_id='media_source',
+            responses=openapi.Responses(
+                {302: openapi.Response(description='Media source stream')}
+            ),
+            parameters=[
+                openapi.Parameter(
+                    name='mimeType', in_=openapi.IN_QUERY,
+                    description='MIME type of media source',
+                    type=openapi.TYPE_STRING, required=True
+                ),
+                openapi.Parameter(
+                    name='width', in_=openapi.IN_QUERY,
+                    description='Width of media source',
+                    type=openapi.TYPE_INTEGER
+                ),
+                openapi.Parameter(
+                    name='height', in_=openapi.IN_QUERY,
+                    description='Height of media source',
+                    type=openapi.TYPE_INTEGER
+                ),
+            ],
+            tags=['media'],
+        )
+
+
+class MediaItemSourceView(MediaItemMixin, generics.RetrieveAPIView):
+    """
+    Endpoint to retrieve a media item source stream
+
+    """
+    swagger_schema = MediaItemSourceViewInspector
+
+    def retrieve(self, request, *args, **kwargs):
+        item = self.get_object()
+        mime_type = request.GET.get('mimeType', '')
+        width = request.GET.get('width')
+        height = request.GET.get('height')
+
+        try:
+            if width is not None:
+                width = int(width)
+            if height is not None:
+                height = int(height)
+        except ValueError:
+            raise ParseError()
+
+        for source in item.get_sources():
+            if source.mime_type == mime_type and source.width == width and source.height == height:
+                return redirect(source.url)
+
+        raise Http404()
 
 
 class MediaItemAnalyticsView(MediaItemMixin, generics.RetrieveAPIView):

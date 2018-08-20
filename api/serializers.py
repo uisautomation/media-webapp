@@ -4,6 +4,7 @@ from urllib import parse as urlparse
 
 from django.db import connection
 from django.conf import settings
+from django.http import QueryDict
 from django.urls import reverse
 from django.utils.http import urlencode
 from rest_framework import serializers
@@ -230,7 +231,7 @@ class SourceSerializer(serializers.Serializer):
     A download source for a particular media type.
 
     """
-    mimeType = serializers.CharField(source='mime_type', help_text="The resource's MIME type")
+    mimeType = serializers.CharField(help_text="The resource's MIME type")
     url = serializers.URLField(help_text="The resource's URL")
     width = serializers.IntegerField(help_text='The video width', required=False)
     height = serializers.IntegerField(help_text='The video height', required=False)
@@ -273,7 +274,26 @@ class MediaItemDetailSerializer(MediaItemSerializer):
 
     channel = ChannelSerializer(read_only=True)
 
-    sources = SourceSerializer(source='get_sources', many=True)
+    sources = serializers.SerializerMethodField()
+
+    def get_sources(self, obj):
+        sources = [self._source_to_dict(source, obj) for source in obj.get_sources()]
+        return SourceSerializer(sources, many=True).data
+
+    def _source_to_dict(self, source, item):
+        query = QueryDict(mutable=True)
+        query['mimeType'] = source.mime_type
+        if source.width is not None:
+            query['width'] = f'{source.width}'
+        if source.height is not None:
+            query['height'] = f'{source.height}'
+        url = reverse('api:media_source', kwargs={'pk': item.id}) + '?' + query.urlencode()
+        if 'request' in self.context:
+            url = self.context['request'].build_absolute_uri(url)
+        return {
+            'url': url, 'width': source.width, 'height': source.height,
+            'mimeType': source.mime_type,
+        }
 
 
 class MediaItemAnalyticsSerializer(serializers.Serializer):
