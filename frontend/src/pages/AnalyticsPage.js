@@ -80,10 +80,10 @@ class AnalyticsPage extends Component {
             <Grid item xs={12} sm={6} md={3} lg={2}/>
             <Grid item xs={12} sm={6} md={3} lg={2} style={{textAlign: 'right'}}>
               {
-                mediaItem && mediaItem.links && mediaItem.links.legacyStatisticsUrl
+                mediaItem && mediaItem.legacyStatisticsUrl
                 ?
                 <Button component='a' variant='outlined' className={ classes.link } fullWidth
-                  href={mediaItem.links.legacyStatisticsUrl}
+                  href={mediaItem.legacyStatisticsUrl}
                 >
                   SMS Statistics
                   <ShowChartIcon className={ classes.rightIcon } />

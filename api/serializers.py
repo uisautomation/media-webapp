@@ -252,29 +252,19 @@ class MediaUploadSerializer(serializers.Serializer):
         return instance
 
 
-class MediaItemLinksSerializer(serializers.Serializer):
-    legacyStatisticsUrl = serializers.SerializerMethodField()
-
-    def get_legacyStatisticsUrl(self, obj):
-        if not hasattr(obj, 'sms'):
-            return None
-        return urlparse.urljoin(
-            settings.LEGACY_SMS_FRONTEND_URL, f'media/{obj.sms.id:d}/statistics')
-
-
 class MediaItemDetailSerializer(MediaItemSerializer):
     """
     An individual media item including related resources.
 
     """
     class Meta(MediaItemSerializer.Meta):
-        fields = MediaItemSerializer.Meta.fields + ('links', 'channel', 'sources')
-
-    links = MediaItemLinksSerializer(source='*', read_only=True)
+        fields = MediaItemSerializer.Meta.fields + ('channel', 'sources', 'legacyStatisticsUrl')
 
     channel = ChannelSerializer(read_only=True)
 
     sources = serializers.SerializerMethodField()
+
+    legacyStatisticsUrl = serializers.SerializerMethodField()
 
     def get_sources(self, obj):
         sources = [self._source_to_dict(source, obj) for source in obj.get_sources()]
@@ -294,6 +284,12 @@ class MediaItemDetailSerializer(MediaItemSerializer):
             'url': url, 'width': source.width, 'height': source.height,
             'mimeType': source.mime_type,
         }
+
+    def get_legacyStatisticsUrl(self, obj):
+        if not hasattr(obj, 'sms'):
+            return None
+        return urlparse.urljoin(
+            settings.LEGACY_SMS_FRONTEND_URL, f'media/{obj.sms.id:d}/statistics')
 
 
 class MediaItemAnalyticsSerializer(serializers.Serializer):
