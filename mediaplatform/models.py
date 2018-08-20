@@ -1,5 +1,7 @@
+import dataclasses
 import itertools
 import secrets
+import typing
 
 import automationlookup
 from django.conf import settings
@@ -9,6 +11,8 @@ from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from iso639 import languages
+
+from mediaplatform_jwp import delivery as jwp_delivery
 
 
 #: The number of bytes of entropy in the tokens returned by _make_token.
@@ -181,6 +185,22 @@ class MediaItem(models.Model):
     most fields.
 
     """
+    @dataclasses.dataclass
+    class Source:
+        """An encoded media stream for a media item."""
+
+        #: Media type of the stream
+        mime_type: str
+
+        #: URL pointing to this source
+        url: str
+
+        #: Width of the stream or None if this is an audio stream
+        width: typing.Optional[int] = None
+
+        #: Height of the stream or None if this is an audio stream
+        height: typing.Optional[int] = None
+
     VIDEO = 'video'
     AUDIO = 'audio'
     UNKNOWN = 'unknown'
@@ -258,6 +278,19 @@ class MediaItem(models.Model):
 
     def __str__(self):
         return '{} ("{}")'.format(self.id, self.title)
+
+    def get_sources(self, only_if_downloadable=True):
+        """
+        Retrieve and return a list of :py:class:`~.MediaItem.Source` instances representing the raw
+        media sources for this media item.
+
+        By default, the source list will be empty if the media item is not marked as downloadable.
+        Set the *only_if_downloadable* parameter to ``True`` to skip this check.
+
+        """
+        if not self.downloadable and only_if_downloadable:
+            return []
+        return jwp_delivery.sources_for_item(self)
 
 
 class Permission(models.Model):
