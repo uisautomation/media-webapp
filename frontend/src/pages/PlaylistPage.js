@@ -3,10 +3,9 @@ import React, { Component } from 'react';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 
-import { playlistGet, mediaList, mediaResourceToItem } from '../api';
+import { playlistGet, mediaResourceToItem } from '../api';
 import MediaList from '../components/MediaList';
 import RenderedMarkdown from '../components/RenderedMarkdown';
-import SearchResultsProvider, { withSearchResults } from '../providers/SearchResultsProvider';
 import Page from "../containers/Page";
 
 /**
@@ -20,31 +19,20 @@ class PlaylistPage extends Component {
     this.state = {
       // The playlist resource
       playlist: null,
-
-      // Is the media list loading.
-      mediaLoading: false,
-
-      // The media list response from the API, if any.
-      mediaResponse: null,
     }
   }
 
   componentWillMount() {
     // As soon as the index page mounts, fetch the playlist.
-    const { match: { params: { pk }  } } = this.props;
+    const { match: { params: { pk } } } = this.props;
     playlistGet(pk)
       .then(playlist => {
-        this.setState({ playlist, mediaLoading: true });
-        return mediaList({ ordering: '-updatedAt' }, { endpoint: playlist.mediaUrl });
-      }).then(
-        response => this.setState({ mediaResponse: response, mediaLoading: false }),
-        error => this.setState({ mediaResponse: null, mediaLoading: false })
-      );
+        this.setState({ playlist });
+      });
   }
 
-
   render() {
-    const { playlist, mediaLoading, mediaResponse } = this.state;
+    const { playlist } = this.state;
     return (
       <Page>
       {
@@ -54,13 +42,9 @@ class PlaylistPage extends Component {
           title={ playlist.title }
           description={ playlist.description }
           MediaListProps={{
-            contentLoading: mediaLoading,
+            contentLoading: false,
             maxItemCount: 18,
-            mediaItems: (
-              (mediaResponse && mediaResponse.results)
-              ? mediaResponse.results.map(mediaResourceToItem)
-              : []
-            ),
+            mediaItems: playlist.items.map(mediaResourceToItem),
           }}
         />
         :
