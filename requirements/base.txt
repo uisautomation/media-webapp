@@ -17,6 +17,9 @@ django-crispy-forms
 django-filter
 django-robots
 
+# For loading fixtures
+PyYAML
+
 # PRE-RELEASE WHITENOISE VERSION
 # We need at least version 4 of whitenoise to make use of the index_file
 # configuration option.
