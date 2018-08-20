@@ -509,12 +509,54 @@ class MediaItemSourceViewTestCase(ViewTestCase):
         response = self.get(mime_type='video/mp4', height='1.23', width='1')
         self.assertEqual(response.status_code, 400)
 
-    def get(self, mime_type, width, height, item=None):
+    def test_no_args(self):
+        """Passing no arguments returns the "best" source."""
+        sources = [
+            {
+                'type': 'video/mp4', 'width': 720, 'height': 406,
+                'file': 'http://cdn.invalid/vid2.mp4',
+            },
+            {
+                'type': 'video/mp4', 'width': 1920, 'height': 1080,
+                'file': 'http://cdn.invalid/vid1.mp4',
+            },
+            {
+                'type': 'audio/mp4', 'file': 'http://cdn.invalid/vid_audio.mp4',
+            },
+        ]
+        self.dv_from_key.return_value = api.DeliveryVideo({
+            **DELIVERY_VIDEO_FIXTURE, 'sources': sources
+        })
+        source = sources[1]
+        response = self.get()
+        self.assertRedirects(response, source['file'], fetch_redirect_response=False)
+
+    def test_audio_best_source(self):
+        """Best source will include audio if that is all there is."""
+        sources = [
+            {
+                'type': 'something/else', 'file': 'http://cdn.invalid/vid_odd.mp4',
+            },
+            {
+                'type': 'audio/mp4', 'file': 'http://cdn.invalid/vid_audio.mp4',
+            },
+        ]
+        self.dv_from_key.return_value = api.DeliveryVideo({
+            **DELIVERY_VIDEO_FIXTURE, 'sources': sources
+        })
+        source = sources[1]
+        response = self.get()
+        self.assertRedirects(response, source['file'], fetch_redirect_response=False)
+
+    def get(self, mime_type=None, width=None, height=None, item=None):
         item = item if item is not None else self.item
         query = QueryDict(mutable=True)
-        query['mimeType'] = mime_type
-        query['width'] = f'{width}'
-        query['height'] = f'{height}'
+        if mime_type is not None:
+            query['mimeType'] = mime_type
+        if width is not None:
+            query['width'] = f'{width}'
+        if height is not None:
+            query['height'] = f'{height}'
         return self.client.get(
             reverse('api:media_source', kwargs={'pk': item.id}) + '?' + query.urlencode()
         )

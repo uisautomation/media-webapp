@@ -223,7 +223,7 @@ class MediaItemSourceViewInspector(inspectors.ViewInspector):
                 openapi.Parameter(
                     name='mimeType', in_=openapi.IN_QUERY,
                     description='MIME type of media source',
-                    type=openapi.TYPE_STRING, required=True
+                    type=openapi.TYPE_STRING
                 ),
                 openapi.Parameter(
                     name='width', in_=openapi.IN_QUERY,
@@ -249,7 +249,7 @@ class MediaItemSourceView(MediaItemMixin, generics.RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         item = self.get_object()
-        mime_type = request.GET.get('mimeType', '')
+        mime_type = request.GET.get('mimeType')
         width = request.GET.get('width')
         height = request.GET.get('height')
 
@@ -261,9 +261,28 @@ class MediaItemSourceView(MediaItemMixin, generics.RetrieveAPIView):
         except ValueError:
             raise ParseError()
 
-        for source in item.get_sources():
-            if source.mime_type == mime_type and source.width == width and source.height == height:
-                return redirect(source.url)
+        if mime_type is None and width is None and height is None:
+            # If nothing was specified, return the "best" source.
+            video_sources = [
+                source for source in item.get_sources()
+                if source.mime_type.startswith('video/') and source.height is not None
+            ]
+            audio_sources = [
+                source for source in item.get_sources()
+                if source.mime_type.startswith('audio/')
+            ]
+
+            if len(video_sources) == 0 and len(audio_sources) != 0:
+                # No video sources, return any of the audio sources
+                return redirect(audio_sources.pop().url)
+            elif len(video_sources) != 0:
+                # Sort videos by descending height
+                return redirect(sorted(video_sources, key=lambda s: -s.height)[0].url)
+        else:
+            for source in item.get_sources():
+                if (source.mime_type == mime_type and source.width == width
+                        and source.height == height):
+                    return redirect(source.url)
 
         raise Http404()
 
