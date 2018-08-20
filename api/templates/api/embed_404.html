@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Not found</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <style>
+body {
+  background-color: #fff;
+  color: #000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: 'Roboto', sans-serif;
+  /* Determined using the spec at https://material.io/design/typography/#type-scale */
+  font-size: 1rem; /* 0.0625 * 16 */
+  line-height: 1.375em; /* 0.0625 * 22 */
+}
+body > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+body > div > p {
+  margin: 0 0 8px 0;
+  text-align: center;
+}
+a {
+  color: #222;
+}
+    </style>
+  </head>
+  <body>
+    <div>
+      <p>
+        This media item could not be found.
+      </p>
+      {% if request.user.is_anonymous %}
+        <p>
+          You may need to
+          <a href="{{ login_url }}">sign in with Raven</a>
+          in order to access it.
+        </p>
+      {% endif %}
+    </div>
+  </body>
+</html>
+

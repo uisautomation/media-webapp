@@ -153,11 +153,12 @@ class MediaItemSerializer(ChannelOwnedResourceModelSerializer):
         fields = (
             'url', 'id', 'title', 'description', 'duration', 'type', 'publishedAt',
             'downloadable', 'language', 'copyright', 'tags', 'createdAt',
-            'updatedAt', 'posterImageUrl', 'channelId',
+            'updatedAt', 'posterImageUrl', 'channelId', 'embedUrl',
         )
 
         read_only_fields = (
             'url', 'id', 'duration', 'type', 'createdAt', 'updatedAt', 'posterImageUrl'
+            'embedUrl'
         )
         extra_kwargs = {
             'createdAt': {'source': 'created_at'},
@@ -169,6 +170,9 @@ class MediaItemSerializer(ChannelOwnedResourceModelSerializer):
 
     posterImageUrl = serializers.SerializerMethodField(
         help_text='A URL of a thumbnail/poster image for the media', read_only=True)
+
+    embedUrl = serializers.SerializerMethodField(
+        help_text='A URL suitable for embedding this media item in an IFrame', read_only=True)
 
     def create(self, validated_data):
         """
@@ -192,6 +196,12 @@ class MediaItemSerializer(ChannelOwnedResourceModelSerializer):
         if not hasattr(obj, 'jwp'):
             return None
         return jwplatform.Video({'key': obj.jwp.key}).get_poster_url(width=640)
+
+    def get_embedUrl(self, obj):
+        url = reverse('api:media_embed', kwargs={'pk': obj.id})
+        if 'request' in self.context:
+            url = self.context['request'].build_absolute_uri(url)
+        return url
 
 
 # Detail serialisers
