@@ -103,6 +103,7 @@ export interface IMediaResource {
   posterImageUrl: string;
   sources?: IMediaSource[];
   links?: IMediaLinks;
+  embedUrl?: string;
 };
 
 /** A media upload resource. */
