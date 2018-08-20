@@ -253,21 +253,12 @@ class MediaUploadSerializer(serializers.Serializer):
 
 class MediaItemLinksSerializer(serializers.Serializer):
     legacyStatisticsUrl = serializers.SerializerMethodField()
-    embedUrl = serializers.SerializerMethodField()
 
     def get_legacyStatisticsUrl(self, obj):
         if not hasattr(obj, 'sms'):
             return None
         return urlparse.urljoin(
             settings.LEGACY_SMS_FRONTEND_URL, f'media/{obj.sms.id:d}/statistics')
-
-    def get_embedUrl(self, obj):
-        if not hasattr(obj, 'jwp'):
-            return None
-        return jwplatform.player_embed_url(
-            obj.jwp.key, settings.JWPLATFORM_EMBED_PLAYER_KEY, 'html',
-            settings.JWPLATFORM_CONTENT_BASE_URL
-        )
 
 
 class MediaItemDetailSerializer(MediaItemSerializer):

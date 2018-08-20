@@ -248,9 +248,6 @@ class MediaItemViewTestCase(ViewTestCase):
             response.data['posterImageUrl']
         )
         self.assertIsNotNone(response.data['duration'])
-        self.assertTrue(response.data['links']['embedUrl'].startswith(
-            'https://content.jwplatform.com/players/{}-someplayer.html'.format(item.jwp.key)
-        ))
 
     def test_video_not_found(self):
         """Check that a 404 is returned if no media is found"""
