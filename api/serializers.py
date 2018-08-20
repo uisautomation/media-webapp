@@ -258,13 +258,16 @@ class MediaItemDetailSerializer(MediaItemSerializer):
 
     """
     class Meta(MediaItemSerializer.Meta):
-        fields = MediaItemSerializer.Meta.fields + ('channel', 'sources', 'legacyStatisticsUrl')
+        fields = MediaItemSerializer.Meta.fields + (
+            'channel', 'sources', 'legacyStatisticsUrl', 'bestSourceUrl')
 
     channel = ChannelSerializer(read_only=True)
 
     sources = serializers.SerializerMethodField()
 
     legacyStatisticsUrl = serializers.SerializerMethodField()
+
+    bestSourceUrl = serializers.SerializerMethodField()
 
     def get_sources(self, obj):
         sources = [self._source_to_dict(source, obj) for source in obj.get_sources()]
@@ -290,6 +293,14 @@ class MediaItemDetailSerializer(MediaItemSerializer):
             return None
         return urlparse.urljoin(
             settings.LEGACY_SMS_FRONTEND_URL, f'media/{obj.sms.id:d}/statistics')
+
+    def get_bestSourceUrl(self, obj):
+        if len(obj.get_sources()) == 0:
+            return None
+        url = reverse('api:media_source', kwargs={'pk': obj.id})
+        if 'request' in self.context:
+            url = self.context['request'].build_absolute_uri(url)
+        return url
 
 
 class MediaItemAnalyticsSerializer(serializers.Serializer):
