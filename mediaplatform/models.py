@@ -292,6 +292,14 @@ class MediaItem(models.Model):
             return []
         return jwp_delivery.sources_for_item(self)
 
+    def get_embed_url(self):
+        """
+        Return a URL suitable for use in an IFrame which will render this media. This URL renders
+        the media unconditionally; it does not respect any view permissions.
+
+        """
+        return jwp_delivery.embed_url_for_item(self)
+
 
 class Permission(models.Model):
     """
