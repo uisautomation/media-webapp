@@ -98,7 +98,7 @@ class AnalyticsPage extends Component {
     );
   }
 }
-//item && item.links && item.links.legacyStatisticsUrl
+
 AnalyticsPage.propTypes = {
   chartData: PropTypes.array.isRequired,
   classes: PropTypes.object.isRequired,
