@@ -5,6 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 import Page from '../containers/Page';
 import UploadForm from '../containers/UploadForm';
+import RequiresEdit from "../containers/RequiresEdit";
 
 /**
  * A page which allows the user to upload a new media item. Uses NewMediaItemProvider and
@@ -13,11 +14,13 @@ import UploadForm from '../containers/UploadForm';
 const UploadPage = ({ classes }) => (
   <Page>
     <section className={ classes.section }>
-      <Grid container justify='center'>
-        <Grid item xs={12} sm={10} md={8} lg={6}>
-          <UploadForm />
+      <RequiresEdit displayOnFalse="You have no channels to add media to.">
+        <Grid container justify='center'>
+          <Grid item xs={12} sm={10} md={8} lg={6}>
+            <UploadForm />
+          </Grid>
         </Grid>
-      </Grid>
+      </RequiresEdit>
     </section>
   </Page>
 );

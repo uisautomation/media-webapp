@@ -8,6 +8,7 @@ import Page from '../containers/Page';
 import ItemMetadataForm from "../components/ItemMetadataForm";
 import {mediaGet, mediaPatch} from "../api";
 import { setMessageForNextPageLoad } from "../containers/Snackbar";
+import RequiresEdit from "../containers/RequiresEdit";
 
 /**
  * A page which allows the user to edit a media item's metadata.
@@ -52,23 +53,26 @@ class MediaEditPage extends Component {
     return (
       <Page>
         <section className={classes.section}>
-          <Grid container justify='center'>
-            <Grid item xs={12} sm={10} md={8} lg={6}>
-              <ItemMetadataForm
-                item={item}
-                errors={errors}
-                onChange={patch => this.setState({item: {...item, ...patch}})}
-              />
-              <div className={ classes.buttonSet }>
-                <Button variant='outlined' href={ '/media/' + this.state.pk } >
-                  Cancel
-                </Button>
-                <Button color='secondary' variant='contained' onClick={ () => this.save() } >
-                  Save
-                </Button>
-              </div>
+          <RequiresEdit channel={item && item.channel}
+                        displayOnFalse="You cannot edit this media item.">
+            <Grid container justify='center'>
+              <Grid item xs={12} sm={10} md={8} lg={6}>
+                <ItemMetadataForm
+                  item={item}
+                  errors={errors}
+                  onChange={patch => this.setState({item: {...item, ...patch}})}
+                />
+                <div className={ classes.buttonSet }>
+                  <Button variant='outlined' href={ '/media/' + this.state.pk } >
+                    Cancel
+                  </Button>
+                  <Button color='secondary' variant='contained' onClick={ () => this.save() } >
+                    Save
+                  </Button>
+                </div>
+              </Grid>
             </Grid>
-          </Grid>
+          </RequiresEdit>
         </section>
       </Page>
     );

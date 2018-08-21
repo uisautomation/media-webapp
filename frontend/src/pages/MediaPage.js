@@ -12,7 +12,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import Page from '../containers/Page';
 import RenderedMarkdown from '../components/RenderedMarkdown';
 import MediaItemProvider, { withMediaItem } from '../providers/MediaItemProvider';
-import {withProfile} from "../providers/ProfileProvider";
+import RequiresEdit from "../containers/RequiresEdit";
 
 /** Given a list of sources, return the "best" source. */
 const bestSource = sources => {
@@ -33,12 +33,7 @@ const bestSource = sources => {
   return null;
 };
 
-const MediaPageContents = ({ profile, item, classes }) => {
-  // Check if the item is editable by checking it's channel against the list of editable channels
-  // in the profile.
-  const editable = (
-    profile && item && item.channel && profile.channels.find((el) => (el.id === item.channel.id))
-  );
+const MediaPageContents = ({ item, classes }) => {
 
   const source =
     (item && item.sources) ? bestSource(item.sources) : null;
@@ -80,14 +75,16 @@ const MediaPageContents = ({ profile, item, classes }) => {
               null
             }
             {
-              editable
+              item && item.id
               ?
-              <Button component='a' variant='outlined' className={ classes.link }
-                href={ '/media/' + item.id + '/edit' } fullWidth
-              >
-                Edit
-                <EditIcon className={ classes.rightIcon } />
-              </Button>
+              <RequiresEdit channel={item && item.channel} className={classes.fullWidth}>
+                <Button component='a' variant='outlined' className={ classes.link }
+                  href={ '/media/' + item.id + '/edit' } fullWidth
+                >
+                  Edit
+                  <EditIcon className={ classes.rightIcon } />
+                </Button>
+              </RequiresEdit>
               :
               null
             }
@@ -163,12 +160,13 @@ var styles = theme => ({
       marginBottom: theme.spacing.unit,
     },
   },
+  fullWidth: {
+    width: '100%',
+  }
 });
 /* tslint:enable */
 
-const ConnectedMediaPageContents = withProfile(withMediaItem(
-  withStyles(styles)(MediaPageContents)
-));
+const ConnectedMediaPageContents = withMediaItem(withStyles(styles)(MediaPageContents));
 
 /**
  * The media item page
