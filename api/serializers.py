@@ -373,7 +373,7 @@ class PlaylistDetailSerializer(PlaylistSerializer):
             item.id: item
             for item in mpmodels.MediaItem.objects.filter(id__in=obj.media_items)
         }
-        media_items = [media_items_by_id[id] for id in obj.media_items]
+        media_items = [media_items_by_id[id] for id in obj.media_items if id in media_items_by_id]
         return MediaItemSerializer(media_items, many=True, context=self.context).data
 
     class Meta(PlaylistSerializer.Meta):
