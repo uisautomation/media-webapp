@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { MuiThemeProvider } from '@material-ui/core/styles';
-import { BrowserRouter, Route } from 'react-router-dom'
+import { BrowserRouter, Route, Switch } from 'react-router-dom'
 
 import AnalyticsPage from './pages/AnalyticsPage';
 import ChannelPage from './pages/ChannelPage';
@@ -25,13 +25,17 @@ ReactDOM.render(
       <ProfileProvider>
         <CssBaseline />
         <Route exact={true} path="/" component={IndexPage} />
-        <Route exact={true} path="/media/:pk" component={MediaPage} />
+        <Switch>
+          <Route exact={true} path="/media/new" component={UploadPage} />
+          <Route exact={true} path="/media/:pk" component={MediaPage} />
+        </Switch>
         <Route exact={true} path="/media/:pk/analytics" component={AnalyticsPage} />
         <Route exact={true} path="/media/:pk/edit" component={MediaEditPage} />
-        <Route exact={true} path="/upload" component={UploadPage} />
         <Route exact={true} path="/channels/:pk" component={ChannelPage} />
-        <Route exact={true} path="/create_playlist" component={PlaylistCreatePage} />
-        <Route exact={true} path="/playlists/:pk" component={PlaylistPage} />
+        <Switch>
+          <Route exact={true} path="/playlists/new" component={PlaylistCreatePage} />
+          <Route exact={true} path="/playlists/:pk" component={PlaylistPage} />
+        </Switch>
         <Route exact={true} path="/about" component={StaticTextPage} />
       </ProfileProvider>
     </MuiThemeProvider>

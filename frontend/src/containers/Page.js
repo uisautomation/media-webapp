@@ -23,10 +23,10 @@ const Page = (
       <div className={ classes.page }>
         <AppBar position="fixed" defaultSearch={defaultSearch}>
           <HiddenIfNoChannels>
-            <IconButton color="inherit" component="a" href="/upload">
+            <IconButton color="inherit" component="a" href="/media/new">
               <UploadIcon />
             </IconButton>
-            <IconButton color="inherit" component="a" href="/create_playlist">
+            <IconButton color="inherit" component="a" href="/playlists/new">
               <PlaylistAddIcon />
             </IconButton>
           </HiddenIfNoChannels>

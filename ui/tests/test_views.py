@@ -91,10 +91,10 @@ class UploadViewTestCase(ViewTestCase):
         self.user = get_user_model().objects.create(username='spqr1')
 
     def test_requires_login(self):
-        r = self.client.get(reverse('ui:upload'))
+        r = self.client.get(reverse('ui:media_item_new'))
         self.assertNotEqual(r.status_code, 200)
         self.client.force_login(self.user)
-        r = self.client.get(reverse('ui:upload'))
+        r = self.client.get(reverse('ui:media_item_new'))
         self.assertEqual(r.status_code, 200)
 
 
