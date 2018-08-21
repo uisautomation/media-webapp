@@ -45,34 +45,34 @@ class PlaylistEditPage extends Component {
   /**
    * Function called when an item drag begins. Saves the index of the dragged item.
    */
-  handleDragStart(index) {
+  handleDragStart = (index) => {
     this.setState({ dragStart: index })
-  }
+  };
 
   /**
    * Function called when an item is dropped on another item. Reorder the list so that the target
    * item is dropped in place and the other items are shifted in the direction of the source item.
    */
-  handleDrop(index) {
+  handleDrop = (index) => {
     const media = this.state.playlist.media.slice();
     media.splice(index, 0, ...media.splice(this.state.dragStart, 1));
     this.setState({ playlist: { ...this.state.playlist, media } });
     // save the new order
     const { match: { params: { pk } } } = this.props;
     playlistPatch({id: pk, mediaIds: media.map(({id}) => id)});
-  }
+  };
 
   render() {
     const { playlist } = this.state;
     return (
       <Page>
       {
-        playlist !== null
+        playlist.id !== ''
         ?
         <RequiresEdit channel={playlist.channel} displayOnFalse="You cannot edit this playlist.">
           <EditableListSection
-            handleDragStart={(index) => this.handleDragStart(index)}
-            handleDrop={(index) => this.handleDrop(index)}
+            handleDragStart={this.handleDragStart}
+            handleDrop={this.handleDrop}
             playlist={playlist}
           />
         </RequiresEdit>
