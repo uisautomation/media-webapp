@@ -48,7 +48,7 @@ class PlaylistPage extends Component {
             contentLoading: false,
             maxItemCount: 18,
 
-            mediaItems: playlist.items.map(mediaResourceToItem),
+            mediaItems: playlist.media.map(mediaResourceToItem),
           }}
         />
         :

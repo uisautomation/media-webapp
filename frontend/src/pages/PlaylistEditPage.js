@@ -26,7 +26,7 @@ class PlaylistEditPage extends Component {
 
     this.state = {
       // The playlist resource
-      playlist: { id: '', items: [] },
+      playlist: { id: '', media: [] },
 
       // The index of the items being dragged.
       dragStart: null,
@@ -54,13 +54,12 @@ class PlaylistEditPage extends Component {
    * item is dropped in place and the other items are shifted in the direction of the source item.
    */
   handleDrop(index) {
-    const items = this.state.playlist.items.slice();
-    const mediaItem = items.splice(this.state.dragStart, 1);
-    items.splice(index, 0, ...mediaItem);
-    this.setState({ playlist: { ...this.state.playlist, items } });
+    const media = this.state.playlist.media.slice();
+    media.splice(index, 0, ...media.splice(this.state.dragStart, 1));
+    this.setState({ playlist: { ...this.state.playlist, media } });
     // save the new order
     const { match: { params: { pk } } } = this.props;
-    playlistPatch({id: pk, mediaIds: items.map(({id}) => id)});
+    playlistPatch({id: pk, mediaIds: media.map(({id}) => id)});
   }
 
   render() {
@@ -94,7 +93,7 @@ class PlaylistEditPage extends Component {
 class EditableListSectionComponent extends Component {
   render() {
     const {
-      classes, handleDragStart, handleDrop, playlist: {title, description, items}
+      classes, handleDragStart, handleDrop, playlist: {title, description, media}
     } = this.props;
     return (
       <section className={classes.section}>
@@ -110,7 +109,7 @@ class EditableListSectionComponent extends Component {
               Media items
             </Typography>
             <List>
-              {items.map(mediaResourceToItem).map((item, index) => (
+              {media.map(mediaResourceToItem).map((item, index) => (
                 <div key={index} ref={'item-' + index}
                      onDragOver={event => event.preventDefault()}
                      onDrop={() => handleDrop(index)}
