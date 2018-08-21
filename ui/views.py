@@ -7,7 +7,7 @@ import logging
 from rest_framework import generics
 from rest_framework.renderers import TemplateHTMLRenderer
 
-from api import views as apiviews
+from api import views as apiviews, permissions
 from . import serializers
 
 LOG = logging.getLogger(__name__)
