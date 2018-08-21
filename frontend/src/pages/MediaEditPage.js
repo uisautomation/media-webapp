@@ -21,17 +21,18 @@ class MediaEditPage extends Component {
       // An error object as returned by the API or the empty object if there are no errors.
       errors: {},
       // The media item being edited by the ItemMetadataForm.
-      item: {},
-      // remember the media item's key for convenience (read-only)
-      pk: props.match.params.pk,
+      item: { id: '' },
     };
   }
+
+  /** Gets the media item's id. */
+  getItemId = () => this.props.match.params.pk;
 
   /**
    * Retrieve the item.
    */
   componentWillMount() {
-    mediaGet(this.state.pk).then(item => this.setState({ item }));
+    mediaGet(this.getItemId()).then(item => this.setState({ item }));
   }
 
   /**
@@ -39,9 +40,9 @@ class MediaEditPage extends Component {
    */
   save() {
     mediaPatch(this.state.item)
-      .then(savedItem => {
+      .then(() => {
         setMessageForNextPageLoad('The media item has been updated.');
-        window.location = '/media/' + this.state.pk
+        window.location = '/media/' + this.getItemId()
       })
       .catch(({ body }) => this.setState({ errors: body })
     );
@@ -63,7 +64,7 @@ class MediaEditPage extends Component {
                   onChange={patch => this.setState({item: {...item, ...patch}})}
                 />
                 <div className={ classes.buttonSet }>
-                  <Button variant='outlined' href={ '/media/' + this.state.pk } >
+                  <Button variant='outlined' href={ '/media/' + this.getItemId() } >
                     Cancel
                   </Button>
                   <Button color='secondary' variant='contained' onClick={ () => this.save() } >

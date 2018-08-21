@@ -17,14 +17,14 @@ import RequiresEdit from "../containers/RequiresEdit";
  * A page which allows the user to create a new playlist.
  */
 class PlaylistCreatePageContents extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
 
     this.state = {
       // An error object as returned by the API or the empty object if there are no errors.
       errors: {},
       // The playlist being created.
-      playlist: {},
+      playlist: { channelId: '', title: '' },
     };
   }
 
@@ -34,7 +34,7 @@ class PlaylistCreatePageContents extends Component {
   create() {
     playlistCreate(this.state.playlist)
       .then(playlist => {
-        setMessageForNextPageLoad('The playlist has been created.');
+        setMessageForNextPageLoad(`Playlist "${playlist.title}" created.`);
         window.location = '/playlists/' + playlist.id
       })
       .catch(({ body }) => this.setState({ errors: body })
