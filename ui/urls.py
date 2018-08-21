@@ -33,6 +33,7 @@ urlpatterns = [
         name='create_playlist'
     ),
     path('playlists/<pk>', views.PlaylistView.as_view(), name='playlist'),
+    path('playlists/<pk>/edit', views.PlaylistEditView.as_view(), name='playlist_edit'),
     path(
         'upload',
         login_required(TemplateView.as_view(template_name="ui/upload.html")),

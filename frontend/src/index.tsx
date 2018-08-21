@@ -9,6 +9,7 @@ import IndexPage from './pages/IndexPage';
 import MediaEditPage from './pages/MediaEditPage';
 import MediaPage from './pages/MediaPage';
 import PlaylistCreatePage from './pages/PlaylistCreatePage';
+import PlaylistEditPage from './pages/PlaylistEditPage';
 import PlaylistPage from './pages/PlaylistPage';
 import StaticTextPage from './pages/StaticTextPage';
 import UploadPage from './pages/UploadPage';
@@ -24,6 +25,7 @@ ReactDOM.render(
       <Route exact={true} path="/channels/:pk" component={ChannelPage} />
       <Route exact={true} path="/create_playlist" component={PlaylistCreatePage} />
       <Route exact={true} path="/playlists/:pk" component={PlaylistPage} />
+      <Route exact={true} path="/playlists/:pk/edit" component={PlaylistEditPage} />
       <Route exact={true} path="/about" component={StaticTextPage} />
     </div>
   </BrowserRouter>,

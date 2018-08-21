@@ -305,6 +305,14 @@ export const playlistCreate = (body: IPlaylistCreateResource) : Promise<IPlaylis
   });
 };
 
+/** Patch an existing playlist resource. */
+export const playlistPatch = (item: IPlaylistResource) : Promise<IPlaylistResource | IError> => {
+  return apiFetch(API_ENDPOINTS.playlistList + item.id, {
+    body: JSON.stringify(item),
+    method: 'PATCH',
+  });
+};
+
 /**
  * Append to a URL's query string based on properies from the passed object.
  */
