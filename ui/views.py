@@ -7,7 +7,7 @@ import logging
 from rest_framework import generics
 from rest_framework.renderers import TemplateHTMLRenderer
 
-from api import views as apiviews, permissions
+from api import views as apiviews
 from . import serializers
 
 LOG = logging.getLogger(__name__)
@@ -43,11 +43,3 @@ class PlaylistView(apiviews.PlaylistMixin, generics.RetrieveAPIView):
     serializer_class = serializers.PlaylistPageSerializer
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'ui/resource.html'
-
-
-class PlaylistEditView(PlaylistView):
-    """Identical to PlaylistView except it throws 403 if user doesn't have edit permission
-    on the playlist"""
-    permission_classes = PlaylistView.permission_classes + [
-        permissions.MediaPlatformEditPermission
-    ]
