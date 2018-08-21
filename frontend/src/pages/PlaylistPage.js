@@ -9,7 +9,7 @@ import RenderedMarkdown from '../components/RenderedMarkdown';
 import Page from "../containers/Page";
 
 /**
- * A list of media for a channel. Upon mount, it fetches the channel details and then a list of the
+ * A list of media for a playlist. Upon mount, it fetches the playlist with a list of the
  * media items and shows them to the user.
  */
 class PlaylistPage extends Component {
@@ -85,23 +85,5 @@ const MediaListSection = withStyles(mediaListSectionStyles)((
     </Typography>
   </section>
 ));
-
-const styles = theme => ({
-  itemsPaper: {
-    margin: [[theme.spacing.unit * 2, 'auto']],
-    padding: theme.spacing.unit,
-  },
-
-  body: {
-    margin: [[0, 'auto']],
-    paddingLeft: theme.spacing.unit * 2,
-    paddingRight: theme.spacing.unit * 2,
-
-    [theme.breakpoints.up('sm')]: {
-      paddingLeft: theme.spacing.unit * 3,
-      paddingRight: theme.spacing.unit * 3,
-    },
-  },
-});
 
 export default PlaylistPage;
