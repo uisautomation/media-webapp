@@ -9,57 +9,23 @@
 
 import { createMuiTheme } from '@material-ui/core/styles';
 
-const paleGreen = '#F1FBFC';
-const lightGreen = '#91B9A4';
-const coreGreen = '#00B1C1';
-const darkGreen = '#106470';
-const lightRed = '#EB99A9';
-const coreRed = '#D6083B';
-const darkRed = '#901C3B';
-const white = '#fff';
-const darkGrey = '#212121';
-const mediumGrey = '#757575';
-const lightGrey = '#F0F0F0';
-const blueyGrey = '#ECEFF1';
-
-// Custom Appbar colour, instead of using the main primary colour
-const appBarBackground = darkGreen;
-
 const theme = createMuiTheme({
+  // This palette was designed using the material palette design tool and University style
+  // guidelines:
+  // https://material.io/tools/color/#!/?view.left=1&view.right=1&secondary.color=EA7125&primary.color=0072CF
+  // https://www.cam.ac.uk/brand-resources/guidelines/typography-and-colour/rgb-and-websafe-references
   palette: {
     primary: {
-      light: lightGreen,
-      main: coreGreen,
-      dark: darkGreen,
-      contrastText: white,
+      light: '#5da0ff',
+      main: '#0072cf',
+      dark: '#00489d',
+      contrastText: '#fff',
     },
     secondary: {
-      light: lightRed,
-      main: coreRed,
-      dark: darkRed,
-      contrastText: white,
-    },
-  },
-  customColors: {
-    paleGreen,
-    lightGreen,
-    coreGreen,
-    darkGreen,
-    lightRed,
-    coreRed,
-    darkRed,
-    white,
-    darkGrey,
-    mediumGrey,
-    lightGrey,
-    blueyGrey,
-    appBarBackground,
-  },
-  overrides: {
-    MuiAppBar: {
-      colorPrimary: {
-        backgroundColor: darkGreen,
-      },
+      light: '#ffef79',
+      main: '#f3bd48',
+      dark: '#bd8d0f',
+      contrastText: '#000',
     },
   },
   dimensions: {
