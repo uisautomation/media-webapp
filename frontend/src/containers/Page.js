@@ -121,11 +121,10 @@ const styles = theme => ({
   },
 
   page: {
+    display: 'flex',
     height: '100vh',
-    width: '100%',
-    display: 'flex',
     overflow: 'hidden',
-    display: 'flex',
+    width: '100%',
   },
 
   content: {
