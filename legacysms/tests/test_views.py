@@ -14,6 +14,8 @@ import requests
 
 import smsjwplatform.jwplatform as api
 from smsjwplatform.models import CachedResource
+from mediaplatform import models as mpmodels
+from mediaplatform_jwp import sync
 
 from .. import redirect
 from .. import views
@@ -23,6 +25,12 @@ class TestCaseWithFixtures(TestCase):
     def setUp(self):
         for video in VIDEOS_FIXTURE:
             CachedResource.objects.create(type=CachedResource.VIDEO, key=video['key'], data=video)
+        sync.update_related_models_from_cache()
+
+        get_person_patcher = mock.patch('automationlookup.get_person')
+        self.get_person = get_person_patcher.start()
+        self.addCleanup(get_person_patcher.stop)
+        self.get_person.return_value = {'institutions': [], 'groups': []}
 
 
 class EmbedTest(TestCaseWithFixtures):
@@ -347,8 +355,8 @@ class MediaPageTest(TestCaseWithFixtures):
 
         """
         r = self.client.get(reverse('legacysms:media', kwargs={'media_id': 34}))
-        self.assertRedirects(r, reverse('ui:media_item', kwargs={'pk': 'myvideokey'}),
-                             fetch_redirect_response=False)
+        item = mpmodels.MediaItem.objects.get(sms__id=34)
+        self.assertRedirects(r, reverse('ui:media_item', kwargs={'pk': item.id}))
 
     def test_no_permission(self):
         """
@@ -356,24 +364,18 @@ class MediaPageTest(TestCaseWithFixtures):
         should be as if the media does not exist.
 
         """
-        with mock.patch('smsjwplatform.jwplatform.Video.from_media_id') as from_media_id:
-            from_media_id.return_value = api.Video({
-                'key': 'video-key',
-                'custom': {
-                    'sms_acl': 'acl:USER_mb2174:',
-                    'sms_media_id': 'media:34:',
-                }
-            })
-            self.assertEqual(api.Video.from_media_id(34).acl, ['USER_mb2174'])
+        item = mpmodels.MediaItem.objects.get(sms__id=34)
+        item.view_permission.reset()
+        item.view_permission.save()
 
-            r = self.client.get(reverse('legacysms:media', kwargs={'media_id': 34}))
-            self.assertRedirects(r, redirect.media_page(34)['Location'],
-                                 fetch_redirect_response=False)
+        r = self.client.get(reverse('legacysms:media', kwargs={'media_id': 34}))
+        self.assertRedirects(r, redirect.media_page(34)['Location'],
+                             fetch_redirect_response=False)
 
-            self.client.force_login(User.objects.create(username='spqr1'))
-            r = self.client.get(reverse('legacysms:media', kwargs={'media_id': 34}))
-            self.assertRedirects(r, redirect.media_page(34)['Location'],
-                                 fetch_redirect_response=False)
+        self.client.force_login(User.objects.create(username='spqr1'))
+        r = self.client.get(reverse('legacysms:media', kwargs={'media_id': 34}))
+        self.assertRedirects(r, redirect.media_page(34)['Location'],
+                             fetch_redirect_response=False)
 
     def test_no_media(self):
         """

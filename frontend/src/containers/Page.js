@@ -6,7 +6,6 @@ import IconButton from '@material-ui/core/IconButton';
 import UploadIcon from '@material-ui/icons/CloudUpload';
 import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
 
-import withRoot from "../pages/withRoot";
 import AppBar from "../components/AppBar";
 import MotdBanner from "../components/MotdBanner";
 import ProfileButtonContainer from "./ProfileButtonContainer";
@@ -76,7 +75,7 @@ const styles = theme => ({
   },
 });
 
-export default withRoot(withStyles(styles)(Page));
+export default withStyles(styles)(Page);
 
 /** A component which renders its children only if the profile has editable channels. */
 const HiddenIfNoChannels = withProfile(({ profile, children, component: Component }) => (

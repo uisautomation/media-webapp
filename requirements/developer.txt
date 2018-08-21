@@ -9,8 +9,5 @@ django-debug-toolbar
 # Testing
 tox
 
-# For loading test fixtures
-PyYAML
-
 # docker compatible debugger
 pudb

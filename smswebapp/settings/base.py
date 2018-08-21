@@ -25,6 +25,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'whitenoise.runserver_nostatic',  # use whitenoise even in development
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'django.contrib.sitemaps',
 
     'automationcommon',
     'automationlookup',
@@ -35,6 +37,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'rest_framework',
     'ucamwebauth',
+    'robots',
 
     'smsjwplatform',
     'legacysms',
@@ -256,3 +259,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 LOOKUP_SCHEME = 'crsid'
 
 GTAG_ID = os.environ.get('GTAG_ID', '')
+
+SITE_ID = 1
+
+ROBOTS_USE_SCHEME_IN_HOST = True
