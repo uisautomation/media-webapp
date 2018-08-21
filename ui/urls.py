@@ -22,15 +22,20 @@ from . import views
 app_name = 'ui'
 
 urlpatterns = [
+    path(
+        'media/new',
+        login_required(TemplateView.as_view(template_name="ui/media_item_new.html")),
+        name='media_item_new'
+    ),
     path('media/<pk>/analytics', views.MediaItemAnalyticsView.as_view(),
          name='media_item_analytics'),
-    path('media/<pk>/edit', views.MediaEditView.as_view(), name='media_item_edit'),
+    path('media/<pk>/edit', views.MediaView.as_view(), name='media_item_edit'),
     path('media/<pk>', views.MediaView.as_view(), name='media_item'),
     path('channels/<pk>', views.ChannelView.as_view(), name='channel'),
     path(
-        'create_playlist',
-        login_required(TemplateView.as_view(template_name="ui/create_playlist.html")),
-        name='create_playlist'
+        'playlists/new',
+        login_required(TemplateView.as_view(template_name="ui/playlist_new.html")),
+        name='playlist_new'
     ),
     path('playlists/<pk>', views.PlaylistView.as_view(), name='playlist'),
     path('playlists/<pk>/edit', views.PlaylistEditView.as_view(), name='playlist_edit'),

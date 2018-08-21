@@ -11,7 +11,7 @@ import MotdBanner from "../components/MotdBanner";
 import ProfileButtonContainer from "./ProfileButtonContainer";
 import Snackbar from "./Snackbar";
 
-import { withProfile } from "../providers/ProfileProvider";
+import RequiresEdit from "./RequiresEdit";
 
 /**
  * A top level component that wraps all pages to give then elements common to all page, the ``AppBar``
@@ -22,14 +22,14 @@ const Page = (
 ) => (
       <div className={ classes.page }>
         <AppBar position="fixed" defaultSearch={defaultSearch}>
-          <HiddenIfNoChannels>
-            <IconButton color="inherit" component="a" href="/upload">
+          <RequiresEdit>
+            <IconButton color="inherit" component="a" href="/media/new">
               <UploadIcon />
             </IconButton>
-            <IconButton color="inherit" component="a" href="/create_playlist">
+            <IconButton color="inherit" component="a" href="/playlists/new">
               <PlaylistAddIcon />
             </IconButton>
-          </HiddenIfNoChannels>
+          </RequiresEdit>
           <ProfileButtonContainer
             className={ classes.rightButton } variant="flat" color="inherit"
           />
@@ -76,25 +76,3 @@ const styles = theme => ({
 });
 
 export default withStyles(styles)(Page);
-
-/** A component which renders its children only if the profile has editable channels. */
-const HiddenIfNoChannels = withProfile(({ profile, children, component: Component }) => (
-  <Component>
-    {
-      (profile && profile.channels && (profile.channels.length > 0))
-      ?
-      children
-      :
-      null
-    }
-  </Component>
-));
-
-HiddenIfNoChannels.propTypes = {
-  /** Component to wrap children in. */
-  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
-};
-
-HiddenIfNoChannels.defaultProps = {
-  component: 'div',
-};

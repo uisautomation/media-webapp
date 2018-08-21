@@ -81,10 +81,21 @@ export interface IMediaLinks {
 export interface IMediaCreateResource {
   channelId: string;
   title: string;
-  description: string;
-  language: string;
-  copyright: string;
-  tags: string[];
+  description?: string;
+  language?: string;
+  copyright?: string;
+  tags?: string[];
+}
+
+/** A media patch resource. */
+export interface IMediaPatchResource {
+  id: string;
+  channelId?: string;
+  title?: string;
+  description?: string;
+  language?: string;
+  copyright?: string;
+  tags?: string[];
 }
 
 /** A media resource. */
@@ -148,7 +159,7 @@ export interface IChannelResource {
 export interface IPlaylistCreateResource {
   channelId: string;
   title: string;
-  description: string;
+  description?: string;
 }
 
 /** A playlist resource. */
@@ -246,7 +257,7 @@ export const mediaGet = (id: string) : Promise<IMediaListResponse | IError> => {
 };
 
 /** Patch an existing media resource. */
-export const mediaPatch = (item: IMediaResource) : Promise<IMediaResource | IError> => {
+export const mediaPatch = (item: IMediaPatchResource) : Promise<IMediaResource | IError> => {
   return apiFetch(API_ENDPOINTS.mediaList + item.id, {
     body: JSON.stringify(item),
     method: 'PATCH',

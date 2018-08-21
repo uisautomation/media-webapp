@@ -8,6 +8,7 @@ import Page from '../containers/Page';
 import ItemMetadataForm from "../components/ItemMetadataForm";
 import {mediaGet, mediaPatch} from "../api";
 import { setMessageForNextPageLoad } from "../containers/Snackbar";
+import RequiresEdit from "../containers/RequiresEdit";
 
 /**
  * A page which allows the user to edit a media item's metadata.
@@ -20,17 +21,18 @@ class MediaEditPage extends Component {
       // An error object as returned by the API or the empty object if there are no errors.
       errors: {},
       // The media item being edited by the ItemMetadataForm.
-      item: {},
-      // remember the media item's key for convenience (read-only)
-      pk: props.match.params.pk,
+      item: { id: '' },
     };
   }
+
+  /** Gets the media item's id. */
+  getItemId = () => this.props.match.params.pk;
 
   /**
    * Retrieve the item.
    */
   componentWillMount() {
-    mediaGet(this.state.pk).then(item => this.setState({ item }));
+    mediaGet(this.getItemId()).then(item => this.setState({ item }));
   }
 
   /**
@@ -38,9 +40,9 @@ class MediaEditPage extends Component {
    */
   save() {
     mediaPatch(this.state.item)
-      .then(savedItem => {
+      .then(() => {
         setMessageForNextPageLoad('The media item has been updated.');
-        window.location = '/media/' + this.state.pk
+        window.location = '/media/' + this.getItemId()
       })
       .catch(({ body }) => this.setState({ errors: body })
     );
@@ -52,23 +54,26 @@ class MediaEditPage extends Component {
     return (
       <Page>
         <section className={classes.section}>
-          <Grid container justify='center'>
-            <Grid item xs={12} sm={10} md={8} lg={6}>
-              <ItemMetadataForm
-                item={item}
-                errors={errors}
-                onChange={patch => this.setState({item: {...item, ...patch}})}
-              />
-              <div className={ classes.buttonSet }>
-                <Button variant='outlined' href={ '/media/' + this.state.pk } >
-                  Cancel
-                </Button>
-                <Button color='secondary' variant='contained' onClick={ () => this.save() } >
-                  Save
-                </Button>
-              </div>
+          <RequiresEdit channel={item && item.channel}
+                        displayOnFalse="You cannot edit this media item.">
+            <Grid container justify='center'>
+              <Grid item xs={12} sm={10} md={8} lg={6}>
+                <ItemMetadataForm
+                  item={item}
+                  errors={errors}
+                  onChange={patch => this.setState({item: {...item, ...patch}})}
+                />
+                <div className={ classes.buttonSet }>
+                  <Button variant='outlined' href={ '/media/' + this.getItemId() } >
+                    Cancel
+                  </Button>
+                  <Button color='secondary' variant='contained' onClick={ () => this.save() } >
+                    Save
+                  </Button>
+                </div>
+              </Grid>
             </Grid>
-          </Grid>
+          </RequiresEdit>
         </section>
       </Page>
     );
