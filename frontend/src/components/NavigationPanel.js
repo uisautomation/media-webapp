@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import Avatar from '@material-ui/core/Avatar';
-import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -14,11 +13,11 @@ import LatestMediaIcon from '@material-ui/icons/NewReleases';
 
 /** Side panel for the current user providing navigation links. */
 const NavigationPanel = ({ profile, classes }) => <div className={ classes.root }>
-  <div className={ classes.profileBar }>
-    {
-      profile && !profile.isAnonymous
-      ?
-      <div>
+  {
+    profile && !profile.isAnonymous
+    ?
+    <div>
+      <div className={ classes.profileBar }>
         <Avatar
           alt={ profile.displayName }
           classes={{ root: classes.avatar }}
@@ -29,18 +28,11 @@ const NavigationPanel = ({ profile, classes }) => <div className={ classes.root 
         <Typography variant='title'>{ profile.displayName }</Typography>
         <Typography variant='caption'>{ profile.username }</Typography>
       </div>
-      :
-      <div>
-        <Button
-          variant='raised' color='secondary' fullWidth size='small'
-          component='a' href='/accounts/login'
-        >
-          Sign in with Raven
-        </Button>
-      </div>
-    }
-  </div>
-  <Divider />
+      <Divider />
+    </div>
+    :
+    null
+  }
   <List>
     <ListItem button component='a' href='/'>
       <ListItemText primary="Latest Media" />
@@ -52,7 +44,9 @@ const NavigationPanel = ({ profile, classes }) => <div className={ classes.root 
         <ListItemText primary="Sign out" />
       </ListItem>
       :
-      null
+      <ListItem button component='a' href='/accounts/login'>
+        <ListItemText primary="Sign in" />
+      </ListItem>
     }
   </List>
 </div>;

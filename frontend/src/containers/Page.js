@@ -1,10 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import Button from '@material-ui/core/Button';
 import Drawer from '@material-ui/core/Drawer';
 import IconButton from '@material-ui/core/IconButton';
 import Hidden from '@material-ui/core/Hidden';
 import { withStyles } from '@material-ui/core/styles';
+
 import UploadIcon from '@material-ui/icons/CloudUpload';
 
 import AppBar from "../components/AppBar";
@@ -47,6 +49,13 @@ class Page extends React.Component {
               <UploadIcon />
             </IconButton>
           </HiddenIfNoChannels>
+          <Hidden smDown implementation="css">
+            <HiddenIfSignedIn>
+              <Button variant="contained" color="secondary" component="a" href="/accounts/login">
+                Sign in
+              </Button>
+            </HiddenIfSignedIn>
+          </Hidden>
         </AppBar>
 
         <Hidden mdUp>
@@ -161,5 +170,27 @@ HiddenIfNoChannels.propTypes = {
 };
 
 HiddenIfNoChannels.defaultProps = {
+  component: 'div',
+};
+
+/** A component which renders its children only if the profile is signed in */
+const HiddenIfSignedIn = withProfile(({ profile, children, component: Component }) => (
+  <Component>
+    {
+      (!profile || profile.isAnonymous)
+      ?
+      children
+      :
+      null
+    }
+  </Component>
+));
+
+HiddenIfSignedIn.propTypes = {
+  /** Component to wrap children in. */
+  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+};
+
+HiddenIfSignedIn.defaultProps = {
   component: 'div',
 };
