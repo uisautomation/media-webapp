@@ -162,6 +162,15 @@ export interface IPlaylistCreateResource {
   description?: string;
 }
 
+/** A playlist patch resource. */
+export interface IPlaylistPatchResource {
+  id: string;
+  channelId?: string;
+  title?: string;
+  description?: string;
+  mediaIds?: string[];
+}
+
 /** A playlist resource. */
 export interface IPlaylistResource {
   url?: string;
@@ -317,9 +326,9 @@ export const playlistCreate = (body: IPlaylistCreateResource) : Promise<IPlaylis
 };
 
 /** Patch an existing playlist resource. */
-export const playlistPatch = (item: IPlaylistResource) : Promise<IPlaylistResource | IError> => {
-  return apiFetch(API_ENDPOINTS.playlistList + item.id, {
-    body: JSON.stringify(item),
+export const playlistPatch = (playlist: IPlaylistPatchResource) : Promise<IPlaylistResource | IError> => {
+  return apiFetch(API_ENDPOINTS.playlistList + playlist.id, {
+    body: JSON.stringify(playlist),
     method: 'PATCH',
   });
 };

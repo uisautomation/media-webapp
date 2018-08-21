@@ -10,7 +10,7 @@ import { playlistGet, mediaResourceToItem } from '../api';
 import MediaList from '../components/MediaList';
 import RenderedMarkdown from '../components/RenderedMarkdown';
 import Page from "../containers/Page";
-import {withProfile} from "../providers/ProfileProvider";
+import RequiresEdit from "../containers/RequiresEdit";
 
 /**
  * A list of media for a playlist. Upon mount, it fetches the playlist with a list of the
@@ -76,32 +76,23 @@ const mediaListSectionStyles = theme => ({
 });
 
 /** A section of the body with a heading and a MediaList. */
-const MediaListSection = withProfile(withStyles(mediaListSectionStyles)(({
-  classes, profile, playlist: { id, channel, title, description }, MediaListProps, ...otherProps
+const MediaListSection = withStyles(mediaListSectionStyles)(({
+  classes, playlist: { id, channel, title, description }, MediaListProps, ...otherProps
 }) => {
-  // Check if the playlist is editable by checking it's channel against the list of editable
-  // channels in the profile.
-  const editable = (
-    profile && channel && profile.channels.find((el) => (el.id === channel.id))
-  );
   return (
     <section className={classes.root} {...otherProps}>
       <Toolbar className={classes.toolbar}>
         <Typography variant='display1' className={classes.title}>
           {title}
         </Typography>
-        {
-          editable
-          ?
+        <RequiresEdit channel={channel}>
           <Button component='a' color='primary' variant='contained'
                   href={'/playlists/' + id + '/edit'}
           >
             Edit
             <EditIcon className={classes.rightIcon}/>
           </Button>
-          :
-          null
-        }
+        </RequiresEdit>
       </Toolbar>
       <Typography variant='body1' component='div'>
         <RenderedMarkdown source={description}/>
@@ -118,6 +109,6 @@ const MediaListSection = withProfile(withStyles(mediaListSectionStyles)(({
       </Typography>
     </section>
   )
-}));
+});
 
 export default PlaylistPage;

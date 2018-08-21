@@ -14,6 +14,7 @@ import ReorderIcon from '@material-ui/icons/Reorder';
 import { playlistGet, playlistPatch, mediaResourceToItem } from '../api';
 import RenderedMarkdown from '../components/RenderedMarkdown';
 import Page from "../containers/Page";
+import RequiresEdit from "../containers/RequiresEdit";
 
 /**
  * A editable list of media for a playlist. Upon mount, it fetches the playlist with a list of the
@@ -25,7 +26,7 @@ class PlaylistEditPage extends Component {
 
     this.state = {
       // The playlist resource
-      playlist: null,
+      playlist: { id: '', items: [] },
 
       // The index of the items being dragged.
       dragStart: null,
@@ -69,11 +70,13 @@ class PlaylistEditPage extends Component {
       {
         playlist !== null
         ?
-        <EditableListSection
-          handleDragStart={(index) => this.handleDragStart(index)}
-          handleDrop={(index) => this.handleDrop(index)}
-          playlist={playlist}
-        />
+        <RequiresEdit channel={playlist.channel} displayOnFalse="You cannot edit this playlist.">
+          <EditableListSection
+            handleDragStart={(index) => this.handleDragStart(index)}
+            handleDrop={(index) => this.handleDrop(index)}
+            playlist={playlist}
+          />
+        </RequiresEdit>
         :
         null
       }
