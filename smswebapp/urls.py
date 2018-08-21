@@ -15,15 +15,17 @@ Including another URLconf
 """
 from django.conf import settings
 from django.contrib import admin
+from django.contrib.sitemaps.views import sitemap
 from django.urls import path, include
 
 import automationcommon.views
 
 from . import apiurls
+from ui.sitemaps import sitemaps
 
 # Django debug toolbar is only installed in developer builds
 try:
-    import debug_toolbar.urls
+    import debug_toolbar
     HAVE_DDT = True
 except ImportError:
     HAVE_DDT = False
@@ -34,11 +36,14 @@ urlpatterns = [
     path('healthz', automationcommon.views.status, name='status'),
     path('legacy/', include('legacysms.urls', namespace='legacysms')),
     path('', include('ui.urls', namespace='ui')),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps},
+         name='django.contrib.sitemaps.views.sitemap'),
+    path('robots.txt', include('robots.urls')),
 ] + apiurls.urlpatterns
 
 # Selectively enable django debug toolbar URLs. Only if the toolbar is
 # installed *and* DEBUG is True.
 if HAVE_DDT and settings.DEBUG:
     urlpatterns = [
-        path(r'^__debug__/', include(debug_toolbar.urls)),
+        path(r'__debug__/', include(debug_toolbar.urls)),
     ] + urlpatterns
