@@ -142,14 +142,14 @@ class EditableListSectionComponent extends Component {
 }
 
 const styles = theme => ({
-  section: {
-    marginTop: theme.spacing.unit * 2
+  action: {
+    marginRight: theme.spacing.unit
   },
   listItem: {
     backgroundColor: theme.palette.background.paper,
   },
-  action: {
-    marginRight: theme.spacing.unit
+  section: {
+    marginTop: theme.spacing.unit * 2
   },
 });
 
