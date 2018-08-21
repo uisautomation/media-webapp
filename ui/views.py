@@ -7,7 +7,7 @@ import logging
 from rest_framework import generics
 from rest_framework.renderers import TemplateHTMLRenderer
 
-from api import views as apiviews, permissions
+from api import views as apiviews
 from . import serializers
 
 LOG = logging.getLogger(__name__)
@@ -18,14 +18,6 @@ class MediaView(apiviews.MediaItemMixin, generics.RetrieveAPIView):
     serializer_class = serializers.MediaItemPageSerializer
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'ui/media.html'
-
-
-class MediaEditView(MediaView):
-    """Identical to MediaView except it throws 403 if user doesn't have edit permission
-    on the media item"""
-    permission_classes = MediaView.permission_classes + [
-        permissions.MediaPlatformEditPermission
-    ]
 
 
 class MediaItemAnalyticsView(apiviews.MediaItemMixin, generics.RetrieveAPIView):
