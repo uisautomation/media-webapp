@@ -38,7 +38,7 @@ class Page extends React.Component {
       <div className={ classes.page }>
         <AppBar
           classes={{root: classes.appBar}}
-          position="fixed"
+          position='absolute'
           defaultSearch={defaultSearch}
           onMenuClick={ this.handleDrawerToggle }
         >
@@ -68,18 +68,23 @@ class Page extends React.Component {
         <Hidden smDown implementation="css">
           <Drawer
             variant="permanent"
-            open
             classes={{
               paper: classes.drawerPaper,
             }}
           >
+            { /* used as a spacer */ }
+            <div className={classes.toolbar} />
             { drawer }
           </Drawer>
         </Hidden>
 
-        <div className={classes.body}>
-          <MotdBanner />
-          { children }
+        <div className={classes.content}>
+          { /* used as a spacer */ }
+          <div className={classes.toolbar} />
+          <main className={classes.body}>
+            <MotdBanner />
+            { children }
+          </main>
         </div>
 
         <Snackbar/>
@@ -98,23 +103,31 @@ Page.propTypes = {
 
 const styles = theme => ({
   appBar: {
-    [theme.breakpoints.up('md')]: {
-      width: `calc(100% - ${theme.dimensions.drawerWidth}px)`,
-    },
+    zIndex: theme.zIndex.drawer + 1,
   },
 
   drawerPaper: {
+    position: 'relative',
     width: theme.dimensions.drawerWidth,
   },
 
   page: {
-    minHeight: '100vh',
-    paddingTop: theme.spacing.unit * 8,
+    height: '100vh',
     width: '100%',
+    display: 'flex',
+    overflow: 'hidden',
+    display: 'flex',
+  },
+
+  content: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
   },
 
   body: {
-    margin: [[0, 'auto']],
+    flexGrow: 1,
+    overflowY: 'auto',
     paddingLeft: theme.spacing.unit * 2,
     paddingRight: theme.spacing.unit * 2,
 
@@ -122,11 +135,9 @@ const styles = theme => ({
       paddingLeft: theme.spacing.unit * 3,
       paddingRight: theme.spacing.unit * 3,
     },
-
-    [theme.breakpoints.up('md')]: {
-      marginLeft: theme.dimensions.drawerWidth,
-    },
   },
+
+  toolbar: theme.mixins.toolbar,
 });
 
 export default withStyles(styles)(Page);
