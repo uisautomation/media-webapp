@@ -48,3 +48,15 @@ OAUTH2_TOKEN_URL = 'http://hydra:4444/oauth2/token'
 LOOKUP_ROOT = 'http://lookupproxy:8080/'
 
 LOOKUP_SCHEME = 'mock'
+
+
+def _show_toolbar(request):
+    from django.conf import settings
+    return settings.DEBUG
+
+
+DEBUG_TOOLBAR_CONFIG = {
+    # Bypass the INTERNAL_IPS check since, within the development docker container, we don't know
+    # what the host IP is likely to be.
+    'SHOW_TOOLBAR_CALLBACK': _show_toolbar,
+}
