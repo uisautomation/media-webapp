@@ -117,7 +117,7 @@ const MediaListSection = withStyles(mediaListSectionStyles)(({
         <Typography variant='display1' className={classes.title}>
           {title}
         </Typography>
-        <IfOwnsChannel channel={channel}>
+        <IfOwnsChannel channel={channel} className={classes.buttons}>
           <Button component='a' color='primary' variant='contained'
                   href={'/playlists/' + id + '/edit'}
           >
