@@ -11,7 +11,7 @@ import ChannelSelect from '../containers/ChannelSelect';
 import ItemMetadataForm from "../components/ItemMetadataForm";
 import {playlistCreate} from "../api";
 import {setMessageForNextPageLoad} from "../containers/Snackbar";
-import RequiresEdit from "../containers/RequiresEdit";
+import IfOwnsAnyChannel from "../containers/IfOwnsAnyChannel";
 
 /**
  * A page which allows the user to create a new playlist.
@@ -47,7 +47,7 @@ class PlaylistCreatePageContents extends Component {
 
     return (
       <section className={classes.section}>
-        <RequiresEdit displayOnFalse="You have no channels in which create a playlist.">
+        <IfOwnsAnyChannel>
           <Grid container justify='center'>
             <Grid item xs={12} sm={10} md={8} lg={6}>
               <Typography variant="headline" component="div" className={classes.heading}>
@@ -69,7 +69,12 @@ class PlaylistCreatePageContents extends Component {
               </div>
             </Grid>
           </Grid>
-        </RequiresEdit>
+        </IfOwnsAnyChannel>
+        <IfOwnsAnyChannel hide>
+          <Typography variant="headline" component="div">
+            You have no channels in which create a playlist.
+          </Typography>
+        </IfOwnsAnyChannel>
       </section>
     );
   }

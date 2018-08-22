@@ -12,7 +12,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import Page from '../containers/Page';
 import RenderedMarkdown from '../components/RenderedMarkdown';
 import MediaItemProvider, { withMediaItem } from '../providers/MediaItemProvider';
-import RequiresEdit from "../containers/RequiresEdit";
+import IfOwnsChannel from "../containers/IfOwnsChannel";
 
 /** Given a list of sources, return the "best" source. */
 const bestSource = sources => {
@@ -77,14 +77,14 @@ const MediaPageContents = ({ item, classes }) => {
             {
               item && item.id
               ?
-              <RequiresEdit channel={item && item.channel} className={classes.fullWidth}>
+              <IfOwnsChannel channel={item.channel} className={classes.fullWidth}>
                 <Button component='a' variant='outlined' className={ classes.link }
                   href={ '/media/' + item.id + '/edit' } fullWidth
                 >
                   Edit
                   <EditIcon className={ classes.rightIcon } />
                 </Button>
-              </RequiresEdit>
+              </IfOwnsChannel>
               :
               null
             }
