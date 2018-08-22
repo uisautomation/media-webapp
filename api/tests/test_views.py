@@ -730,6 +730,32 @@ class PlaylistViewTestCase(ViewTestCase):
         response = self.view(self.get_request, pk=deleted_playlist.id)
         self.assertEqual(response.status_code, 404)
 
+    def test_delete_success(self):
+        """Check that a playlist is successfully deleted"""
+
+        # give user edit privilege
+        self.channel = mpmodels.Channel.objects.get(id='channel1')
+        self.channel.edit_permission.reset()
+        self.channel.edit_permission.crsids.append(self.user.username)
+        self.channel.edit_permission.save()
+
+        # test
+        self.client.force_login(self.user)
+        response = self.client.delete(reverse('api:playlist', kwargs={'pk': 'public'}))
+
+        self.assertEqual(response.status_code, 204)
+        self.assertIsNone(self.playlists.filter(id='public').first())
+
+    def test_delete_no_perm(self):
+        """Check that a user doesn't have permission to delete playlist"""
+
+        # test
+        self.client.force_login(self.user)
+        response = self.client.delete(reverse('api:playlist', kwargs={'pk': 'public'}))
+
+        self.assertEqual(response.status_code, 403)
+        self.assertIsNotNone(self.playlists.filter(id='public').first())
+
     def test_id_immutable(self):
         self.assert_field_immutable('id')
 
