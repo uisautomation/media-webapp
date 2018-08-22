@@ -10,7 +10,7 @@ import { playlistGet, mediaResourceToItem } from '../api';
 import MediaList from '../components/MediaList';
 import RenderedMarkdown from '../components/RenderedMarkdown';
 import Page from "../containers/Page";
-import RequiresEdit from "../containers/RequiresEdit";
+import IfOwnsChannel from "../containers/IfOwnsChannel";
 
 /**
  * A list of media for a playlist. Upon mount, it fetches the playlist with a list of the
@@ -85,14 +85,14 @@ const MediaListSection = withStyles(mediaListSectionStyles)(({
         <Typography variant='display1' className={classes.title}>
           {title}
         </Typography>
-        <RequiresEdit channel={channel}>
+        <IfOwnsChannel channel={channel}>
           <Button component='a' color='primary' variant='contained'
                   href={'/playlists/' + id + '/edit'}
           >
             Edit
             <EditIcon className={classes.rightIcon}/>
           </Button>
-        </RequiresEdit>
+        </IfOwnsChannel>
       </Toolbar>
       <Typography variant='body1' component='div'>
         <RenderedMarkdown source={description}/>
