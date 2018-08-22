@@ -123,6 +123,7 @@ const styles = theme => ({
   page: {
     display: 'flex',
     height: '100vh',
+    minHeight: '100vh',
     overflow: 'hidden',
     width: '100%',
   },
@@ -137,13 +138,6 @@ const styles = theme => ({
   body: {
     flexGrow: 1,
     overflowY: 'auto',
-    paddingLeft: theme.spacing.unit * 2,
-    paddingRight: theme.spacing.unit * 2,
-
-    [theme.breakpoints.up('sm')]: {
-      paddingLeft: theme.spacing.unit * 3,
-      paddingRight: theme.spacing.unit * 3,
-    },
   },
 
   toolbar: theme.mixins.toolbar,

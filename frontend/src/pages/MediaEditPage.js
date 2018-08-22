@@ -84,6 +84,7 @@ const styles = theme => ({
     textAlign: 'right',
   },
   section: {
+    ...theme.mixins.bodySection,
     marginTop: theme.spacing.unit,
   },
 });

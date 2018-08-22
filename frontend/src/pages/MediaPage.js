@@ -137,6 +137,7 @@ MediaPageContents.propTypes = {
 /* tslint:disable object-literal-sort-keys */
 var styles = theme => ({
   mediaDetails: {
+    ...theme.mixins.bodySection,
     marginTop: theme.spacing.unit * 2,
   },
   // The following rules specify that the player keep itself in 16:9 aspect ratio but is never
@@ -151,7 +152,6 @@ var styles = theme => ({
   //
   // The use of a 67.5% maximum height lets us keep the nice round figure for the maximum height.
   playerSection: {
-    marginTop: theme.spacing.unit,
     backgroundColor: 'black',
     maxHeight: '67.5vh',
     overflow: 'hidden',  // since the player wrapper below can sometimes overhang
