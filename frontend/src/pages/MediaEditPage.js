@@ -2,13 +2,14 @@ import React, { Component } from 'react';
 
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 
 import Page from '../containers/Page';
 import ItemMetadataForm from "../components/ItemMetadataForm";
 import {mediaGet, mediaPatch} from "../api";
 import { setMessageForNextPageLoad } from "../containers/Snackbar";
-import RequiresEdit from "../containers/RequiresEdit";
+import IfOwnsChannel from "../containers/IfOwnsChannel";
 
 /**
  * A page which allows the user to edit a media item's metadata.
@@ -54,8 +55,7 @@ class MediaEditPage extends Component {
     return (
       <Page>
         <section className={classes.section}>
-          <RequiresEdit channel={item && item.channel}
-                        displayOnFalse="You cannot edit this media item.">
+          <IfOwnsChannel channel={item && item.channel}>
             <Grid container justify='center'>
               <Grid item xs={12} sm={10} md={8} lg={6}>
                 <ItemMetadataForm
@@ -73,7 +73,12 @@ class MediaEditPage extends Component {
                 </div>
               </Grid>
             </Grid>
-          </RequiresEdit>
+          </IfOwnsChannel>
+          <IfOwnsChannel channel={item && item.channel} hide>
+            <Typography variant="headline" component="div">
+              You cannot edit this media item.
+            </Typography>
+          </IfOwnsChannel>
         </section>
       </Page>
     );

@@ -11,9 +11,9 @@ import { playlistGet, playlistDelete, mediaResourceToItem } from '../api';
 import MediaList from '../components/MediaList';
 import RenderedMarkdown from '../components/RenderedMarkdown';
 import Page from "../containers/Page";
-import RequiresEdit from "../containers/RequiresEdit";
 import DeletePlaylistDialog from "../containers/DeletePlaylistDialog";
 import {setMessageForNextPageLoad} from "../containers/Snackbar";
+import IfOwnsChannel from "../containers/IfOwnsChannel";
 
 /**
  * A list of media for a playlist. Upon mount, it fetches the playlist with a list of the
@@ -117,7 +117,7 @@ const MediaListSection = withStyles(mediaListSectionStyles)(({
         <Typography variant='display1' className={classes.title}>
           {title}
         </Typography>
-        <RequiresEdit channel={channel} className={classes.buttons}>
+        <IfOwnsChannel channel={channel}>
           <Button component='a' color='primary' variant='contained'
                   href={'/playlists/' + id + '/edit'}
           >
@@ -128,7 +128,7 @@ const MediaListSection = withStyles(mediaListSectionStyles)(({
             Delete
             <DeleteIcon className={classes.rightIcon}/>
           </Button>
-        </RequiresEdit>
+        </IfOwnsChannel>
       </Toolbar>
       <Typography variant='body1' component='div'>
         <RenderedMarkdown source={description}/>
