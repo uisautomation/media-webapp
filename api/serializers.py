@@ -364,7 +364,7 @@ class PlaylistDetailSerializer(PlaylistSerializer):
     channel = ChannelSerializer(read_only=True)
 
     media = serializers.SerializerMethodField(
-        help_text="Naturally Ordered list of the playlist's media items")
+        help_text="Ordered list of the playlist's media items")
 
     def get_media(self, obj):
         """This method serializer retrieves the playlist's media items
