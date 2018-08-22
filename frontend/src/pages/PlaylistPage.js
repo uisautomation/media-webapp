@@ -85,6 +85,12 @@ class PlaylistPage extends Component {
 }
 
 const mediaListSectionStyles = theme => ({
+  buttons: {
+    '& a': {
+      marginRight: theme.spacing.unit,
+    },
+    display: 'inline-flex',
+  },
   rightIcon: {
     marginLeft: theme.spacing.unit,
   },
@@ -98,12 +104,6 @@ const mediaListSectionStyles = theme => ({
   toolbar: {
     paddingLeft: 0,
   },
-  buttons: {
-    display: 'inline-flex',
-    '& a': {
-      marginRight: theme.spacing.unit,
-    },
-  }
 });
 
 /** A section of the body with a heading and a MediaList. */

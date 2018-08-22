@@ -31,9 +31,9 @@ const DeletePlaylistDialog = ({ title, isOpen, handleConfirmDelete }) => (
 );
 
 DeletePlaylistDialog.propTypes = {
+  handleConfirmDelete: PropTypes.func.isRequired,
   isOpen: PropTypes.bool.isRequired,
   title: PropTypes.string.isRequired,
-  handleConfirmDelete: PropTypes.func.isRequired,
 };
 
 export default DeletePlaylistDialog
