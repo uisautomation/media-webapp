@@ -10,26 +10,25 @@ import AppBar from "../components/AppBar";
 import MotdBanner from "../components/MotdBanner";
 import ProfileButtonContainer from "./ProfileButtonContainer";
 import Snackbar from "./Snackbar";
-
-import RequiresEdit from "./RequiresEdit";
+import IfOwnsAnyChannel from "./IfOwnsAnyChannel";
 
 /**
- * A top level component that wraps all pages to give then elements common to all page, the ``AppBar``
- * etc.
+ * A top level component that wraps all pages to give then elements common to all page,
+ * the ``AppBar`` etc.
  */
 const Page = (
   { defaultSearch, classes, children }
 ) => (
       <div className={ classes.page }>
         <AppBar position="fixed" defaultSearch={defaultSearch}>
-          <RequiresEdit>
+          <IfOwnsAnyChannel>
             <IconButton color="inherit" component="a" href="/media/new">
               <UploadIcon />
             </IconButton>
             <IconButton color="inherit" component="a" href="/playlists/new">
               <PlaylistAddIcon />
             </IconButton>
-          </RequiresEdit>
+          </IfOwnsAnyChannel>
           <ProfileButtonContainer
             className={ classes.rightButton } variant="flat" color="inherit"
           />
