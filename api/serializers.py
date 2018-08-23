@@ -231,10 +231,22 @@ class SourceSerializer(serializers.Serializer):
     A download source for a particular media type.
 
     """
-    mimeType = serializers.CharField(help_text="The resource's MIME type")
-    url = serializers.URLField(help_text="The resource's URL")
+    mimeType = serializers.CharField(source='mime_type', help_text="The resource's MIME type")
+    url = serializers.SerializerMethodField(help_text="The resource's URL")
     width = serializers.IntegerField(help_text='The video width', required=False)
     height = serializers.IntegerField(help_text='The video height', required=False)
+
+    def get_url(self, source):
+        query = QueryDict(mutable=True)
+        query['mimeType'] = source.mime_type
+        if source.width is not None:
+            query['width'] = f'{source.width}'
+        if source.height is not None:
+            query['height'] = f'{source.height}'
+        url = reverse('api:media_source', kwargs={'pk': source.item.id}) + '?' + query.urlencode()
+        if 'request' in self.context:
+            url = self.context['request'].build_absolute_uri(url)
+        return url
 
 
 class MediaUploadSerializer(serializers.Serializer):
@@ -263,30 +275,11 @@ class MediaItemDetailSerializer(MediaItemSerializer):
 
     channel = ChannelSerializer(read_only=True)
 
-    sources = serializers.SerializerMethodField()
+    sources = SourceSerializer(many=True, read_only=True)
 
     legacyStatisticsUrl = serializers.SerializerMethodField()
 
     bestSourceUrl = serializers.SerializerMethodField()
-
-    def get_sources(self, obj):
-        sources = [self._source_to_dict(source, obj) for source in obj.get_sources()]
-        return SourceSerializer(sources, many=True).data
-
-    def _source_to_dict(self, source, item):
-        query = QueryDict(mutable=True)
-        query['mimeType'] = source.mime_type
-        if source.width is not None:
-            query['width'] = f'{source.width}'
-        if source.height is not None:
-            query['height'] = f'{source.height}'
-        url = reverse('api:media_source', kwargs={'pk': item.id}) + '?' + query.urlencode()
-        if 'request' in self.context:
-            url = self.context['request'].build_absolute_uri(url)
-        return {
-            'url': url, 'width': source.width, 'height': source.height,
-            'mimeType': source.mime_type,
-        }
 
     def get_legacyStatisticsUrl(self, obj):
         if not hasattr(obj, 'sms'):
@@ -295,7 +288,7 @@ class MediaItemDetailSerializer(MediaItemSerializer):
             settings.LEGACY_SMS_FRONTEND_URL, f'media/{obj.sms.id:d}/statistics')
 
     def get_bestSourceUrl(self, obj):
-        if len(obj.get_sources()) == 0:
+        if len(obj.sources) == 0:
             return None
         url = reverse('api:media_source', kwargs={'pk': obj.id})
         if 'request' in self.context:

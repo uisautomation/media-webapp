@@ -10,6 +10,7 @@ from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils.functional import cached_property
 from iso639 import languages
 
 from mediaplatform_jwp import delivery as jwp_delivery
@@ -189,6 +190,10 @@ class MediaItem(models.Model):
     class Source:
         """An encoded media stream for a media item."""
 
+        #: MediaItem for this source (post Python3.7, we'll be able to refer to MediaItem as the
+        #: type.)
+        item: object
+
         #: Media type of the stream
         mime_type: str
 
@@ -288,9 +293,12 @@ class MediaItem(models.Model):
         Set the *only_if_downloadable* parameter to ``True`` to skip this check.
 
         """
-        if not self.downloadable and only_if_downloadable:
+        if (not self.downloadable and only_if_downloadable) or not hasattr(self, 'jwp'):
             return []
-        return jwp_delivery.sources_for_item(self)
+        return self.jwp.sources
+
+    #: Cached property which calls get_sources() to retrieve sources.
+    sources = cached_property(get_sources, name='sources')
 
     def get_embed_url(self):
         """

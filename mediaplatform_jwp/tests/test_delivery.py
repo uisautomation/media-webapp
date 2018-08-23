@@ -5,8 +5,6 @@ from django.test import TestCase
 from smsjwplatform import jwplatform
 from mediaplatform import models as mpmodels
 
-from .. import delivery
-
 
 class SourcesTestCase(TestCase):
     fixtures = ['mediaplatform_jwp/tests/fixtures/mediaitems.yaml']
@@ -21,13 +19,15 @@ class SourcesTestCase(TestCase):
         """If an item has no associated JWP video, sources list is empty."""
         item = mpmodels.MediaItem.objects.get(id='empty')
         self.assertFalse(hasattr(item, 'jwp'))
-        self.assertEqual(delivery.sources_for_item(item), [])
+        self.assertEqual(item.sources, [])
 
     def test_wp_item(self):
         """If an item has an associated JWP video, the sources list is returned."""
         item = mpmodels.MediaItem.objects.get(id='existing')
+        item.downloadable = True
+        item.save()
         self.assertTrue(hasattr(item, 'jwp'))
-        source_urls = set(source.url for source in delivery.sources_for_item(item))
+        source_urls = set(source.url for source in item.sources)
         expected_urls = set(source['file'] for source in DELIVERY_VIDEO_FIXTURE['sources'])
         self.assertEqual(source_urls, expected_urls)
 
