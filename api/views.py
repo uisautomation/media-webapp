@@ -4,9 +4,14 @@ Views implementing the API endpoints.
 """
 import logging
 
+from django.conf import settings
 from django.db import models
+from django.http import Http404
 from django_filters import rest_framework as df_filters
-from rest_framework import generics, pagination, filters
+from drf_yasg import inspectors, openapi
+from rest_framework import generics, pagination, filters, views
+from rest_framework.exceptions import ParseError
+from django.shortcuts import redirect, render
 
 import mediaplatform.models as mpmodels
 
@@ -178,6 +183,110 @@ class MediaItemUploadView(MediaItemMixin, generics.RetrieveUpdateAPIView):
         return super().get_queryset().select_related('upload_endpoint')
 
 
+class MediaItemEmbedViewInspector(inspectors.ViewInspector):
+    def get_operation(self, operation_keys):
+        return openapi.Operation(
+            operation_id='media_embed',
+            responses=openapi.Responses(
+                {302: openapi.Response(description='Media embed page')}
+            ),
+            tags=['media'],
+        )
+
+
+class MediaItemEmbedView(MediaItemMixin, generics.RetrieveAPIView):
+    """
+    Endpoint to retrieve a media item as an embedded IFrame.
+
+    """
+    swagger_schema = MediaItemEmbedViewInspector
+
+    def retrieve(self, request, *args, **kwargs):
+        item = self.get_object()
+        url = item.get_embed_url()
+
+        # If the item has no associated embed URL, return a 404.
+        if url is None:
+            raise Http404()
+
+        return redirect(url)
+
+
+class MediaItemSourceViewInspector(inspectors.ViewInspector):
+    def get_operation(self, operation_keys):
+        return openapi.Operation(
+            operation_id='media_source',
+            responses=openapi.Responses(
+                {302: openapi.Response(description='Media source stream')}
+            ),
+            parameters=[
+                openapi.Parameter(
+                    name='mimeType', in_=openapi.IN_QUERY,
+                    description='MIME type of media source',
+                    type=openapi.TYPE_STRING
+                ),
+                openapi.Parameter(
+                    name='width', in_=openapi.IN_QUERY,
+                    description='Width of media source',
+                    type=openapi.TYPE_INTEGER
+                ),
+                openapi.Parameter(
+                    name='height', in_=openapi.IN_QUERY,
+                    description='Height of media source',
+                    type=openapi.TYPE_INTEGER
+                ),
+            ],
+            tags=['media'],
+        )
+
+
+class MediaItemSourceView(MediaItemMixin, generics.RetrieveAPIView):
+    """
+    Endpoint to retrieve a media item source stream
+
+    """
+    swagger_schema = MediaItemSourceViewInspector
+
+    def retrieve(self, request, *args, **kwargs):
+        item = self.get_object()
+        mime_type = request.GET.get('mimeType')
+        width = request.GET.get('width')
+        height = request.GET.get('height')
+
+        try:
+            if width is not None:
+                width = int(width)
+            if height is not None:
+                height = int(height)
+        except ValueError:
+            raise ParseError()
+
+        if mime_type is None and width is None and height is None:
+            # If nothing was specified, return the "best" source.
+            video_sources = [
+                source for source in item.get_sources()
+                if source.mime_type.startswith('video/') and source.height is not None
+            ]
+            audio_sources = [
+                source for source in item.get_sources()
+                if source.mime_type.startswith('audio/')
+            ]
+
+            if len(video_sources) == 0 and len(audio_sources) != 0:
+                # No video sources, return any of the audio sources
+                return redirect(audio_sources.pop().url)
+            elif len(video_sources) != 0:
+                # Sort videos by descending height
+                return redirect(sorted(video_sources, key=lambda s: -s.height)[0].url)
+        else:
+            for source in item.get_sources():
+                if (source.mime_type == mime_type and source.width == width
+                        and source.height == height):
+                    return redirect(source.url)
+
+        raise Http404()
+
+
 class MediaItemAnalyticsView(MediaItemMixin, generics.RetrieveAPIView):
     """
     Endpoint to retrieve the analytics for a single media item.
@@ -295,3 +404,21 @@ class PlaylistView(PlaylistMixin, generics.RetrieveUpdateAPIView):
 
     """
     serializer_class = serializers.PlaylistDetailSerializer
+
+
+def exception_handler(exc, context):
+    """
+    A custom exception handler which handles 404s on embed views by rendering a template which
+    suggests the user log in.
+
+    """
+    view = context['view'] if 'view' in context else None
+    if not isinstance(view, MediaItemEmbedView) or not isinstance(exc, Http404):
+        return views.exception_handler(exc, context)
+
+    new_context = {
+        'settings': settings,
+        'login_url': '%s?next=%s' % (settings.LOGIN_URL, context['request'].get_full_path()),
+    }
+    new_context.update(context)
+    return render(context['request'], 'api/embed_404.html', status=404, context=new_context)

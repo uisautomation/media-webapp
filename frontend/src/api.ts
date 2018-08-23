@@ -73,10 +73,6 @@ export interface IMediaSource {
   height?: number;
 }
 
-export interface IMediaLinks {
-  legacyStatisticsUrl: string;
-}
-
 /** A media resource. */
 export interface IMediaCreateResource {
   title: string;
@@ -102,7 +98,8 @@ export interface IMediaResource {
   tags: string[];
   posterImageUrl: string;
   sources?: IMediaSource[];
-  links?: IMediaLinks;
+  embedUrl?: string;
+  legacyStatisticsUrl?: string;
 };
 
 /** A media upload resource. */
