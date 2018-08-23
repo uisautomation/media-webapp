@@ -37,6 +37,7 @@ const styles = theme => ({
     backgroundColor: 'rgba(0, 0, 0, 0.08)',
     borderBottom: [[1, 'solid', theme.palette.divider]],
     display: 'flex',
+    marginBottom: -1,
     ...theme.mixins.toolbar,
   },
 
