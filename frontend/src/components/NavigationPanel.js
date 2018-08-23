@@ -1,7 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { Link } from 'react-router-dom'
+
 import Avatar from '@material-ui/core/Avatar';
+import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -13,28 +16,41 @@ import LatestMediaIcon from '@material-ui/icons/NewReleases';
 
 /** Side panel for the current user providing navigation links. */
 const NavigationPanel = ({ profile, classes }) => <div className={ classes.root }>
+  <div className={ classes.profileBar }>
   {
     profile && !profile.isAnonymous
     ?
     <div>
-      <div className={ classes.profileBar }>
-        <Avatar
-          alt={ profile.displayName }
-          classes={{ root: classes.avatar }}
-          src={ profile.avatarImageUrl }
-        >
-          { profile.avatarImageUrl ? null : profile.displayName[0] }
-        </Avatar>
-        <Typography variant='title'>{ profile.displayName }</Typography>
-        <Typography variant='caption'>{ profile.username }</Typography>
-      </div>
-      <Divider />
+      <Avatar
+        alt={ profile.displayName }
+        classes={{ root: classes.avatar }}
+        src={ profile.avatarImageUrl }
+      >
+        { profile.avatarImageUrl ? null : profile.displayName[0] }
+      </Avatar>
+      <Typography variant='title'>{ profile.displayName }</Typography>
+      <Typography variant='caption'>{ profile.username }</Typography>
     </div>
     :
     null
   }
+  {
+    profile && profile.isAnonymous
+    ?
+    <div>
+      <Button
+        color='primary' variant='outlined' fullWidth component='a' href='/accounts/login'
+      >
+        Sign in with Raven
+      </Button>
+    </div>
+    :
+    null
+  }
+  </div>
+  <Divider />
   <List>
-    <ListItem button component='a' href='/'>
+    <ListItem button component={Link} to='/'>
       <ListItemText primary="Latest Media" />
     </ListItem>
     {
