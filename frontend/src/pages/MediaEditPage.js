@@ -5,6 +5,7 @@ import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
 
 import Page from '../containers/Page';
+import BodySection from '../components/BodySection';
 import ItemMetadataForm from "../components/ItemMetadataForm";
 import {mediaGet, mediaPatch} from "../api";
 import { setMessageForNextPageLoad } from "../containers/Snackbar";
@@ -50,8 +51,8 @@ class MediaEditPage extends Component {
     const { classes } = this.props;
     const { item, errors } = this.state;
     return (
-      <Page>
-        <section className={classes.section}>
+      <Page gutterTop>
+        <BodySection>
           <Grid container justify='center'>
             <Grid item xs={12} sm={10} md={8} lg={6}>
               <ItemMetadataForm
@@ -69,7 +70,7 @@ class MediaEditPage extends Component {
               </div>
             </Grid>
           </Grid>
-        </section>
+        </BodySection>
       </Page>
     );
   }
@@ -82,10 +83,6 @@ const styles = theme => ({
     },
     marginTop: theme.spacing.unit,
     textAlign: 'right',
-  },
-  section: {
-    ...theme.mixins.bodySection,
-    marginTop: theme.spacing.unit,
   },
 });
 

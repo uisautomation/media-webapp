@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 
 import {Chart} from "react-google-charts";
+import BodySection from '../components/BodySection';
 import Page from "../containers/Page";
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
@@ -40,7 +41,7 @@ class AnalyticsPage extends Component {
 
     return (
       <Page>
-        <section className={ classes.section }>
+        <BodySection classes={{ root: classes.section }}>
           <Grid container spacing={16} >
             <Grid item xs={12}>
               <Typography variant="headline" component="div">
@@ -48,8 +49,8 @@ class AnalyticsPage extends Component {
               </Typography>
             </Grid>
           </Grid>
-        </section>
-        <section className={ classes.section }>
+        </BodySection>
+        <BodySection classes={{ root: classes.section }}>
           <div className={ classes.chartContainer }>
             {
               chartData.length > 1
@@ -67,8 +68,8 @@ class AnalyticsPage extends Component {
               </Typography>
             }
           </div>
-        </section>
-        <section className={ classes.section }>
+        </BodySection>
+        <BodySection classes={{ root: classes.section }}>
           <Grid container spacing={16}>
             <Grid item xs={12}>
               <Typography variant="headline" component="div">
@@ -93,7 +94,7 @@ class AnalyticsPage extends Component {
               }
             </Grid>
           </Grid>
-        </section>
+        </BodySection>
       </Page>
     );
   }
@@ -158,7 +159,6 @@ const addDays = (date, days) => {
 /* tslint:disable object-literal-sort-keys */
 var styles = theme => ({
   section: {
-    ...theme.mixins.bodySection,
     marginTop: theme.spacing.unit,
   },
   chartContainer: {
