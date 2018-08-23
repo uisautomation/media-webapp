@@ -96,7 +96,9 @@ class AppBar extends Component {
           >
             <SearchIcon />
           </IconButton>
-          { children }
+          <div className={classes.rightButton}>
+            { children }
+          </div>
       </Toolbar>
     );
 
@@ -166,6 +168,10 @@ const styles = theme => ({
   leftButton: {
     marginLeft: -1.5 * theme.spacing.unit,
     marginRight: 1.5 * theme.spacing.unit,
+  },
+
+  rightButton: {
+    marginRight: -1.5 * theme.spacing.unit,
   },
 
   searchButton: {
