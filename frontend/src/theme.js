@@ -11,6 +11,10 @@ import { createMuiTheme } from '@material-ui/core/styles';
 
 const defaultTheme = createMuiTheme();
 
+const serifFont = {
+  fontFamily: ['"Merriweather"', 'serif'],
+};
+
 const theme = createMuiTheme({
   // This palette was designed using the material palette design tool and University style
   // guidelines:
@@ -29,21 +33,25 @@ const theme = createMuiTheme({
       dark: '#bd8d0f',
       contrastText: '#000',
     },
+    background: {
+      default: '#f3f3f3',
+    },
   },
   dimensions: {
     drawerWidth: 30 * 8,
   },
-  mixins: {
-    // A section of the body of the page which has the left and right padding set to match the
-    // padding of the app bar. This padding depends on screen size.
-    bodySection: {
-      paddingLeft: defaultTheme.spacing.unit * 2,
-      paddingRight: defaultTheme.spacing.unit * 2,
+  overrides: {
+    MuiTypography: {
+      display1: { ...serifFont },
+      display2: { ...serifFont },
+      display3: { ...serifFont },
+      display4: { ...serifFont },
+      headline: { ...serifFont },
+      title: { ...serifFont },
+    },
 
-      [defaultTheme.breakpoints.up('sm')]: {
-        paddingLeft: defaultTheme.spacing.unit * 3,
-        paddingRight: defaultTheme.spacing.unit * 3,
-      },
+    MediaItemCard: {
+      title: { ...serifFont },
     },
   },
 });
