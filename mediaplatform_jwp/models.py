@@ -1,5 +1,6 @@
 import logging
 
+from django.conf import settings
 from django.db import models
 from django.utils.functional import cached_property
 
@@ -55,6 +56,16 @@ class Video(models.Model):
 
     #: A property which calls get_sources and caches the result.
     sources = cached_property(get_sources, name='sources')
+
+    @property
+    def embed_url(self):
+        """
+        Return a URL with an embed view of a :py:class:`mediaplatform.MediaItem`. Returns ``None``
+        if there is no JWP video associated with the item.
+        """
+        return jwplatform.player_embed_url(
+            self.key, settings.JWPLATFORM_EMBED_PLAYER_KEY, format='html'
+        )
 
 
 class Channel(models.Model):

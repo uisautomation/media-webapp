@@ -13,8 +13,6 @@ from django.dispatch import receiver
 from django.utils.functional import cached_property
 from iso639 import languages
 
-from mediaplatform_jwp import delivery as jwp_delivery
-
 
 #: The number of bytes of entropy in the tokens returned by _make_token.
 _TOKEN_ENTROPY = 8
@@ -306,7 +304,9 @@ class MediaItem(models.Model):
         the media unconditionally; it does not respect any view permissions.
 
         """
-        return jwp_delivery.embed_url_for_item(self)
+        if not hasattr(self, 'jwp'):
+            return None
+        return self.jwp.embed_url
 
 
 class Permission(models.Model):
