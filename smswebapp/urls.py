@@ -25,7 +25,7 @@ from ui.sitemaps import sitemaps
 
 # Django debug toolbar is only installed in developer builds
 try:
-    import debug_toolbar.urls
+    import debug_toolbar
     HAVE_DDT = True
 except ImportError:
     HAVE_DDT = False
@@ -45,5 +45,5 @@ urlpatterns = [
 # installed *and* DEBUG is True.
 if HAVE_DDT and settings.DEBUG:
     urlpatterns = [
-        path(r'^__debug__/', include(debug_toolbar.urls)),
+        path(r'__debug__/', include(debug_toolbar.urls)),
     ] + urlpatterns
