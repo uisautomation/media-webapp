@@ -37,6 +37,7 @@ ReactDOM.render(
           <Route exact={true} path="/playlists/:pk" component={PlaylistPage} />
         </Switch>
         <Route exact={true} path="/about" component={StaticTextPage} />
+        <Route exact={true} path="/changelog" component={StaticTextPage} />
       </ProfileProvider>
     </MuiThemeProvider>
   </BrowserRouter>,
