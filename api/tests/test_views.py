@@ -4,7 +4,8 @@ from unittest import mock
 from dateutil import parser as dateparser
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
-from django.test import TestCase
+from django.http import QueryDict
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from rest_framework.test import APIRequestFactory, force_authenticate
 
@@ -248,9 +249,6 @@ class MediaItemViewTestCase(ViewTestCase):
             response.data['posterImageUrl']
         )
         self.assertIsNotNone(response.data['duration'])
-        self.assertTrue(response.data['links']['embedUrl'].startswith(
-            'https://content.jwplatform.com/players/{}-someplayer.html'.format(item.jwp.key)
-        ))
 
     def test_video_not_found(self):
         """Check that a 404 is returned if no media is found"""
@@ -412,6 +410,156 @@ class MediaItemViewTestCase(ViewTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             getattr(self.non_deleted_media.get(id='populated'), model_field_name), original_value)
+
+
+@override_settings(
+    JWPLATFORM_API_BASE_URL='http://jwp.invalid/',
+    JWPLATFORM_EMBED_PLAYER_KEY='mock-key',
+)
+class MediaItemEmbedTestCase(ViewTestCase):
+    def setUp(self):
+        super().setUp()
+        self.view = views.MediaItemEmbedView().as_view()
+        self.item = self.non_deleted_media.get(id='populated')
+
+    def test_basic_functionality(self):
+        with mock.patch('time.time') as time:
+            time.return_value = 123456
+            expected_url = api.player_embed_url(self.item.jwp.key, 'mock-key', format='html')
+            response = self.view(self.get_request, pk=self.item.id)
+        self.assertRedirects(response, expected_url, fetch_redirect_response=False)
+
+    def test_visibility(self):
+        """If an item has no visibility, the embed view should 404."""
+        self.item.view_permission.reset()
+        self.item.view_permission.save()
+        self.item.channel.edit_permission.reset()
+        self.item.channel.edit_permission.save()
+        response = self.view(self.get_request, pk=self.item.id)
+        self.assertEqual(response.status_code, 404)
+
+    def test_no_jwp(self):
+        """If an item has no JWP video, the embed view should 404."""
+        self.item.jwp.delete()
+        response = self.view(self.get_request, pk=self.item.id)
+        self.assertEqual(response.status_code, 404)
+
+    def test_custom_404(self):
+        """For embed views, there is a custom 404 template."""
+        non_existent_id = self.item.id + 'with-non-existent-suffix'
+        login_url = '/mock/login/url'
+        with self.settings(LOGIN_URL=login_url):
+            response = self.client.get(
+                reverse('api:media_embed', kwargs={'pk': non_existent_id}))
+        self.assertEqual(response.status_code, 404)
+        self.assertTemplateUsed(response, 'api/embed_404.html')
+        self.assertIn(login_url, response.content.decode('utf8'))
+
+    def test_custom_404_hides_login_if_not_signed_in(self):
+        """For embed views, do not show the login link if the user is logged in."""
+        non_existent_id = self.item.id + 'with-non-existent-suffix'
+        login_url = '/mock/login/url'
+        with self.settings(LOGIN_URL=login_url):
+            self.client.force_login(self.user)
+            response = self.client.get(
+                reverse('api:media_embed', kwargs={'pk': non_existent_id}))
+        self.assertEqual(response.status_code, 404)
+        self.assertTemplateUsed(response, 'api/embed_404.html')
+        self.assertNotIn(login_url, response.content.decode('utf8'))
+
+
+class MediaItemSourceViewTestCase(ViewTestCase):
+    def setUp(self):
+        super().setUp()
+        self.view = views.MediaItemSourceView().as_view()
+        self.item = self.non_deleted_media.get(id='populated')
+        self.dv_from_key_patcher = mock.patch('smsjwplatform.jwplatform.DeliveryVideo.from_key')
+        self.dv_from_key = self.dv_from_key_patcher.start()
+        self.dv_from_key.return_value = api.DeliveryVideo(DELIVERY_VIDEO_FIXTURE)
+        self.addCleanup(self.dv_from_key_patcher.stop)
+
+        # Make sure item is downloadable
+        self.item.downloadable = True
+        self.item.save()
+
+    def test_basic_functionality(self):
+        source = DELIVERY_VIDEO_FIXTURE['sources'][0]
+        response = self.get(
+            mime_type=source['type'], width=source['width'], height=source['height'])
+        self.assertRedirects(response, source['file'], fetch_redirect_response=False)
+
+    def test_visibility(self):
+        """If an item has no visibility, the source view should 404."""
+        self.item.view_permission.reset()
+        self.item.view_permission.save()
+        self.item.channel.edit_permission.reset()
+        self.item.channel.edit_permission.save()
+        source = DELIVERY_VIDEO_FIXTURE['sources'][0]
+        response = self.get(
+            mime_type=source['type'], width=source['width'], height=source['height'])
+        self.assertEqual(response.status_code, 404)
+
+    def test_bad_width(self):
+        """Non-integer width raises 400"""
+        response = self.get(mime_type='video/mp4', width='1.23', height='1')
+        self.assertEqual(response.status_code, 400)
+
+    def test_bad_height(self):
+        """Non-integer height raises 400"""
+        response = self.get(mime_type='video/mp4', height='1.23', width='1')
+        self.assertEqual(response.status_code, 400)
+
+    def test_no_args(self):
+        """Passing no arguments returns the "best" source."""
+        sources = [
+            {
+                'type': 'video/mp4', 'width': 720, 'height': 406,
+                'file': 'http://cdn.invalid/vid2.mp4',
+            },
+            {
+                'type': 'video/mp4', 'width': 1920, 'height': 1080,
+                'file': 'http://cdn.invalid/vid1.mp4',
+            },
+            {
+                'type': 'audio/mp4', 'file': 'http://cdn.invalid/vid_audio.mp4',
+            },
+        ]
+        self.dv_from_key.return_value = api.DeliveryVideo({
+            **DELIVERY_VIDEO_FIXTURE, 'sources': sources
+        })
+        source = sources[1]
+        response = self.get()
+        self.assertRedirects(response, source['file'], fetch_redirect_response=False)
+
+    def test_audio_best_source(self):
+        """Best source will include audio if that is all there is."""
+        sources = [
+            {
+                'type': 'something/else', 'file': 'http://cdn.invalid/vid_odd.mp4',
+            },
+            {
+                'type': 'audio/mp4', 'file': 'http://cdn.invalid/vid_audio.mp4',
+            },
+        ]
+        self.dv_from_key.return_value = api.DeliveryVideo({
+            **DELIVERY_VIDEO_FIXTURE, 'sources': sources
+        })
+        source = sources[1]
+        response = self.get()
+        self.assertRedirects(response, source['file'], fetch_redirect_response=False)
+
+    def get(self, mime_type=None, width=None, height=None, item=None):
+        item = item if item is not None else self.item
+        query = QueryDict(mutable=True)
+        if mime_type is not None:
+            query['mimeType'] = mime_type
+        if width is not None:
+            query['width'] = f'{width}'
+        if height is not None:
+            query['height'] = f'{height}'
+        return self.client.get(
+            reverse('api:media_source', kwargs={'pk': item.id}) + '?' + query.urlencode()
+        )
 
 
 class UploadEndpointTestCase(ViewTestCase):
@@ -810,4 +958,14 @@ DELIVERY_VIDEO_FIXTURE = {
     'duration': 54,
     'sms_acl': 'acl:WORLD:',
     'sms_media_id': 'media:1234:',
+    'sources': [
+        {
+            'type': 'video/mp4', 'width': 1920, 'height': 1080,
+            'file': 'http://cdn.invalid/vid1.mp4',
+        },
+        {
+            'type': 'video/mp4', 'width': 720, 'height': 406,
+            'file': 'http://cdn.invalid/vid2.mp4',
+        },
+    ],
 }

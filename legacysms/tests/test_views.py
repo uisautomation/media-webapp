@@ -6,7 +6,6 @@ import copy
 from contextlib import contextmanager
 from unittest import mock
 
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.test import TestCase
@@ -41,67 +40,10 @@ class EmbedTest(TestCaseWithFixtures):
         """
         # Try to embed a video
         r = self.client.get(reverse('legacysms:embed', kwargs={'media_id': 34}))
-        self.assertEqual(r.status_code, 200)
-
-        # Check that an appropriate URL fragment is in the response
-        self.assertIn('players/{}-{}.js'.format(
-            'myvideokey', settings.JWPLATFORM_EMBED_PLAYER_KEY), r.content.decode('utf8'))
-
-    def test_video_embed(self):
-        """
-        Test basic functionality of embed client with an explicit video embed.
-
-        """
-        # Try to embed a video
-        r = self.client.get(
-            reverse('legacysms:embed', kwargs={'media_id': 34}) + '?format=video')
-        self.assertEqual(r.status_code, 200)
-
-        # Check that an appropriate URL fragment is in the response
-        self.assertIn('players/{}-{}.js'.format(
-            'myvideokey', settings.JWPLATFORM_EMBED_PLAYER_KEY), r.content.decode('utf8'))
-
-    def test_audio_embed(self):
-        """
-        Test basic functionality of embed client with an explicit audio embed.
-
-        """
-        # Try to embed an audio stream
-        r = self.client.get(
-            reverse('legacysms:embed', kwargs={'media_id': 34}) + '?format=audio')
-        self.assertEqual(r.status_code, 200)
-
-        # Check that an appropriate URL fragment is in the response
-        self.assertIn('players/{}-{}.js'.format(
-            'myaudiokey', settings.JWPLATFORM_EMBED_PLAYER_KEY), r.content.decode('utf8'))
-
-    def test_no_permission(self):
-        """
-        Tests the behaviour when the user's identity (if any) doesn't match the ACL.
-
-        """
-        with mock.patch('smsjwplatform.jwplatform.Video.from_media_id') as from_media_id:
-            from_media_id.return_value = api.Video({
-                'key': 'video-key',
-                'custom': {
-                    'sms_acl': 'acl:USER_mb2174:',
-                    'sms_media_id': 'media:34:',
-                }
-            })
-            self.assertEqual(api.Video.from_media_id(34).acl, ['USER_mb2174'])
-
-            r = self.client.get(reverse('legacysms:embed', kwargs={'media_id': 34}))
-            self.assertEqual(r.status_code, 403)
-            self.assertTemplateUsed(r, 'legacysms/403.html')
-            # a login_url indicates the template will ask the user to login
-            self.assertIn("login_url", r.context)
-
-            self.client.force_login(User.objects.create(username='spqr1'))
-            r = self.client.get(reverse('legacysms:embed', kwargs={'media_id': 34}))
-            self.assertEqual(r.status_code, 403)
-            self.assertTemplateUsed(r, 'legacysms/403.html')
-            # no login_url indicates the template will say the user has no permission
-            self.assertNotIn("login_url", r.context)
+        item = mpmodels.MediaItem.objects.get(sms__id=34)
+        self.assertRedirects(
+            r, reverse('api:media_embed', kwargs={'pk': item.id}),
+            fetch_redirect_response=False)
 
     def test_no_media(self):
         """

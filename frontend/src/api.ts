@@ -73,11 +73,7 @@ export interface IMediaSource {
   height?: number;
 }
 
-export interface IMediaLinks {
-  legacyStatisticsUrl: string;
-}
-
-/** A media create resource. */
+/** A media resource. */
 export interface IMediaCreateResource {
   channelId: string;
   title: string;
@@ -114,7 +110,8 @@ export interface IMediaResource {
   tags: string[];
   posterImageUrl: string;
   sources?: IMediaSource[];
-  links?: IMediaLinks;
+  embedUrl?: string;
+  legacyStatisticsUrl?: string;
 };
 
 /** A media upload resource. */
