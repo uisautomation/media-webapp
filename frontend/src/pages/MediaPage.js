@@ -12,9 +12,9 @@ import EditIcon from '@material-ui/icons/Edit';
 import Page from '../containers/Page';
 import BodySection from '../components/BodySection';
 import RenderedMarkdown from '../components/RenderedMarkdown';
-import {withProfile} from "../providers/ProfileProvider";
 
 import FetchMediaItem from '../containers/FetchMediaItem';
+import IfOwnsChannel from "../containers/IfOwnsChannel";
 
 /**
  * The media item page
@@ -52,13 +52,7 @@ const bestSource = sources => {
   return null;
 };
 
-const MediaPageContents = ({ profile, resource: item, classes }) => {
-  // Check if the item is editable by checking it's channel against the list of editable channels
-  // in the profile.
-  const editable = (
-    profile && item && item.channel && profile.channels.find((el) => (el.id === item.channel.id))
-  );
-
+const MediaPageContents = ({ resource: item, classes }) => {
   const source =
     (item && item.sources) ? bestSource(item.sources) : null;
 
@@ -67,7 +61,7 @@ const MediaPageContents = ({ profile, resource: item, classes }) => {
       <section className={ classes.playerSection }>
         <div className={ classes.playerWrapper }>
           <iframe
-            src={ (item && item.links) ? item.links.embedUrl : '' }
+            src={ item ? item.embedUrl : '' }
             className={ classes.player }
             frameBorder="0"
             allowFullScreen>
@@ -99,14 +93,16 @@ const MediaPageContents = ({ profile, resource: item, classes }) => {
               null
             }
             {
-              editable
+              item && item.id
               ?
-              <Button component='a' variant='outlined' className={ classes.link }
-                href={ '/media/' + item.id + '/edit' } fullWidth
-              >
-                Edit
-                <EditIcon className={ classes.rightIcon } />
-              </Button>
+              <IfOwnsChannel channel={item.channel} className={classes.fullWidth}>
+                <Button component='a' variant='outlined' className={ classes.link }
+                  href={ '/media/' + item.id + '/edit' } fullWidth
+                >
+                  Edit
+                  <EditIcon className={ classes.rightIcon } />
+                </Button>
+              </IfOwnsChannel>
               :
               null
             }
@@ -182,11 +178,12 @@ var styles = theme => ({
       marginBottom: theme.spacing.unit,
     },
   },
+  fullWidth: {
+    width: '100%',
+  }
 });
 /* tslint:enable */
 
-const ConnectedMediaPageContents = withProfile(
-  withStyles(styles)(MediaPageContents)
-);
+const ConnectedMediaPageContents = withStyles(styles)(MediaPageContents);
 
 export default MediaPage;

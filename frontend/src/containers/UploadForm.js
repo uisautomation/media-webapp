@@ -1,15 +1,10 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 
 import PublishIcon from '@material-ui/icons/Publish';
 
 import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
 import Step from '@material-ui/core/Step';
 import StepContent from '@material-ui/core/StepContent';
 import StepLabel from '@material-ui/core/StepLabel';
@@ -20,7 +15,8 @@ import { withStyles } from '@material-ui/core/styles';
 
 import MediaDropzone from '../components/MediaDropzone';
 import ItemMetadataForm from '../components/ItemMetadataForm';
-import { mediaCreate, mediaPatch, mediaUploadGet, profileGet } from '../api';
+import { mediaCreate, mediaPatch, mediaUploadGet, } from '../api';
+import ChannelSelect from "./ChannelSelect";
 
 /**
  * A container component which takes a media item resource and upload endpoint via its props and
@@ -65,9 +61,6 @@ class UploadForm extends Component {
       // Has the item started to be published?
       publishStarted: false,
 
-      // The current user's profile
-      profile: null,
-
       // Did the item upload fail?
       uploadFailed: false,
 
@@ -86,13 +79,10 @@ class UploadForm extends Component {
       channelId,
       draftItem,
       errors,
-      fileToUpload,
-      profile,
       publishStarted,
       uploadProgress,
       uploadSucceeded,
     } = this.state;
-    const channels = profile ? profile.channels : [];
 
     return (
       <Stepper activeStep={ activeStep  } orientation='vertical'>
@@ -102,27 +92,9 @@ class UploadForm extends Component {
             <Typography>
               Select which of your channels this media item should be uploaded to.
             </Typography>
-
-            <FormControl fullWidth>
-              <InputLabel htmlFor="upload-channelId">Channel</InputLabel>
-              <Select
-                value={ channelId !== null ? channelId : '' }
-                onChange={
-                  event => this.setState({ channelId: event.target.value, activeStep: 1 })
-                }
-                inputProps={{
-                  id: 'upload-channelId',
-                }}
-              >
-                {
-                  channels.map(channel => (
-                    <MenuItem key={ channel.id } value={ channel.id }>
-                      { channel.title }
-                    </MenuItem>
-                  ))
-                }
-              </Select>
-            </FormControl>
+            <ChannelSelect channelId={ channelId } onChange={
+              event => this.setState({ channelId: event.target.value, activeStep: 1 })
+            } />
           </StepContent>
         </Step>
 
@@ -172,10 +144,6 @@ class UploadForm extends Component {
         </Step>
       </Stepper>
     );
-  }
-
-  componentDidMount() {
-    profileGet().then(profile => this.setState({ profile }));
   }
 
   /** Called when the user has selected a file. */

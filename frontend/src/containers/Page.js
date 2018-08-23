@@ -8,19 +8,21 @@ import Hidden from '@material-ui/core/Hidden';
 import { withStyles } from '@material-ui/core/styles';
 
 import UploadIcon from '@material-ui/icons/CloudUpload';
+import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
 
 import AppBar from "../components/AppBar";
 import MotdBanner from "../components/MotdBanner";
 import NavigationPanel from "../components/NavigationPanel";
 import Snackbar from "./Snackbar";
+import IfOwnsAnyChannel from "./IfOwnsAnyChannel";
 
 import { withProfile } from "../providers/ProfileProvider";
 
 const ConnectedNavigationPanel = withProfile(NavigationPanel);
 
 /**
- * A top level component that wraps all pages to give then elements common to all page, the ``AppBar``
- * etc.
+ * A top level component that wraps all pages to give then elements common to all page,
+ * the ``AppBar`` etc.
  */
 class Page extends React.Component {
   state = {
@@ -44,11 +46,14 @@ class Page extends React.Component {
           defaultSearch={defaultSearch}
           onMenuClick={ this.handleDrawerToggle }
         >
-          <HiddenIfNoChannels>
-            <IconButton color="inherit" component="a" href="/upload">
+          <IfOwnsAnyChannel>
+            <IconButton color="inherit" component="a" href="/media/new">
               <UploadIcon />
             </IconButton>
-          </HiddenIfNoChannels>
+            <IconButton color="inherit" component="a" href="/playlists/new">
+              <PlaylistAddIcon />
+            </IconButton>
+          </IfOwnsAnyChannel>
         </AppBar>
 
         <Hidden mdUp>
@@ -160,47 +165,3 @@ const styles = theme => ({
 });
 
 export default withStyles(styles)(Page);
-
-/** A component which renders its children only if the profile has editable channels. */
-const HiddenIfNoChannels = withProfile(({ profile, children, component: Component }) => (
-  <Component>
-    {
-      (profile && profile.channels && (profile.channels.length > 0))
-      ?
-      children
-      :
-      null
-    }
-  </Component>
-));
-
-HiddenIfNoChannels.propTypes = {
-  /** Component to wrap children in. */
-  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
-};
-
-HiddenIfNoChannels.defaultProps = {
-  component: 'div',
-};
-
-/** A component which renders its children only if the profile is signed in */
-const HiddenIfSignedIn = withProfile(({ profile, children, component: Component }) => (
-  <Component>
-    {
-      (!profile || profile.isAnonymous)
-      ?
-      children
-      :
-      null
-    }
-  </Component>
-));
-
-HiddenIfSignedIn.propTypes = {
-  /** Component to wrap children in. */
-  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
-};
-
-HiddenIfSignedIn.defaultProps = {
-  component: 'div',
-};
