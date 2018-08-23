@@ -10,18 +10,18 @@ import AnalyticsIcon from '@material-ui/icons/ShowChart';
 import EditIcon from '@material-ui/icons/Edit';
 
 import Page from '../containers/Page';
+import BodySection from '../components/BodySection';
 import RenderedMarkdown from '../components/RenderedMarkdown';
-import MediaItemProvider, { withMediaItem } from '../providers/MediaItemProvider';
 import {withProfile} from "../providers/ProfileProvider";
+
+import FetchMediaItem from '../containers/FetchMediaItem';
 
 /**
  * The media item page
  */
 const MediaPage = ({ match: { params: { pk } }, classes }) => (
   <Page>
-    <MediaItemProvider id={ pk }>
-      <ConnectedMediaPageContents />
-    </MediaItemProvider>
+    <FetchMediaItem id={ pk } component={ ConnectedMediaPageContents } />
   </Page>
 );
 
@@ -52,7 +52,7 @@ const bestSource = sources => {
   return null;
 };
 
-const MediaPageContents = ({ profile, item, classes }) => {
+const MediaPageContents = ({ profile, resource: item, classes }) => {
   // Check if the item is editable by checking it's channel against the list of editable channels
   // in the profile.
   const editable = (
@@ -74,7 +74,7 @@ const MediaPageContents = ({ profile, item, classes }) => {
           </iframe>
         </div>
       </section>
-      <section className={ classes.mediaDetails }>
+      <BodySection classes={{ root: classes.mediaDetails }}>
         <Grid container spacing={16}>
           <Grid container item xs={12} md={9} lg={10}>
             <Grid item xs={12}>
@@ -84,7 +84,7 @@ const MediaPageContents = ({ profile, item, classes }) => {
               <RenderedMarkdown source={ item ? item.description : '' }/>
             </Grid>
           </Grid>
-          <Grid container item xs={12} md={3} lg={2} className={classes.buttonStack}>
+          <Grid item xs={12} md={3} lg={2} className={classes.buttonStack}>
             {
               source
               ?
@@ -124,7 +124,7 @@ const MediaPageContents = ({ profile, item, classes }) => {
             }
           </Grid>
         </Grid>
-      </section>
+      </BodySection>
     </div>
   );
 }
@@ -185,8 +185,8 @@ var styles = theme => ({
 });
 /* tslint:enable */
 
-const ConnectedMediaPageContents = withProfile(withMediaItem(
+const ConnectedMediaPageContents = withProfile(
   withStyles(styles)(MediaPageContents)
-));
+);
 
-export default withStyles(styles)(MediaPage);
+export default MediaPage;
