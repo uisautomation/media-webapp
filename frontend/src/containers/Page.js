@@ -32,7 +32,7 @@ class Page extends React.Component {
   };
 
   render() {
-    const { defaultSearch, classes, children } = this.props;
+    const { defaultSearch, classes, children, gutterTop } = this.props;
     const { mobileDrawerOpen } = this.state;
     const drawer = <ConnectedNavigationPanel />;
 
@@ -49,13 +49,6 @@ class Page extends React.Component {
               <UploadIcon />
             </IconButton>
           </HiddenIfNoChannels>
-          <Hidden smDown implementation="css">
-            <HiddenIfSignedIn>
-              <Button variant="contained" color="secondary" component="a" href="/accounts/login">
-                Sign in
-              </Button>
-            </HiddenIfSignedIn>
-          </Hidden>
         </AppBar>
 
         <Hidden mdUp>
@@ -90,9 +83,11 @@ class Page extends React.Component {
         <div className={classes.content}>
           { /* used as a spacer */ }
           <div className={classes.toolbar} />
-          <main className={classes.body}>
+          <main className={classes.main}>
             <MotdBanner />
-            { children }
+            <div className={ [classes.children, gutterTop ? classes.gutterTop : ''].join(' ') }>
+              { children }
+            </div>
           </main>
         </div>
 
@@ -108,6 +103,13 @@ Page.propTypes = {
 
   /** Default search text to populate the search form with. */
   defaultSearch: PropTypes.string,
+
+  /** Should the page have a gutter between the top and the content? */
+  gutterTop: PropTypes.bool,
+};
+
+Page.defaultProps = {
+  gutterTop: false,
 };
 
 const styles = theme => ({
@@ -118,6 +120,10 @@ const styles = theme => ({
   drawerPaper: {
     position: 'relative',
     width: theme.dimensions.drawerWidth,
+  },
+
+  children: {
+    flexGrow: 1,
   },
 
   page: {
@@ -135,7 +141,17 @@ const styles = theme => ({
     maxWidth: '100%',
   },
 
-  body: {
+  gutterTop: {
+    paddingTop: theme.spacing.unit * 2,
+
+    [theme.breakpoints.up('sm')]: {
+      paddingTop: theme.spacing.unit * 3,
+    },
+  },
+
+  main: {
+    display: 'flex',
+    flexDirection: 'column',
     flexGrow: 1,
     overflowY: 'auto',
   },
