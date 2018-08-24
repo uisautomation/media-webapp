@@ -624,6 +624,17 @@ class PlaylistTest(ModelTestCase):
         # only 'public' can be viewed
         self.assertEqual(media_items.first().id, 'public')
 
+    def test_fetched_media_items_in_order(self):
+        """The Playlist fetched_media_items_in_order property returns :py:class:`~.MediaItem`
+        objects in the correct order and doesn't fail for non-existant items."""
+        playlist = models.Playlist.objects.get(id='public')
+        media = playlist.fetched_media_items_in_order
+        self.assertEqual(len(media), 2)
+        self.assertIsInstance(media[0], models.MediaItem)
+        self.assertIsInstance(media[1], models.MediaItem)
+        self.assertEqual(media[0].id, 'public')
+        self.assertEqual(media[1].id, 'signedin')
+
     def test_playlist_in_public_channel_editable_by_anon(self):
         """An playlist in a channel with public editable permissions is editable by anonymous."""
         playlist = models.Playlist.objects.get(id='emptyperm')
