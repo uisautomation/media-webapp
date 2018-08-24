@@ -119,7 +119,7 @@ class EditableListSectionComponent extends Component {
               {media.map(mediaResourceToItem).map((item, index) => (
                 <div key={index} ref={'item-' + index}
                      onDragOver={event => event.preventDefault()}
-                     onDrop={() => handleDrop(index)}
+                     onDrop={(event) => {event.preventDefault(); handleDrop(index)}}
                 >
                   <ListItem button className={classes.listItem}>
                     <Avatar src={item.imageUrl}/>
@@ -129,11 +129,16 @@ class EditableListSectionComponent extends Component {
                         draggable={true}
                         onDragStart={event => {
                           handleDragStart(index);
-                          // Displays the ghost item correctly
-                          const ghost = this.refs['item-' + index];
-                          const x = ghost.clientWidth - 20;
-                          const y = ghost.clientHeight / 2;
-                          event.dataTransfer.setDragImage(ghost, x, y);
+                          // setDragImage not supported for IE
+                          if (typeof event.dataTransfer.setDragImage === "function") {
+                            // Displays the ghost item correctly
+                            const ghost = this.refs['item-' + index];
+                            const x = ghost.clientWidth - 20;
+                            const y = ghost.clientHeight / 2;
+                            event.dataTransfer.setDragImage(ghost, x, y);
+                          }
+                          // this is required for FF compat
+                          event.dataTransfer.setData('text', "it doesn't matter");
                         }}
                       >
                         <ReorderIcon/>
