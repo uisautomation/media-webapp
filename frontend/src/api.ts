@@ -247,8 +247,12 @@ export const apiFetch = (
       }))
     }
 
-    // Parse response body as JSON
-    return response.json();
+    // Parse response body as JSON (unless it was a delete).
+
+    if (init.method === 'DELETE') {
+      return null;
+    }
+    return response.json()
   })
   .catch(error => {
     // Always log any API errors we get.
@@ -343,6 +347,13 @@ export const playlistPatch = (playlist: IPlaylistPatchResource) : Promise<IPlayl
   return apiFetch(API_ENDPOINTS.playlistList + playlist.id, {
     body: JSON.stringify(playlist),
     method: 'PATCH',
+  });
+};
+
+/** Delete an existing playlist resource. */
+export const playlistDelete = (playlistId: string) : Promise<void | IError> => {
+  return apiFetch(API_ENDPOINTS.playlistList + playlistId, {
+    method: 'DELETE',
   });
 };
 

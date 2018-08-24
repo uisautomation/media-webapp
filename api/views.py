@@ -420,7 +420,7 @@ class PlaylistListView(PlaylistListMixin, generics.ListCreateAPIView):
         return qs.annotate(createdAt=models.F('created_at'), updatedAt=models.F('updated_at'))
 
 
-class PlaylistView(PlaylistMixin, generics.RetrieveUpdateAPIView):
+class PlaylistView(PlaylistMixin, generics.RetrieveUpdateDestroyAPIView):
     """
     Endpoint to retrieve an individual playlists.
 
