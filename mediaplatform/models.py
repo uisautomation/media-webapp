@@ -662,12 +662,14 @@ class Playlist(models.Model):
     #: visible.
     deleted_at = models.DateTimeField(null=True, blank=True)
 
-    def fetch_media(self):
+    @cached_property
+    def fetched_media_items_in_order(self):
         """Helper method that fetch the playlist's :py:class:`~.MediaItem` objects
         ordering them as defined by media_items."""
         media_items_by_id = {
             item.id: item
             for item in MediaItem.objects.filter(id__in=self.media_items)
+                .select_related('jwp')
         }
         return [media_items_by_id[id] for id in self.media_items if id in media_items_by_id]
 
