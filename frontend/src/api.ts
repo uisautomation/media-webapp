@@ -65,6 +65,13 @@ export interface IError {
   response?: Response,
 };
 
+/** A generic list of resources returned from a resource list endpoint. */
+export interface IResourceListResponse<Resource> {
+  results: Resource[];
+  next?: string;
+  previous?: string;
+};
+
 /** A media download source. */
 export interface IMediaSource {
   mimeType: string;
@@ -121,17 +128,14 @@ export interface IMediaUploadResource {
 };
 
 /** A media list response. */
-export interface IMediaListResponse {
-  results: IMediaResource[];
-  limit: number;
-  offset: number;
-  total: number;
-};
+type IMediaListResponse = IResourceListResponse<IMediaResource>;
 
 /** A query to the media list endpoint. */
 export interface IMediaQuery {
   search?: string;
   ordering?: string;
+  channel?: string;
+  playlist?: string;
 };
 
 /** A profile response. */
@@ -139,6 +143,13 @@ export interface IProfileResponse {
   isAnonymous: boolean;
   username?: string;
   channels: IChannelResource[];
+  displayName?: string;
+  avatarImageUrl?: string;
+};
+
+/** A query to the channel list endpoint. */
+export interface IChannelQuery {
+  search?: string;
 };
 
 /** A channel resource. */
@@ -150,6 +161,14 @@ export interface IChannelResource {
   mediaUrl: string;
   updatedAt: string;
   createdAt: string;
+};
+
+/** A channel list response. */
+type IChannelListResponse = IResourceListResponse<IChannelResource>;
+
+/** A query to the playlist list endpoint. */
+export interface IPlaylistQuery {
+  search?: string;
 };
 
 /** A playlist create resource. */
@@ -170,6 +189,9 @@ export interface IPlaylistResource {
   updatedAt: string;
   createdAt: string;
 };
+
+/** A playlist list response. */
+type IPlaylistListResponse = IResourceListResponse<IPlaylistResource>;
 
 export interface IAPIOptions {
   /** Endpoint to use instead of default. */
@@ -194,7 +216,7 @@ export const API_ENDPOINTS = {
  */
 export const apiFetch = (
   input: string | Request, init: RequestInit = {}
-): Promise<any | IError> => (
+): Promise<any> => (
   fetch(input, {
     credentials: 'include',
     ...init,
@@ -231,15 +253,13 @@ export const apiFetch = (
 
 /** List media resources. */
 export const mediaList = (
-  { search, ordering }: IMediaQuery = {},
-  { endpoint }: IAPIOptions = {}
-): Promise<IMediaListResponse | IError> => {
-  return apiFetch(
-    appendQuery(endpoint || API_ENDPOINTS.mediaList, { search, ordering }));
+  query: IMediaQuery = {}, { endpoint }: IAPIOptions = {}
+): Promise<IMediaListResponse> => {
+  return apiFetch(appendQuery(endpoint || API_ENDPOINTS.mediaList, query));
 };
 
 /** Create a new media resource. */
-export const mediaCreate = (body: IMediaCreateResource) : Promise<IMediaResource | IError> => {
+export const mediaCreate = (body: IMediaCreateResource) : Promise<IMediaResource> => {
   return apiFetch(API_ENDPOINTS.mediaList, {
     body: JSON.stringify(body),
     method: 'POST',
@@ -247,14 +267,14 @@ export const mediaCreate = (body: IMediaCreateResource) : Promise<IMediaResource
 };
 
 /** Retrieve a media resource. */
-export const mediaGet = (id: string) : Promise<IMediaListResponse | IError> => {
+export const mediaGet = (id: string) : Promise<IMediaListResponse> => {
   const resource = resourceFromPageById(id);
   if (resource) { return Promise.resolve(resource); }
   return apiFetch(API_ENDPOINTS.mediaList + id);
 };
 
 /** Patch an existing media resource. */
-export const mediaPatch = (item: IMediaPatchResource) : Promise<IMediaResource | IError> => {
+export const mediaPatch = (item: IMediaPatchResource) : Promise<IMediaResource> => {
   return apiFetch(API_ENDPOINTS.mediaList + item.id, {
     body: JSON.stringify(item),
     method: 'PATCH',
@@ -262,28 +282,26 @@ export const mediaPatch = (item: IMediaPatchResource) : Promise<IMediaResource |
 };
 
 /** Retrieve upload endpoint for a media item. */
-export const mediaUploadGet = (item: IMediaResource) : Promise<IMediaUploadResource | IError> => {
+export const mediaUploadGet = (item: IMediaResource) : Promise<IMediaUploadResource> => {
   // TODO: decide if we want to use the URL in @id rather than key here,
   return apiFetch(API_ENDPOINTS.mediaList + item.id + '/upload');
 };
 
 /** Fetch the user's profile. */
-export const profileGet = (): Promise<IProfileResponse | IError> => {
+export const profileGet = (): Promise<IProfileResponse> => {
   if(PROFILE_FROM_PAGE) { return Promise.resolve(PROFILE_FROM_PAGE); }
   return apiFetch(API_ENDPOINTS.profile);
 }
 
 /** List channel resources. */
 export const channelList = (
-  { search, ordering }: IMediaQuery = {},
-  { endpoint }: IAPIOptions = {}
-): Promise<IMediaListResponse | IError> => {
-  return apiFetch(
-    appendQuery(endpoint || API_ENDPOINTS.channelList, { search, ordering }));
+  query: IChannelQuery = {}, { endpoint }: IAPIOptions = {}
+): Promise<IChannelListResponse> => {
+  return apiFetch(appendQuery(endpoint || API_ENDPOINTS.channelList, query));
 };
 
 /** Retrieve a channel resource. */
-export const channelGet = (id: string) : Promise<IChannelResource | IError> => {
+export const channelGet = (id: string) : Promise<IChannelResource> => {
   const resource = resourceFromPageById(id);
   if (resource) { return Promise.resolve(resource); }
   return apiFetch(API_ENDPOINTS.channelList + id);
@@ -291,15 +309,13 @@ export const channelGet = (id: string) : Promise<IChannelResource | IError> => {
 
 /** List playlist resources. */
 export const playlistList = (
-  { search, ordering }: IMediaQuery = {},
-  { endpoint }: IAPIOptions = {}
-): Promise<IMediaListResponse | IError> => {
-  return apiFetch(
-    appendQuery(endpoint || API_ENDPOINTS.playlistList, { search, ordering }));
+  query: IChannelQuery = {}, { endpoint }: IAPIOptions = {}
+): Promise<IPlaylistListResponse> => {
+  return apiFetch(appendQuery(endpoint || API_ENDPOINTS.playlistList, query));
 };
 
 /** Retrieve a playlist resource. */
-export const playlistGet = (id: string) : Promise<IPlaylistResource | IError> => {
+export const playlistGet = (id: string) : Promise<IPlaylistResource> => {
   const resource = resourceFromPageById(id);
   if (resource) { return Promise.resolve(resource); }
   return apiFetch(API_ENDPOINTS.playlistList + id);

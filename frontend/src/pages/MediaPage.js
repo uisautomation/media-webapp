@@ -10,9 +10,28 @@ import AnalyticsIcon from '@material-ui/icons/ShowChart';
 import EditIcon from '@material-ui/icons/Edit';
 
 import Page from '../containers/Page';
+import BodySection from '../components/BodySection';
 import RenderedMarkdown from '../components/RenderedMarkdown';
-import MediaItemProvider, { withMediaItem } from '../providers/MediaItemProvider';
+
+import FetchMediaItem from '../containers/FetchMediaItem';
 import IfOwnsChannel from "../containers/IfOwnsChannel";
+
+/**
+ * The media item page
+ */
+const MediaPage = ({ match: { params: { pk } }, classes }) => (
+  <Page>
+    <FetchMediaItem id={ pk } component={ ConnectedMediaPageContents } />
+  </Page>
+);
+
+MediaPage.propTypes = {
+  match: PropTypes.shape({
+    params: PropTypes.shape({
+      pk: PropTypes.string.isRequired,
+    }).isRequired,
+  }).isRequired,
+};
 
 /** Given a list of sources, return the "best" source. */
 const bestSource = sources => {
@@ -33,8 +52,7 @@ const bestSource = sources => {
   return null;
 };
 
-const MediaPageContents = ({ item, classes }) => {
-
+const MediaPageContents = ({ resource: item, classes }) => {
   const source =
     (item && item.sources) ? bestSource(item.sources) : null;
 
@@ -50,7 +68,7 @@ const MediaPageContents = ({ item, classes }) => {
           </iframe>
         </div>
       </section>
-      <section className={ classes.mediaDetails }>
+      <BodySection classes={{ root: classes.mediaDetails }}>
         <Grid container spacing={16}>
           <Grid container item xs={12} md={9} lg={10}>
             <Grid item xs={12}>
@@ -60,7 +78,7 @@ const MediaPageContents = ({ item, classes }) => {
               <RenderedMarkdown source={ item ? item.description : '' }/>
             </Grid>
           </Grid>
-          <Grid container item xs={12} md={3} lg={2} className={classes.buttonStack}>
+          <Grid item xs={12} md={3} lg={2} className={classes.buttonStack}>
             {
               source
               ?
@@ -102,7 +120,7 @@ const MediaPageContents = ({ item, classes }) => {
             }
           </Grid>
         </Grid>
-      </section>
+      </BodySection>
     </div>
   );
 }
@@ -115,6 +133,7 @@ MediaPageContents.propTypes = {
 /* tslint:disable object-literal-sort-keys */
 var styles = theme => ({
   mediaDetails: {
+    ...theme.mixins.bodySection,
     marginTop: theme.spacing.unit * 2,
   },
   // The following rules specify that the player keep itself in 16:9 aspect ratio but is never
@@ -129,7 +148,6 @@ var styles = theme => ({
   //
   // The use of a 67.5% maximum height lets us keep the nice round figure for the maximum height.
   playerSection: {
-    marginTop: theme.spacing.unit,
     backgroundColor: 'black',
     maxHeight: '67.5vh',
     overflow: 'hidden',  // since the player wrapper below can sometimes overhang
@@ -166,25 +184,6 @@ var styles = theme => ({
 });
 /* tslint:enable */
 
-const ConnectedMediaPageContents = withMediaItem(withStyles(styles)(MediaPageContents));
-
-/**
- * The media item page
- */
-const MediaPage = ({ match: { params: { pk } } }) => (
-  <Page>
-    <MediaItemProvider id={ pk }>
-      <ConnectedMediaPageContents />
-    </MediaItemProvider>
-  </Page>
-);
-
-MediaPage.propTypes = {
-  match: PropTypes.shape({
-    params: PropTypes.shape({
-      pk: PropTypes.string.isRequired,
-    }).isRequired,
-  }).isRequired,
-};
+const ConnectedMediaPageContents = withStyles(styles)(MediaPageContents);
 
 export default MediaPage;

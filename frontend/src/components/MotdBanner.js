@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
-import Divider from '@material-ui/core/Divider';
-import Hidden from '@material-ui/core/Hidden';
 import { withStyles } from '@material-ui/core/styles';
+
+import BodySection from '../components/BodySection';
 
 import ReleaseTag from './ReleaseTag';
 
@@ -15,10 +15,10 @@ import ReleaseTag from './ReleaseTag';
  * Any unknown properties supplied will be spread to the root component.
  */
 const MotdBanner = ({
-  classes, component: Component, ...otherProps
+  classes, ...otherProps
 }) => (
-  <Component component='div' className={classes.root} {...otherProps}>
-    <div className={classes.message}>
+  <BodySection classes={{ root: classes.root }}>
+    <Typography component='div' variant='body1' classes={{ root: classes.message }}>
       <div className={classes.left}>
         <ReleaseTag style={{marginRight: '0.5ex'}}>alpha</ReleaseTag>
         {' '}This service is in development.{' '} { /* whitespace coalescing in JSX sux! */ }
@@ -29,23 +29,23 @@ const MotdBanner = ({
           What's new?
         </Button>
       </div>
-    </div>
-    <Divider />
-  </Component>
+    </Typography>
+  </BodySection>
 )
 
 MotdBanner.propTypes = {
-  /** Base component for the control. */
-  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
 };
 
 MotdBanner.defaultProps = {
-  component: Typography,
 };
 
 const styles = theme => ({
   root: {
-    marginTop: theme.spacing.unit * 2,
+    backgroundColor: 'rgba(0, 0, 0, 0.08)',
+    borderBottom: [[1, 'solid', theme.palette.divider]],
+    display: 'flex',
+    marginBottom: -1,
+    ...theme.mixins.toolbar,
   },
 
   left: {
@@ -61,9 +61,10 @@ const styles = theme => ({
   },
 
   message: {
+    alignItems: 'center',
     display: 'flex',
+    flexGrow: 1,
     justifyContent: 'space-between',
-    paddingBottom: theme.spacing.unit,
   },
 
   link: {

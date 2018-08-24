@@ -6,6 +6,7 @@ from unittest import mock
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AnonymousUser
 from django.test import override_settings
 from django.urls import reverse
 
@@ -21,6 +22,11 @@ class ViewTestCase(_ViewTestCase):
         self.mock_from_id = dv_patch.start()
         self.mock_from_id.return_value = api.DeliveryVideo(DELIVERY_VIDEO_FIXTURE)
         self.addCleanup(dv_patch.stop)
+
+        get_profile_patch = mock.patch('api.views.get_profile')
+        self.get_profile = get_profile_patch.start()
+        self.get_profile.return_value = {'user': AnonymousUser()}
+        self.addCleanup(get_profile_patch.stop)
 
 
 class MediaViewTestCase(ViewTestCase):

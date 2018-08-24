@@ -105,16 +105,12 @@ services:
       dockerfile: ./compose/development.frontend.Dockerfile
 
     volumes:
-      # For the frontend, mount the local frontend directories inside the container
+      # For the frontend, mount the local frontend directory inside the container
       # as a volume to allow local changes to be reflected without having to
       # re-build the container.
       - type: bind
-        source: ../frontend/src
-        target: /usr/src/app/src
-        read_only: true
-      - type: bind
-        source: ../frontend/public
-        target: /usr/src/app/public
+        source: ../frontend/
+        target: /usr/src/app/
         read_only: true
     expose:
       - "6060"
