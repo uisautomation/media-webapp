@@ -43,7 +43,7 @@ const MediaPageContents = ({ item, classes }) => {
       <section className={ classes.playerSection }>
         <div className={ classes.playerWrapper }>
           <iframe
-            src={ (item && item.links) ? item.links.embedUrl : '' }
+            src={ item ? item.embedUrl : '' }
             className={ classes.player }
             frameBorder="0"
             allowFullScreen>

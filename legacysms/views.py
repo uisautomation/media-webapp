@@ -3,9 +3,8 @@ Django views.
 
 """
 import logging
-from django.conf import settings
 from django.http import Http404, HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.urls import reverse
 import requests
 
@@ -36,27 +35,16 @@ def embed(request, media_id):
     In :py:mod:`~.urls` this view is named ``smsjwplatform:embed``.
 
     """
-    try:
-        video = api.Video.from_media_id(
-            media_id, preferred_media_type=request.GET.get('format', 'video'))
-    except api.VideoNotFoundError:
-        # If we cannot find the item, simply redirect to the legacy SMS. We ignore the format
-        # parameter here because this redirect will only be for new media items and the embedding
-        # HTML no longer includes the format parameter.
+    item = (
+        mpmodels.MediaItem.objects.all().viewable_by_user(request.user)
+        .filter(sms__id=media_id).first()
+    )
+
+    # If we can't find the item, redirect back to SMS to see if it knows about it
+    if item is None:
         return legacyredirect.media_embed(media_id)
 
-    try:
-        video.check_user_access(request.user)
-    except api.ResourceACLPermissionDenied:
-        context = {
-            'login_url': '%s?next=%s' % (settings.LOGIN_URL, request.path)
-        } if request.user.is_anonymous else {}
-        return render(request, 'legacysms/403.html', context, status=403)
-
-    url = api.player_embed_url(video.key, settings.JWPLATFORM_EMBED_PLAYER_KEY, 'js')
-    return render(request, 'legacysms/embed.html', {
-        'embed_url': url,
-    })
+    return redirect(reverse('api:media_embed', kwargs={'pk': item.id}))
 
 
 def rss_media(request, media_id):

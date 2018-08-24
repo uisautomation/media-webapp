@@ -1,5 +1,7 @@
+import dataclasses
 import itertools
 import secrets
+import typing
 
 import automationlookup
 from django.conf import settings
@@ -8,6 +10,7 @@ from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils.functional import cached_property
 from iso639 import languages
 
 
@@ -181,6 +184,26 @@ class MediaItem(models.Model):
     most fields.
 
     """
+    @dataclasses.dataclass
+    class Source:
+        """An encoded media stream for a media item."""
+
+        #: MediaItem for this source (post Python3.7, we'll be able to refer to MediaItem as the
+        #: type.)
+        item: object
+
+        #: Media type of the stream
+        mime_type: str
+
+        #: URL pointing to this source
+        url: str
+
+        #: Width of the stream or None if this is an audio stream
+        width: typing.Optional[int] = None
+
+        #: Height of the stream or None if this is an audio stream
+        height: typing.Optional[int] = None
+
     VIDEO = 'video'
     AUDIO = 'audio'
     UNKNOWN = 'unknown'
@@ -258,6 +281,32 @@ class MediaItem(models.Model):
 
     def __str__(self):
         return '{} ("{}")'.format(self.id, self.title)
+
+    def get_sources(self, only_if_downloadable=True):
+        """
+        Retrieve and return a list of :py:class:`~.MediaItem.Source` instances representing the raw
+        media sources for this media item.
+
+        By default, the source list will be empty if the media item is not marked as downloadable.
+        Set the *only_if_downloadable* parameter to ``True`` to skip this check.
+
+        """
+        if (not self.downloadable and only_if_downloadable) or not hasattr(self, 'jwp'):
+            return []
+        return self.jwp.sources
+
+    #: Cached property which calls get_sources() to retrieve sources.
+    sources = cached_property(get_sources, name='sources')
+
+    def get_embed_url(self):
+        """
+        Return a URL suitable for use in an IFrame which will render this media. This URL renders
+        the media unconditionally; it does not respect any view permissions.
+
+        """
+        if not hasattr(self, 'jwp'):
+            return None
+        return self.jwp.embed_url
 
 
 class Permission(models.Model):
@@ -613,12 +662,14 @@ class Playlist(models.Model):
     #: visible.
     deleted_at = models.DateTimeField(null=True, blank=True)
 
-    def fetch_media(self):
+    @cached_property
+    def fetched_media_items_in_order(self):
         """Helper method that fetch the playlist's :py:class:`~.MediaItem` objects
         ordering them as defined by media_items."""
         media_items_by_id = {
             item.id: item
             for item in MediaItem.objects.filter(id__in=self.media_items)
+                .select_related('jwp')
         }
         return [media_items_by_id[id] for id in self.media_items if id in media_items_by_id]
 

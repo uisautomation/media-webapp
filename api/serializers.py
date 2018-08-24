@@ -4,6 +4,7 @@ from urllib import parse as urlparse
 
 from django.db import connection
 from django.conf import settings
+from django.http import QueryDict
 from django.urls import reverse
 from django.utils.http import urlencode
 from rest_framework import serializers
@@ -11,7 +12,6 @@ from rest_framework import serializers
 from smsjwplatform import jwplatform
 from mediaplatform import models as mpmodels
 from mediaplatform_jwp import management
-from smsjwplatform.jwplatform import VideoNotFoundError
 
 
 LOG = logging.getLogger(__name__)
@@ -154,11 +154,12 @@ class MediaItemSerializer(ChannelOwnedResourceModelSerializer):
         fields = (
             'url', 'id', 'title', 'description', 'duration', 'type', 'publishedAt',
             'downloadable', 'language', 'copyright', 'tags', 'createdAt',
-            'updatedAt', 'posterImageUrl', 'channelId',
+            'updatedAt', 'posterImageUrl', 'channelId', 'embedUrl',
         )
 
         read_only_fields = (
             'url', 'id', 'duration', 'type', 'createdAt', 'updatedAt', 'posterImageUrl'
+            'embedUrl'
         )
         extra_kwargs = {
             'createdAt': {'source': 'created_at'},
@@ -170,6 +171,9 @@ class MediaItemSerializer(ChannelOwnedResourceModelSerializer):
 
     posterImageUrl = serializers.SerializerMethodField(
         help_text='A URL of a thumbnail/poster image for the media', read_only=True)
+
+    embedUrl = serializers.SerializerMethodField(
+        help_text='A URL suitable for embedding this media item in an IFrame', read_only=True)
 
     def create(self, validated_data):
         """
@@ -193,6 +197,12 @@ class MediaItemSerializer(ChannelOwnedResourceModelSerializer):
         if not hasattr(obj, 'jwp'):
             return None
         return jwplatform.Video({'key': obj.jwp.key}).get_poster_url(width=640)
+
+    def get_embedUrl(self, obj):
+        url = reverse('api:media_embed', kwargs={'pk': obj.id})
+        if 'request' in self.context:
+            url = self.context['request'].build_absolute_uri(url)
+        return url
 
 
 # Detail serialisers
@@ -221,10 +231,22 @@ class SourceSerializer(serializers.Serializer):
     A download source for a particular media type.
 
     """
-    mimeType = serializers.CharField(source='type', help_text="The resource's MIME type")
-    url = serializers.URLField(source='file', help_text="The resource's URL")
+    mimeType = serializers.CharField(source='mime_type', help_text="The resource's MIME type")
+    url = serializers.SerializerMethodField(help_text="The resource's URL")
     width = serializers.IntegerField(help_text='The video width', required=False)
     height = serializers.IntegerField(help_text='The video height', required=False)
+
+    def get_url(self, source):
+        query = QueryDict(mutable=True)
+        query['mimeType'] = source.mime_type
+        if source.width is not None:
+            query['width'] = f'{source.width}'
+        if source.height is not None:
+            query['height'] = f'{source.height}'
+        url = reverse('api:media_source', kwargs={'pk': source.item.id}) + '?' + query.urlencode()
+        if 'request' in self.context:
+            url = self.context['request'].build_absolute_uri(url)
+        return url
 
 
 class MediaUploadSerializer(serializers.Serializer):
@@ -242,9 +264,22 @@ class MediaUploadSerializer(serializers.Serializer):
         return instance
 
 
-class MediaItemLinksSerializer(serializers.Serializer):
+class MediaItemDetailSerializer(MediaItemSerializer):
+    """
+    An individual media item including related resources.
+
+    """
+    class Meta(MediaItemSerializer.Meta):
+        fields = MediaItemSerializer.Meta.fields + (
+            'channel', 'sources', 'legacyStatisticsUrl', 'bestSourceUrl')
+
+    channel = ChannelSerializer(read_only=True)
+
+    sources = SourceSerializer(many=True, read_only=True)
+
     legacyStatisticsUrl = serializers.SerializerMethodField()
-    embedUrl = serializers.SerializerMethodField()
+
+    bestSourceUrl = serializers.SerializerMethodField()
 
     def get_legacyStatisticsUrl(self, obj):
         if not hasattr(obj, 'sms'):
@@ -252,42 +287,13 @@ class MediaItemLinksSerializer(serializers.Serializer):
         return urlparse.urljoin(
             settings.LEGACY_SMS_FRONTEND_URL, f'media/{obj.sms.id:d}/statistics')
 
-    def get_embedUrl(self, obj):
-        if not hasattr(obj, 'jwp'):
+    def get_bestSourceUrl(self, obj):
+        if len(obj.sources) == 0:
             return None
-        return jwplatform.player_embed_url(
-            obj.jwp.key, settings.JWPLATFORM_EMBED_PLAYER_KEY, 'html',
-            settings.JWPLATFORM_CONTENT_BASE_URL
-        )
-
-
-class MediaItemDetailSerializer(MediaItemSerializer):
-    """
-    An individual media item including related resources.
-
-    """
-    class Meta(MediaItemSerializer.Meta):
-        fields = MediaItemSerializer.Meta.fields + ('links', 'channel', 'sources')
-
-    links = MediaItemLinksSerializer(source='*', read_only=True)
-
-    channel = ChannelSerializer(read_only=True)
-
-    sources = serializers.SerializerMethodField(source='*')
-
-    def get_sources(self, obj):
-        if not obj.downloadable or not hasattr(obj, 'jwp'):
-            return []
-
-        try:
-            video = jwplatform.DeliveryVideo.from_key(obj.jwp.key)
-        except VideoNotFoundError as e:
-            # this can occur if the video is still transcoding - better to set the sources to none
-            # than fail completely
-            LOG.warning("unable to generate download sources as the JW video is not yet available")
-            return []
-
-        return SourceSerializer(video.get('sources'), many=True).data
+        url = reverse('api:media_source', kwargs={'pk': obj.id})
+        if 'request' in self.context:
+            url = self.context['request'].build_absolute_uri(url)
+        return url
 
 
 class MediaItemAnalyticsSerializer(serializers.Serializer):
@@ -363,7 +369,7 @@ class PlaylistDetailSerializer(PlaylistSerializer):
 
     channel = ChannelSerializer(read_only=True)
 
-    media = MediaItemSerializer(many=True, source='fetch_media')
+    media = MediaItemSerializer(many=True, source='fetched_media_items_in_order')
 
     class Meta(PlaylistSerializer.Meta):
         fields = PlaylistSerializer.Meta.fields + ('channel', 'media')
