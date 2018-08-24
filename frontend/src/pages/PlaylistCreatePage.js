@@ -8,6 +8,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 import Page from '../containers/Page';
 import ChannelSelect from '../containers/ChannelSelect';
+import BodySection from "../components/BodySection";
 import ItemMetadataForm from "../components/ItemMetadataForm";
 import {playlistCreate} from "../api";
 import {setMessageForNextPageLoad} from "../containers/Snackbar";
@@ -46,7 +47,7 @@ class PlaylistCreatePageContents extends Component {
     const { playlist, errors } = this.state;
 
     return (
-      <section className={classes.section}>
+      <BodySection>
         <IfOwnsAnyChannel>
           <Grid container justify='center'>
             <Grid item xs={12} sm={10} md={8} lg={6}>
@@ -75,7 +76,7 @@ class PlaylistCreatePageContents extends Component {
             You have no channels in which create a playlist.
           </Typography>
         </IfOwnsAnyChannel>
-      </section>
+      </BodySection>
     );
   }
 }
@@ -90,8 +91,6 @@ const styles = theme => ({
   },
   heading: {
     marginBottom: theme.spacing.unit * 2,
-  },
-  section: {
     marginTop: theme.spacing.unit,
   },
 });

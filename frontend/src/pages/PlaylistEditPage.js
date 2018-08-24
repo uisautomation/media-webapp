@@ -12,6 +12,7 @@ import ReorderIcon from '@material-ui/icons/Reorder';
 
 
 import { playlistGet, playlistPatch, mediaResourceToItem } from '../api';
+import BodySection from "../components/BodySection";
 import RenderedMarkdown from '../components/RenderedMarkdown';
 import Page from "../containers/Page";
 import IfOwnsChannel from "../containers/IfOwnsChannel";
@@ -103,10 +104,10 @@ class EditableListSectionComponent extends Component {
       classes, handleDragStart, handleDrop, playlist: {title, description, media}
     } = this.props;
     return (
-      <section className={classes.section}>
+      <BodySection>
         <Grid container justify='center'>
           <Grid item xs={12} sm={10} md={8} lg={6}>
-            <Typography variant='display1' gutterBottom>
+            <Typography variant='display1' className={classes.title} gutterBottom>
               {title}
             </Typography>
             <Typography variant='body1' component='div'>
@@ -119,7 +120,7 @@ class EditableListSectionComponent extends Component {
               {media.map(mediaResourceToItem).map((item, index) => (
                 <div key={index} ref={'item-' + index}
                      onDragOver={event => event.preventDefault()}
-                     onDrop={() => handleDrop(index)}
+                     onDrop={(event) => {event.preventDefault(); handleDrop(index)}}
                 >
                   <ListItem button className={classes.listItem}>
                     <Avatar src={item.imageUrl}/>
@@ -129,11 +130,16 @@ class EditableListSectionComponent extends Component {
                         draggable={true}
                         onDragStart={event => {
                           handleDragStart(index);
-                          // Displays the ghost item correctly
-                          const ghost = this.refs['item-' + index];
-                          const x = ghost.clientWidth - 20;
-                          const y = ghost.clientHeight / 2;
-                          event.dataTransfer.setDragImage(ghost, x, y);
+                          // setDragImage not supported for IE
+                          if (typeof event.dataTransfer.setDragImage === "function") {
+                            // Displays the ghost item correctly
+                            const ghost = this.refs['item-' + index];
+                            const x = ghost.clientWidth - 20;
+                            const y = ghost.clientHeight / 2;
+                            event.dataTransfer.setDragImage(ghost, x, y);
+                          }
+                          // this is required for FF compat
+                          event.dataTransfer.setData('text', "it doesn't matter");
                         }}
                       >
                         <ReorderIcon/>
@@ -145,7 +151,7 @@ class EditableListSectionComponent extends Component {
             </List>
           </Grid>
         </Grid>
-      </section>
+      </BodySection>
     );
   }
 }
@@ -157,7 +163,7 @@ const styles = theme => ({
   listItem: {
     backgroundColor: theme.palette.background.paper,
   },
-  section: {
+  title: {
     marginTop: theme.spacing.unit * 2
   },
 });

@@ -49,8 +49,8 @@ const styles = theme => ({
 });
 
 /**
- * A list of channel items within a ``Grid``. Each item is a ``Grid`` item and the root element
- * itself is a ``Grid`` container. Each channel item is a clickable link.
+ * A list of items representing resources placed within a ``Grid``. Each item is a ``Grid`` item
+ * and the root element itself is a ``Grid`` container. Each item is a clickable link.
  *
  * Any unknown properties supplied will be spread to the root component.
  */
@@ -92,7 +92,7 @@ ResourceList.propTypes = {
   /** Default number of items to display if content is loading. */
   defaultItemCount: PropTypes.number,
 
-  /** Display defaultItemCount content loading indicators instead of the channel items. */
+  /** Display defaultItemCount content loading indicators instead of the items. */
   isLoading: PropTypes.bool,
 
   /** Array of MediaItemCard props for items. */
