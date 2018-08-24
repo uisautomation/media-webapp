@@ -60,9 +60,7 @@ const NavigationPanel = ({ profile, classes }) => <div className={ classes.root 
         <ListItemText primary="Sign out" />
       </ListItem>
       :
-      <ListItem button component='a' href='/accounts/login'>
-        <ListItemText primary="Sign in" />
-      </ListItem>
+      null
     }
   </List>
 </div>;
