@@ -8,12 +8,12 @@ let mediaItems = [1, 2, 3, 4, 5, 6, 7, 8].map(index => ({
     id: '#item-' + index,
 }));
 
-<MediaList mediaItems={mediaItems} />
+<MediaList resources={mediaItems} />
 ```
 
 
 ```js
-<MediaList contentLoading />
+<MediaList isLoading />
 ```
 
 ### CSS API
