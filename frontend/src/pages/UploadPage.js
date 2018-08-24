@@ -14,7 +14,7 @@ import IfOwnsAnyChannel from "../containers/IfOwnsAnyChannel";
  * UploadEndpointProvider (through ConnectedUploadForm) to connect an upload form.
  */
 const UploadPage = () => (
-  <Page>
+  <Page gutterTop>
     <BodySection>
       <IfOwnsAnyChannel>
         <Grid container justify='center'>
