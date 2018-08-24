@@ -25,7 +25,10 @@ class StaticTextPage extends React.Component {
     return <Page gutterTop classes={{ gutterTop: classes.pageGutterTop }}>
       <Grid container justify='center' className={ classes.container }>
         <Grid item xl={4} lg={6} md={8} sm={10} xs={12}>
-          <BodySection component={Paper} classes={{ root: classes.paperRoot, rounded: classes.paperRounded }}>
+          <BodySection
+            component={Paper}
+            componentProps={{ classes: { root: classes.paperRoot, rounded: classes.paperRounded } }}
+          >
             <RenderedMarkdown source={ source || '' } />
           </BodySection>
         </Grid>
@@ -40,8 +43,11 @@ StaticTextPage.propTypes = {
 
 const styles = theme => ({
   container: {
-    [theme.breakpoints.down('xs')]: {
-      height: '100%',
+    height: '100%',
+
+    [theme.breakpoints.up('sm')]: {
+      height: 'auto',
+      marginBottom: theme.spacing.unit * 3,
     },
   },
 
@@ -56,12 +62,6 @@ const styles = theme => ({
     paddingBottom: theme.spacing.unit * 2,
     paddingTop: theme.spacing.unit * 2,
 
-    [theme.breakpoints.up('sm')]: {
-      '& p': {
-        textAlign: 'justify',
-      },
-    },
-
     '& a': {
       '&:hover': {
         textDecoration: 'underline',
@@ -74,6 +74,7 @@ const styles = theme => ({
   paperRounded: {
     [theme.breakpoints.down('xs')]: {
       borderRadius: 0,
+      boxShadow: 'none',
     },
   },
 });
