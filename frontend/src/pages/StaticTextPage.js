@@ -6,6 +6,7 @@ import Paper from '@material-ui/core/Paper';
 import { withStyles } from '@material-ui/core/styles';
 
 import Page from '../containers/Page';
+import BodySection from '../components/BodySection';
 import RenderedMarkdown from '../components/RenderedMarkdown';
 
 class StaticTextPage extends React.Component {
@@ -21,10 +22,12 @@ class StaticTextPage extends React.Component {
   render() {
     const { classes } = this.props;
     const { source } = this.state;
-    return <Page>
+    return <Page gutterTop classes={{ gutterTop: classes.pageGutterTop }}>
       <Grid container justify='center' className={ classes.container }>
-        <Grid item component={Paper} xl={4} lg={6} md={8} sm={10} xs={12} className={ classes.paper }>
-          <RenderedMarkdown source={ source || '' } />
+        <Grid item xl={4} lg={6} md={8} sm={10} xs={12}>
+          <BodySection component={Paper} classes={{ root: classes.paperRoot, rounded: classes.paperRounded }}>
+            <RenderedMarkdown source={ source || '' } />
+          </BodySection>
         </Grid>
       </Grid>
     </Page>
@@ -37,12 +40,27 @@ StaticTextPage.propTypes = {
 
 const styles = theme => ({
   container: {
-    marginTop: theme.spacing.unit * 2,
+    [theme.breakpoints.down('xs')]: {
+      height: '100%',
+    },
   },
 
-  paper: {
-    padding: [[theme.spacing.unit * 2, theme.spacing.unit * 3]],
-    textAlign: 'justify',
+  pageGutterTop: {
+    [theme.breakpoints.down('xs')]: {
+      paddingTop: 0,
+    },
+  },
+
+  paperRoot: {
+    minHeight: '100%',
+    paddingBottom: theme.spacing.unit * 2,
+    paddingTop: theme.spacing.unit * 2,
+
+    [theme.breakpoints.up('sm')]: {
+      '& p': {
+        textAlign: 'justify',
+      },
+    },
 
     '& a': {
       '&:hover': {
@@ -50,6 +68,12 @@ const styles = theme => ({
       },
       color: theme.palette.primary.main,
       textDecoration: 'none',
+    },
+  },
+
+  paperRounded: {
+    [theme.breakpoints.down('xs')]: {
+      borderRadius: 0,
     },
   },
 });

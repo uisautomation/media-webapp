@@ -6,6 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 
 import Page from '../containers/Page';
+import BodySection from '../components/BodySection';
 import ItemMetadataForm from "../components/ItemMetadataForm";
 import {mediaGet, mediaPatch} from "../api";
 import { setMessageForNextPageLoad } from "../containers/Snackbar";
@@ -53,8 +54,8 @@ class MediaEditPage extends Component {
     const { classes } = this.props;
     const { item, errors } = this.state;
     return (
-      <Page>
-        <section className={classes.section}>
+      <Page gutterTop>
+        <BodySection>
           <IfOwnsChannel channel={item && item.channel}>
             <Grid container justify='center'>
               <Grid item xs={12} sm={10} md={8} lg={6}>
@@ -64,7 +65,7 @@ class MediaEditPage extends Component {
                   onChange={patch => this.setState({item: {...item, ...patch}})}
                 />
                 <div className={ classes.buttonSet }>
-                  <Button variant='outlined' href={ '/media/' + this.getItemId() } >
+                  <Button variant='outlined' href={ '/media/' + this.state.pk } >
                     Cancel
                   </Button>
                   <Button color='secondary' variant='contained' onClick={ () => this.save() } >
@@ -79,7 +80,7 @@ class MediaEditPage extends Component {
               You cannot edit this media item.
             </Typography>
           </IfOwnsChannel>
-        </section>
+        </BodySection>
       </Page>
     );
   }
@@ -92,9 +93,6 @@ const styles = theme => ({
     },
     marginTop: theme.spacing.unit,
     textAlign: 'right',
-  },
-  section: {
-    marginTop: theme.spacing.unit,
   },
 });
 

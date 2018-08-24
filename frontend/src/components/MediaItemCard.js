@@ -101,4 +101,4 @@ const styles = theme => ({
   },
 });
 
-export default withStyles(styles)(MediaItemCard);
+export default withStyles(styles, { name: 'MediaItemCard' })(MediaItemCard);

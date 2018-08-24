@@ -2,12 +2,14 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import MuiAppBar from '@material-ui/core/AppBar';
+import Hidden from '@material-ui/core/Hidden';
 import IconButton from '@material-ui/core/IconButton';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 
 import BackIcon from '@material-ui/icons/ArrowBack';
+import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import SearchForm from './SearchForm';
 
@@ -31,7 +33,7 @@ class AppBar extends Component {
 
   render() {
     const {
-      classes, defaultSearch, onSearch, color, children, autoFocus, ...otherProps
+      classes, defaultSearch, onSearch, color, children, autoFocus, onMenuClick, ...otherProps
     } = this.props;
     const { searchBarVisible } = this.state;
 
@@ -70,6 +72,16 @@ class AppBar extends Component {
       </Toolbar>
       :
       <Toolbar>
+          <Hidden mdUp implementation="css">
+            <IconButton
+              color="inherit"
+              aria-label="Open drawer"
+              className={ classes.leftButton }
+              onClick={ () => onMenuClick && onMenuClick() }
+            >
+              <MenuIcon />
+            </IconButton>
+          </Hidden>
           <Typography variant="title" color="inherit">
             <a href='/'>
               <img src={LogoImage} alt="Media Platform" style={{verticalAlign: 'bottom', height: '1.8em'}} />
@@ -84,7 +96,9 @@ class AppBar extends Component {
           >
             <SearchIcon />
           </IconButton>
-          { children }
+          <div className={classes.rightButton}>
+            { children }
+          </div>
       </Toolbar>
     );
 
@@ -110,6 +124,9 @@ AppBar.propTypes = {
    * params: ``?q={text}``
    */
   onSearch: PropTypes.func,
+
+  /** Function called when the navigation menu toggle button is clicked. */
+  onMenuClick: PropTypes.func,
 };
 
 AppBar.defaultProps = {
@@ -151,6 +168,10 @@ const styles = theme => ({
   leftButton: {
     marginLeft: -1.5 * theme.spacing.unit,
     marginRight: 1.5 * theme.spacing.unit,
+  },
+
+  rightButton: {
+    marginRight: -1.5 * theme.spacing.unit,
   },
 
   searchButton: {

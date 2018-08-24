@@ -57,6 +57,15 @@ class ProfileViewTestCase(ViewTestCase):
     def setUp(self):
         super().setUp()
         self.view = views.ProfileView().as_view()
+        self.get_person.return_value = {
+            'displayName': 'Test User',
+            'attributes': [
+                {
+                    'scheme': 'jpegPhoto',
+                    'binaryData': 'xxxxx',
+                },
+            ],
+        }
 
     def test_anonymous(self):
         """An anonymous user should have is_anonymous set to True."""
@@ -64,11 +73,23 @@ class ProfileViewTestCase(ViewTestCase):
         self.assertTrue(response.data['isAnonymous'])
 
     def test_authenticated(self):
-        """An anonymous user should have is_anonymous set to False and username set."""
+        """A non-anonymous user should have is_anonymous set to False and username set."""
         force_authenticate(self.get_request, user=self.user)
         response = self.view(self.get_request)
         self.assertFalse(response.data['isAnonymous'])
         self.assertEqual(response.data['username'], self.user.username)
+        self.assertEqual(response.data['displayName'], self.get_person.return_value['displayName'])
+        self.assertIn('xxxx', response.data['avatarImageUrl'])
+
+    def test_authenticated_with_no_photo(self):
+        """A non-anonymous user with no photo has no avatarImageUrl."""
+        force_authenticate(self.get_request, user=self.user)
+        del self.get_person.return_value['attributes'][:]
+        response = self.view(self.get_request)
+        self.assertFalse(response.data['isAnonymous'])
+        self.assertEqual(response.data['username'], self.user.username)
+        self.assertEqual(response.data['displayName'], self.get_person.return_value['displayName'])
+        self.assertIsNone(response.data['avatarImageUrl'])
 
     def test_anonymous_channels(self):
         """An anonymous user should have no editable channels"""

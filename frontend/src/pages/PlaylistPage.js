@@ -6,66 +6,24 @@ import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import EditIcon from '@material-ui/icons/Edit';
 
-import { playlistGet, mediaResourceToItem } from '../api';
-import MediaList from '../components/MediaList';
+import FetchPlaylist from "../containers/FetchPlaylist";
+import BodySection from '../components/BodySection';
 import RenderedMarkdown from '../components/RenderedMarkdown';
 import Page from "../containers/Page";
 import IfOwnsChannel from "../containers/IfOwnsChannel";
+import MediaList from "../components/MediaList";
 
 /**
- * A list of media for a playlist. Upon mount, it fetches the playlist with a list of the
+ * A list of media for a playlist. Upon mount, it fetches the playlist details and then a list of the
  * media items and shows them to the user.
  */
-class PlaylistPage extends Component {
-  constructor(props) {
-    super(props);
+const PlaylistPage = ({ match: { params: { pk } } }) => (
+  <Page gutterTop><FetchPlaylist id={ pk } component={ PageContent } /></Page>
+);
 
-    this.state = {
-      // The playlist resource
-      playlist: null,
-    }
-  }
-
-  componentWillMount() {
-    // As soon as the index page mounts, fetch the playlist.
-    const { match: { params: { pk } } } = this.props;
-    playlistGet(pk)
-      .then(playlist => {
-        this.setState({ playlist });
-      });
-  }
-
-  render() {
-    const { playlist } = this.state;
-    return (
-      <Page>
-      {
-        playlist !== null
-        ?
-        <MediaListSection
-          playlist={ playlist }
-          MediaListProps={{
-            contentLoading: false,
-            maxItemCount: 18,
-
-            mediaItems: playlist.media.map(mediaResourceToItem),
-          }}
-        />
-        :
-        null
-      }
-      </Page>
-    );
-  }
-}
-
-const mediaListSectionStyles = theme => ({
+const pageContentStyles = theme => ({
   rightIcon: {
     marginLeft: theme.spacing.unit,
-  },
-  root: {
-    marginBottom: theme.spacing.unit * 4,
-    marginTop: theme.spacing.unit * 2,
   },
   title: {
     marginRight: theme.spacing.unit * 2,
@@ -75,40 +33,31 @@ const mediaListSectionStyles = theme => ({
   },
 });
 
-/** A section of the body with a heading and a MediaList. */
-const MediaListSection = withStyles(mediaListSectionStyles)(({
-  classes, playlist: { id, channel, title, description }, MediaListProps, ...otherProps
-}) => {
-  return (
-    <section className={classes.root} {...otherProps}>
-      <Toolbar className={classes.toolbar}>
-        <Typography variant='display1' className={classes.title}>
-          {title}
-        </Typography>
-        <IfOwnsChannel channel={channel}>
-          <Button component='a' color='primary' variant='contained'
-                  href={'/playlists/' + id + '/edit'}
-          >
-            Edit
-            <EditIcon className={classes.rightIcon}/>
-          </Button>
-        </IfOwnsChannel>
-      </Toolbar>
-      <Typography variant='body1' component='div'>
-        <RenderedMarkdown source={description}/>
+/** Playlist page content. */
+const PageContent = withStyles(pageContentStyles)(({ classes, resource: playlist }) => (
+  playlist && playlist.id
+  ?
+  <BodySection>
+    <Toolbar className={classes.toolbar}>
+      <Typography variant='display1' className={classes.title}>
+        { playlist.title }
       </Typography>
-      <Typography variant='headline' gutterBottom>
-        Media items
-      </Typography>
-      <Typography component='div' paragraph>
-        <MediaList
-          GridItemProps={{xs: 12, sm: 6, md: 4, lg: 3, xl: 2}}
-          maxItemCount={18}
-          {...MediaListProps}
-        />
-      </Typography>
-    </section>
-  )
-});
+      <IfOwnsChannel channel={playlist.channel}>
+        <Button component='a' color='primary' variant='contained'
+                href={'/playlists/' + playlist.id + '/edit'}
+        >
+          Edit
+          <EditIcon className={classes.rightIcon}/>
+        </Button>
+      </IfOwnsChannel>
+    </Toolbar>
+    <RenderedMarkdown source={ playlist.description } />
+    <Typography variant='headline' gutterBottom>Media items</Typography>
+    <MediaList resources={playlist.media} />
+  </BodySection>
+  :
+  null
+));
 
 export default PlaylistPage;
+
