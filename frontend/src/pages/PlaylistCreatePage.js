@@ -90,8 +90,8 @@ const styles = theme => ({
     textAlign: 'right',
   },
   heading: {
-    marginTop: theme.spacing.unit,
     marginBottom: theme.spacing.unit * 2,
+    marginTop: theme.spacing.unit,
   },
 });
 
