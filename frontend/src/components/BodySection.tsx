@@ -28,6 +28,10 @@ export interface IProps extends WithStyles<typeof styles> {
 
   gutterBottom: boolean;
 
+  // Extra props to pass to the component. Use this only if the props clash with one of the props
+  // used by BodySection.
+  componentProps?: { [x: string]: any };
+
   // Indicates that unknown props are also accepted.
   [prop: string]: any;
 }
@@ -40,11 +44,11 @@ export interface IProps extends WithStyles<typeof styles> {
  * Unknown props (including ``classes``) are broadcast to the root element.
  */
 const BodySection: React.SFC<IProps> = (
-  { classes, children, component: Component, gutterBottom, ...otherProps }
+  { classes, children, component: Component, gutterBottom, componentProps, ...otherProps }
 ) => (
   <Component
     className={ [classes.root, gutterBottom ? classes.gutterBottom : ''].join(' ') }
-    classes={classes} {...otherProps}
+    classes={classes} {...componentProps} {...otherProps}
   >
     { children }
   </Component>

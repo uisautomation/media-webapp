@@ -13,6 +13,9 @@ You can use the default mapping by adding the following to your global ``urlpatt
     ]
 
 """
+import os
+
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.urls import path
 from django.views.generic import TemplateView
@@ -20,6 +23,9 @@ from django.views.generic import TemplateView
 from . import views
 
 app_name = 'ui'
+
+with open(os.path.join(settings.BASE_DIR, 'CHANGELOG.md')) as fobj:
+    changelog = fobj.read()
 
 urlpatterns = [
     path(
@@ -40,5 +46,8 @@ urlpatterns = [
     path('playlists/<pk>', views.PlaylistView.as_view(), name='playlist'),
     path('playlists/<pk>/edit', views.PlaylistView.as_view(), name='playlist_edit'),
     path('about', TemplateView.as_view(template_name="ui/about.html"), name='about'),
+    path('changelog', TemplateView.as_view(
+        template_name="ui/changelog.html", extra_context={'changelog': changelog}
+    ), name='changelog'),
     path('', TemplateView.as_view(template_name="index.html"), name='home'),
 ]

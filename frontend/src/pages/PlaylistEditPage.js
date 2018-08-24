@@ -122,7 +122,7 @@ class EditableListSectionComponent extends Component {
                      onDragOver={event => event.preventDefault()}
                      onDrop={(event) => {event.preventDefault(); handleDrop(index)}}
                 >
-                  <ListItem button className={classes.listItem}>
+                  <ListItem className={classes.listItem}>
                     <Avatar src={item.imageUrl}/>
                     <ListItemText primary={item.title}/>
                     <ListItemSecondaryAction className={classes.action}>

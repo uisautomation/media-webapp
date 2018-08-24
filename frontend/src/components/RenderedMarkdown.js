@@ -7,6 +7,8 @@ import deepmerge from 'deepmerge';
 import sanitizeGhSchema from 'hast-util-sanitize/lib/github.json';
 import defaultCodeHandler from 'mdast-util-to-hast/lib/handlers/code';
 
+import { withStyles } from '@material-ui/core/styles';
+
 import Typography from '@material-ui/core/Typography';
 import TeXMath from './TeXMath';
 import MathJaxProvider from '../providers/MathJaxProvider';
@@ -46,11 +48,12 @@ const renderMarkdown = source => remark()
   .use(reactRenderer, {
     // Map HAST "math" element into TeXMath components.
     remarkReactComponents: {
-      h1: props => <Typography gutterBottom variant='headline' {...props} />,
-      h2: props => <Typography gutterBottom variant='title' {...props} />,
-      h3: props => <Typography gutterBottom variant='subheading' {...props} />,
+      h1: props => <MarkdownTypography gutterBottom variant='headline' {...props} />,
+      h2: props => <MarkdownTypography gutterBottom variant='title' {...props} />,
+      h3: props => <MarkdownTypography gutterBottom variant='subheading' {...props} />,
+      h4: props => <MarkdownTypography gutterBottom variant='body2' {...props} />,
       math: TeXMath,
-      p: props => <Typography gutterBottom variant='body1' {...props} />,
+      p: props => <MarkdownTypography gutterBottom variant='body1' {...props} />,
     },
     // Use the GitHub HTML sanitisation schema extended to support math elements.
     sanitize: deepmerge(sanitizeGhSchema, {
@@ -126,3 +129,31 @@ function customTag({ beginMarker, endMarker, type }) {
     };
   }
 };
+
+/**
+ * A customised Typography which tweaks the spacing around elements to be nicer for large amounts
+ * of text.
+ *
+ * Spacing is based on https://material.io/design/layout/density.html#typographic-density.
+ */
+const MarkdownTypography = withStyles(theme => ({
+  headline: {
+    marginTop: theme.spacing.unit * 4,
+
+    '&:first-child': {
+      marginTop: theme.spacing.unit,
+    },
+  },
+
+  title: {
+    marginTop: theme.spacing.unit * 3,
+  },
+
+  subheading: {
+    marginTop: theme.spacing.unit * 3,
+  },
+
+  gutterBottom: {
+    marginBottom: theme.spacing.unit * 2,
+  },
+}))(Typography);
