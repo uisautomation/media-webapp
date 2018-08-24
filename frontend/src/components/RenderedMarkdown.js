@@ -46,7 +46,11 @@ const renderMarkdown = source => remark()
   .use(reactRenderer, {
     // Map HAST "math" element into TeXMath components.
     remarkReactComponents: {
+      h1: props => <Typography gutterBottom variant='headline' {...props} />,
+      h2: props => <Typography gutterBottom variant='title' {...props} />,
+      h3: props => <Typography gutterBottom variant='subheading' {...props} />,
       math: TeXMath,
+      p: props => <Typography gutterBottom variant='body1' {...props} />,
     },
     // Use the GitHub HTML sanitisation schema extended to support math elements.
     sanitize: deepmerge(sanitizeGhSchema, {
