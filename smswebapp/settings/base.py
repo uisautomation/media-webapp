@@ -170,7 +170,7 @@ AUTHENTICATION_BACKENDS = [
 UCAMWEBAUTH_CREATE_USER = True
 
 #: Redirect to this URL on log out
-UCAMWEBAUTH_LOGOUT_REDIRECT = 'https://raven.cam.ac.uk/auth/logout.html'
+UCAMWEBAUTH_LOGOUT_REDIRECT = '/'
 
 #: Allow members who are not current members to log in?
 UCAMWEBAUTH_NOT_CURRENT = False

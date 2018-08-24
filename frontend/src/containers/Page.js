@@ -1,26 +1,51 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { withStyles } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import Drawer from '@material-ui/core/Drawer';
 import IconButton from '@material-ui/core/IconButton';
+import Hidden from '@material-ui/core/Hidden';
+import { withStyles } from '@material-ui/core/styles';
+
 import UploadIcon from '@material-ui/icons/CloudUpload';
 import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
 
 import AppBar from "../components/AppBar";
 import MotdBanner from "../components/MotdBanner";
-import ProfileButtonContainer from "./ProfileButtonContainer";
+import NavigationPanel from "../components/NavigationPanel";
 import Snackbar from "./Snackbar";
 import IfOwnsAnyChannel from "./IfOwnsAnyChannel";
+
+import { withProfile } from "../providers/ProfileProvider";
+
+const ConnectedNavigationPanel = withProfile(NavigationPanel);
 
 /**
  * A top level component that wraps all pages to give then elements common to all page,
  * the ``AppBar`` etc.
  */
-const Page = (
-  { defaultSearch, classes, children }
-) => (
+class Page extends React.Component {
+  state = {
+    mobileDrawerOpen: false,
+  };
+
+  handleDrawerToggle = () => {
+    this.setState(state => ({ mobileDrawerOpen: !state.mobileDrawerOpen }));
+  };
+
+  render() {
+    const { defaultSearch, classes, children, gutterTop } = this.props;
+    const { mobileDrawerOpen } = this.state;
+    const drawer = <ConnectedNavigationPanel />;
+
+    return (
       <div className={ classes.page }>
-        <AppBar position="fixed" defaultSearch={defaultSearch}>
+        <AppBar
+          classes={{root: classes.appBar}}
+          position='absolute'
+          defaultSearch={defaultSearch}
+          onMenuClick={ this.handleDrawerToggle }
+        >
           <IfOwnsAnyChannel>
             <IconButton color="inherit" component="a" href="/media/new">
               <UploadIcon />
@@ -29,19 +54,53 @@ const Page = (
               <PlaylistAddIcon />
             </IconButton>
           </IfOwnsAnyChannel>
-          <ProfileButtonContainer
-            className={ classes.rightButton } variant="flat" color="inherit"
-          />
         </AppBar>
 
-        <div className={classes.body}>
-          <MotdBanner />
-          { children }
+        <Hidden mdUp>
+          <Drawer
+            variant="temporary"
+            open={ mobileDrawerOpen }
+            onClose={ this.handleDrawerToggle }
+            classes={{
+              paper: classes.drawerPaper,
+            }}
+            ModalProps={{
+              keepMounted: true, // Better open performance on mobile.
+            }}
+          >
+            { drawer }
+          </Drawer>
+        </Hidden>
+
+        <Hidden smDown implementation="css">
+          <Drawer
+            variant="permanent"
+            classes={{
+              paper: classes.drawerPaper,
+            }}
+          >
+            { /* used as a spacer */ }
+            <div className={classes.toolbar} />
+            { drawer }
+          </Drawer>
+        </Hidden>
+
+        <div className={classes.content}>
+          { /* used as a spacer */ }
+          <div className={classes.toolbar} />
+          <main className={classes.main}>
+            <MotdBanner />
+            <div className={ [classes.children, gutterTop ? classes.gutterTop : ''].join(' ') }>
+              { children }
+            </div>
+          </main>
         </div>
 
         <Snackbar/>
       </div>
-);
+    );
+  }
+}
 
 Page.propTypes = {
   /** @ignore */
@@ -49,29 +108,60 @@ Page.propTypes = {
 
   /** Default search text to populate the search form with. */
   defaultSearch: PropTypes.string,
+
+  /** Should the page have a gutter between the top and the content? */
+  gutterTop: PropTypes.bool,
+};
+
+Page.defaultProps = {
+  gutterTop: false,
 };
 
 const styles = theme => ({
+  appBar: {
+    zIndex: theme.zIndex.drawer + 1,
+  },
+
+  drawerPaper: {
+    position: 'relative',
+    width: theme.dimensions.drawerWidth,
+  },
+
+  children: {
+    flexGrow: 1,
+  },
+
   page: {
+    display: 'flex',
+    height: '100vh',
     minHeight: '100vh',
-    paddingTop: theme.spacing.unit * 8,
+    overflow: 'hidden',
     width: '100%',
   },
 
-  body: {
-    margin: [[0, 'auto']],
-    paddingLeft: theme.spacing.unit * 2,
-    paddingRight: theme.spacing.unit * 2,
+  content: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+    maxWidth: '100%',
+  },
+
+  gutterTop: {
+    paddingTop: theme.spacing.unit * 2,
 
     [theme.breakpoints.up('sm')]: {
-      paddingLeft: theme.spacing.unit * 3,
-      paddingRight: theme.spacing.unit * 3,
+      paddingTop: theme.spacing.unit * 3,
     },
   },
 
-  rightButton: {
-    marginRight: -1.5 * theme.spacing.unit,
+  main: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+    overflowY: 'auto',
   },
+
+  toolbar: theme.mixins.toolbar,
 });
 
 export default withStyles(styles)(Page);
