@@ -1,5 +1,6 @@
 import logging
 
+from django.urls import reverse
 from rest_framework import serializers
 
 from api import serializers as apiserializers, views as apiviews
@@ -59,6 +60,10 @@ class MediaItemJSONLDSerializer(JSONLDSerializer):
     uploadDate = serializers.DateTimeField(
         source='published_at', help_text='Publication time', read_only=True)
 
+    embedUrl = serializers.SerializerMethodField()
+
+    contentUrl = serializers.SerializerMethodField()
+
     def get_duration(self, obj):
         """Return the media item's duration in ISO 8601 format."""
         if obj.duration is None:
@@ -76,6 +81,25 @@ class MediaItemJSONLDSerializer(JSONLDSerializer):
             jwplatform.Video({'key': obj.jwp.key}).get_poster_url(width=width)
             for width in [1920, 1280, 640, 320]
         ]
+
+    def get_embedUrl(self, obj):
+        return self._reverse('api:media_embed', kwargs={'pk': obj.id})
+
+    def get_contentUrl(self, obj):
+        if not obj.downloadable:
+            return None
+        return self._reverse('api:media_source', kwargs={'pk': obj.id})
+
+    def _reverse(self, *args, **kwargs):
+        """
+        Wrapper around Django's reverse() utility function which attempts to use the request in
+        the serialiser context (if any) to build an absolute URI.
+
+        """
+        uri = reverse(*args, **kwargs)
+        if 'request' not in self.context:
+            return uri
+        return self.context['request'].build_absolute_uri(uri)
 
 
 class ResourcePageSerializer(serializers.Serializer):
