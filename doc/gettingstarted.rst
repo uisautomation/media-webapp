@@ -8,7 +8,7 @@ machine configured. More information on development is found in the
 Fork the upstream repository
 ````````````````````````````
 
-The repository at https://github.com/uisautomation/sms-webapp is configured to
+The repository at https://github.com/uisautomation/media-webapp is configured to
 disallow pushing to master. You'll need to *fork* the repository into your
 personal account and then open pull requests from your personal repository into
 the main repository.
@@ -33,9 +33,9 @@ repository.
 
 .. code-block:: bash
 
-    $ git clone git@github.com:uisautomation/sms-webapp.git
-    $ cd sms-webapp
-    $ git remote set-url origin --push git@github.com:$USER/sms-webapp.git
+    $ git clone git@github.com:uisautomation/media-webapp.git
+    $ cd media-webapp
+    $ git remote set-url origin --push git@github.com:$USER/media-webapp.git
 
 .. note::
 
@@ -48,7 +48,7 @@ Sometimes you'll want to ``push`` or ``pull`` from it.
 
 .. code-block:: bash
 
-    $ git remote add $USER git@github.com:$USER/sms-webapp.git
+    $ git remote add $USER git@github.com:$USER/media-webapp.git
 
 Install docker-compose
 ``````````````````````

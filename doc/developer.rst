@@ -147,7 +147,7 @@ This section provides a brief outline of cloud infrastructure for development.
 Source control
 ``````````````
 
-The panel is hosted on GitHub at https://github.com/uisautomation/sms-webapp.
+The panel is hosted on GitHub at https://github.com/uisautomation/media-webapp.
 The repository has ``master`` set up to be writeable only via pull request. It
 is intended that local development happens in personal forks and is merged via
 pull request. The main rationale for this is a) it guards against accidentally
@@ -178,13 +178,13 @@ Code-coverage
 `````````````
 
 Going to `CodeCov <https://codecov.io/>`_, logging in with GitHub and adding the
-``sms-webapp`` repository will start code coverage reporting on pull-requests.
+``media-webapp`` repository will start code coverage reporting on pull-requests.
 
 Documentation
 `````````````
 
 Travis CI has been set up so that when the master branch is built, the
-documentation is deployed to https://uisautomation.github.io/sms-webapp via
+documentation is deployed to https://uisautomation.github.io/media-webapp via
 GitHub pages. The `UIS robot <https://github.com/bb9e/>`_ machine account's
 personal token is set up in Travis via the ``GITHUB_TOKEN`` environment
 variable.
@@ -229,4 +229,4 @@ Documentation
 `````````````
 
 This documentation is re-built on each commit to master by Travis and posted to
-GitHub pages at https://uisautomation.github.io/sms-webapp/.
+GitHub pages at https://uisautomation.github.io/media-webapp/.
