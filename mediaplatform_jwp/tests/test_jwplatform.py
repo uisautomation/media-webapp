@@ -7,8 +7,8 @@ import urllib.parse
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from smsjwplatform import jwplatform as api
-from smsjwplatform import models
+from mediaplatform_jwp import jwplatform as api
+from mediaplatform_jwp import models
 
 
 class JWPlatformTest(TestCase):

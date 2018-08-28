@@ -5,7 +5,7 @@ from unittest import mock
 
 from django.test import TestCase
 
-from smsjwplatform.acl import AceWorld, AceCam, AceInst, AceGroup, AceUser, build_acl
+from mediaplatform_jwp.acl import AceWorld, AceCam, AceInst, AceGroup, AceUser, build_acl
 
 
 class AclTest(TestCase):

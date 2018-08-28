@@ -2,7 +2,7 @@ from unittest import mock
 
 from django.test import TestCase
 
-from smsjwplatform import jwplatform
+from mediaplatform_jwp import jwplatform
 from mediaplatform import models as mpmodels
 
 
@@ -10,7 +10,8 @@ class SourcesTestCase(TestCase):
     fixtures = ['mediaplatform_jwp/tests/fixtures/mediaitems.yaml']
 
     def setUp(self):
-        self.dv_from_key_patcher = mock.patch('smsjwplatform.jwplatform.DeliveryVideo.from_key')
+        self.dv_from_key_patcher = (
+            mock.patch('mediaplatform_jwp.jwplatform.DeliveryVideo.from_key'))
         self.dv_from_key = self.dv_from_key_patcher.start()
         self.dv_from_key.return_value = jwplatform.DeliveryVideo(DELIVERY_VIDEO_FIXTURE)
         self.addCleanup(self.dv_from_key_patcher.stop)

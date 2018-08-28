@@ -13,7 +13,7 @@ from django.dispatch import receiver
 
 from mediaplatform import models as mpmodels
 
-from . import management
+from . import managementapi as management
 
 
 _CONTEXT = threading.local()

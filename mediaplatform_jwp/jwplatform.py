@@ -15,7 +15,7 @@ import django.core.exceptions
 import jwplatform
 import jwt
 
-from . import acl
+from mediaplatform_jwp import acl
 from . import models
 
 LOG = logging.getLogger(__name__)
@@ -147,7 +147,7 @@ class Video(Resource):
         .. note::
 
             This method looks for videos by way of the
-            :py:class:`~smsjwplatform.models.CachedResource` model and *not* by using the API
+            :py:class:`~mediaplatform_jwp.models.CachedResource` model and *not* by using the API
             directly.
 
         :param key: JWPlatform key for the media.
@@ -169,7 +169,7 @@ class Video(Resource):
         .. note::
 
             This method looks for videos by way of the
-            :py:class:`~smsjwplatform.models.CachedResource` model and *not* by using the API
+            :py:class:`~mediaplatform_jwp.models.CachedResource` model and *not* by using the API
             directly.
 
         :param media_id: the SMS media ID of the required video
@@ -255,7 +255,6 @@ class DeliveryVideo(Resource):
         is used.
 
         :raises: :py:exc:`VideoNotFoundError` if the video is not found.
-
         """
         session = session if session is not None else DEFAULT_REQUESTS_SESSION
 
@@ -373,7 +372,7 @@ def signed_url(url):
     <https://developer.jwplayer.com/jw-platform/docs/developer-guide/delivery-api/legacy-url-token-signing/>`_.
 
     The signature timeout is specified by the
-    :py:data:`~smsjwplatform.defaultsettings.JWPLATFORM_SIGNATURE_TIMEOUT` setting.
+    :py:data:`~mediaplatform_jwp.defaultsettings.JWPLATFORM_SIGNATURE_TIMEOUT` setting.
 
     :param url: The JWPlatform API URL to add a query string to.
 

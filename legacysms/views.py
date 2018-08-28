@@ -8,7 +8,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 import requests
 
-from smsjwplatform import jwplatform as api
+from mediaplatform_jwp import jwplatform as api
 from mediaplatform import models as mpmodels
 
 from . import redirect as legacyredirect
@@ -32,7 +32,7 @@ def embed(request, media_id):
 
     If no media matching the provided SMS media ID is found, a 404 response is generated.
 
-    In :py:mod:`~.urls` this view is named ``smsjwplatform:embed``.
+    In :py:mod:`~.urls` this view is named ``mediaplatform_jwp:embed``.
 
     """
     item = (

@@ -51,7 +51,7 @@ class MediaItemSyncTestCase(TestCase):
     def setUp(self):
         # Mock the item update function.
         self.schedule_item_update_patcher = mock.patch(
-            'mediaplatform_jwp.management.schedule_item_update')
+            'mediaplatform_jwp.managementapi.schedule_item_update')
         self.schedule_item_update = self.schedule_item_update_patcher.start()
         self.addCleanup(self.schedule_item_update_patcher.stop)
 

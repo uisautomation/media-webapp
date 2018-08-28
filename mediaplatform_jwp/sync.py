@@ -9,8 +9,8 @@ import pytz
 import mediaplatform.models as mpmodels
 import mediaplatform_jwp.models as jwpmodels
 import legacysms.models as legacymodels
-import smsjwplatform.models as smsjwpmodels
-from smsjwplatform import jwplatform as jwp
+import mediaplatform_jwp.models as mediajwpmodels
+from mediaplatform_jwp import jwplatform as jwp
 
 from .signalhandlers import setting_sync_items
 
@@ -46,9 +46,9 @@ def update_related_models_from_cache(update_all_videos=False):
 
     # A query for JWP videos/channels in our DB which are no-longer in JWPlatform
     deleted_jwp_videos = jwpmodels.Video.objects.exclude(
-        key__in=smsjwpmodels.CachedResource.videos.values_list('key', flat=True))
+        key__in=mediajwpmodels.CachedResource.videos.values_list('key', flat=True))
     deleted_jwp_channels = jwpmodels.Channel.objects.exclude(
-        key__in=smsjwpmodels.CachedResource.channels.values_list('key', flat=True))
+        key__in=mediajwpmodels.CachedResource.channels.values_list('key', flat=True))
 
     # A query for media items which are to be deleted because they relate to a JWP video which was
     # deleted
@@ -96,10 +96,10 @@ def update_related_models_from_cache(update_all_videos=False):
     # have associated mediaplatform_jwp.Video objects.
 
     updated_jwp_video_keys = _ensure_resources(
-        jwpmodels.Video, smsjwpmodels.CachedResource.videos)
+        jwpmodels.Video, mediajwpmodels.CachedResource.videos)
 
     _ensure_resources(
-        jwpmodels.Channel, smsjwpmodels.CachedResource.channels)
+        jwpmodels.Channel, mediajwpmodels.CachedResource.channels)
 
     # 3) Insert missing mediaplatform.MediaItem and mediaplatform.Channel objects
     #
@@ -114,7 +114,7 @@ def update_related_models_from_cache(update_all_videos=False):
         jwpmodels.Video.objects
         .filter(item__isnull=True)
         .annotate(data=models.Subquery(
-            smsjwpmodels.CachedResource.videos
+            mediajwpmodels.CachedResource.videos
             .filter(key=models.OuterRef('key'))
             .values_list('data')[:1]
         ))
@@ -150,7 +150,7 @@ def update_related_models_from_cache(update_all_videos=False):
         jwpmodels.Channel.objects
         .filter(channel__isnull=True)
         .annotate(data=models.Subquery(
-            smsjwpmodels.CachedResource.channels
+            mediajwpmodels.CachedResource.channels
             .filter(key=models.OuterRef('key'))
             .values_list('data')[:1]
         ))
@@ -196,7 +196,7 @@ def update_related_models_from_cache(update_all_videos=False):
         # some reason
         .only('view_permission', 'jwp', 'sms', 'updated_at')
         .annotate(data=models.Subquery(
-            smsjwpmodels.CachedResource.videos
+            mediajwpmodels.CachedResource.videos
             .filter(key=models.OuterRef('jwp__key'))
             .values_list('data')[:1]
         ))
@@ -318,7 +318,7 @@ def update_related_models_from_cache(update_all_videos=False):
         # some reason
         .only('edit_permission', 'jwp', 'sms', 'updated_at')
         .annotate(data=models.Subquery(
-            smsjwpmodels.CachedResource.channels
+            mediajwpmodels.CachedResource.channels
             .filter(key=models.OuterRef('jwp__key'))
             .values_list('data')[:1]
         ))

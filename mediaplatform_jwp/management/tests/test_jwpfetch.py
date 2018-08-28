@@ -3,7 +3,7 @@ from unittest import mock
 from django.core.management import call_command
 from django.test import TestCase
 
-from smsjwplatform.models import CachedResource
+from mediaplatform_jwp.models import CachedResource
 
 
 class JWPFetchTest(TestCase):
@@ -20,7 +20,7 @@ class JWPFetchTest(TestCase):
         self.jwp_client = mock.MagicMock()
 
         get_jwplatform_client_patcher = mock.patch(
-            'smsjwplatform.jwplatform.get_jwplatform_client', return_value=self.jwp_client
+            'mediaplatform_jwp.jwplatform.get_jwplatform_client', return_value=self.jwp_client
         )
         get_jwplatform_client_patcher.start()
         self.addCleanup(get_jwplatform_client_patcher.stop)

@@ -1,15 +1,15 @@
 """
 The ``jwpfetch`` management command fetches metadata on videos from JWPlayer via the JWPlatform
 management API and caches it in the database as a series of
-:py:class:`~smsjwplatform.models.CachedResource` objects.
+:py:class:`~mediaplatform_jwp.models.CachedResource` objects.
 
 It is designed to be called periodically without arguments to keep the local cache of the
 JWPlatform state in sync with reality.
 
 Note that resources which disappear from JWPlayer are *not* deleted from the database. Rather,
 their ``deleted_at`` attribute is set to a non-NULL date and time. The specialised object managers
-on :py:class`~smsjwplatform.models.CachedResource` understand this and filter out deleted objects
-for you.
+on :py:class`~mediaplatform_jwp.models.CachedResource` understand this and filter out deleted
+objects for you.
 
 The ``--sync-all`` flag may be given to bypass the freshness check for updating database objects
 from the associated JWP metadata. If given, *all* py:class`mediaplatform.models.MediaItem` objects
@@ -26,9 +26,8 @@ only video or channel resources is controlled via the ``--skip-video-fetch`` and
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from smsjwplatform import models
-from smsjwplatform import jwplatform
-from mediaplatform_jwp import sync
+from mediaplatform_jwp import models
+from mediaplatform_jwp import sync, jwplatform
 import mediaplatform.models
 
 

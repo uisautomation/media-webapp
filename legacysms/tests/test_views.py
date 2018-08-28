@@ -11,8 +11,8 @@ from django.urls import reverse
 from django.test import TestCase
 import requests
 
-import smsjwplatform.jwplatform as api
-from smsjwplatform.models import CachedResource
+import mediaplatform_jwp.jwplatform as api
+from mediaplatform_jwp.models import CachedResource
 from mediaplatform import models as mpmodels
 from mediaplatform_jwp import sync
 
@@ -85,7 +85,7 @@ class EmbedTest(TestCaseWithFixtures):
         feed.
 
         """
-        with mock.patch('smsjwplatform.jwplatform.Video.from_media_id') as from_media_id:
+        with mock.patch('mediaplatform_jwp.jwplatform.Video.from_media_id') as from_media_id:
             from_media_id.return_value = api.Video({
                 'key': 'video-key',
                 'custom': {
@@ -107,7 +107,7 @@ class EmbedTest(TestCaseWithFixtures):
         Test RSS media feed redirects if media item not found.
 
         """
-        with mock.patch('smsjwplatform.jwplatform.Video.from_media_id',
+        with mock.patch('mediaplatform_jwp.jwplatform.Video.from_media_id',
                         side_effect=api.VideoNotFoundError()):
             # Try to embed a video
             r = self.client.get(reverse('legacysms:rss_media', kwargs={'media_id': 34}))
@@ -126,7 +126,7 @@ class DownloadTests(TestCase):
     def setUp(self):
         # Patch the video_from_media_id call
         self.video_from_media_id_patcher = mock.patch(
-            'smsjwplatform.jwplatform.Video.from_media_id')
+            'mediaplatform_jwp.jwplatform.Video.from_media_id')
 
         # Patch the requests library
         self.requests_session_patcher = mock.patch('legacysms.views.DEFAULT_REQUESTS_SESSION')
@@ -268,7 +268,7 @@ class DownloadTests(TestCase):
         Tests the behaviour when the user's identity (if any) doesn't match the ACL.
 
         """
-        with mock.patch('smsjwplatform.jwplatform.Video.from_media_id') as from_media_id:
+        with mock.patch('mediaplatform_jwp.jwplatform.Video.from_media_id') as from_media_id:
             from_media_id.return_value = api.Video({
                 'key': 'video-key',
                 'custom': {
@@ -372,14 +372,14 @@ MEDIA_INFO = {
 @contextmanager
 def patched_client():
     """
-    Patch smsjwplatform.jwplatform.get_jwplatform_client to return a MagicMock instance. Yield this
-    instance when used as a context manager.
+    Patch mediaplatform_jwp.jwplatform.get_jwplatform_client to return a MagicMock instance.
+    Yield this instance when used as a context manager.
 
     """
     client = mock.MagicMock()
     get_client = mock.MagicMock()
     get_client.return_value = client
-    patcher = mock.patch('smsjwplatform.jwplatform.get_jwplatform_client', get_client)
+    patcher = mock.patch('mediaplatform_jwp.jwplatform.get_jwplatform_client', get_client)
     patcher.start()
     yield client
     patcher.stop()
