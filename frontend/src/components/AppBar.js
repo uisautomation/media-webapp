@@ -16,7 +16,7 @@ import SearchForm from './SearchForm';
 import LogoImage from '../img/logo.svg';
 
 // The location for a redirected search request
-// TODO this is to be refactored as per https://github.com/uisautomation/sms-webapp/issues/102
+// TODO this is to be refactored as per https://github.com/uisautomation/media-webapp/issues/102
 const SEARCH_LOCATION = '/';
 
 /**
