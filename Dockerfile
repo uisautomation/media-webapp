@@ -38,7 +38,7 @@ COPY --from=frontend-builder /usr/src/app/build/ /usr/src/frontend/
 # DJANGO_DB_ENGINE, DJANGO_DB_HOST, DJANGO_DB_PORT, DJANGO_DB_USER
 EXPOSE 8000
 ENV \
-	DJANGO_SETTINGS_MODULE=smswebapp.settings.docker \
+	DJANGO_SETTINGS_MODULE=mediawebapp.settings.docker \
 	DJANGO_FRONTEND_APP_BUILD_DIR=/usr/src/frontend/ \
 	PORT=8000
 
@@ -47,11 +47,11 @@ RUN DJANGO_SECRET_KEY=placeholder ./manage.py collectstatic
 
 # Use gunicorn as a web-server after running migration command
 CMD gunicorn \
-	--name smswebapp \
+	--name mediawebapp \
 	--bind :$PORT \
 	--workers 3 \
 	--log-level=info \
 	--log-file=- \
 	--access-logfile=- \
 	--capture-output \
-	smswebapp.wsgi
+	mediawebapp.wsgi

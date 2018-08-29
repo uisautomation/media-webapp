@@ -62,7 +62,7 @@ MIDDLEWARE = [
 ]
 
 #: Root URL patterns
-ROOT_URLCONF = 'smswebapp.urls'
+ROOT_URLCONF = 'mediawebapp.urls'
 
 # Serve the frontend files from the application root.
 FRONTEND_APP_BUILD_DIR = os.environ.get(
@@ -89,7 +89,7 @@ TEMPLATES = [
 ]
 
 #: WSGI
-WSGI_APPLICATION = 'smswebapp.wsgi.application'
+WSGI_APPLICATION = 'mediawebapp.wsgi.application'
 
 
 #: Database configuration. The default settings allow configuration of the database from
