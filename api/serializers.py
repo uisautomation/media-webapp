@@ -15,7 +15,7 @@ from mediaplatform_jwp.jwplatformapi import deliveryapi as jwplatform, managemen
 LOG = logging.getLogger(__name__)
 
 
-# Model serializers
+# Model serializers for API calls
 #
 # The following serializers are to be used for list views and include minimal (if any) related
 # resources.

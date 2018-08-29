@@ -9,6 +9,8 @@ from mediaplatform_jwp.jwplatformapi import deliveryapi as jwplatform
 LOG = logging.getLogger(__name__)
 
 
+# Model serializers for views
+
 class JSONLDMetaclass(serializers.SerializerMetaclass):
     def __new__(cls, clsname, bases, attrs):
         for field_name in ['id']:
