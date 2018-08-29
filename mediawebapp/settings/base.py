@@ -58,7 +58,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'mediaplatform_jwp.middleware.user_lookup_middleware'
+    'mediawebapp.middleware.user_lookup_middleware'
 ]
 
 #: Root URL patterns
