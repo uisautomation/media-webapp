@@ -24,8 +24,7 @@
 
   
 
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -87,6 +86,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#clone-the-repository-locally">Clone the repository locally</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#install-docker-compose">Install docker-compose</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#run-tests">Run tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configure-secrets">Configure secrets</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bring-up-a-development-web-server">Bring up a development web-server</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#next-steps">Next steps</a></li>
 </ul>
@@ -94,6 +94,8 @@
 <li class="toctree-l1"><a class="reference internal" href="developer.html">Developer’s guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="smswebapp.html">The Web App Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mediaplatform.html">Media Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">REST API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="smsjwplatform.html">JWPlatform Integration Application</a></li>
 <li class="toctree-l1"><a class="reference internal" href="legacy-sms.html">Support for Legacy SMS</a></li>
 </ul>
@@ -167,7 +169,7 @@ machine configured. More information on development is found in the
 <a class="reference internal" href="developer.html"><span class="doc">Developer’s guide</span></a>.</p>
 <div class="section" id="fork-the-upstream-repository">
 <h2>Fork the upstream repository<a class="headerlink" href="#fork-the-upstream-repository" title="Permalink to this headline">¶</a></h2>
-<p>The repository at <a class="reference external" href="https://github.com/uisautomation/sms-webapp">https://github.com/uisautomation/sms-webapp</a> is configured to
+<p>The repository at <a class="reference external" href="https://github.com/uisautomation/media-webapp">https://github.com/uisautomation/media-webapp</a> is configured to
 disallow pushing to master. You’ll need to <em>fork</em> the repository into your
 personal account and then open pull requests from your personal repository into
 the main repository.</p>
@@ -188,9 +190,9 @@ Make sure to enable the Codecov integration.</li>
 your local user fork. This means that <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">push</span></code> commands will modify your
 local fork but <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span></code> commands will automatically fetch from the upstream
 repository.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone git@github.com:uisautomation/sms-webapp.git
-$ <span class="nb">cd</span> sms-webapp
-$ git remote set-url origin --push git@github.com:<span class="nv">$USER</span>/sms-webapp.git
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone git@github.com:uisautomation/media-webapp.git
+$ <span class="nb">cd</span> media-webapp
+$ git remote set-url origin --push git@github.com:<span class="nv">$USER</span>/media-webapp.git
 </pre></div>
 </div>
 <div class="admonition note">
@@ -201,7 +203,7 @@ Unix-y systems this will be done by magic!</p>
 </div>
 <p>It is also worth setting up an explicit remote for your personal repository.
 Sometimes you’ll want to <code class="docutils literal notranslate"><span class="pre">push</span></code> or <code class="docutils literal notranslate"><span class="pre">pull</span></code> from it.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git remote add <span class="nv">$USER</span> git@github.com:<span class="nv">$USER</span>/sms-webapp.git
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git remote add <span class="nv">$USER</span> git@github.com:<span class="nv">$USER</span>/media-webapp.git
 </pre></div>
 </div>
 </div>
@@ -218,6 +220,14 @@ wrapper script:</p>
 </pre></div>
 </div>
 </div>
+<div class="section" id="configure-secrets">
+<h2>Configure secrets<a class="headerlink" href="#configure-secrets" title="Permalink to this headline">¶</a></h2>
+<p>Secrets used in development are loaded from a <code class="docutils literal notranslate"><span class="pre">secrets.env</span></code> file in the
+project root. An example of this file is located at <code class="docutils literal notranslate"><span class="pre">secrets.env.in</span></code>. Copy it
+to <code class="docutils literal notranslate"><span class="pre">secrets.env</span></code> and fill in the appropriate secrets. <code class="docutils literal notranslate"><span class="pre">secrets.env</span></code> has been
+added to the <code class="docutils literal notranslate"><span class="pre">.gitignore</span></code> file to guard against accidentally committing the
+file.</p>
+</div>
 <div class="section" id="bring-up-a-development-web-server">
 <h2>Bring up a development web-server<a class="headerlink" href="#bring-up-a-development-web-server" title="Permalink to this headline">¶</a></h2>
 <p>If the tests pass, you should be able to bring up a development web-server:</p>
@@ -227,12 +237,13 @@ wrapper script:</p>
 <p>The application should now be available at <a class="reference external" href="http://localhost:8000/">http://localhost:8000/</a>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p>Some settings are loaded from environment variables. These are settings
+<p class="last">Some settings are loaded from environment variables. These are settings
 which are either sensitive or dependent on third-party sources.
 Docker-compose will warn when starting the server if these variables are not
-set.</p>
-<p class="last">If you want to create a script to set these environment variables, then
-<code class="docutils literal notranslate"><span class="pre">setupenv.sh</span></code> has been added to the <code class="docutils literal notranslate"><span class="pre">.gitignore</span></code> file.</p>
+set. These secrets are loaded by the docker-compose configuration from a
+file named <code class="docutils literal notranslate"><span class="pre">secrets.env</span></code> which must be created. See the <code class="docutils literal notranslate"><span class="pre">secrets.env.in</span></code>
+file for guidance. <code class="docutils literal notranslate"><span class="pre">secrets.env</span></code> has been added to the <code class="docutils literal notranslate"><span class="pre">.gitignore</span></code> file
+to guard agains inadvertently commiting it.</p>
 </div>
 </div>
 <div class="section" id="next-steps">
@@ -297,10 +308,7 @@ set.</p>
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
   <script type="text/javascript">
       jQuery(function () {

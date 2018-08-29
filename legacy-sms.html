@@ -24,8 +24,7 @@
 
   
 
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -84,6 +83,8 @@
 <li class="toctree-l1"><a class="reference internal" href="developer.html">Developer’s guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="smswebapp.html">The Web App Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mediaplatform.html">Media Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">REST API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="smsjwplatform.html">JWPlatform Integration Application</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Support for Legacy SMS</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#apache-configuration">Apache Configuration</a></li>
@@ -236,6 +237,26 @@ the preferred media type.</p>
 <p>In <a class="reference internal" href="smsjwplatform.html#module-smsjwplatform.urls" title="smsjwplatform.urls"><code class="xref py py-mod docutils literal notranslate"><span class="pre">urls</span></code></a> this view is named <code class="docutils literal notranslate"><span class="pre">smsjwplatform:embed</span></code>.</p>
 </dd></dl>
 
+<dl class="function">
+<dt id="legacysms.views.media">
+<code class="descclassname">legacysms.views.</code><code class="descname">media</code><span class="sig-paren">(</span><em>request</em>, <em>media_id</em><span class="sig-paren">)</span><a class="headerlink" href="#legacysms.views.media" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>request</strong> – the current request</li>
+<li><strong>media_id</strong> (<em>int</em>) – SMS media id of the required media</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Redirect to the correct UI view for the specified SMS media IO. If no media matching the
+provided SMS media ID is found, a redirect back to the legacy SMS is generated.</p>
+<p>In <a class="reference internal" href="smsjwplatform.html#module-smsjwplatform.urls" title="smsjwplatform.urls"><code class="xref py py-mod docutils literal notranslate"><span class="pre">urls</span></code></a> this view is named <code class="docutils literal notranslate"><span class="pre">legacysms:media</span></code>.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="module-legacysms.redirect">
 <span id="redirection-back-to-legacy-sms"></span><h2>Redirection back to legacy SMS<a class="headerlink" href="#module-legacysms.redirect" title="Permalink to this headline">¶</a></h2>
@@ -255,6 +276,13 @@ given media id. Raises <code class="xref py py-exc docutils literal notranslate"
 <code class="descclassname">legacysms.redirect.</code><code class="descname">media_embed</code><span class="sig-paren">(</span><em>media_id</em><span class="sig-paren">)</span><a class="headerlink" href="#legacysms.redirect.media_embed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">HttpResponse</span></code> which redirects back to the legacy embed view for the given
 media id. Raises <code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> if <em>media_id</em> is non-numeric.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="legacysms.redirect.media_page">
+<code class="descclassname">legacysms.redirect.</code><code class="descname">media_page</code><span class="sig-paren">(</span><em>media_id</em><span class="sig-paren">)</span><a class="headerlink" href="#legacysms.redirect.media_page" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">HttpResponse</span></code> which redirects back to the legacy media item page for the
+given media id. Raises <code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> if <em>media_id</em> is non-numeric.</p>
 </dd></dl>
 
 <dl class="function">
@@ -380,10 +408,7 @@ SMS web app.</p>
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
   <script type="text/javascript">
       jQuery(function () {

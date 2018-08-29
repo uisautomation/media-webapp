@@ -25,8 +25,7 @@
 
   
 
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -84,6 +83,8 @@
 <li class="toctree-l1"><a class="reference internal" href="developer.html">Developer’s guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="smswebapp.html">The Web App Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mediaplatform.html">Media Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">REST API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="smsjwplatform.html">JWPlatform Integration Application</a></li>
 <li class="toctree-l1"><a class="reference internal" href="legacy-sms.html">Support for Legacy SMS</a></li>
 </ul>
@@ -187,13 +188,41 @@
 </li>
       <li><a href="smsjwplatform.html#smsjwplatform.acl.AceUser">AceUser (class in smsjwplatform.acl)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="smsjwplatform.html#smsjwplatform.acl.AceWorld">AceWorld (class in smsjwplatform.acl)</a>
 </li>
-      <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.Video.acl">acl (smsjwplatform.jwplatform.Video attribute)</a>
+      <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.DeliveryVideo.acl">acl (smsjwplatform.jwplatform.DeliveryVideo attribute)</a>
+
+      <ul>
+        <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.Resource.acl">(smsjwplatform.jwplatform.Resource attribute)</a>
 </li>
+      </ul></li>
       <li><a href="configuration.html#smswebapp.settings.base.ALLOWED_HOSTS">ALLOWED_HOSTS (in module smswebapp.settings.base)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.Permission.allows_edit_channel">allows_edit_channel (mediaplatform.models.Permission attribute)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.Permission.allows_view_item">allows_view_item (mediaplatform.models.Permission attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="mediaplatform.html#mediaplatform.models.ChannelQuerySet.annotate_editable">annotate_editable() (mediaplatform.models.ChannelQuerySet method)</a>
+
+      <ul>
+        <li><a href="mediaplatform.html#mediaplatform.models.MediaItemQuerySet.annotate_editable">(mediaplatform.models.MediaItemQuerySet method)</a>
+</li>
+        <li><a href="mediaplatform.html#mediaplatform.models.PlaylistQuerySet.annotate_editable">(mediaplatform.models.PlaylistQuerySet method)</a>
+</li>
+      </ul></li>
+      <li><a href="mediaplatform.html#mediaplatform.models.ChannelQuerySet.annotate_viewable">annotate_viewable() (mediaplatform.models.ChannelQuerySet method)</a>
+
+      <ul>
+        <li><a href="mediaplatform.html#mediaplatform.models.MediaItemQuerySet.annotate_viewable">(mediaplatform.models.MediaItemQuerySet method)</a>
+</li>
+        <li><a href="mediaplatform.html#mediaplatform.models.PlaylistQuerySet.annotate_viewable">(mediaplatform.models.PlaylistQuerySet method)</a>
+</li>
+      </ul></li>
+      <li><a href="api.html#module-api.serializers">api.serializers (module)</a>
+</li>
+      <li><a href="api.html#module-api.views">api.views (module)</a>
 </li>
       <li><a href="configuration.html#smswebapp.settings.base.AUTH_PASSWORD_VALIDATORS">AUTH_PASSWORD_VALIDATORS (in module smswebapp.settings.base)</a>
 </li>
@@ -221,13 +250,89 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.Video.check_user_access">check_user_access() (smsjwplatform.jwplatform.Video method)</a>
+      <li><a href="smsjwplatform.html#smsjwplatform.models.CachedResource">CachedResource (class in smsjwplatform.models)</a>
+</li>
+      <li><a href="smsjwplatform.html#smsjwplatform.models.CachedResource.DoesNotExist">CachedResource.DoesNotExist</a>
+</li>
+      <li><a href="smsjwplatform.html#smsjwplatform.models.CachedResource.MultipleObjectsReturned">CachedResource.MultipleObjectsReturned</a>
+</li>
+      <li><a href="smsjwplatform.html#smsjwplatform.models.CachedResourceTypeManager">CachedResourceTypeManager (class in smsjwplatform.models)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.Channel">Channel (class in mediaplatform.models)</a>
+
+      <ul>
+        <li><a href="smsjwplatform.html#mediaplatform_jwp.models.Channel">(class in mediaplatform_jwp.models)</a>
+</li>
+        <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.Channel">(class in smsjwplatform.jwplatform)</a>
+</li>
+      </ul></li>
+      <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.channel">channel (mediaplatform.models.MediaItem attribute)</a>
+
+      <ul>
+        <li><a href="mediaplatform.html#mediaplatform.models.Playlist.channel">(mediaplatform.models.Playlist attribute)</a>
+</li>
+        <li><a href="smsjwplatform.html#mediaplatform_jwp.models.Channel.channel">(mediaplatform_jwp.models.Channel attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="smsjwplatform.html#smsjwplatform.models.CachedResource.CHANNEL">CHANNEL (smsjwplatform.models.CachedResource attribute)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.Channel.DoesNotExist">Channel.DoesNotExist</a>, <a href="smsjwplatform.html#mediaplatform_jwp.models.Channel.DoesNotExist">[1]</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.Channel.MultipleObjectsReturned">Channel.MultipleObjectsReturned</a>, <a href="smsjwplatform.html#mediaplatform_jwp.models.Channel.MultipleObjectsReturned">[1]</a>
+</li>
+      <li><a href="api.html#api.serializers.ChannelDetailSerializer">ChannelDetailSerializer (class in api.serializers)</a>
+</li>
+      <li><a href="api.html#api.views.ChannelListMixin">ChannelListMixin (class in api.views)</a>
+</li>
+      <li><a href="api.html#api.views.ChannelListView">ChannelListView (class in api.views)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.ChannelManager">ChannelManager (class in mediaplatform.models)</a>
+</li>
+      <li><a href="api.html#api.views.ChannelMixin">ChannelMixin (class in api.views)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#api.serializers.ChannelOwnedResourceModelSerializer">ChannelOwnedResourceModelSerializer (class in api.serializers)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.ChannelQuerySet">ChannelQuerySet (class in mediaplatform.models)</a>
+</li>
+      <li><a href="smsjwplatform.html#smsjwplatform.models.CachedResource.channels">channels (smsjwplatform.models.CachedResource attribute)</a>
+</li>
+      <li><a href="api.html#api.serializers.ChannelSerializer">ChannelSerializer (class in api.serializers)</a>
+</li>
+      <li><a href="api.html#api.views.ChannelView">ChannelView (class in api.views)</a>
+</li>
+      <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.Resource.check_user_access">check_user_access() (smsjwplatform.jwplatform.Resource method)</a>
+</li>
+      <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.Channel.collection_id">collection_id (smsjwplatform.jwplatform.Channel attribute)</a>
+</li>
       <li><a href="legacy-sms.html#legacysms.apps.Config">Config (class in legacysms.apps)</a>
 </li>
       <li><a href="legacy-sms.html#legacysms.views.CONTENT_TYPE_FOR_DOWNLOAD_EXTENSION">CONTENT_TYPE_FOR_DOWNLOAD_EXTENSION (in module legacysms.views)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.copyright">copyright (mediaplatform.models.MediaItem attribute)</a>
+</li>
+      <li><a href="api.html#api.serializers.ChannelSerializer.create">create() (api.serializers.ChannelSerializer method)</a>
+
+      <ul>
+        <li><a href="api.html#api.serializers.MediaItemSerializer.create">(api.serializers.MediaItemSerializer method)</a>
+</li>
+      </ul></li>
+      <li><a href="mediaplatform.html#mediaplatform.models.ChannelManager.create_for_user">create_for_user() (mediaplatform.models.ChannelManager method)</a>
+
+      <ul>
+        <li><a href="mediaplatform.html#mediaplatform.models.MediaItemManager.create_for_user">(mediaplatform.models.MediaItemManager method)</a>
+</li>
+      </ul></li>
+      <li><a href="mediaplatform.html#mediaplatform.models.Channel.created_at">created_at (mediaplatform.models.Channel attribute)</a>
+
+      <ul>
+        <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.created_at">(mediaplatform.models.MediaItem attribute)</a>
+</li>
+        <li><a href="mediaplatform.html#mediaplatform.models.Playlist.created_at">(mediaplatform.models.Playlist attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="mediaplatform.html#mediaplatform.models.Permission.crsids">crsids (mediaplatform.models.Permission attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -237,11 +342,35 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="configuration.html#smswebapp.settings.base.DATABASES">DATABASES (in module smswebapp.settings.base)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#api.serializers.MediaItemAnalyticsListSerializer.ResultRow.day">day (api.serializers.MediaItemAnalyticsListSerializer.ResultRow attribute)</a>
+</li>
       <li><a href="configuration.html#smswebapp.settings.base.DEBUG">DEBUG (in module smswebapp.settings.base)</a>
 </li>
       <li><a href="legacy-sms.html#legacysms.views.DEFAULT_REQUESTS_SESSION">DEFAULT_REQUESTS_SESSION (in module legacysms.views)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.Channel.deleted_at">deleted_at (mediaplatform.models.Channel attribute)</a>
+
+      <ul>
+        <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.deleted_at">(mediaplatform.models.MediaItem attribute)</a>
+</li>
+        <li><a href="mediaplatform.html#mediaplatform.models.Playlist.deleted_at">(mediaplatform.models.Playlist attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.DeliveryVideo">DeliveryVideo (class in smsjwplatform.jwplatform)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.Channel.description">description (mediaplatform.models.Channel attribute)</a>
+
+      <ul>
+        <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.description">(mediaplatform.models.MediaItem attribute)</a>
+</li>
+        <li><a href="mediaplatform.html#mediaplatform.models.Playlist.description">(mediaplatform.models.Playlist attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.downloadable">downloadable (mediaplatform.models.MediaItem attribute)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.duration">duration (mediaplatform.models.MediaItem attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -249,7 +378,23 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="mediaplatform.html#mediaplatform.models.ChannelQuerySet.editable_by_user">editable_by_user() (mediaplatform.models.ChannelQuerySet method)</a>
+
+      <ul>
+        <li><a href="mediaplatform.html#mediaplatform.models.MediaItemQuerySet.editable_by_user">(mediaplatform.models.MediaItemQuerySet method)</a>
+</li>
+        <li><a href="mediaplatform.html#mediaplatform.models.PlaylistQuerySet.editable_by_user">(mediaplatform.models.PlaylistQuerySet method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="legacy-sms.html#legacysms.views.embed">embed() (in module legacysms.views)</a>
+</li>
+      <li><a href="smsjwplatform.html#mediaplatform_jwp.models.Video.embed_url">embed_url (mediaplatform_jwp.models.Video attribute)</a>
+</li>
+      <li><a href="api.html#api.views.exception_handler">exception_handler() (in module api.views)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.UploadEndpoint.expires_at">expires_at (mediaplatform.models.UploadEndpoint attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -257,8 +402,18 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.Video.from_key">from_key() (smsjwplatform.jwplatform.Video class method)</a>
+      <li><a href="mediaplatform.html#mediaplatform.models.Playlist.fetched_media_items_in_order">fetched_media_items_in_order (mediaplatform.models.Playlist attribute)</a>
 </li>
+      <li><a href="api.html#api.views.MediaItemListSearchFilter.filter_queryset">filter_queryset() (api.views.MediaItemListSearchFilter method)</a>
+</li>
+      <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.Channel.from_key">from_key() (smsjwplatform.jwplatform.Channel class method)</a>
+
+      <ul>
+        <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.DeliveryVideo.from_key">(smsjwplatform.jwplatform.DeliveryVideo class method)</a>
+</li>
+        <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.Video.from_key">(smsjwplatform.jwplatform.Video class method)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.Video.from_media_id">from_media_id() (smsjwplatform.jwplatform.Video class method)</a>
@@ -269,12 +424,42 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.generate_token">generate_token() (in module smsjwplatform.jwplatform)</a>
+      <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.get_embed_url">get_embed_url() (mediaplatform.models.MediaItem method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.get_jwplatform_client">get_jwplatform_client() (in module smsjwplatform.jwplatform)</a>
 </li>
+      <li><a href="api.html#api.views.ProfileView.get_object">get_object() (api.views.ProfileView method)</a>
+</li>
+      <li><a href="api.html#api.views.get_profile">get_profile() (in module api.views)</a>
+</li>
+      <li><a href="api.html#api.views.ChannelListView.get_queryset">get_queryset() (api.views.ChannelListView method)</a>
+
+      <ul>
+        <li><a href="api.html#api.views.MediaItemListView.get_queryset">(api.views.MediaItemListView method)</a>
+</li>
+        <li><a href="api.html#api.views.MediaItemUploadView.get_queryset">(api.views.MediaItemUploadView method)</a>
+</li>
+        <li><a href="api.html#api.views.PlaylistListView.get_queryset">(api.views.PlaylistListView method)</a>
+</li>
+        <li><a href="mediaplatform.html#mediaplatform.models.ChannelManager.get_queryset">(mediaplatform.models.ChannelManager method)</a>
+</li>
+        <li><a href="mediaplatform.html#mediaplatform.models.MediaItemManager.get_queryset">(mediaplatform.models.MediaItemManager method)</a>
+</li>
+        <li><a href="mediaplatform.html#mediaplatform.models.PlaylistManager.get_queryset">(mediaplatform.models.PlaylistManager method)</a>
+</li>
+        <li><a href="smsjwplatform.html#smsjwplatform.models.CachedResourceTypeManager.get_queryset">(smsjwplatform.models.CachedResourceTypeManager method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#api.views.MediaItemListSearchFilter.get_search_terms">get_search_terms() (api.views.MediaItemListSearchFilter method)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.get_sources">get_sources() (mediaplatform.models.MediaItem method)</a>
+
+      <ul>
+        <li><a href="smsjwplatform.html#mediaplatform_jwp.models.Video.get_sources">(mediaplatform_jwp.models.Video method)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -294,19 +479,57 @@
 </li>
       </ul></li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.Source.height">height (mediaplatform.models.MediaItem.Source attribute)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="mediaplatform.html#mediaplatform.models.Channel.id">id (mediaplatform.models.Channel attribute)</a>
+
+      <ul>
+        <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.id">(mediaplatform.models.MediaItem attribute)</a>
+</li>
+        <li><a href="mediaplatform.html#mediaplatform.models.Permission.id">(mediaplatform.models.Permission attribute)</a>
+</li>
+        <li><a href="mediaplatform.html#mediaplatform.models.Playlist.id">(mediaplatform.models.Playlist attribute)</a>
+</li>
+        <li><a href="mediaplatform.html#mediaplatform.models.UploadEndpoint.id">(mediaplatform.models.UploadEndpoint attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="configuration.html#smswebapp.settings.base.INSTALLED_APPS">INSTALLED_APPS (in module smswebapp.settings.base)</a>
 </li>
+      <li><a href="mediaplatform.html#mediaplatform.models.Permission.is_public">is_public (mediaplatform.models.Permission attribute)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.Permission.is_signed_in">is_signed_in (mediaplatform.models.Permission attribute)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.Source.item">item (mediaplatform.models.MediaItem.Source attribute)</a>
+
+      <ul>
+        <li><a href="mediaplatform.html#mediaplatform.models.UploadEndpoint.item">(mediaplatform.models.UploadEndpoint attribute)</a>
+</li>
+        <li><a href="smsjwplatform.html#mediaplatform_jwp.models.Video.item">(mediaplatform_jwp.models.Video attribute)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="J">J</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="smsjwplatform.html#mediaplatform_jwp.defaultsettings.JWP_FORCE_HTTPS_UPLOAD">JWP_FORCE_HTTPS_UPLOAD (in module mediaplatform_jwp.defaultsettings)</a>
+</li>
+      <li><a href="smsjwplatform.html#mediaplatform_jwp.defaultsettings.JWP_SYNC_ITEMS">JWP_SYNC_ITEMS (in module mediaplatform_jwp.defaultsettings)</a>
+
+      <ul>
+        <li><a href="smswebapp.html#smswebapp.settings.tox.JWP_SYNC_ITEMS">(in module smswebapp.settings.tox)</a>
+</li>
+      </ul></li>
       <li><a href="smsjwplatform.html#smsjwplatform.defaultsettings.JWPLATFORM_API_BASE_URL">JWPLATFORM_API_BASE_URL (in module smsjwplatform.defaultsettings)</a>
 </li>
       <li><a href="smsjwplatform.html#smsjwplatform.defaultsettings.JWPLATFORM_API_KEY">JWPLATFORM_API_KEY (in module smsjwplatform.defaultsettings)</a>
@@ -325,6 +548,8 @@
         <li><a href="configuration.html#smswebapp.settings.base.JWPLATFORM_API_SECRET">(in module smswebapp.settings.base)</a>
 </li>
       </ul></li>
+      <li><a href="smsjwplatform.html#smsjwplatform.defaultsettings.JWPLATFORM_CONTENT_BASE_URL">JWPLATFORM_CONTENT_BASE_URL (in module smsjwplatform.defaultsettings)</a>
+</li>
       <li><a href="smsjwplatform.html#smsjwplatform.defaultsettings.JWPLATFORM_EMBED_PLAYER_KEY">JWPLATFORM_EMBED_PLAYER_KEY (in module smsjwplatform.defaultsettings)</a>
 
       <ul>
@@ -339,14 +564,22 @@
 <h2 id="K">K</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.Video.key">key (smsjwplatform.jwplatform.Video attribute)</a>
+      <li><a href="smsjwplatform.html#mediaplatform_jwp.models.Channel.key">key (mediaplatform_jwp.models.Channel attribute)</a>
+
+      <ul>
+        <li><a href="smsjwplatform.html#mediaplatform_jwp.models.Video.key">(mediaplatform_jwp.models.Video attribute)</a>
 </li>
+        <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.Resource.key">(smsjwplatform.jwplatform.Resource attribute)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.language">language (mediaplatform.models.MediaItem attribute)</a>
+</li>
       <li><a href="configuration.html#smswebapp.settings.base.LANGUAGE_CODE">LANGUAGE_CODE (in module smswebapp.settings.base)</a>
 </li>
       <li><a href="legacy-sms.html#legacysms.defaultsettings.LEGACY_SMS_DOWNLOADS_URL">LEGACY_SMS_DOWNLOADS_URL (in module legacysms.defaultsettings)</a>
@@ -359,15 +592,25 @@
 </li>
       <li><a href="legacy-sms.html#module-legacysms.apps">legacysms.apps (module)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="legacy-sms.html#module-legacysms.defaultsettings">legacysms.defaultsettings (module)</a>
 </li>
       <li><a href="legacy-sms.html#module-legacysms.redirect">legacysms.redirect (module)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="legacy-sms.html#module-legacysms.views">legacysms.views (module)</a>
 </li>
+      <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.Channel.list">list() (smsjwplatform.jwplatform.Channel class method)</a>
+</li>
+      <li><a href="api.html#api.views.ListMixinBase">ListMixinBase (class in api.views)</a>
+</li>
+      <li><a href="api.html#api.views.ListPagination">ListPagination (class in api.views)</a>
+</li>
       <li><a href="smswebapp.html#smswebapp.settings.tox.LOGGING">LOGGING (in module smswebapp.settings.tox)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.Permission.lookup_groups">lookup_groups (mediaplatform.models.Permission attribute)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.Permission.lookup_insts">lookup_insts (mediaplatform.models.Permission attribute)</a>
 </li>
       <li><a href="smsjwplatform.html#smsjwplatform.defaultsettings.LOOKUP_PEOPLE_CACHE_LIFETIME">LOOKUP_PEOPLE_CACHE_LIFETIME (in module smsjwplatform.defaultsettings)</a>
 </li>
@@ -381,15 +624,79 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="legacy-sms.html#legacysms.views.media">media() (in module legacysms.views)</a>
+</li>
       <li><a href="legacy-sms.html#legacysms.redirect.media_download">media_download() (in module legacysms.redirect)</a>
 </li>
       <li><a href="legacy-sms.html#legacysms.redirect.media_embed">media_embed() (in module legacysms.redirect)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.DeliveryVideo.media_id">media_id (smsjwplatform.jwplatform.DeliveryVideo attribute)</a>
+
+      <ul>
+        <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.Video.media_id">(smsjwplatform.jwplatform.Video attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="mediaplatform.html#mediaplatform.models.Playlist.media_items">media_items (mediaplatform.models.Playlist attribute)</a>
+</li>
+      <li><a href="legacy-sms.html#legacysms.redirect.media_page">media_page() (in module legacysms.redirect)</a>
+</li>
       <li><a href="legacy-sms.html#legacysms.redirect.media_rss">media_rss() (in module legacysms.redirect)</a>
 </li>
+      <li><a href="mediaplatform.html#mediaplatform.models.MediaItem">MediaItem (class in mediaplatform.models)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.DoesNotExist">MediaItem.DoesNotExist</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.MultipleObjectsReturned">MediaItem.MultipleObjectsReturned</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.Source">MediaItem.Source (class in mediaplatform.models)</a>
+</li>
+      <li><a href="api.html#api.serializers.MediaItemAnalyticsListSerializer">MediaItemAnalyticsListSerializer (class in api.serializers)</a>
+</li>
+      <li><a href="api.html#api.serializers.MediaItemAnalyticsListSerializer.ResultRow">MediaItemAnalyticsListSerializer.ResultRow (class in api.serializers)</a>
+</li>
+      <li><a href="api.html#api.serializers.MediaItemAnalyticsSerializer">MediaItemAnalyticsSerializer (class in api.serializers)</a>
+</li>
+      <li><a href="api.html#api.views.MediaItemAnalyticsView">MediaItemAnalyticsView (class in api.views)</a>
+</li>
+      <li><a href="api.html#api.serializers.MediaItemDetailSerializer">MediaItemDetailSerializer (class in api.serializers)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#api.views.MediaItemEmbedView">MediaItemEmbedView (class in api.views)</a>
+</li>
+      <li><a href="api.html#api.views.MediaItemListMixin">MediaItemListMixin (class in api.views)</a>
+</li>
+      <li><a href="api.html#api.views.MediaItemListSearchFilter">MediaItemListSearchFilter (class in api.views)</a>
+</li>
+      <li><a href="api.html#api.views.MediaItemListView">MediaItemListView (class in api.views)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.MediaItemManager">MediaItemManager (class in mediaplatform.models)</a>
+</li>
+      <li><a href="api.html#api.views.MediaItemMixin">MediaItemMixin (class in api.views)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.MediaItemQuerySet">MediaItemQuerySet (class in mediaplatform.models)</a>
+</li>
+      <li><a href="api.html#api.serializers.MediaItemSerializer">MediaItemSerializer (class in api.serializers)</a>
+</li>
+      <li><a href="api.html#api.views.MediaItemSourceView">MediaItemSourceView (class in api.views)</a>
+</li>
+      <li><a href="api.html#api.views.MediaItemUploadView">MediaItemUploadView (class in api.views)</a>
+</li>
+      <li><a href="api.html#api.views.MediaItemView">MediaItemView (class in api.views)</a>
+</li>
+      <li><a href="mediaplatform.html#module-mediaplatform">mediaplatform (module)</a>
+</li>
+      <li><a href="mediaplatform.html#module-mediaplatform.models">mediaplatform.models (module)</a>
+</li>
+      <li><a href="smsjwplatform.html#module-mediaplatform_jwp.defaultsettings">mediaplatform_jwp.defaultsettings (module)</a>
+</li>
+      <li><a href="smsjwplatform.html#module-mediaplatform_jwp.models">mediaplatform_jwp.models (module)</a>
+</li>
+      <li><a href="api.html#api.serializers.MediaUploadSerializer">MediaUploadSerializer (class in api.serializers)</a>
+</li>
       <li><a href="configuration.html#smswebapp.settings.base.MIDDLEWARE">MIDDLEWARE (in module smswebapp.settings.base)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.Source.mime_type">mime_type (mediaplatform.models.MediaItem.Source attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -404,6 +711,10 @@
 </li>
       </ul></li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#api.serializers.MediaItemAnalyticsListSerializer.ResultRow.num_hits">num_hits (api.serializers.MediaItemAnalyticsListSerializer.ResultRow attribute)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="O">O</h2>
@@ -413,13 +724,33 @@
 </li>
       <li><a href="smsjwplatform.html#smsjwplatform.defaultsettings.OAUTH2_CLIENT_SECRET">OAUTH2_CLIENT_SECRET (in module smsjwplatform.defaultsettings)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="smsjwplatform.html#smsjwplatform.defaultsettings.OAUTH2_LOOKUP_SCOPES">OAUTH2_LOOKUP_SCOPES (in module smsjwplatform.defaultsettings)</a>
 </li>
       <li><a href="smsjwplatform.html#smsjwplatform.defaultsettings.OAUTH2_MAX_RETRIES">OAUTH2_MAX_RETRIES (in module smsjwplatform.defaultsettings)</a>
 </li>
       <li><a href="smsjwplatform.html#smsjwplatform.defaultsettings.OAUTH2_TOKEN_URL">OAUTH2_TOKEN_URL (in module smsjwplatform.defaultsettings)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.Channel.objects">objects (mediaplatform.models.Channel attribute)</a>
+
+      <ul>
+        <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.objects">(mediaplatform.models.MediaItem attribute)</a>
+</li>
+        <li><a href="mediaplatform.html#mediaplatform.models.Playlist.objects">(mediaplatform.models.Playlist attribute)</a>
+</li>
+        <li><a href="smsjwplatform.html#smsjwplatform.models.CachedResource.objects">(smsjwplatform.models.CachedResource attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="mediaplatform.html#mediaplatform.models.Channel.objects_including_deleted">objects_including_deleted (mediaplatform.models.Channel attribute)</a>
+
+      <ul>
+        <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.objects_including_deleted">(mediaplatform.models.MediaItem attribute)</a>
+</li>
+        <li><a href="mediaplatform.html#mediaplatform.models.Playlist.objects_including_deleted">(mediaplatform.models.Playlist attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="mediaplatform.html#mediaplatform.models.Channel.owning_lookup_inst">owning_lookup_inst (mediaplatform.models.Channel attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -427,6 +758,14 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#api.views.ChannelListView.pagination_class">pagination_class (api.views.ChannelListView attribute)</a>
+
+      <ul>
+        <li><a href="api.html#api.views.MediaItemListView.pagination_class">(api.views.MediaItemListView attribute)</a>
+</li>
+        <li><a href="api.html#api.views.PlaylistListView.pagination_class">(api.views.PlaylistListView attribute)</a>
+</li>
+      </ul></li>
       <li><a href="smsjwplatform.html#smsjwplatform.acl.AceCam.parse">parse() (smsjwplatform.acl.AceCam static method)</a>
 
       <ul>
@@ -439,13 +778,47 @@
         <li><a href="smsjwplatform.html#smsjwplatform.acl.AceWorld.parse">(smsjwplatform.acl.AceWorld static method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.parse_custom_field">parse_custom_field() (in module smsjwplatform.jwplatform)</a>
 </li>
       <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.pd_api_url">pd_api_url() (in module smsjwplatform.jwplatform)</a>
 </li>
+      <li><a href="mediaplatform.html#mediaplatform.models.Permission">Permission (class in mediaplatform.models)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.Permission.DoesNotExist">Permission.DoesNotExist</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.Permission.MultipleObjectsReturned">Permission.MultipleObjectsReturned</a>
+</li>
       <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.player_embed_url">player_embed_url() (in module smsjwplatform.jwplatform)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="mediaplatform.html#mediaplatform.models.Playlist">Playlist (class in mediaplatform.models)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.Playlist.DoesNotExist">Playlist.DoesNotExist</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.Playlist.MultipleObjectsReturned">Playlist.MultipleObjectsReturned</a>
+</li>
+      <li><a href="api.html#api.serializers.PlaylistDetailSerializer">PlaylistDetailSerializer (class in api.serializers)</a>
+</li>
+      <li><a href="api.html#api.views.PlaylistListMixin">PlaylistListMixin (class in api.views)</a>
+</li>
+      <li><a href="api.html#api.views.PlaylistListView">PlaylistListView (class in api.views)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.PlaylistManager">PlaylistManager (class in mediaplatform.models)</a>
+</li>
+      <li><a href="api.html#api.views.PlaylistMixin">PlaylistMixin (class in api.views)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.PlaylistQuerySet">PlaylistQuerySet (class in mediaplatform.models)</a>
+</li>
+      <li><a href="api.html#api.serializers.PlaylistSerializer">PlaylistSerializer (class in api.serializers)</a>
+</li>
+      <li><a href="api.html#api.views.PlaylistView">PlaylistView (class in api.views)</a>
+</li>
+      <li><a href="api.html#api.serializers.ProfileSerializer">ProfileSerializer (class in api.serializers)</a>
+</li>
+      <li><a href="api.html#api.views.ProfileView">ProfileView (class in api.views)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.published_at">published_at (mediaplatform.models.MediaItem attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -459,9 +832,17 @@
         <li><a href="smsjwplatform.html#smsjwplatform.apps.SMSJWPlatformConfig.ready">(smsjwplatform.apps.SMSJWPlatformConfig method)</a>
 </li>
       </ul></li>
+      <li><a href="api.html#api.serializers.RelatedChannelIdField">RelatedChannelIdField (class in api.serializers)</a>
+</li>
+      <li><a href="smsjwplatform.html#smsjwplatform.systemchecks.required_settings_check">required_settings_check() (in module smsjwplatform.systemchecks)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="smsjwplatform.html#smsjwplatform.systemchecks.required_settings_check">required_settings_check() (in module smsjwplatform.systemchecks)</a>
+      <li><a href="mediaplatform.html#mediaplatform.models.Permission.reset">reset() (mediaplatform.models.Permission method)</a>
+</li>
+      <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.Resource">Resource (class in smsjwplatform.jwplatform)</a>
+</li>
+      <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.ResourceACLPermissionDenied">ResourceACLPermissionDenied</a>
 </li>
       <li><a href="configuration.html#smswebapp.settings.base.ROOT_URLCONF">ROOT_URLCONF (in module smswebapp.settings.base)</a>
 </li>
@@ -473,6 +854,28 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="configuration.html#smswebapp.settings.base.SECRET_KEY">SECRET_KEY (in module smswebapp.settings.base)</a>
 </li>
+      <li><a href="api.html#api.views.ChannelListView.serializer_class">serializer_class (api.views.ChannelListView attribute)</a>
+
+      <ul>
+        <li><a href="api.html#api.views.ChannelView.serializer_class">(api.views.ChannelView attribute)</a>
+</li>
+        <li><a href="api.html#api.views.MediaItemAnalyticsView.serializer_class">(api.views.MediaItemAnalyticsView attribute)</a>
+</li>
+        <li><a href="api.html#api.views.MediaItemListView.serializer_class">(api.views.MediaItemListView attribute)</a>
+</li>
+        <li><a href="api.html#api.views.MediaItemUploadView.serializer_class">(api.views.MediaItemUploadView attribute)</a>
+</li>
+        <li><a href="api.html#api.views.MediaItemView.serializer_class">(api.views.MediaItemView attribute)</a>
+</li>
+        <li><a href="api.html#api.views.PlaylistListView.serializer_class">(api.views.PlaylistListView attribute)</a>
+</li>
+        <li><a href="api.html#api.views.PlaylistView.serializer_class">(api.views.PlaylistView attribute)</a>
+</li>
+        <li><a href="api.html#api.views.ProfileView.serializer_class">(api.views.ProfileView attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="smsjwplatform.html#smsjwplatform.models.set_resources">set_resources() (in module smsjwplatform.models)</a>
+</li>
       <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.signed_url">signed_url() (in module smsjwplatform.jwplatform)</a>
 </li>
       <li><a href="smsjwplatform.html#module-smsjwplatform">smsjwplatform (module)</a>
@@ -483,12 +886,16 @@
 </li>
       <li><a href="smsjwplatform.html#module-smsjwplatform.defaultsettings">smsjwplatform.defaultsettings (module)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="smsjwplatform.html#module-smsjwplatform.jwplatform">smsjwplatform.jwplatform (module)</a>
+</li>
+      <li><a href="smsjwplatform.html#module-smsjwplatform.management.commands.jwpfetch">smsjwplatform.management.commands.jwpfetch (module)</a>
+</li>
+      <li><a href="smsjwplatform.html#module-smsjwplatform.models">smsjwplatform.models (module)</a>
 </li>
       <li><a href="smsjwplatform.html#module-smsjwplatform.systemchecks">smsjwplatform.systemchecks (module)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="smsjwplatform.html#module-smsjwplatform.urls">smsjwplatform.urls (module)</a>
 </li>
       <li><a href="smsjwplatform.html#module-smsjwplatform.views">smsjwplatform.views (module)</a>
@@ -503,6 +910,14 @@
 </li>
       <li><a href="smswebapp.html#module-smswebapp.settings.tox">smswebapp.settings.tox (module)</a>
 </li>
+      <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.sources">sources (mediaplatform.models.MediaItem attribute)</a>
+
+      <ul>
+        <li><a href="smsjwplatform.html#mediaplatform_jwp.models.Video.sources">(mediaplatform_jwp.models.Video attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api.html#api.serializers.SourceSerializer">SourceSerializer (class in api.serializers)</a>
+</li>
       <li><a href="smswebapp.html#smswebapp.settings.tox.STATIC_ROOT">STATIC_ROOT (in module smswebapp.settings.tox)</a>
 </li>
       <li><a href="configuration.html#smswebapp.settings.base.STATIC_URL">STATIC_URL (in module smswebapp.settings.base)</a>
@@ -513,13 +928,25 @@
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.tags">tags (mediaplatform.models.MediaItem attribute)</a>
+</li>
       <li><a href="configuration.html#smswebapp.settings.base.TEMPLATES">TEMPLATES (in module smswebapp.settings.base)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="smswebapp.html#smswebapp.settings.tox.TEST_RUNNER">TEST_RUNNER (in module smswebapp.settings.tox)</a>
 </li>
       <li><a href="configuration.html#smswebapp.settings.base.TIME_ZONE">TIME_ZONE (in module smswebapp.settings.base)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="mediaplatform.html#mediaplatform.models.Channel.title">title (mediaplatform.models.Channel attribute)</a>
+
+      <ul>
+        <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.title">(mediaplatform.models.MediaItem attribute)</a>
+</li>
+        <li><a href="mediaplatform.html#mediaplatform.models.Playlist.title">(mediaplatform.models.Playlist attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.type">type (mediaplatform.models.MediaItem attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -533,8 +960,38 @@
 </li>
       <li><a href="configuration.html#smswebapp.settings.base.UCAMWEBAUTH_NOT_CURRENT">UCAMWEBAUTH_NOT_CURRENT (in module smswebapp.settings.base)</a>
 </li>
+      <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.UnparseableVideoError">UnparseableVideoError</a>
+</li>
+      <li><a href="api.html#api.serializers.ChannelOwnedResourceModelSerializer.update">update() (api.serializers.ChannelOwnedResourceModelSerializer method)</a>
+</li>
+      <li><a href="smsjwplatform.html#mediaplatform_jwp.models.Channel.updated">updated (mediaplatform_jwp.models.Channel attribute)</a>
+
+      <ul>
+        <li><a href="smsjwplatform.html#mediaplatform_jwp.models.Video.updated">(mediaplatform_jwp.models.Video attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="mediaplatform.html#mediaplatform.models.Channel.updated_at">updated_at (mediaplatform.models.Channel attribute)</a>
+
+      <ul>
+        <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.updated_at">(mediaplatform.models.MediaItem attribute)</a>
+</li>
+        <li><a href="mediaplatform.html#mediaplatform.models.Playlist.updated_at">(mediaplatform.models.Playlist attribute)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="mediaplatform.html#mediaplatform.models.UploadEndpoint">UploadEndpoint (class in mediaplatform.models)</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.UploadEndpoint.DoesNotExist">UploadEndpoint.DoesNotExist</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.UploadEndpoint.MultipleObjectsReturned">UploadEndpoint.MultipleObjectsReturned</a>
+</li>
+      <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.Source.url">url (mediaplatform.models.MediaItem.Source attribute)</a>
+
+      <ul>
+        <li><a href="mediaplatform.html#mediaplatform.models.UploadEndpoint.url">(mediaplatform.models.UploadEndpoint attribute)</a>
+</li>
+      </ul></li>
       <li><a href="configuration.html#smswebapp.settings.base.USE_I18N">USE_I18N (in module smswebapp.settings.base)</a>
 </li>
       <li><a href="configuration.html#smswebapp.settings.base.USE_L10N">USE_L10N (in module smswebapp.settings.base)</a>
@@ -553,19 +1010,41 @@
         <li><a href="smsjwplatform.html#smsjwplatform.apps.SMSJWPlatformConfig.verbose_name">(smsjwplatform.apps.SMSJWPlatformConfig attribute)</a>
 </li>
       </ul></li>
+      <li><a href="smsjwplatform.html#mediaplatform_jwp.models.Video">Video (class in mediaplatform_jwp.models)</a>
+
+      <ul>
+        <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.Video">(class in smsjwplatform.jwplatform)</a>
+</li>
+      </ul></li>
+      <li><a href="smsjwplatform.html#smsjwplatform.models.CachedResource.VIDEO">VIDEO (smsjwplatform.models.CachedResource attribute)</a>
+</li>
+      <li><a href="smsjwplatform.html#mediaplatform_jwp.models.Video.DoesNotExist">Video.DoesNotExist</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.Video">Video (class in smsjwplatform.jwplatform)</a>
+      <li><a href="smsjwplatform.html#mediaplatform_jwp.models.Video.MultipleObjectsReturned">Video.MultipleObjectsReturned</a>
 </li>
       <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.VideoNotFoundError">VideoNotFoundError</a>
 </li>
-      <li><a href="smsjwplatform.html#smsjwplatform.jwplatform.VideoPermissionDenied">VideoPermissionDenied</a>
+      <li><a href="smsjwplatform.html#smsjwplatform.models.CachedResource.videos">videos (smsjwplatform.models.CachedResource attribute)</a>
 </li>
+      <li><a href="mediaplatform.html#mediaplatform.models.ChannelQuerySet.viewable_by_user">viewable_by_user() (mediaplatform.models.ChannelQuerySet method)</a>
+
+      <ul>
+        <li><a href="mediaplatform.html#mediaplatform.models.MediaItemQuerySet.viewable_by_user">(mediaplatform.models.MediaItemQuerySet method)</a>
+</li>
+        <li><a href="mediaplatform.html#mediaplatform.models.PlaylistQuerySet.viewable_by_user">(mediaplatform.models.PlaylistQuerySet method)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.Source.width">width (mediaplatform.models.MediaItem.Source attribute)</a>
+</li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="configuration.html#smswebapp.settings.base.WSGI_APPLICATION">WSGI_APPLICATION (in module smswebapp.settings.base)</a>
 </li>
@@ -620,10 +1099,7 @@
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
   <script type="text/javascript">
       jQuery(function () {

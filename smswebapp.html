@@ -24,12 +24,11 @@
 
   
 
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="JWPlatform Integration Application" href="smsjwplatform.html" />
+    <link rel="next" title="Media Platform" href="mediaplatform.html" />
     <link rel="prev" title="Configuration" href="configuration.html" /> 
 
   
@@ -94,6 +93,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#custom-test-suite-runner">Custom test suite runner</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="mediaplatform.html">Media Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">REST API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="smsjwplatform.html">JWPlatform Integration Application</a></li>
 <li class="toctree-l1"><a class="reference internal" href="legacy-sms.html">Support for Legacy SMS</a></li>
 </ul>
@@ -191,6 +192,12 @@ uses this settings module when running the test suite.</p>
 </dd></dl>
 
 <dl class="data">
+<dt id="smswebapp.settings.tox.JWP_SYNC_ITEMS">
+<code class="descclassname">smswebapp.settings.tox.</code><code class="descname">JWP_SYNC_ITEMS</code><em class="property"> = False</em><a class="headerlink" href="#smswebapp.settings.tox.JWP_SYNC_ITEMS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do not synchronise items using the JWP API unless tests expect it</p>
+</dd></dl>
+
+<dl class="data">
 <dt id="smswebapp.settings.tox.LOGGING">
 <code class="descclassname">smswebapp.settings.tox.</code><code class="descname">LOGGING</code><em class="property"> = None</em><a class="headerlink" href="#smswebapp.settings.tox.LOGGING" title="Permalink to this definition">¶</a></dt>
 <dd><p>Be less verbose in logging with tox</p>
@@ -251,7 +258,7 @@ True.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="smsjwplatform.html" class="btn btn-neutral float-right" title="JWPlatform Integration Application" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="mediaplatform.html" class="btn btn-neutral float-right" title="Media Platform" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="configuration.html" class="btn btn-neutral" title="Configuration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -299,10 +306,7 @@ True.</p>
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
   <script type="text/javascript">
       jQuery(function () {

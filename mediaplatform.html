@@ -1,0 +1,834 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Media Platform &mdash; Streaming Media Service Webapp  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="REST API" href="api.html" />
+    <link rel="prev" title="The Web App Project" href="smswebapp.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Streaming Media Service Webapp
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer’s guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="smswebapp.html">The Web App Project</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Media Platform</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-mediaplatform.models">Models</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">REST API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="smsjwplatform.html">JWPlatform Integration Application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy-sms.html">Support for Legacy SMS</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Streaming Media Service Webapp</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Media Platform</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/mediaplatform.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-mediaplatform">
+<span id="media-platform"></span><h1>Media Platform<a class="headerlink" href="#module-mediaplatform" title="Permalink to this headline">¶</a></h1>
+<p>Media Platform Application</p>
+<div class="section" id="module-mediaplatform.models">
+<span id="models"></span><h2>Models<a class="headerlink" href="#module-mediaplatform.models" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="mediaplatform.models.MediaItemQuerySet">
+<em class="property">class </em><code class="descclassname">mediaplatform.models.</code><code class="descname">MediaItemQuerySet</code><span class="sig-paren">(</span><em>model=None</em>, <em>query=None</em>, <em>using=None</em>, <em>hints=None</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.MediaItemQuerySet" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="mediaplatform.models.MediaItemQuerySet.annotate_viewable">
+<code class="descname">annotate_viewable</code><span class="sig-paren">(</span><em>user</em>, <em>name='viewable'</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.MediaItemQuerySet.annotate_viewable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate the query set with a boolean indicating if the user can view the item.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediaplatform.models.MediaItemQuerySet.viewable_by_user">
+<code class="descname">viewable_by_user</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.MediaItemQuerySet.viewable_by_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter the queryset to only those items which can be viewed by the passed Django user.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediaplatform.models.MediaItemQuerySet.annotate_editable">
+<code class="descname">annotate_editable</code><span class="sig-paren">(</span><em>user</em>, <em>name='editable'</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.MediaItemQuerySet.annotate_editable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate the query set with a boolean indicating if the user can edit the item.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediaplatform.models.MediaItemQuerySet.editable_by_user">
+<code class="descname">editable_by_user</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.MediaItemQuerySet.editable_by_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter the queryset to only those items which can be edited by the passed Django user.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mediaplatform.models.MediaItemManager">
+<em class="property">class </em><code class="descclassname">mediaplatform.models.</code><code class="descname">MediaItemManager</code><span class="sig-paren">(</span><em>*args</em>, <em>include_deleted=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.MediaItemManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>An object manager for <a class="reference internal" href="#mediaplatform.models.MediaItem" title="mediaplatform.models.MediaItem"><code class="xref py py-class docutils literal notranslate"><span class="pre">MediaItem</span></code></a> objects. Accepts an additional named parameter
+<em>include_deleted</em> which specifies if the default queryset should include deleted items.</p>
+<dl class="method">
+<dt id="mediaplatform.models.MediaItemManager.get_queryset">
+<code class="descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.MediaItemManager.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new QuerySet object. Subclasses can override this method to
+customize the behavior of the Manager.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediaplatform.models.MediaItemManager.create_for_user">
+<code class="descname">create_for_user</code><span class="sig-paren">(</span><em>user</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.MediaItemManager.create_for_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience wrapper for create() which will create an item but also give the passed user
+view and edit permissions if the user is not anonymous.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mediaplatform.models.MediaItem">
+<em class="property">class </em><code class="descclassname">mediaplatform.models.</code><code class="descname">MediaItem</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.MediaItem" title="Permalink to this definition">¶</a></dt>
+<dd><p>An individual media item in the media platform.</p>
+<p>Most fields in this model can store blank values since they are synced from external providers
+who may not have the degree of rigour we want. For the same reason, we have default values for
+most fields.</p>
+<dl class="class">
+<dt id="mediaplatform.models.MediaItem.Source">
+<em class="property">class </em><code class="descname">Source</code><span class="sig-paren">(</span><em>item: object</em>, <em>mime_type: str</em>, <em>url: str</em>, <em>width: Optional[int] = None</em>, <em>height: Optional[int] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.MediaItem.Source" title="Permalink to this definition">¶</a></dt>
+<dd><p>An encoded media stream for a media item.</p>
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.Source.item">
+<code class="descname">item</code><em class="property"> = None</em><a class="headerlink" href="#mediaplatform.models.MediaItem.Source.item" title="Permalink to this definition">¶</a></dt>
+<dd><p>MediaItem for this source (post Python3.7, we’ll be able to refer to MediaItem as the
+type.)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.Source.mime_type">
+<code class="descname">mime_type</code><em class="property"> = None</em><a class="headerlink" href="#mediaplatform.models.MediaItem.Source.mime_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Media type of the stream</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.Source.url">
+<code class="descname">url</code><em class="property"> = None</em><a class="headerlink" href="#mediaplatform.models.MediaItem.Source.url" title="Permalink to this definition">¶</a></dt>
+<dd><p>URL pointing to this source</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.Source.width">
+<code class="descname">width</code><em class="property"> = None</em><a class="headerlink" href="#mediaplatform.models.MediaItem.Source.width" title="Permalink to this definition">¶</a></dt>
+<dd><p>Width of the stream or None if this is an audio stream</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.Source.height">
+<code class="descname">height</code><em class="property"> = None</em><a class="headerlink" href="#mediaplatform.models.MediaItem.Source.height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Height of the stream or None if this is an audio stream</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.objects">
+<code class="descname">objects</code><em class="property"> = &lt;mediaplatform.models.MediaItemManager object&gt;</em><a class="headerlink" href="#mediaplatform.models.MediaItem.objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Object manager. See <a class="reference internal" href="#mediaplatform.models.MediaItemManager" title="mediaplatform.models.MediaItemManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">MediaItemManager</span></code></a>. The objects returned by this manager do
+not include deleted objects. See :py:attr:~.objects_including_deleted`.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.objects_including_deleted">
+<code class="descname">objects_including_deleted</code><em class="property"> = &lt;mediaplatform.models.MediaItemManager object&gt;</em><a class="headerlink" href="#mediaplatform.models.MediaItem.objects_including_deleted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Object manager whose objects include the deleted items. This has been separated out into a
+separate manager to avoid inadvertently including deleted objects in a query</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.id">
+<code class="descname">id</code><a class="headerlink" href="#mediaplatform.models.MediaItem.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Primary key</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.channel">
+<code class="descname">channel</code><a class="headerlink" href="#mediaplatform.models.MediaItem.channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Channel which contains media item - if NULL, then the media item is in no channel.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.title">
+<code class="descname">title</code><a class="headerlink" href="#mediaplatform.models.MediaItem.title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Media item title</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.description">
+<code class="descname">description</code><a class="headerlink" href="#mediaplatform.models.MediaItem.description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Media item description</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.duration">
+<code class="descname">duration</code><a class="headerlink" href="#mediaplatform.models.MediaItem.duration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Duration</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.type">
+<code class="descname">type</code><a class="headerlink" href="#mediaplatform.models.MediaItem.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Type of media.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.published_at">
+<code class="descname">published_at</code><a class="headerlink" href="#mediaplatform.models.MediaItem.published_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Publication date</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.downloadable">
+<code class="descname">downloadable</code><a class="headerlink" href="#mediaplatform.models.MediaItem.downloadable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Downloadable flag</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.language">
+<code class="descname">language</code><a class="headerlink" href="#mediaplatform.models.MediaItem.language" title="Permalink to this definition">¶</a></dt>
+<dd><p>ISO 693-3 language code</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.copyright">
+<code class="descname">copyright</code><a class="headerlink" href="#mediaplatform.models.MediaItem.copyright" title="Permalink to this definition">¶</a></dt>
+<dd><p>Video copyright</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.tags">
+<code class="descname">tags</code><a class="headerlink" href="#mediaplatform.models.MediaItem.tags" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of tags for video</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.created_at">
+<code class="descname">created_at</code><a class="headerlink" href="#mediaplatform.models.MediaItem.created_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creation time</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.updated_at">
+<code class="descname">updated_at</code><a class="headerlink" href="#mediaplatform.models.MediaItem.updated_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Last update time</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.deleted_at">
+<code class="descname">deleted_at</code><a class="headerlink" href="#mediaplatform.models.MediaItem.deleted_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletion time. If non-NULL, the item has been “deleted” and should not usually be visible.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediaplatform.models.MediaItem.get_sources">
+<code class="descname">get_sources</code><span class="sig-paren">(</span><em>only_if_downloadable=True</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.MediaItem.get_sources" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve and return a list of <a class="reference internal" href="#mediaplatform.models.MediaItem.Source" title="mediaplatform.models.MediaItem.Source"><code class="xref py py-class docutils literal notranslate"><span class="pre">Source</span></code></a> instances representing the raw
+media sources for this media item.</p>
+<p>By default, the source list will be empty if the media item is not marked as downloadable.
+Set the <em>only_if_downloadable</em> parameter to <code class="docutils literal notranslate"><span class="pre">True</span></code> to skip this check.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.sources">
+<code class="descname">sources</code><a class="headerlink" href="#mediaplatform.models.MediaItem.sources" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cached property which calls get_sources() to retrieve sources.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediaplatform.models.MediaItem.get_embed_url">
+<code class="descname">get_embed_url</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.MediaItem.get_embed_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a URL suitable for use in an IFrame which will render this media. This URL renders
+the media unconditionally; it does not respect any view permissions.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="mediaplatform.models.MediaItem.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mediaplatform.models.MediaItem.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mediaplatform.models.MediaItem.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mediaplatform.models.MediaItem.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mediaplatform.models.Permission">
+<em class="property">class </em><code class="descclassname">mediaplatform.models.</code><code class="descname">Permission</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.Permission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify whether a user has permission to perform some action.</p>
+<p>A user has permission to perform the action if <em>any</em> of the following are true:</p>
+<ul class="simple">
+<li>They have a crsid and that crsid appears in <a class="reference internal" href="#mediaplatform.models.Permission.crsids" title="mediaplatform.models.Permission.crsids"><code class="xref py py-attr docutils literal notranslate"><span class="pre">crsids</span></code></a></li>
+<li>The lookup groupid of a lookup group which they are a member of appears in
+<a class="reference internal" href="#mediaplatform.models.Permission.lookup_groups" title="mediaplatform.models.Permission.lookup_groups"><code class="xref py py-attr docutils literal notranslate"><span class="pre">lookup_groups</span></code></a></li>
+<li>The instid of an an institution they are a member of appears in
+<a class="reference internal" href="#mediaplatform.models.Permission.lookup_insts" title="mediaplatform.models.Permission.lookup_insts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">lookup_insts</span></code></a></li>
+<li>The <a class="reference internal" href="#mediaplatform.models.Permission.is_public" title="mediaplatform.models.Permission.is_public"><code class="xref py py-attr docutils literal notranslate"><span class="pre">is_public</span></code></a> flag is <code class="docutils literal notranslate"><span class="pre">True</span></code></li>
+<li>The user is not anonymous and <a class="reference internal" href="#mediaplatform.models.Permission.is_signed_in" title="mediaplatform.models.Permission.is_signed_in"><code class="xref py py-attr docutils literal notranslate"><span class="pre">is_signed_in</span></code></a> is <code class="docutils literal notranslate"><span class="pre">True</span></code></li>
+</ul>
+<dl class="attribute">
+<dt id="mediaplatform.models.Permission.id">
+<code class="descname">id</code><a class="headerlink" href="#mediaplatform.models.Permission.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Primary key</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Permission.allows_view_item">
+<code class="descname">allows_view_item</code><a class="headerlink" href="#mediaplatform.models.Permission.allows_view_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>MediaItem whose view permission is this object</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Permission.allows_edit_channel">
+<code class="descname">allows_edit_channel</code><a class="headerlink" href="#mediaplatform.models.Permission.allows_edit_channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Channel whose edit permission is this object</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Permission.crsids">
+<code class="descname">crsids</code><a class="headerlink" href="#mediaplatform.models.Permission.crsids" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of crsids of users with this permission</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Permission.lookup_groups">
+<code class="descname">lookup_groups</code><a class="headerlink" href="#mediaplatform.models.Permission.lookup_groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of lookup groups which users with this permission belong to</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Permission.lookup_insts">
+<code class="descname">lookup_insts</code><a class="headerlink" href="#mediaplatform.models.Permission.lookup_insts" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of lookup institutions which users with this permission belong to</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Permission.is_public">
+<code class="descname">is_public</code><a class="headerlink" href="#mediaplatform.models.Permission.is_public" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do all users (including anonymous ones) have this permission?</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Permission.is_signed_in">
+<code class="descname">is_signed_in</code><a class="headerlink" href="#mediaplatform.models.Permission.is_signed_in" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do all signed in (non-anonymous) users have this permission?</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediaplatform.models.Permission.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.Permission.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset this permission to the “allow nobody” state.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="mediaplatform.models.Permission.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mediaplatform.models.Permission.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mediaplatform.models.Permission.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mediaplatform.models.Permission.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mediaplatform.models.UploadEndpoint">
+<em class="property">class </em><code class="descclassname">mediaplatform.models.</code><code class="descname">UploadEndpoint</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.UploadEndpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>An endpoint which can be used to upload a media item.</p>
+<dl class="attribute">
+<dt id="mediaplatform.models.UploadEndpoint.id">
+<code class="descname">id</code><a class="headerlink" href="#mediaplatform.models.UploadEndpoint.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Primary key</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.UploadEndpoint.url">
+<code class="descname">url</code><a class="headerlink" href="#mediaplatform.models.UploadEndpoint.url" title="Permalink to this definition">¶</a></dt>
+<dd><p>URL for upload</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.UploadEndpoint.item">
+<code class="descname">item</code><a class="headerlink" href="#mediaplatform.models.UploadEndpoint.item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Related media item</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.UploadEndpoint.expires_at">
+<code class="descname">expires_at</code><a class="headerlink" href="#mediaplatform.models.UploadEndpoint.expires_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Date and time at which this upload URL will expire</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="mediaplatform.models.UploadEndpoint.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mediaplatform.models.UploadEndpoint.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mediaplatform.models.UploadEndpoint.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mediaplatform.models.UploadEndpoint.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mediaplatform.models.ChannelQuerySet">
+<em class="property">class </em><code class="descclassname">mediaplatform.models.</code><code class="descname">ChannelQuerySet</code><span class="sig-paren">(</span><em>model=None</em>, <em>query=None</em>, <em>using=None</em>, <em>hints=None</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.ChannelQuerySet" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="mediaplatform.models.ChannelQuerySet.annotate_viewable">
+<code class="descname">annotate_viewable</code><span class="sig-paren">(</span><em>user</em>, <em>name='viewable'</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.ChannelQuerySet.annotate_viewable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate the query set with a boolean indicating if the user can view the channel.</p>
+<p>This is always true but this method is provided for compatibility with code shared between
+media items and channels.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediaplatform.models.ChannelQuerySet.viewable_by_user">
+<code class="descname">viewable_by_user</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.ChannelQuerySet.viewable_by_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter the queryset to only those items which can be viewed by the passed Django user.</p>
+<p>This is a no-op filter but this method is provided for compatibility with code shared
+between media items and channels.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediaplatform.models.ChannelQuerySet.annotate_editable">
+<code class="descname">annotate_editable</code><span class="sig-paren">(</span><em>user</em>, <em>name='editable'</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.ChannelQuerySet.annotate_editable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate the query set with a boolean indicating if the user can edit the item.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediaplatform.models.ChannelQuerySet.editable_by_user">
+<code class="descname">editable_by_user</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.ChannelQuerySet.editable_by_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter the queryset to only those items which can be edited by the passed Django user.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mediaplatform.models.ChannelManager">
+<em class="property">class </em><code class="descclassname">mediaplatform.models.</code><code class="descname">ChannelManager</code><span class="sig-paren">(</span><em>*args</em>, <em>include_deleted=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.ChannelManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>An object manager for <a class="reference internal" href="#mediaplatform.models.Channel" title="mediaplatform.models.Channel"><code class="xref py py-class docutils literal notranslate"><span class="pre">Channel</span></code></a> objects. Accepts an additional named parameter
+<em>include_deleted</em> which specifies if the default queryset should include deleted items.</p>
+<dl class="method">
+<dt id="mediaplatform.models.ChannelManager.get_queryset">
+<code class="descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.ChannelManager.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new QuerySet object. Subclasses can override this method to
+customize the behavior of the Manager.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediaplatform.models.ChannelManager.create_for_user">
+<code class="descname">create_for_user</code><span class="sig-paren">(</span><em>user</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.ChannelManager.create_for_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience wrapper for create() which will create a channel but also give the passed user
+edit permissions if the user is not anonymous.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mediaplatform.models.Channel">
+<em class="property">class </em><code class="descclassname">mediaplatform.models.</code><code class="descname">Channel</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.Channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>An individual channel in the media platform.</p>
+<dl class="attribute">
+<dt id="mediaplatform.models.Channel.objects">
+<code class="descname">objects</code><em class="property"> = &lt;mediaplatform.models.ChannelManager object&gt;</em><a class="headerlink" href="#mediaplatform.models.Channel.objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Object manager. See <a class="reference internal" href="#mediaplatform.models.ChannelManager" title="mediaplatform.models.ChannelManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">ChannelManager</span></code></a>. The objects returned by this manager do
+not include deleted objects. See :py:attr:~.objects_including_deleted`.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Channel.objects_including_deleted">
+<code class="descname">objects_including_deleted</code><em class="property"> = &lt;mediaplatform.models.ChannelManager object&gt;</em><a class="headerlink" href="#mediaplatform.models.Channel.objects_including_deleted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Object manager whose objects include the deleted items. This has been separated out into a
+separate manager to avoid inadvertently including deleted objects in a query</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Channel.id">
+<code class="descname">id</code><a class="headerlink" href="#mediaplatform.models.Channel.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Primary key</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Channel.title">
+<code class="descname">title</code><a class="headerlink" href="#mediaplatform.models.Channel.title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Channel title</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Channel.description">
+<code class="descname">description</code><a class="headerlink" href="#mediaplatform.models.Channel.description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Channel description</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Channel.owning_lookup_inst">
+<code class="descname">owning_lookup_inst</code><a class="headerlink" href="#mediaplatform.models.Channel.owning_lookup_inst" title="Permalink to this definition">¶</a></dt>
+<dd><p>“Owning” lookup institution id. We default to the blank string but, aside from “special”
+internal channels, there should always be a lookup institution.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Channel.created_at">
+<code class="descname">created_at</code><a class="headerlink" href="#mediaplatform.models.Channel.created_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creation time</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Channel.updated_at">
+<code class="descname">updated_at</code><a class="headerlink" href="#mediaplatform.models.Channel.updated_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Last update time</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Channel.deleted_at">
+<code class="descname">deleted_at</code><a class="headerlink" href="#mediaplatform.models.Channel.deleted_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletion time. If non-NULL, the channel has been “deleted” and should not usually be
+visible.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="mediaplatform.models.Channel.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mediaplatform.models.Channel.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mediaplatform.models.Channel.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mediaplatform.models.Channel.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mediaplatform.models.PlaylistQuerySet">
+<em class="property">class </em><code class="descclassname">mediaplatform.models.</code><code class="descname">PlaylistQuerySet</code><span class="sig-paren">(</span><em>model=None</em>, <em>query=None</em>, <em>using=None</em>, <em>hints=None</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.PlaylistQuerySet" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="mediaplatform.models.PlaylistQuerySet.annotate_viewable">
+<code class="descname">annotate_viewable</code><span class="sig-paren">(</span><em>user</em>, <em>name='viewable'</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.PlaylistQuerySet.annotate_viewable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate the query set with a boolean indicating if the user can view the item.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediaplatform.models.PlaylistQuerySet.viewable_by_user">
+<code class="descname">viewable_by_user</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.PlaylistQuerySet.viewable_by_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter the queryset to only those items which can be viewed by the passed Django user.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediaplatform.models.PlaylistQuerySet.annotate_editable">
+<code class="descname">annotate_editable</code><span class="sig-paren">(</span><em>user</em>, <em>name='editable'</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.PlaylistQuerySet.annotate_editable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate the query set with a boolean indicating if the user can edit the playlist.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediaplatform.models.PlaylistQuerySet.editable_by_user">
+<code class="descname">editable_by_user</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.PlaylistQuerySet.editable_by_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter the queryset to only those playlists which can be edited by the passed Django user.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mediaplatform.models.PlaylistManager">
+<em class="property">class </em><code class="descclassname">mediaplatform.models.</code><code class="descname">PlaylistManager</code><span class="sig-paren">(</span><em>*args</em>, <em>include_deleted=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.PlaylistManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>An object manager for <a class="reference internal" href="#mediaplatform.models.Playlist" title="mediaplatform.models.Playlist"><code class="xref py py-class docutils literal notranslate"><span class="pre">Playlist</span></code></a> objects. Accepts an additional named parameter
+<em>include_deleted</em> which specifies if the default queryset should include deleted items.</p>
+<dl class="method">
+<dt id="mediaplatform.models.PlaylistManager.get_queryset">
+<code class="descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.PlaylistManager.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new QuerySet object. Subclasses can override this method to
+customize the behavior of the Manager.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mediaplatform.models.Playlist">
+<em class="property">class </em><code class="descclassname">mediaplatform.models.</code><code class="descname">Playlist</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.Playlist" title="Permalink to this definition">¶</a></dt>
+<dd><p>An individual playlist in the media platform.</p>
+<dl class="attribute">
+<dt id="mediaplatform.models.Playlist.objects">
+<code class="descname">objects</code><em class="property"> = &lt;mediaplatform.models.PlaylistManager object&gt;</em><a class="headerlink" href="#mediaplatform.models.Playlist.objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Object manager. See <a class="reference internal" href="#mediaplatform.models.PlaylistManager" title="mediaplatform.models.PlaylistManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlaylistManager</span></code></a>. The objects returned by this manager do
+not include deleted objects. See :py:attr:~.objects_including_deleted`.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Playlist.objects_including_deleted">
+<code class="descname">objects_including_deleted</code><em class="property"> = &lt;mediaplatform.models.PlaylistManager object&gt;</em><a class="headerlink" href="#mediaplatform.models.Playlist.objects_including_deleted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Object manager whose objects include the deleted items. This has been separated out into a
+separate manager to avoid inadvertently including deleted objects in a query</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Playlist.id">
+<code class="descname">id</code><a class="headerlink" href="#mediaplatform.models.Playlist.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Primary key</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Playlist.channel">
+<code class="descname">channel</code><a class="headerlink" href="#mediaplatform.models.Playlist.channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Channel which contains playlist</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Playlist.title">
+<code class="descname">title</code><a class="headerlink" href="#mediaplatform.models.Playlist.title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Playlist title</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Playlist.description">
+<code class="descname">description</code><a class="headerlink" href="#mediaplatform.models.Playlist.description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Playlist description</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Playlist.media_items">
+<code class="descname">media_items</code><a class="headerlink" href="#mediaplatform.models.Playlist.media_items" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#mediaplatform.models.MediaItem" title="mediaplatform.models.MediaItem"><code class="xref py py-class docutils literal notranslate"><span class="pre">MediaItem</span></code></a> objects which make up this playlist.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Playlist.created_at">
+<code class="descname">created_at</code><a class="headerlink" href="#mediaplatform.models.Playlist.created_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creation time</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Playlist.updated_at">
+<code class="descname">updated_at</code><a class="headerlink" href="#mediaplatform.models.Playlist.updated_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Last update time</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Playlist.deleted_at">
+<code class="descname">deleted_at</code><a class="headerlink" href="#mediaplatform.models.Playlist.deleted_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletion time. If non-NULL, the channel has been “deleted” and should not usually be
+visible.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Playlist.fetched_media_items_in_order">
+<code class="descname">fetched_media_items_in_order</code><a class="headerlink" href="#mediaplatform.models.Playlist.fetched_media_items_in_order" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method that fetch the playlist’s <a class="reference internal" href="#mediaplatform.models.MediaItem" title="mediaplatform.models.MediaItem"><code class="xref py py-class docutils literal notranslate"><span class="pre">MediaItem</span></code></a> objects
+ordering them as defined by media_items.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="mediaplatform.models.Playlist.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mediaplatform.models.Playlist.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mediaplatform.models.Playlist.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mediaplatform.models.Playlist.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="api.html" class="btn btn-neutral float-right" title="REST API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="smswebapp.html" class="btn btn-neutral" title="The Web App Project" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, University of Cambridge Information Services.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

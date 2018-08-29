@@ -1,0 +1,676 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>REST API &mdash; Streaming Media Service Webapp  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="JWPlatform Integration Application" href="smsjwplatform.html" />
+    <link rel="prev" title="Media Platform" href="mediaplatform.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Streaming Media Service Webapp
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer’s guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="smswebapp.html">The Web App Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mediaplatform.html">Media Platform</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">REST API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-api.views">Views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-api.serializers">Serializers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="smsjwplatform.html">JWPlatform Integration Application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy-sms.html">Support for Legacy SMS</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Streaming Media Service Webapp</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>REST API</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="rest-api">
+<h1>REST API<a class="headerlink" href="#rest-api" title="Permalink to this headline">¶</a></h1>
+<p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">api</span></code> module implements a REST-ful API for the media service based
+on the <a class="reference external" href="https://www.django-rest-framework.org/">Django REST Framework</a>.</p>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>Add <code class="docutils literal notranslate"><span class="pre">api</span></code> to the <code class="docutils literal notranslate"><span class="pre">INSTALLED_APPS</span></code> setting and then update your
+<code class="docutils literal notranslate"><span class="pre">urlpatterns</span></code> as follows:</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># ...</span>
+    <span class="n">path</span><span class="p">(</span><span class="s1">&#39;api/&#39;</span><span class="p">,</span> <span class="n">include</span><span class="p">(</span><span class="s1">&#39;api.urls&#39;</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s1">&#39;api&#39;</span><span class="p">)),</span>
+    <span class="c1"># ...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="module-api.views">
+<span id="views"></span><h2>Views<a class="headerlink" href="#module-api.views" title="Permalink to this headline">¶</a></h2>
+<p>Views implementing the API endpoints.</p>
+<dl class="function">
+<dt id="api.views.get_profile">
+<code class="descclassname">api.views.</code><code class="descname">get_profile</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.get_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an object representing what is known about a user from a reques. Contains two keys:
+<code class="docutils literal notranslate"><span class="pre">user</span></code> which is simply the user object from the request and <code class="docutils literal notranslate"><span class="pre">person</span></code> which is the lookup
+person resource for the user is non-anoymous.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api.views.ProfileView">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">ProfileView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.ProfileView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint to retrieve the profile of the current user.</p>
+<dl class="attribute">
+<dt id="api.views.ProfileView.serializer_class">
+<code class="descname">serializer_class</code><a class="headerlink" href="#api.views.ProfileView.serializer_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#api.serializers.ProfileSerializer" title="api.serializers.ProfileSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.serializers.ProfileSerializer</span></code></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.views.ProfileView.get_object">
+<code class="descname">get_object</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#api.views.ProfileView.get_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the object the view is displaying.</p>
+<p>You may want to override this if you need to provide non-standard
+queryset lookups.  Eg if objects are referenced using multiple
+keyword arguments in the url conf.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.views.ListPagination">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">ListPagination</code><a class="headerlink" href="#api.views.ListPagination" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="api.views.ListMixinBase">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">ListMixinBase</code><a class="headerlink" href="#api.views.ListMixinBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for the various ListView mixin classes which ensures that the list only contains
+resources viewable by the user, annotates the resources with the viewable and editable
+flags and selects related JWPlatform and SMS objects.</p>
+<p>Sets permission_classes to <code class="xref py py-class docutils literal notranslate"><span class="pre">MediaPlatformPermission</span></code> so that safe and
+unsafe operations are appropriately restricted.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api.views.MediaItemListSearchFilter">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">MediaItemListSearchFilter</code><a class="headerlink" href="#api.views.MediaItemListSearchFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Custom filter based on <code class="xref py py-class docutils literal notranslate"><span class="pre">rest_framework.filters.SearchFilter</span></code> specialised to search
+<a class="reference internal" href="mediaplatform.html#mediaplatform.models.MediaItem" title="mediaplatform.models.MediaItem"><code class="xref py py-class docutils literal notranslate"><span class="pre">mediaplatform.models.MediaItem</span></code></a> objects. If the “tags” field is specified in the
+view’s <code class="docutils literal notranslate"><span class="pre">search_fields</span></code> attribute, then the tags field is searched for any tag matching the
+lower cased search term.</p>
+<dl class="method">
+<dt id="api.views.MediaItemListSearchFilter.get_search_terms">
+<code class="descname">get_search_terms</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.MediaItemListSearchFilter.get_search_terms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search terms are set by a ?search=… query parameter,
+and may be comma and/or whitespace delimited.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.views.MediaItemListSearchFilter.filter_queryset">
+<code class="descname">filter_queryset</code><span class="sig-paren">(</span><em>request</em>, <em>queryset</em>, <em>view</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.MediaItemListSearchFilter.filter_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a filtered queryset.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.views.MediaItemListMixin">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">MediaItemListMixin</code><a class="headerlink" href="#api.views.MediaItemListMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>A mixin class for DRF generic views which has all of the specialisations necessary for listing
+(and possibly creating/deleting) media items. Use this mixin with ListAPIView or
+ListCreateAPIView to form a concrete view class.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api.views.MediaItemMixin">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">MediaItemMixin</code><a class="headerlink" href="#api.views.MediaItemMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>A mixin class for DRF generic views which has all of the specialisations necessary for
+retrieving (and possibly updating) individual media items. Use this mixin with RetrieveAPIView
+or RetrieveUpdateAPIView to form a concrete view class.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api.views.MediaItemListView">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">MediaItemListView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.MediaItemListView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint to retrieve a list of media.</p>
+<dl class="attribute">
+<dt id="api.views.MediaItemListView.pagination_class">
+<code class="descname">pagination_class</code><a class="headerlink" href="#api.views.MediaItemListView.pagination_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#api.views.ListPagination" title="api.views.ListPagination"><code class="xref py py-class docutils literal notranslate"><span class="pre">ListPagination</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.views.MediaItemListView.serializer_class">
+<code class="descname">serializer_class</code><a class="headerlink" href="#api.views.MediaItemListView.serializer_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#api.serializers.MediaItemSerializer" title="api.serializers.MediaItemSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.serializers.MediaItemSerializer</span></code></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.views.MediaItemListView.get_queryset">
+<code class="descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#api.views.MediaItemListView.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of items for this view.
+This must be an iterable, and may be a queryset.
+Defaults to using <cite>self.queryset</cite>.</p>
+<p>This method should always be used rather than accessing <cite>self.queryset</cite>
+directly, as <cite>self.queryset</cite> gets evaluated only once, and those results
+are cached for all subsequent requests.</p>
+<p>You may want to override this if you need to provide different
+querysets depending on the incoming request.</p>
+<p>(Eg. return a list of items that is specific to the user)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.views.MediaItemView">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">MediaItemView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.MediaItemView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint to retrieve a single media item.</p>
+<dl class="attribute">
+<dt id="api.views.MediaItemView.serializer_class">
+<code class="descname">serializer_class</code><a class="headerlink" href="#api.views.MediaItemView.serializer_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#api.serializers.MediaItemDetailSerializer" title="api.serializers.MediaItemDetailSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.serializers.MediaItemDetailSerializer</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.views.MediaItemUploadView">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">MediaItemUploadView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.MediaItemUploadView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint for retrieving an upload URL for a media item. Requires that the user have the edit
+permission for the media item. Should the upload URL be expired or otherwise unsuitable, a HTTP
+POST/PUT to this endpoint refreshes the URL.</p>
+<dl class="attribute">
+<dt id="api.views.MediaItemUploadView.serializer_class">
+<code class="descname">serializer_class</code><a class="headerlink" href="#api.views.MediaItemUploadView.serializer_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#api.serializers.MediaUploadSerializer" title="api.serializers.MediaUploadSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.serializers.MediaUploadSerializer</span></code></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.views.MediaItemUploadView.get_queryset">
+<code class="descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#api.views.MediaItemUploadView.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of items for this view.
+This must be an iterable, and may be a queryset.
+Defaults to using <cite>self.queryset</cite>.</p>
+<p>This method should always be used rather than accessing <cite>self.queryset</cite>
+directly, as <cite>self.queryset</cite> gets evaluated only once, and those results
+are cached for all subsequent requests.</p>
+<p>You may want to override this if you need to provide different
+querysets depending on the incoming request.</p>
+<p>(Eg. return a list of items that is specific to the user)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.views.MediaItemEmbedView">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">MediaItemEmbedView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.MediaItemEmbedView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint to retrieve a media item as an embedded IFrame.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api.views.MediaItemSourceView">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">MediaItemSourceView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.MediaItemSourceView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint to retrieve a media item source stream</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api.views.MediaItemAnalyticsView">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">MediaItemAnalyticsView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.MediaItemAnalyticsView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint to retrieve the analytics for a single media item.</p>
+<dl class="attribute">
+<dt id="api.views.MediaItemAnalyticsView.serializer_class">
+<code class="descname">serializer_class</code><a class="headerlink" href="#api.views.MediaItemAnalyticsView.serializer_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#api.serializers.MediaItemAnalyticsListSerializer" title="api.serializers.MediaItemAnalyticsListSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.serializers.MediaItemAnalyticsListSerializer</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.views.ChannelListMixin">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">ChannelListMixin</code><a class="headerlink" href="#api.views.ChannelListMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>A mixin class for DRF generic views which has all of the specialisations necessary for listing
+(and possibly creating/deleting) channels. Use this mixin with ListAPIView or
+ListCreateAPIView to form a concrete view class.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api.views.ChannelMixin">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">ChannelMixin</code><a class="headerlink" href="#api.views.ChannelMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>A mixin class for DRF generic views which has all of the specialisations necessary for
+retrieving (and possibly updating) individual channels. Use this mixin with RetrieveAPIView
+or RetrieveUpdateAPIView to form a concrete view class.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api.views.ChannelListView">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">ChannelListView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.ChannelListView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint to retrieve a list of channels.</p>
+<dl class="attribute">
+<dt id="api.views.ChannelListView.pagination_class">
+<code class="descname">pagination_class</code><a class="headerlink" href="#api.views.ChannelListView.pagination_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#api.views.ListPagination" title="api.views.ListPagination"><code class="xref py py-class docutils literal notranslate"><span class="pre">ListPagination</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.views.ChannelListView.serializer_class">
+<code class="descname">serializer_class</code><a class="headerlink" href="#api.views.ChannelListView.serializer_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#api.serializers.ChannelSerializer" title="api.serializers.ChannelSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.serializers.ChannelSerializer</span></code></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.views.ChannelListView.get_queryset">
+<code class="descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#api.views.ChannelListView.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of items for this view.
+This must be an iterable, and may be a queryset.
+Defaults to using <cite>self.queryset</cite>.</p>
+<p>This method should always be used rather than accessing <cite>self.queryset</cite>
+directly, as <cite>self.queryset</cite> gets evaluated only once, and those results
+are cached for all subsequent requests.</p>
+<p>You may want to override this if you need to provide different
+querysets depending on the incoming request.</p>
+<p>(Eg. return a list of items that is specific to the user)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.views.ChannelView">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">ChannelView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.ChannelView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint to retrieve an individual channel.</p>
+<dl class="attribute">
+<dt id="api.views.ChannelView.serializer_class">
+<code class="descname">serializer_class</code><a class="headerlink" href="#api.views.ChannelView.serializer_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#api.serializers.ChannelDetailSerializer" title="api.serializers.ChannelDetailSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.serializers.ChannelDetailSerializer</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.views.PlaylistListMixin">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">PlaylistListMixin</code><a class="headerlink" href="#api.views.PlaylistListMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>A mixin class for DRF generic views which has all of the specialisations necessary for listing
+(and possibly creating/deleting) playlists. Use this mixin with ListAPIView or
+ListCreateAPIView to form a concrete view class.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api.views.PlaylistMixin">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">PlaylistMixin</code><a class="headerlink" href="#api.views.PlaylistMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>A mixin class for DRF generic views which has all of the specialisations necessary for
+retrieving (and possibly updating) individual playlists. Use this mixin with RetrieveAPIView
+or RetrieveUpdateAPIView to form a concrete view class.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api.views.PlaylistListView">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">PlaylistListView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.PlaylistListView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint to retrieve a list of playlists.</p>
+<dl class="attribute">
+<dt id="api.views.PlaylistListView.pagination_class">
+<code class="descname">pagination_class</code><a class="headerlink" href="#api.views.PlaylistListView.pagination_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#api.views.ListPagination" title="api.views.ListPagination"><code class="xref py py-class docutils literal notranslate"><span class="pre">ListPagination</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.views.PlaylistListView.serializer_class">
+<code class="descname">serializer_class</code><a class="headerlink" href="#api.views.PlaylistListView.serializer_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#api.serializers.PlaylistSerializer" title="api.serializers.PlaylistSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.serializers.PlaylistSerializer</span></code></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.views.PlaylistListView.get_queryset">
+<code class="descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#api.views.PlaylistListView.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of items for this view.
+This must be an iterable, and may be a queryset.
+Defaults to using <cite>self.queryset</cite>.</p>
+<p>This method should always be used rather than accessing <cite>self.queryset</cite>
+directly, as <cite>self.queryset</cite> gets evaluated only once, and those results
+are cached for all subsequent requests.</p>
+<p>You may want to override this if you need to provide different
+querysets depending on the incoming request.</p>
+<p>(Eg. return a list of items that is specific to the user)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.views.PlaylistView">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">PlaylistView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.PlaylistView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint to retrieve an individual playlists.</p>
+<dl class="attribute">
+<dt id="api.views.PlaylistView.serializer_class">
+<code class="descname">serializer_class</code><a class="headerlink" href="#api.views.PlaylistView.serializer_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#api.serializers.PlaylistDetailSerializer" title="api.serializers.PlaylistDetailSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.serializers.PlaylistDetailSerializer</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="api.views.exception_handler">
+<code class="descclassname">api.views.</code><code class="descname">exception_handler</code><span class="sig-paren">(</span><em>exc</em>, <em>context</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.exception_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>A custom exception handler which handles 404s on embed views by rendering a template which
+suggests the user log in.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-api.serializers">
+<span id="serializers"></span><h2>Serializers<a class="headerlink" href="#module-api.serializers" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="api.serializers.ChannelSerializer">
+<em class="property">class </em><code class="descclassname">api.serializers.</code><code class="descname">ChannelSerializer</code><span class="sig-paren">(</span><em>instance=None</em>, <em>data=&lt;class 'rest_framework.fields.empty'&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.ChannelSerializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>An individual channel.</p>
+<dl class="method">
+<dt id="api.serializers.ChannelSerializer.create">
+<code class="descname">create</code><span class="sig-paren">(</span><em>validated_data</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.ChannelSerializer.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override behaviour when creating a new object using this serializer. If the current request
+is being passed in the context, give the request user edit and view permissions on the
+item.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.serializers.RelatedChannelIdField">
+<em class="property">class </em><code class="descclassname">api.serializers.</code><code class="descname">RelatedChannelIdField</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.RelatedChannelIdField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Related field serializer for media items or playlists which asserts that the channel field
+can only be set to a channel which the current user has edit permissions on. If there is no
+user, the empty queryset is returned.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api.serializers.ChannelOwnedResourceModelSerializer">
+<em class="property">class </em><code class="descclassname">api.serializers.</code><code class="descname">ChannelOwnedResourceModelSerializer</code><span class="sig-paren">(</span><em>instance=None</em>, <em>data=&lt;class 'rest_framework.fields.empty'&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.ChannelOwnedResourceModelSerializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shared ModelSerializer between Media Items and Playlists as both are owned by a channel</p>
+<dl class="method">
+<dt id="api.serializers.ChannelOwnedResourceModelSerializer.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>instance</em>, <em>validated_data</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.ChannelOwnedResourceModelSerializer.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override behaviour when updating a media item or a playlist to stop the user changing
+the channel of an existing object.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.serializers.PlaylistSerializer">
+<em class="property">class </em><code class="descclassname">api.serializers.</code><code class="descname">PlaylistSerializer</code><span class="sig-paren">(</span><em>instance=None</em>, <em>data=&lt;class 'rest_framework.fields.empty'&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.PlaylistSerializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>An individual playlist.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api.serializers.MediaItemSerializer">
+<em class="property">class </em><code class="descclassname">api.serializers.</code><code class="descname">MediaItemSerializer</code><span class="sig-paren">(</span><em>instance=None</em>, <em>data=&lt;class 'rest_framework.fields.empty'&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.MediaItemSerializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>An individual media item.</p>
+<dl class="method">
+<dt id="api.serializers.MediaItemSerializer.create">
+<code class="descname">create</code><span class="sig-paren">(</span><em>validated_data</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.MediaItemSerializer.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override behaviour when creating a new object using this serializer. If the current request
+is being passed in the context, give the request user edit and view permissions on the
+item.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.serializers.ProfileSerializer">
+<em class="property">class </em><code class="descclassname">api.serializers.</code><code class="descname">ProfileSerializer</code><span class="sig-paren">(</span><em>instance=None</em>, <em>data=&lt;class 'rest_framework.fields.empty'&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.ProfileSerializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>The profile of the current user.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api.serializers.SourceSerializer">
+<em class="property">class </em><code class="descclassname">api.serializers.</code><code class="descname">SourceSerializer</code><span class="sig-paren">(</span><em>instance=None</em>, <em>data=&lt;class 'rest_framework.fields.empty'&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.SourceSerializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>A download source for a particular media type.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api.serializers.MediaUploadSerializer">
+<em class="property">class </em><code class="descclassname">api.serializers.</code><code class="descname">MediaUploadSerializer</code><span class="sig-paren">(</span><em>instance=None</em>, <em>data=&lt;class 'rest_framework.fields.empty'&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.MediaUploadSerializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>A serializer which returns an upload endpoint for a media item. Intended to be used as custom
+serializer in an UpdateView for MediaItem models.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api.serializers.MediaItemDetailSerializer">
+<em class="property">class </em><code class="descclassname">api.serializers.</code><code class="descname">MediaItemDetailSerializer</code><span class="sig-paren">(</span><em>instance=None</em>, <em>data=&lt;class 'rest_framework.fields.empty'&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.MediaItemDetailSerializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>An individual media item including related resources.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api.serializers.MediaItemAnalyticsSerializer">
+<em class="property">class </em><code class="descclassname">api.serializers.</code><code class="descname">MediaItemAnalyticsSerializer</code><span class="sig-paren">(</span><em>instance=None</em>, <em>data=&lt;class 'rest_framework.fields.empty'&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.MediaItemAnalyticsSerializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of viewing for a particular media item on a particular day.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api.serializers.MediaItemAnalyticsListSerializer">
+<em class="property">class </em><code class="descclassname">api.serializers.</code><code class="descname">MediaItemAnalyticsListSerializer</code><span class="sig-paren">(</span><em>instance=None</em>, <em>data=&lt;class 'rest_framework.fields.empty'&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.MediaItemAnalyticsListSerializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of media analytics data points.</p>
+<dl class="class">
+<dt id="api.serializers.MediaItemAnalyticsListSerializer.ResultRow">
+<em class="property">class </em><code class="descname">ResultRow</code><span class="sig-paren">(</span><em>day</em>, <em>num_hits</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.MediaItemAnalyticsListSerializer.ResultRow" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="api.serializers.MediaItemAnalyticsListSerializer.ResultRow.day">
+<code class="descname">day</code><a class="headerlink" href="#api.serializers.MediaItemAnalyticsListSerializer.ResultRow.day" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.serializers.MediaItemAnalyticsListSerializer.ResultRow.num_hits">
+<code class="descname">num_hits</code><a class="headerlink" href="#api.serializers.MediaItemAnalyticsListSerializer.ResultRow.num_hits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.serializers.ChannelDetailSerializer">
+<em class="property">class </em><code class="descclassname">api.serializers.</code><code class="descname">ChannelDetailSerializer</code><span class="sig-paren">(</span><em>instance=None</em>, <em>data=&lt;class 'rest_framework.fields.empty'&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.ChannelDetailSerializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>An individual channel including related resources.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api.serializers.PlaylistDetailSerializer">
+<em class="property">class </em><code class="descclassname">api.serializers.</code><code class="descname">PlaylistDetailSerializer</code><span class="sig-paren">(</span><em>instance=None</em>, <em>data=&lt;class 'rest_framework.fields.empty'&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.PlaylistDetailSerializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>An individual playlist including any information which should only appear in the detail view.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="smsjwplatform.html" class="btn btn-neutral float-right" title="JWPlatform Integration Application" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mediaplatform.html" class="btn btn-neutral" title="Media Platform" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, University of Cambridge Information Services.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

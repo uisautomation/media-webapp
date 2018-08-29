@@ -24,8 +24,7 @@
 
   
 
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -84,6 +83,7 @@
 <li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting started</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Developer’s guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#local-development">Local development</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#make-database-migrations">Make database migrations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#run-the-test-suite">Run the test suite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tox-environments">tox environments</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#run-the-development-server">Run the development server</a></li>
@@ -100,6 +100,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#code-coverage">Code-coverage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#documentation">Documentation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#code-style">Code-style</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#debugging">Debugging</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id3">Documentation</a></li>
 </ul>
 </li>
@@ -107,6 +108,8 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="smswebapp.html">The Web App Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mediaplatform.html">Media Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">REST API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="smsjwplatform.html">JWPlatform Integration Application</a></li>
 <li class="toctree-l1"><a class="reference internal" href="legacy-sms.html">Support for Legacy SMS</a></li>
 </ul>
@@ -180,6 +183,20 @@ of how our development infrastructure is set up.</p>
 <div class="section" id="local-development">
 <h2>Local development<a class="headerlink" href="#local-development" title="Permalink to this headline">¶</a></h2>
 <p>These tasks are usually performed on an individual developer’s machine.</p>
+<div class="section" id="make-database-migrations">
+<h3>Make database migrations<a class="headerlink" href="#make-database-migrations" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">makemigrations</span></code> command cannot be run directly since the application
+directory is mounted read-only within the container. The work around is a little
+ugly at the moment:</p>
+<ol class="arabic simple">
+<li>In <code class="docutils literal notranslate"><span class="pre">compose/development.yml</span></code>, comment out the <code class="docutils literal notranslate"><span class="pre">read_only:</span> <span class="pre">true</span></code> value
+from the volume defined in <code class="docutils literal notranslate"><span class="pre">development_app</span></code>.</li>
+<li>Run <code class="docutils literal notranslate"><span class="pre">./compose.sh</span> <span class="pre">development</span> <span class="pre">run</span> <span class="pre">--rm</span> <span class="pre">development_app</span> <span class="pre">./manage.py</span> <span class="pre">makemigrations</span> <span class="pre">...</span></code>
+as usual.</li>
+<li>Uncomment the <code class="docutils literal notranslate"><span class="pre">read_only:</span> <span class="pre">true</span></code> commented out in 1.</li>
+<li>Change permissions on the migration: <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">chmod</span> <span class="pre">$USER</span> <span class="pre">path/to/migration.py</span></code></li>
+</ol>
+</div>
 <div class="section" id="run-the-test-suite">
 <span id="run-tests"></span><h3>Run the test suite<a class="headerlink" href="#run-the-test-suite" title="Permalink to this headline">¶</a></h3>
 <p>The <a class="reference external" href="https://tox.readthedocs.io/">tox</a> automation tool is used to run tests
@@ -187,14 +204,23 @@ inside their own virtualenv. This way we can be sure that we know which packages
 are required to run the tests. By default tests are run in a Postgres database
 created by docker-compose. Other databases can be used by setting the
 <code class="docutils literal notranslate"><span class="pre">DJANGO_DB_...</span></code> environment variables. See <a class="reference internal" href="configuration.html#database-config"><span class="std std-ref">Specifying the database</span></a>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./compose.sh tox run --rm tox
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./tox.sh
 </pre></div>
 </div>
 <p>By default, <code class="docutils literal notranslate"><span class="pre">tox</span></code> will run the test suite using the version of Python used
 when we deploy and will compile a local version of the documentation. The <code class="docutils literal notranslate"><span class="pre">-e</span></code>
 flag may be used to explicitly specify an environment to run. For example, to
 build only the documentation:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./compose.sh tox run --rm tox -e doc
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./tox.sh -e doc
+</pre></div>
+</div>
+<p>Tox runs tests within persistent virtualenvs. Tox attempts to determine when it
+should rebuild the virtualenv but its logic can sometimes be imperfect. This is
+especially true in the case of dependencies hidden deep in the various
+<code class="docutils literal notranslate"><span class="pre">requirements/{...}.txt</span></code> files. Should it appear that a module is not
+installed when it should be, the <code class="docutils literal notranslate"><span class="pre">-r</span></code> flag can be passed to tox:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./tox.sh -r          <span class="c1"># recreate all environments</span>
+$ ./tox.se -e py36 -r  <span class="c1"># recreate only the py36 environment</span>
 </pre></div>
 </div>
 </div>
@@ -202,8 +228,8 @@ build only the documentation:</p>
 <span id="toxenvs"></span><h3>tox environments<a class="headerlink" href="#tox-environments" title="Permalink to this headline">¶</a></h3>
 <p>The following tox environments are available.</p>
 <dl class="docutils">
-<dt>py36</dt>
-<dd>Run by default. Launch the test suite under Python 3.6. Generate a
+<dt>py3</dt>
+<dd>Run by default. Launch the test suite under Python 3. Generate a
 code-coverage report and display a summary coverage report.</dd>
 <dt>doc</dt>
 <dd>Run by default. Build documentation and write it to the <code class="docutils literal notranslate"><span class="pre">build/doc/</span></code>
@@ -266,7 +292,7 @@ the image.</p>
 <p>This section provides a brief outline of cloud infrastructure for development.</p>
 <div class="section" id="source-control">
 <h3>Source control<a class="headerlink" href="#source-control" title="Permalink to this headline">¶</a></h3>
-<p>The panel is hosted on GitHub at <a class="reference external" href="https://github.com/uisautomation/sms-webapp">https://github.com/uisautomation/sms-webapp</a>.
+<p>The panel is hosted on GitHub at <a class="reference external" href="https://github.com/uisautomation/media-webapp">https://github.com/uisautomation/media-webapp</a>.
 The repository has <code class="docutils literal notranslate"><span class="pre">master</span></code> set up to be writeable only via pull request. It
 is intended that local development happens in personal forks and is merged via
 pull request. The main rationale for this is a) it guards against accidentally
@@ -292,12 +318,12 @@ with sqlite then it is possible that some tests may fail.</p>
 <div class="section" id="code-coverage">
 <h3>Code-coverage<a class="headerlink" href="#code-coverage" title="Permalink to this headline">¶</a></h3>
 <p>Going to <a class="reference external" href="https://codecov.io/">CodeCov</a>, logging in with GitHub and adding the
-<code class="docutils literal notranslate"><span class="pre">sms-webapp</span></code> repository will start code coverage reporting on pull-requests.</p>
+<code class="docutils literal notranslate"><span class="pre">media-webapp</span></code> repository will start code coverage reporting on pull-requests.</p>
 </div>
 <div class="section" id="documentation">
 <h3>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h3>
 <p>Travis CI has been set up so that when the master branch is built, the
-documentation is deployed to <a class="reference external" href="https://uisautomation.github.io/sms-webapp">https://uisautomation.github.io/sms-webapp</a> via
+documentation is deployed to <a class="reference external" href="https://uisautomation.github.io/media-webapp">https://uisautomation.github.io/media-webapp</a> via
 GitHub pages. The <a class="reference external" href="https://github.com/bb9e/">UIS robot</a> machine account’s
 personal token is set up in Travis via the <code class="docutils literal notranslate"><span class="pre">GITHUB_TOKEN</span></code> environment
 variable.</p>
@@ -318,10 +344,21 @@ mechanism to silence individual errors.</p>
 </pre></div>
 </div>
 </div>
+<div class="section" id="debugging">
+<h3>Debugging<a class="headerlink" href="#debugging" title="Permalink to this headline">¶</a></h3>
+<p>If you need to debug the application running in docker-compose, configuration is included to allow
+you debug along the lines described in this post on
+<a class="reference external" href="https://blog.lucasferreira.org/howto/2017/06/03/running-pdb-with-docker-and-gunicorn.html/">using PDB with docker-compose</a>.
+Also <a class="reference external" href="https://documen.tician.de/pudb/">PuDB</a>, a full-screen, console-based visual debugger, is installed in
+development as a more sophisticated alternative to PDB. To use PuDB simply set breakpoints as follows:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pudb</span><span class="p">;</span> <span class="n">pudb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="id3">
 <h3>Documentation<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <p>This documentation is re-built on each commit to master by Travis and posted to
-GitHub pages at <a class="reference external" href="https://uisautomation.github.io/sms-webapp/">https://uisautomation.github.io/sms-webapp/</a>.</p>
+GitHub pages at <a class="reference external" href="https://uisautomation.github.io/media-webapp/">https://uisautomation.github.io/media-webapp/</a>.</p>
 </div>
 </div>
 </div>
@@ -382,10 +419,7 @@ GitHub pages at <a class="reference external" href="https://uisautomation.github
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
   <script type="text/javascript">
       jQuery(function () {

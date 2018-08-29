@@ -24,13 +24,12 @@
 
   
 
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Support for Legacy SMS" href="legacy-sms.html" />
-    <link rel="prev" title="The Web App Project" href="smswebapp.html" /> 
+    <link rel="prev" title="REST API" href="api.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -85,9 +84,16 @@
 <li class="toctree-l1"><a class="reference internal" href="developer.html">Developer’s guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="smswebapp.html">The Web App Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mediaplatform.html">Media Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">REST API</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">JWPlatform Integration Application</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-smsjwplatform.defaultsettings">Settings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-smsjwplatform.views">Views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-smsjwplatform.models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#management-commands">Management commands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-smsjwplatform.management.commands.jwpfetch">jwpfetch</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#module-smsjwplatform.urls">URLs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-smsjwplatform.jwplatform">JWPlatform API</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-smsjwplatform.acl">ACLs</a></li>
@@ -187,6 +193,12 @@ setting has a non-empty value.</p>
 </dd></dl>
 
 <dl class="data">
+<dt id="smsjwplatform.defaultsettings.JWPLATFORM_CONTENT_BASE_URL">
+<code class="descclassname">smsjwplatform.defaultsettings.</code><code class="descname">JWPLATFORM_CONTENT_BASE_URL</code><em class="property"> = 'https://content.jwplatform.com'</em><a class="headerlink" href="#smsjwplatform.defaultsettings.JWPLATFORM_CONTENT_BASE_URL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base URL for the JWPlatform Content. This can usually be left at its default value.</p>
+</dd></dl>
+
+<dl class="data">
 <dt id="smsjwplatform.defaultsettings.JWPLATFORM_EMBED_PLAYER_KEY">
 <code class="descclassname">smsjwplatform.defaultsettings.</code><code class="descname">JWPLATFORM_EMBED_PLAYER_KEY</code><em class="property"> = None</em><a class="headerlink" href="#smsjwplatform.defaultsettings.JWPLATFORM_EMBED_PLAYER_KEY" title="Permalink to this definition">¶</a></dt>
 <dd><p>Player key for the embedded player used by the <code class="xref py py-mod docutils literal notranslate"><span class="pre">embed</span></code> view.</p>
@@ -258,17 +270,253 @@ requests where data has made it to the server.</p>
 OAuth2 token introspection.</p>
 </dd></dl>
 
+<span class="target" id="module-mediaplatform_jwp.defaultsettings"></span><p>Default settings values for the <code class="xref py py-mod docutils literal notranslate"><span class="pre">mediaplatform_jwp</span></code> application.</p>
+<dl class="data">
+<dt id="mediaplatform_jwp.defaultsettings.JWP_FORCE_HTTPS_UPLOAD">
+<code class="descclassname">mediaplatform_jwp.defaultsettings.</code><code class="descname">JWP_FORCE_HTTPS_UPLOAD</code><em class="property"> = True</em><a class="headerlink" href="#mediaplatform_jwp.defaultsettings.JWP_FORCE_HTTPS_UPLOAD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Should we force http upload links to be https?</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mediaplatform_jwp.defaultsettings.JWP_SYNC_ITEMS">
+<code class="descclassname">mediaplatform_jwp.defaultsettings.</code><code class="descname">JWP_SYNC_ITEMS</code><em class="property"> = True</em><a class="headerlink" href="#mediaplatform_jwp.defaultsettings.JWP_SYNC_ITEMS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Should matching JWP videos should be creatred/updated when MediaItem objects change.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="module-smsjwplatform.views">
 <span id="views"></span><h2>Views<a class="headerlink" href="#module-smsjwplatform.views" title="Permalink to this headline">¶</a></h2>
 <p>Views</p>
 </div>
+<div class="section" id="module-smsjwplatform.models">
+<span id="models"></span><h2>Models<a class="headerlink" href="#module-smsjwplatform.models" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="smsjwplatform.models.CachedResource">
+<em class="property">class </em><code class="descclassname">smsjwplatform.models.</code><code class="descname">CachedResource</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.models.CachedResource" title="Permalink to this definition">¶</a></dt>
+<dd><p>A cache of a JWPlatform resource.</p>
+<p>This model should be queried by way of the various type-specific helpers. For example, to
+filter videos by title:</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CachedResource</span><span class="o">.</span><span class="n">videos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__title</span><span class="o">=</span><span class="s1">&#39;some title&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Do not insert values directly, instead use the <code class="xref py py-func docutils literal notranslate"><span class="pre">set_videos`()</span></code> method to update the
+cached resources atomically:</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">set_resources</span><span class="p">((</span><span class="n">video</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">],</span> <span class="n">video</span><span class="p">)</span> <span class="k">for</span> <span class="n">video</span> <span class="ow">in</span> <span class="n">fetch_videos</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>N.B. Since we use Postgres-specific field types (JSONB), this model requires that Postgres be
+the database.</p>
+<dl class="attribute">
+<dt id="smsjwplatform.models.CachedResource.CHANNEL">
+<code class="descname">CHANNEL</code><em class="property"> = 'channel'</em><a class="headerlink" href="#smsjwplatform.models.CachedResource.CHANNEL" title="Permalink to this definition">¶</a></dt>
+<dd><p>channel resource type</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="smsjwplatform.models.CachedResource.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#smsjwplatform.models.CachedResource.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="smsjwplatform.models.CachedResource.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#smsjwplatform.models.CachedResource.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="smsjwplatform.models.CachedResource.VIDEO">
+<code class="descname">VIDEO</code><em class="property"> = 'video'</em><a class="headerlink" href="#smsjwplatform.models.CachedResource.VIDEO" title="Permalink to this definition">¶</a></dt>
+<dd><p>video resource type</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="smsjwplatform.models.CachedResource.channels">
+<code class="descname">channels</code><em class="property"> = &lt;smsjwplatform.models.CachedResourceTypeManager object&gt;</em><a class="headerlink" href="#smsjwplatform.models.CachedResource.channels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience manager instance whose base queryset is all the non-deleted channels</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="smsjwplatform.models.CachedResource.objects">
+<code class="descname">objects</code><em class="property"> = &lt;django.db.models.manager.Manager object&gt;</em><a class="headerlink" href="#smsjwplatform.models.CachedResource.objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Since we add an object manager, we need to explicitly add back the default one</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="smsjwplatform.models.CachedResource.videos">
+<code class="descname">videos</code><em class="property"> = &lt;smsjwplatform.models.CachedResourceTypeManager object&gt;</em><a class="headerlink" href="#smsjwplatform.models.CachedResource.videos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience manager instance whose base queryset is all the non-deleted videos</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="smsjwplatform.models.CachedResourceTypeManager">
+<em class="property">class </em><code class="descclassname">smsjwplatform.models.</code><code class="descname">CachedResourceTypeManager</code><span class="sig-paren">(</span><em>type</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.models.CachedResourceTypeManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>A models.Manager subclass which restricts the base query set to the <em>non-deleted</em> cached
+resources of a particular type.</p>
+<dl class="method">
+<dt id="smsjwplatform.models.CachedResourceTypeManager.get_queryset">
+<code class="descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.models.CachedResourceTypeManager.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new QuerySet object. Subclasses can override this method to
+customize the behavior of the Manager.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="smsjwplatform.models.set_resources">
+<code class="descclassname">smsjwplatform.models.</code><code class="descname">set_resources</code><span class="sig-paren">(</span><em>resources</em>, <em>resource_type</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.models.set_resources" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function which updates the cached resources and marks resources as deleted if no
+longer present.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>resources</strong> (<em>iterable</em>) – iterable of dicts representing the JWPlatform resources</li>
+<li><strong>resource_type</strong> (<em>str</em>) – type of JWPlatform resource (e.g. “video”)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Iterates over all of the dicts in <em>resources</em> adding or updating corresponding
+<a class="reference internal" href="#smsjwplatform.models.CachedResource" title="smsjwplatform.models.CachedResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">CachedResource</span></code></a> models as it goes. After all resources have been added, any
+resources of the specified type which have not been created or updated are deleted from the
+cache.</p>
+<p>This is all run inside an atomic block. Note that these blocks can be nested so calls to
+this function can themselves be within an atomic block.</p>
+<p>[1] <a class="reference external" href="https://docs.djangoproject.com/en/2.0/topics/db/transactions/#django.db.transaction.atomic">https://docs.djangoproject.com/en/2.0/topics/db/transactions/#django.db.transaction.atomic</a></p>
+</dd></dl>
+
+<span class="target" id="module-mediaplatform_jwp.models"></span><dl class="class">
+<dt id="mediaplatform_jwp.models.Video">
+<em class="property">class </em><code class="descclassname">mediaplatform_jwp.models.</code><code class="descname">Video</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.models.Video" title="Permalink to this definition">¶</a></dt>
+<dd><p>A JWPlatform video resource.</p>
+<dl class="attribute">
+<dt id="mediaplatform_jwp.models.Video.key">
+<code class="descname">key</code><a class="headerlink" href="#mediaplatform_jwp.models.Video.key" title="Permalink to this definition">¶</a></dt>
+<dd><p>JWPlatform video key</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform_jwp.models.Video.item">
+<code class="descname">item</code><a class="headerlink" href="#mediaplatform_jwp.models.Video.item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Corresponding <code class="xref py py-class docutils literal notranslate"><span class="pre">mediaplatform.MediaItem</span></code>. Accessible from the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">mediaplatform.MediaItem</span></code> model via the <code class="docutils literal notranslate"><span class="pre">jwp</span></code> field. This can be NULL if there
+is no corresponding media item hosted by the Media Platform.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform_jwp.models.Video.updated">
+<code class="descname">updated</code><a class="headerlink" href="#mediaplatform_jwp.models.Video.updated" title="Permalink to this definition">¶</a></dt>
+<dd><p>The updated timestamp from JWPlatform. Used to determine which items need updating. This is
+an integer field rather than a datetime field because JWP uses timestamps and we should
+store the same value to make sure we compare apples to apples.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediaplatform_jwp.models.Video.get_sources">
+<code class="descname">get_sources</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.models.Video.get_sources" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses the JWP fetch API to retrieve a list of <code class="xref py py-class docutils literal notranslate"><span class="pre">mediaplatform.MediaItem.Source</span></code>
+instances for each source associated with the media item. Ignores the <code class="docutils literal notranslate"><span class="pre">downloadable</span></code>
+attribute of the item.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform_jwp.models.Video.sources">
+<code class="descname">sources</code><a class="headerlink" href="#mediaplatform_jwp.models.Video.sources" title="Permalink to this definition">¶</a></dt>
+<dd><p>A property which calls get_sources and caches the result.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform_jwp.models.Video.embed_url">
+<code class="descname">embed_url</code><a class="headerlink" href="#mediaplatform_jwp.models.Video.embed_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a URL with an embed view of a <code class="xref py py-class docutils literal notranslate"><span class="pre">mediaplatform.MediaItem</span></code>. Returns <code class="docutils literal notranslate"><span class="pre">None</span></code>
+if there is no JWP video associated with the item.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="mediaplatform_jwp.models.Video.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mediaplatform_jwp.models.Video.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mediaplatform_jwp.models.Video.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mediaplatform_jwp.models.Video.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mediaplatform_jwp.models.Channel">
+<em class="property">class </em><code class="descclassname">mediaplatform_jwp.models.</code><code class="descname">Channel</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.models.Channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>A JWPlatform channel resource.</p>
+<dl class="attribute">
+<dt id="mediaplatform_jwp.models.Channel.key">
+<code class="descname">key</code><a class="headerlink" href="#mediaplatform_jwp.models.Channel.key" title="Permalink to this definition">¶</a></dt>
+<dd><p>JWPlatform channel key</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform_jwp.models.Channel.channel">
+<code class="descname">channel</code><a class="headerlink" href="#mediaplatform_jwp.models.Channel.channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Corresponding <code class="xref py py-class docutils literal notranslate"><span class="pre">mediaplatform.Channel</span></code>. Accessible from the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">mediaplatform.Channel</span></code> model via the <code class="docutils literal notranslate"><span class="pre">jwp</span></code> field. This can be NULL if there
+is no corresponding media item hosted by the Media Platform.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform_jwp.models.Channel.updated">
+<code class="descname">updated</code><a class="headerlink" href="#mediaplatform_jwp.models.Channel.updated" title="Permalink to this definition">¶</a></dt>
+<dd><p>The updated timestamp from JWPlatform. Used to determine which items need updating. This is
+an integer field rather than a datetime field because JWP uses timestamps and we should
+store the same value to make sure we compare apples to apples.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="mediaplatform_jwp.models.Channel.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mediaplatform_jwp.models.Channel.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mediaplatform_jwp.models.Channel.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mediaplatform_jwp.models.Channel.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="management-commands">
+<h2>Management commands<a class="headerlink" href="#management-commands" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-smsjwplatform.management.commands.jwpfetch">
+<span id="jwpfetch"></span><h3>jwpfetch<a class="headerlink" href="#module-smsjwplatform.management.commands.jwpfetch" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">jwpfetch</span></code> management command fetches metadata on videos from JWPlayer via the JWPlatform
+management API and caches it in the database as a series of
+<a class="reference internal" href="#smsjwplatform.models.CachedResource" title="smsjwplatform.models.CachedResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">CachedResource</span></code></a> objects.</p>
+<p>It is designed to be called periodically without arguments to keep the local cache of the
+JWPlatform state in sync with reality.</p>
+<p>Note that resources which disappear from JWPlayer are <em>not</em> deleted from the database. Rather,
+their <code class="docutils literal notranslate"><span class="pre">deleted_at</span></code> attribute is set to a non-NULL date and time. The specialised object managers
+on :py:class`~smsjwplatform.models.CachedResource` understand this and filter out deleted objects
+for you.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--sync-all</span></code> flag may be given to bypass the freshness check for updating database objects
+from the associated JWP metadata. If given, <em>all</em> py:class`mediaplatform.models.MediaItem` objects
+associated with a JWP video will have their metadata re-synchronised. This is a useful thing to do
+from time to time to make sure that all videos are in sync.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--skip-fetch</span></code> flag may be given to skip updating the cached resources from JWP and to only
+perform the database metadata synchronisation. This can be useful in combination with the
+<code class="docutils literal notranslate"><span class="pre">--sync-all</span></code> flag to make sure the database is consistent with all cached resources. Skipping
+only video or channel resources is controlled via the <code class="docutils literal notranslate"><span class="pre">--skip-video-fetch</span></code> and
+<code class="docutils literal notranslate"><span class="pre">--skip-channel-fetch</span></code> flags.</p>
+</div>
+</div>
 <div class="section" id="module-smsjwplatform.urls">
 <span id="urls"></span><h2>URLs<a class="headerlink" href="#module-smsjwplatform.urls" title="Permalink to this headline">¶</a></h2>
 <p>Default URL patterns for the <a class="reference internal" href="#module-smsjwplatform" title="smsjwplatform"><code class="xref py py-mod docutils literal notranslate"><span class="pre">smsjwplatform</span></code></a> application are provided by the
 <a class="reference internal" href="#module-smsjwplatform.urls" title="smsjwplatform.urls"><code class="xref py py-mod docutils literal notranslate"><span class="pre">urls</span></code></a> module. You can use the default mapping by adding the following to your global
-<code class="docutils literal notranslate"><span class="pre">urlpatterns</span></code>:</p>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">path</span><span class="p">,</span> <span class="n">include</span>
+<code class="docutils literal notranslate"><span class="pre">urlpatterns</span></code>:
+.. code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">path</span><span class="p">,</span> <span class="n">include</span>
 
 <span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
     <span class="c1"># ...</span>
@@ -287,9 +535,15 @@ OAuth2 token introspection.</p>
 <dd><p>The provided SMS media ID does not have a corresponding JWPlatform video.</p>
 </dd></dl>
 
+<dl class="exception">
+<dt id="smsjwplatform.jwplatform.UnparseableVideoError">
+<em class="property">exception </em><code class="descclassname">smsjwplatform.jwplatform.</code><code class="descname">UnparseableVideoError</code><a class="headerlink" href="#smsjwplatform.jwplatform.UnparseableVideoError" title="Permalink to this definition">¶</a></dt>
+<dd><p>The JWPlayer JSON response body was unparseable.</p>
+</dd></dl>
+
 <dl class="function">
 <dt id="smsjwplatform.jwplatform.player_embed_url">
-<code class="descclassname">smsjwplatform.jwplatform.</code><code class="descname">player_embed_url</code><span class="sig-paren">(</span><em>key</em>, <em>player</em>, <em>format='js'</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.jwplatform.player_embed_url" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">smsjwplatform.jwplatform.</code><code class="descname">player_embed_url</code><span class="sig-paren">(</span><em>key</em>, <em>player</em>, <em>format='js'</em>, <em>base=None</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.jwplatform.player_embed_url" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a signed URL pointing to a player initialised with a specific media item.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -322,10 +576,36 @@ embeddable player or a HTML page with a player on it.</li>
 </dd></dl>
 
 <dl class="exception">
-<dt id="smsjwplatform.jwplatform.VideoPermissionDenied">
-<em class="property">exception </em><code class="descclassname">smsjwplatform.jwplatform.</code><code class="descname">VideoPermissionDenied</code><a class="headerlink" href="#smsjwplatform.jwplatform.VideoPermissionDenied" title="Permalink to this definition">¶</a></dt>
+<dt id="smsjwplatform.jwplatform.ResourceACLPermissionDenied">
+<em class="property">exception </em><code class="descclassname">smsjwplatform.jwplatform.</code><code class="descname">ResourceACLPermissionDenied</code><a class="headerlink" href="#smsjwplatform.jwplatform.ResourceACLPermissionDenied" title="Permalink to this definition">¶</a></dt>
 <dd><p>A sub-class of <code class="xref py py-exc docutils literal notranslate"><span class="pre">django.core.exceptions.PermissionDenied</span></code> used to indicate that the
 current user does not match the ACL of a video. See: <code class="xref py py-func docutils literal notranslate"><span class="pre">check_user_access()</span></code>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="smsjwplatform.jwplatform.Resource">
+<em class="property">class </em><code class="descclassname">smsjwplatform.jwplatform.</code><code class="descname">Resource</code><a class="headerlink" href="#smsjwplatform.jwplatform.Resource" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dict subclass representing a media item or channel resource as returned by the JWPlatform
+API. This subsclass is specialised by the <a class="reference internal" href="#smsjwplatform.jwplatform.Video" title="smsjwplatform.jwplatform.Video"><code class="xref py py-class docutils literal notranslate"><span class="pre">Video</span></code></a> or <a class="reference internal" href="#smsjwplatform.jwplatform.Channel" title="smsjwplatform.jwplatform.Channel"><code class="xref py py-class docutils literal notranslate"><span class="pre">Channel</span></code></a> objects.</p>
+<dl class="attribute">
+<dt id="smsjwplatform.jwplatform.Resource.key">
+<code class="descname">key</code><a class="headerlink" href="#smsjwplatform.jwplatform.Resource.key" title="Permalink to this definition">¶</a></dt>
+<dd><p>JWPlatform key for this resource or <code class="docutils literal notranslate"><span class="pre">None</span></code> if it has none.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="smsjwplatform.jwplatform.Resource.acl">
+<code class="descname">acl</code><a class="headerlink" href="#smsjwplatform.jwplatform.Resource.acl" title="Permalink to this definition">¶</a></dt>
+<dd><p>The parsed ACL custom prop on the resource. If no ACL is present, the WORLD ACL is assumed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="smsjwplatform.jwplatform.Resource.check_user_access">
+<code class="descname">check_user_access</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.jwplatform.Resource.check_user_access" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether the specified Django user has permission to access this resource.
+Raises <a class="reference internal" href="#smsjwplatform.jwplatform.ResourceACLPermissionDenied" title="smsjwplatform.jwplatform.ResourceACLPermissionDenied"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ResourceACLPermissionDenied</span></code></a> if the user does not match the ACL.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -335,27 +615,127 @@ current user does not match the ACL of a video. See: <code class="xref py py-fun
 <p>This subclass provides some convenience accessors for various common resource keys but, since
 this is a dict subclass, the values can be retrieved using <code class="docutils literal notranslate"><span class="pre">[]</span></code> or <code class="docutils literal notranslate"><span class="pre">get</span></code> as per usual.</p>
 <dl class="attribute">
-<dt id="smsjwplatform.jwplatform.Video.key">
-<code class="descname">key</code><a class="headerlink" href="#smsjwplatform.jwplatform.Video.key" title="Permalink to this definition">¶</a></dt>
-<dd><p>JWPlatform key for this video or <code class="docutils literal notranslate"><span class="pre">None</span></code> if it has none.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="smsjwplatform.jwplatform.Video.acl">
-<code class="descname">acl</code><a class="headerlink" href="#smsjwplatform.jwplatform.Video.acl" title="Permalink to this definition">¶</a></dt>
-<dd><p>The parsed ACL custom prop on the video. If no ACL is present, the WORLD ACL is assumed.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="smsjwplatform.jwplatform.Video.check_user_access">
-<code class="descname">check_user_access</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.jwplatform.Video.check_user_access" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check whether the specified Django user has permission to access this video.
-Raises <a class="reference internal" href="#smsjwplatform.jwplatform.VideoPermissionDenied" title="smsjwplatform.jwplatform.VideoPermissionDenied"><code class="xref py py-exc docutils literal notranslate"><span class="pre">VideoPermissionDenied</span></code></a> if the user does not match the ACL.</p>
+<dt id="smsjwplatform.jwplatform.Video.media_id">
+<code class="descname">media_id</code><a class="headerlink" href="#smsjwplatform.jwplatform.Video.media_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The legacy SMS media id (or None if there is none)</p>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="smsjwplatform.jwplatform.Video.from_key">
-<em class="property">classmethod </em><code class="descname">from_key</code><span class="sig-paren">(</span><em>key</em>, <em>client=None</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.jwplatform.Video.from_key" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_key</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.jwplatform.Video.from_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a <a class="reference internal" href="#smsjwplatform.jwplatform.Video" title="smsjwplatform.jwplatform.Video"><code class="xref py py-class docutils literal notranslate"><span class="pre">Video</span></code></a> instance corresponding to the JWPlatform key passed.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This method looks for videos by way of the
+<a class="reference internal" href="#smsjwplatform.models.CachedResource" title="smsjwplatform.models.CachedResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">CachedResource</span></code></a> model and <em>not</em> by using the API
+directly.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – JWPlatform key for the media.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference internal" href="#smsjwplatform.jwplatform.VideoNotFoundError" title="smsjwplatform.jwplatform.VideoNotFoundError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">VideoNotFoundError</span></code></a> if the video is not found.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="smsjwplatform.jwplatform.Video.from_media_id">
+<em class="property">classmethod </em><code class="descname">from_media_id</code><span class="sig-paren">(</span><em>media_id</em>, <em>preferred_media_type='video'</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.jwplatform.Video.from_media_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a <a class="reference internal" href="#smsjwplatform.jwplatform.Video" title="smsjwplatform.jwplatform.Video"><code class="xref py py-class docutils literal notranslate"><span class="pre">Video</span></code></a> instance which matches the passed legacy SMS media ID or raise
+<a class="reference internal" href="#smsjwplatform.jwplatform.VideoNotFoundError" title="smsjwplatform.jwplatform.VideoNotFoundError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">VideoNotFoundError</span></code></a> if no such video could be found.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This method looks for videos by way of the
+<a class="reference internal" href="#smsjwplatform.models.CachedResource" title="smsjwplatform.models.CachedResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">CachedResource</span></code></a> model and <em>not</em> by using the API
+directly.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>media_id</strong> (<em>int</em>) – the SMS media ID of the required video</li>
+<li><strong>preferred_media_type</strong> – (optional) the preferred media type to return. One of
+<code class="docutils literal notranslate"><span class="pre">'video'</span></code> or <code class="docutils literal notranslate"><span class="pre">'audio'</span></code>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#smsjwplatform.jwplatform.VideoNotFoundError" title="smsjwplatform.jwplatform.VideoNotFoundError"><code class="xref py py-class docutils literal notranslate"><span class="pre">VideoNotFoundError</span></code></a> if the media id does not correspond to a
+JWPlatform video.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="smsjwplatform.jwplatform.DeliveryVideo">
+<em class="property">class </em><code class="descclassname">smsjwplatform.jwplatform.</code><code class="descname">DeliveryVideo</code><a class="headerlink" href="#smsjwplatform.jwplatform.DeliveryVideo" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dict subclass representing a video resource object as returned by the Delivery API.</p>
+<p>This subclass provides some convenience accessors for various common resource keys but, since
+this is a dict subclass, the values can be retrieved using <code class="docutils literal notranslate"><span class="pre">[]</span></code> or <code class="docutils literal notranslate"><span class="pre">get</span></code> as per usual.</p>
+<dl class="attribute">
+<dt id="smsjwplatform.jwplatform.DeliveryVideo.media_id">
+<code class="descname">media_id</code><a class="headerlink" href="#smsjwplatform.jwplatform.DeliveryVideo.media_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The legacy SMS media id (or None if there is none)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="smsjwplatform.jwplatform.DeliveryVideo.acl">
+<code class="descname">acl</code><a class="headerlink" href="#smsjwplatform.jwplatform.DeliveryVideo.acl" title="Permalink to this definition">¶</a></dt>
+<dd><p>The parsed ACL custom prop on the resource. If no ACL is present, the WORLD ACL is assumed.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="smsjwplatform.jwplatform.DeliveryVideo.from_key">
+<em class="property">classmethod </em><code class="descname">from_key</code><span class="sig-paren">(</span><em>key</em>, <em>session=None</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.jwplatform.DeliveryVideo.from_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a <a class="reference internal" href="#smsjwplatform.jwplatform.DeliveryVideo" title="smsjwplatform.jwplatform.DeliveryVideo"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeliveryVideo</span></code></a> instance corresponding to the JWPlatform key passed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>key</strong> – JWPlatform key for the media.</li>
+<li><strong>session</strong> – (optional) session used for making HTTP requests, if None, then a default</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>is used.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference internal" href="#smsjwplatform.jwplatform.VideoNotFoundError" title="smsjwplatform.jwplatform.VideoNotFoundError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">VideoNotFoundError</span></code></a> if the video is not found.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="smsjwplatform.jwplatform.Channel">
+<em class="property">class </em><code class="descclassname">smsjwplatform.jwplatform.</code><code class="descname">Channel</code><a class="headerlink" href="#smsjwplatform.jwplatform.Channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dict subclass representing a channel resource object as returned by the JWPlatform API.</p>
+<p>This subclass provides some convenience accessors for various common resource keys but, since
+this is a dict subclass, the values can be retrieved using <code class="docutils literal notranslate"><span class="pre">[]</span></code> or <code class="docutils literal notranslate"><span class="pre">get</span></code> as per usual.</p>
+<dl class="attribute">
+<dt id="smsjwplatform.jwplatform.Channel.collection_id">
+<code class="descname">collection_id</code><a class="headerlink" href="#smsjwplatform.jwplatform.Channel.collection_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The legacy SMS collection id (or None if there is none)</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="smsjwplatform.jwplatform.Channel.from_key">
+<em class="property">classmethod </em><code class="descname">from_key</code><span class="sig-paren">(</span><em>key</em>, <em>client=None</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.jwplatform.Channel.from_key" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a <a class="reference internal" href="#smsjwplatform.jwplatform.Video" title="smsjwplatform.jwplatform.Video"><code class="xref py py-class docutils literal notranslate"><span class="pre">Video</span></code></a> instance corresponding to the JWPlatform key passed.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -376,29 +756,10 @@ Raises <a class="reference internal" href="#smsjwplatform.jwplatform.VideoPermis
 </dd></dl>
 
 <dl class="classmethod">
-<dt id="smsjwplatform.jwplatform.Video.from_media_id">
-<em class="property">classmethod </em><code class="descname">from_media_id</code><span class="sig-paren">(</span><em>media_id</em>, <em>preferred_media_type='video'</em>, <em>client=None</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.jwplatform.Video.from_media_id" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a <a class="reference internal" href="#smsjwplatform.jwplatform.Video" title="smsjwplatform.jwplatform.Video"><code class="xref py py-class docutils literal notranslate"><span class="pre">Video</span></code></a> instance which matches the passed legacy SMS media ID or raise
-<a class="reference internal" href="#smsjwplatform.jwplatform.VideoNotFoundError" title="smsjwplatform.jwplatform.VideoNotFoundError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">VideoNotFoundError</span></code></a> if no such video could be found.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>media_id</strong> (<em>int</em>) – the SMS media ID of the required video</li>
-<li><strong>preferred_media_type</strong> – (optional) the preferred media type to return. One of
-<code class="docutils literal notranslate"><span class="pre">'video'</span></code> or <code class="docutils literal notranslate"><span class="pre">'audio'</span></code>.</li>
-<li><strong>client</strong> – (options) an authenticated JWPlatform client as returned by
-<a class="reference internal" href="#smsjwplatform.jwplatform.get_jwplatform_client" title="smsjwplatform.jwplatform.get_jwplatform_client"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_jwplatform_client()</span></code></a>. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, call <a class="reference internal" href="#smsjwplatform.jwplatform.get_jwplatform_client" title="smsjwplatform.jwplatform.get_jwplatform_client"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_jwplatform_client()</span></code></a>.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#smsjwplatform.jwplatform.VideoNotFoundError" title="smsjwplatform.jwplatform.VideoNotFoundError"><code class="xref py py-class docutils literal notranslate"><span class="pre">VideoNotFoundError</span></code></a> if the media id does not correspond to a
-JWPlatform video.</p>
-</td>
-</tr>
-</tbody>
-</table>
+<dt id="smsjwplatform.jwplatform.Channel.list">
+<em class="property">classmethod </em><code class="descname">list</code><span class="sig-paren">(</span><em>list_params={}</em>, <em>client=None</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.jwplatform.Channel.list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience wrapper around the <code class="docutils literal notranslate"><span class="pre">channels.list</span></code> JWPlatform API method. The channels
+returned are coerced into <a class="reference internal" href="#smsjwplatform.jwplatform.Video" title="smsjwplatform.jwplatform.Video"><code class="xref py py-class docutils literal notranslate"><span class="pre">Video</span></code></a> instances.</p>
 </dd></dl>
 
 </dd></dl>
@@ -430,16 +791,8 @@ documentation on signatures</a>.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="smsjwplatform.jwplatform.generate_token">
-<code class="descclassname">smsjwplatform.jwplatform.</code><code class="descname">generate_token</code><span class="sig-paren">(</span><em>resource</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.jwplatform.generate_token" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate a signed JWT for the specified resource using the
-<a class="reference external" href="https://developer.jwplayer.com/jw-platform/docs/developer-guide/delivery-api/url-token-signing/">procedure</a>
-outlined in the JWPlatform documentation.</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="smsjwplatform.jwplatform.pd_api_url">
-<code class="descclassname">smsjwplatform.jwplatform.</code><code class="descname">pd_api_url</code><span class="sig-paren">(</span><em>resource</em>, <em>**parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.jwplatform.pd_api_url" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">smsjwplatform.jwplatform.</code><code class="descname">pd_api_url</code><span class="sig-paren">(</span><em>resource</em>, <em>now_timestamp=None</em>, <em>**parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#smsjwplatform.jwplatform.pd_api_url" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a JWPlatform Platform Delivery API URL with the request has the appropriate JWT
 attached.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -448,6 +801,7 @@ attached.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>resource</strong> (<em>str</em>) – path to resource, e.g. <code class="docutils literal notranslate"><span class="pre">/v2/media/123456</span></code>. Must start with a slash.</li>
+<li><strong>now_timestamp</strong> (<em>int</em>) – the current UTC timestamp as returned by <code class="xref py py-func docutils literal notranslate"><span class="pre">time.time()</span></code>.</li>
 <li><strong>parameters</strong> (<em>dict</em>) – remaining keyword arguments are passed as URL parameters</li>
 </ul>
 </td>
@@ -455,11 +809,17 @@ attached.</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">response from API server.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">requests.Response</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">requests.Response</p>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>ValueError</strong> – if the resource name does not start with a slash.</p>
-</td>
+</tbody>
+</table>
+<p>If <em>now_timestamp</em> is <code class="docutils literal notranslate"><span class="pre">None</span></code>, the value returned by <code class="xref py py-func docutils literal notranslate"><span class="pre">time.time()</span></code> is used.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><strong>ValueError</strong> – if the resource name does not start with a slash.</td>
 </tr>
 </tbody>
 </table>
@@ -642,7 +1002,7 @@ attached.</p>
         <a href="legacy-sms.html" class="btn btn-neutral float-right" title="Support for Legacy SMS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="smswebapp.html" class="btn btn-neutral" title="The Web App Project" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="api.html" class="btn btn-neutral" title="REST API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -687,10 +1047,7 @@ attached.</p>
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
   <script type="text/javascript">
       jQuery(function () {

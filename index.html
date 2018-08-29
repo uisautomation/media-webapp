@@ -24,8 +24,7 @@
 
   
 
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -84,6 +83,8 @@
 <li class="toctree-l1"><a class="reference internal" href="developer.html">Developer’s guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="smswebapp.html">The Web App Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mediaplatform.html">Media Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">REST API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="smsjwplatform.html">JWPlatform Integration Application</a></li>
 <li class="toctree-l1"><a class="reference internal" href="legacy-sms.html">Support for Legacy SMS</a></li>
 </ul>
@@ -165,6 +166,7 @@ developer documentation for the web control panel.</p>
 <li class="toctree-l2"><a class="reference internal" href="gettingstarted.html#clone-the-repository-locally">Clone the repository locally</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gettingstarted.html#install-docker-compose">Install docker-compose</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gettingstarted.html#run-tests">Run tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gettingstarted.html#configure-secrets">Configure secrets</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gettingstarted.html#bring-up-a-development-web-server">Bring up a development web-server</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gettingstarted.html#next-steps">Next steps</a></li>
 </ul>
@@ -185,9 +187,21 @@ developer documentation for the web control panel.</p>
 <li class="toctree-l2"><a class="reference internal" href="smswebapp.html#custom-test-suite-runner">Custom test suite runner</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="mediaplatform.html">Media Platform</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mediaplatform.html#module-mediaplatform.models">Models</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">REST API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-api.views">Views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-api.serializers">Serializers</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="smsjwplatform.html">JWPlatform Integration Application</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="smsjwplatform.html#module-smsjwplatform.defaultsettings">Settings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="smsjwplatform.html#module-smsjwplatform.views">Views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="smsjwplatform.html#module-smsjwplatform.models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="smsjwplatform.html#management-commands">Management commands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="smsjwplatform.html#module-smsjwplatform.urls">URLs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="smsjwplatform.html#module-smsjwplatform.jwplatform">JWPlatform API</a></li>
 <li class="toctree-l2"><a class="reference internal" href="smsjwplatform.html#module-smsjwplatform.acl">ACLs</a></li>
@@ -262,10 +276,7 @@ developer documentation for the web control panel.</p>
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
   <script type="text/javascript">
       jQuery(function () {
