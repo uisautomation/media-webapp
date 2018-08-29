@@ -2,10 +2,10 @@
 Interactions with the JWP management API.
 
 """
-from mediaplatform_jwp import jwplatform as jwp
+from mediaplatform_jwp.jwplatformapi import deliveryapi as jwp
 
-from . import models
-from . import upload
+from mediaplatform_jwp import models
+from mediaplatform_jwp import upload
 
 
 def schedule_item_update(item):

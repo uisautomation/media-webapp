@@ -10,7 +10,7 @@ import mediaplatform.models as mpmodels
 import mediaplatform_jwp.models as jwpmodels
 import legacysms.models as legacymodels
 import mediaplatform_jwp.models as mediajwpmodels
-from mediaplatform_jwp import jwplatform as jwp
+from mediaplatform_jwp.jwplatformapi import deliveryapi as jwp
 
 from .signalhandlers import setting_sync_items
 

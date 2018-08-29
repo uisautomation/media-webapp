@@ -16,7 +16,7 @@ import jwplatform
 import jwt
 
 from mediaplatform_jwp import acl
-from . import models
+from mediaplatform_jwp import models
 
 LOG = logging.getLogger(__name__)
 

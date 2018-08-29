@@ -10,7 +10,7 @@ from django.utils.http import urlencode
 from rest_framework import serializers
 
 from mediaplatform import models as mpmodels
-from mediaplatform_jwp import managementapi as management, jwplatform
+from mediaplatform_jwp.jwplatformapi import deliveryapi as jwplatform, managementapi as management
 
 LOG = logging.getLogger(__name__)
 

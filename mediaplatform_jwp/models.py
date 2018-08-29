@@ -9,7 +9,7 @@ from django.utils.functional import cached_property
 from psycopg2.extras import execute_batch
 
 import mediaplatform.models as mpmodels
-from mediaplatform_jwp import jwplatform
+from mediaplatform_jwp.jwplatformapi import deliveryapi as jwplatform
 
 LOG = logging.getLogger(__name__)
 

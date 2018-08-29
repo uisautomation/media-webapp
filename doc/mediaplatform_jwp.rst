@@ -26,7 +26,7 @@ jwpfetch
 JWPlatform API
 --------------
 
-.. automodule:: mediaplatform_jwp.jwplatform
+.. automodule:: mediaplatform_jwp.jwplatformapi
     :members:
     :member-order: bysource
 

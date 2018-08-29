@@ -27,7 +27,8 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from mediaplatform_jwp import models
-from mediaplatform_jwp import sync, jwplatform
+from mediaplatform_jwp import sync
+from mediaplatform_jwp.jwplatformapi import deliveryapi as jwplatform
 import mediaplatform.models
 
 

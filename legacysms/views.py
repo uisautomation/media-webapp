@@ -8,7 +8,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 import requests
 
-from mediaplatform_jwp import jwplatform as api
+from mediaplatform_jwp.jwplatformapi import deliveryapi as api
 from mediaplatform import models as mpmodels
 
 from . import redirect as legacyredirect

@@ -20,7 +20,8 @@ class JWPFetchTest(TestCase):
         self.jwp_client = mock.MagicMock()
 
         get_jwplatform_client_patcher = mock.patch(
-            'mediaplatform_jwp.jwplatform.get_jwplatform_client', return_value=self.jwp_client
+            'mediaplatform_jwp.jwplatformapi.deliveryapi.get_jwplatform_client',
+            return_value=self.jwp_client
         )
         get_jwplatform_client_patcher.start()
         self.addCleanup(get_jwplatform_client_patcher.stop)

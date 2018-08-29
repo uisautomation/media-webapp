@@ -4,7 +4,7 @@ from django.urls import reverse
 from rest_framework import serializers
 
 from api import serializers as apiserializers, views as apiviews
-from mediaplatform_jwp import jwplatform
+from mediaplatform_jwp.jwplatformapi import deliveryapi as jwplatform
 
 LOG = logging.getLogger(__name__)
 

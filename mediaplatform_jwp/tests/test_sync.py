@@ -8,7 +8,7 @@ import pytz
 import mediaplatform.models as mpmodels
 import mediaplatform_jwp.models as jwpmodels
 import legacysms.models as legacymodels
-import mediaplatform_jwp.jwplatform as jwp
+import mediaplatform_jwp.jwplatformapi.deliveryapi as jwp
 from .. models import set_resources, CachedResource
 
 from .. import sync
