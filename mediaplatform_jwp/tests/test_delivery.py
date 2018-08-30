@@ -2,7 +2,7 @@ from unittest import mock
 
 from django.test import TestCase
 
-from mediaplatform_jwp.jwplatformapi import deliveryapi as jwplatform
+from mediaplatform_jwp.api import delivery as jwplatform
 from mediaplatform import models as mpmodels
 
 
@@ -11,7 +11,7 @@ class SourcesTestCase(TestCase):
 
     def setUp(self):
         self.dv_from_key_patcher = (
-            mock.patch('mediaplatform_jwp.jwplatformapi.deliveryapi.DeliveryVideo.from_key'))
+            mock.patch('mediaplatform_jwp.api.delivery.DeliveryVideo.from_key'))
         self.dv_from_key = self.dv_from_key_patcher.start()
         self.dv_from_key.return_value = jwplatform.DeliveryVideo(DELIVERY_VIDEO_FIXTURE)
         self.addCleanup(self.dv_from_key_patcher.stop)

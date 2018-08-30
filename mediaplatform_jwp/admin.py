@@ -8,7 +8,7 @@ from django.utils.html import format_html
 
 from automationlookup.models import UserLookup
 
-from mediaplatform_jwp.jwplatformapi import deliveryapi as api
+from mediaplatform_jwp.api import delivery as api
 from .models import Video, CachedResource
 
 

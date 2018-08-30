@@ -7,7 +7,7 @@ import urllib.parse
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from mediaplatform_jwp.jwplatformapi import deliveryapi as api
+from mediaplatform_jwp.api import delivery as api
 from mediaplatform_jwp import models
 
 

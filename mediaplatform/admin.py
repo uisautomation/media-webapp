@@ -8,7 +8,7 @@ from django.utils.formats import localize
 from django.utils.html import format_html
 
 from mediaplatform_jwp import models as jwpmodels
-from mediaplatform_jwp.jwplatformapi import deliveryapi as api
+from mediaplatform_jwp.api import delivery as api
 from legacysms import models as smsmodels
 
 from . import models

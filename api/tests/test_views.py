@@ -9,7 +9,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-import mediaplatform_jwp.jwplatformapi.deliveryapi as api
+import mediaplatform_jwp.api.delivery as api
 import mediaplatform.models as mpmodels
 
 from . import create_stats_table, delete_stats_table, add_stat
@@ -39,7 +39,7 @@ class ViewTestCase(TestCase):
 
     def patch_get_jwplatform_client(self):
         self.get_jwplatform_client_patcher = mock.patch(
-            'mediaplatform_jwp.jwplatformapi.deliveryapi.get_jwplatform_client')
+            'mediaplatform_jwp.api.delivery.get_jwplatform_client')
         self.get_jwplatform_client = self.get_jwplatform_client_patcher.start()
         self.addCleanup(self.get_jwplatform_client_patcher.stop)
 
@@ -245,7 +245,7 @@ class MediaItemViewTestCase(ViewTestCase):
         super().setUp()
         self.view = views.MediaItemView().as_view()
         self.dv_from_key_patcher = (
-            mock.patch('mediaplatform_jwp.jwplatformapi.deliveryapi.DeliveryVideo.from_key'))
+            mock.patch('mediaplatform_jwp.api.delivery.DeliveryVideo.from_key'))
         self.dv_from_key = self.dv_from_key_patcher.start()
         self.dv_from_key.return_value = api.DeliveryVideo(DELIVERY_VIDEO_FIXTURE)
         self.addCleanup(self.dv_from_key_patcher.stop)
@@ -496,7 +496,7 @@ class MediaItemSourceViewTestCase(ViewTestCase):
         self.view = views.MediaItemSourceView().as_view()
         self.item = self.non_deleted_media.get(id='populated')
         self.dv_from_key_patcher = (
-            mock.patch('mediaplatform_jwp.jwplatformapi.deliveryapi.DeliveryVideo.from_key'))
+            mock.patch('mediaplatform_jwp.api.delivery.DeliveryVideo.from_key'))
         self.dv_from_key = self.dv_from_key_patcher.start()
         self.dv_from_key.return_value = api.DeliveryVideo(DELIVERY_VIDEO_FIXTURE)
         self.addCleanup(self.dv_from_key_patcher.stop)
@@ -638,7 +638,7 @@ class UploadEndpointTestCase(ViewTestCase):
         self.add_view_permission()
         self.add_edit_permission()
 
-        with mock.patch('mediaplatform_jwp.jwplatformapi.managementapi.create_upload_endpoint'
+        with mock.patch('mediaplatform_jwp.api.management.create_upload_endpoint'
                         ) as mock_create:
             response = self.put_for_item()
 

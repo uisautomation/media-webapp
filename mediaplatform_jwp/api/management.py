@@ -2,7 +2,7 @@
 Interactions with the JWP management API.
 
 """
-from mediaplatform_jwp.jwplatformapi import deliveryapi as jwp
+from mediaplatform_jwp.api import delivery as jwp
 
 from mediaplatform_jwp import models
 from mediaplatform_jwp import upload
