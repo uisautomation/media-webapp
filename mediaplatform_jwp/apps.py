@@ -13,6 +13,13 @@ class Config(AppConfig):
     verbose_name = 'JWPlatform Integration with Media Platform'
 
     def ready(self):
+        """
+        Perform application initialisation once the Django platform has been initialised.
+
+        """
+        # Import, and thereby register, our custom system checks
+        from . import systemchecks  # noqa: F401
+
         # Register default settings in a rather ugly way since Django does not have a cleaner way
         # for apps to register default settings.  https://stackoverflow.com/questions/8428556/
 

@@ -4,7 +4,7 @@ omit=
 	manage.py
 	*/test/*
 	*/tests/*
-	smswebapp/settings/*
-	smswebapp/wsgi.py
+	mediawebapp/settings/*
+	mediawebapp/wsgi.py
 	.tox/*
 	*/migrations/*

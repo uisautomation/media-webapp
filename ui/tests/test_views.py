@@ -10,7 +10,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.test import override_settings
 from django.urls import reverse
 
-import smsjwplatform.jwplatform as api
+import mediaplatform_jwp.api.delivery as api
 from api.tests import create_stats_table, delete_stats_table
 from api.tests.test_views import ViewTestCase as _ViewTestCase, DELIVERY_VIDEO_FIXTURE
 
@@ -18,7 +18,7 @@ from api.tests.test_views import ViewTestCase as _ViewTestCase, DELIVERY_VIDEO_F
 class ViewTestCase(_ViewTestCase):
     def setUp(self):
         super().setUp()
-        dv_patch = mock.patch('smsjwplatform.jwplatform.DeliveryVideo.from_key')
+        dv_patch = mock.patch('mediaplatform_jwp.api.delivery.DeliveryVideo.from_key')
         self.mock_from_id = dv_patch.start()
         self.mock_from_id.return_value = api.DeliveryVideo(DELIVERY_VIDEO_FIXTURE)
         self.addCleanup(dv_patch.stop)
