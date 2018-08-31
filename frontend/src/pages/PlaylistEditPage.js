@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import update from 'immutability-helper';
 
 import Avatar from '@material-ui/core/Avatar';
 import Grid from '@material-ui/core/Grid';
@@ -44,17 +43,9 @@ class PlaylistEditPage extends Component {
   }
 
   moveListItem = (dragIndex, hoverIndex) => {
-    const dragitem = this.state.playlist.media[dragIndex];
-    // FIXME remove dependency on immutability-helper
-    this.setState(
-      update(this.state, {
-        playlist: {
-          media: {
-            $splice: [[dragIndex, 1], [hoverIndex, 0, dragitem]],
-          },
-        },
-      }),
-    );
+    const media = this.state.playlist.media.slice();
+    media.splice(hoverIndex, 0, ...media.splice(dragIndex, 1));
+    this.setState({ playlist: { ...this.state.playlist, media } });
     // FIXME de-bounce playlistPatch
   };
 
@@ -106,14 +97,10 @@ const EditableListSectionComponent = ({ classes, playlist, moveListItem }) => {
           </Typography>
           <List>
             {playlist.media.map(mediaResourceToItem).map(({url, imageUrl, title}, index) => (
-              <Draggable
-                key={ url }
-                index={ index }
-                moveItem={ moveListItem }
-              >
+              <Draggable key={ url } index={ index } moveItem={ moveListItem } >
                 <ListItem className={classes.listItem}>
-                  <Avatar src={imageUrl}/>
-                  <ListItemText primary={title}/>
+                  <Avatar src={imageUrl} />
+                  <ListItemText primary={title} />
                   <ListItemSecondaryAction className={classes.action}>
                     <ReorderIcon/>
                   </ListItemSecondaryAction>
