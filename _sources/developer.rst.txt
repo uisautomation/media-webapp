@@ -154,23 +154,16 @@ pull request. The main rationale for this is a) it guards against accidentally
 ``git push``-ing the wrong branch and b) it reduces the number of "dangling"
 branches in the main repository.
 
-.. _travisci:
+.. _circleci:
 
 Unit tests
 ``````````
 
-The project is set up on `Travis CI <https://travis-ci.org/>`_ to automatically
+The project is set up on `CircleCI <https://circleci.com/>`_ to automatically
 run unit tests and build documentation on each commit to a branch and on each
 pull request.
 
-.. note::
-
-    By logging into Travis CI via GitHub, you can enable Travis CI for your
-    personal fork. This is **highly recommended** as you'll get rapid feedback
-    via email if you push a commit to a branch which does not pass the test
-    suite.
-
-In order to better match production, Travis CI is set up to run unit tests using
+In order to better match production, CircleCI is set up to run unit tests using
 the PostgreSQL database and *not* sqlite. If you only run unit tests locally
 with sqlite then it is possible that some tests may fail.
 
@@ -183,17 +176,16 @@ Going to `CodeCov <https://codecov.io/>`_, logging in with GitHub and adding the
 Documentation
 `````````````
 
-Travis CI has been set up so that when the master branch is built, the
+CircleCI has been set up so that when the master branch is built, the
 documentation is deployed to https://uisautomation.github.io/media-webapp via
 GitHub pages. The `UIS robot <https://github.com/bb9e/>`_ machine account's
-personal token is set up in Travis via the ``GITHUB_TOKEN`` environment
-variable.
+personal ssh is set up in CircleCI.
 
 .. seealso::
 
-    Travis CI's `documentation
-    <https://docs.travis-ci.com/user/deployment/pages/>`_ on deploying to GitHub
-    pages.
+    CircleCI's `documentation
+    <https://github.com/DevProgress/onboarding/wiki/Using-Circle-CI-with-Github-Pages-for-Continuous-Delivery>`_ on
+    deploying to GitHub pages.
 
 Code-style
 ``````````
@@ -228,5 +220,5 @@ development as a more sophisticated alternative to PDB. To use PuDB simply set b
 Documentation
 `````````````
 
-This documentation is re-built on each commit to master by Travis and posted to
+This documentation is re-built on each commit to master by CircleCI and posted to
 GitHub pages at https://uisautomation.github.io/media-webapp/.

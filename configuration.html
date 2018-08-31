@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="The Web App Project" href="smswebapp.html" />
+    <link rel="next" title="The Web App Project" href="mediawebapp.html" />
     <link rel="prev" title="Developer’s guide" href="developer.html" /> 
 
   
@@ -87,10 +87,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#default-settings">Default settings</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="smswebapp.html">The Web App Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mediawebapp.html">The Web App Project</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mediaplatform.html">Media Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mediaplatform_jwp.html">JWPlatform Integration Application</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">REST API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="smsjwplatform.html">JWPlatform Integration Application</a></li>
 <li class="toctree-l1"><a class="reference internal" href="legacy-sms.html">Support for Legacy SMS</a></li>
 </ul>
 
@@ -171,75 +171,75 @@ backend by setting <code class="docutils literal notranslate"><span class="pre">
 </div>
 <div class="section" id="default-settings">
 <h2>Default settings<a class="headerlink" href="#default-settings" title="Permalink to this headline">¶</a></h2>
-<p>The default settings are given in the <a class="reference internal" href="#module-smswebapp.settings.base" title="smswebapp.settings.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">smswebapp.settings.base</span></code></a> module:</p>
-<span class="target" id="module-smswebapp.settings.base"></span><dl class="data">
-<dt id="smswebapp.settings.base.BASE_DIR">
-<code class="descclassname">smswebapp.settings.base.</code><code class="descname">BASE_DIR</code><em class="property"> = '/usr/src/app'</em><a class="headerlink" href="#smswebapp.settings.base.BASE_DIR" title="Permalink to this definition">¶</a></dt>
+<p>The default settings are given in the <a class="reference internal" href="#module-mediawebapp.settings.base" title="mediawebapp.settings.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mediawebapp.settings.base</span></code></a> module:</p>
+<span class="target" id="module-mediawebapp.settings.base"></span><dl class="data">
+<dt id="mediawebapp.settings.base.BASE_DIR">
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">BASE_DIR</code><em class="property"> = '/usr/src/app'</em><a class="headerlink" href="#mediawebapp.settings.base.BASE_DIR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base directory containing the project. Build paths inside the project via
 <code class="docutils literal notranslate"><span class="pre">os.path.join(BASE_DIR,</span> <span class="pre">...)</span></code>.</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.base.SECRET_KEY">
-<code class="descclassname">smswebapp.settings.base.</code><code class="descname">SECRET_KEY</code><em class="property"> = 'ex561uglj%!8oh*umt3-&#64;2-4yj*&amp;dc8cznob*vmb0!9bryoc-$'</em><a class="headerlink" href="#smswebapp.settings.base.SECRET_KEY" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.base.SECRET_KEY">
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">SECRET_KEY</code><em class="property"> = 'ex561uglj%!8oh*umt3-&#64;2-4yj*&amp;dc8cznob*vmb0!9bryoc-$'</em><a class="headerlink" href="#mediawebapp.settings.base.SECRET_KEY" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Django secret key is by default set from the environment. If omitted, a system check will
 complain.</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.base.DEBUG">
-<code class="descclassname">smswebapp.settings.base.</code><code class="descname">DEBUG</code><em class="property"> = True</em><a class="headerlink" href="#smswebapp.settings.base.DEBUG" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.base.DEBUG">
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">DEBUG</code><em class="property"> = True</em><a class="headerlink" href="#mediawebapp.settings.base.DEBUG" title="Permalink to this definition">¶</a></dt>
 <dd><p>SECURITY WARNING: don’t run with debug turned on in production!</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.base.ALLOWED_HOSTS">
-<code class="descclassname">smswebapp.settings.base.</code><code class="descname">ALLOWED_HOSTS</code><em class="property"> = []</em><a class="headerlink" href="#smswebapp.settings.base.ALLOWED_HOSTS" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.base.ALLOWED_HOSTS">
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">ALLOWED_HOSTS</code><em class="property"> = []</em><a class="headerlink" href="#mediawebapp.settings.base.ALLOWED_HOSTS" title="Permalink to this definition">¶</a></dt>
 <dd><p>By default, no hosts are allowed.</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.base.INSTALLED_APPS">
-<code class="descclassname">smswebapp.settings.base.</code><code class="descname">INSTALLED_APPS</code><em class="property"> = ['django.contrib.admin', 'django.contrib.auth', 'django.contrib.contenttypes', 'django.contrib.sessions', 'django.contrib.messages', 'whitenoise.runserver_nostatic', 'django.contrib.staticfiles', 'django.contrib.sites', 'django.contrib.sitemaps', 'automationcommon', 'automationlookup', 'automationoauth', 'corsheaders', 'crispy_forms', 'django_filters', 'drf_yasg', 'rest_framework', 'ucamwebauth', 'robots', 'smsjwplatform', 'legacysms', 'mediaplatform', 'mediaplatform_jwp', 'ui', 'api']</em><a class="headerlink" href="#smswebapp.settings.base.INSTALLED_APPS" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.base.INSTALLED_APPS">
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">INSTALLED_APPS</code><em class="property"> = ['django.contrib.admin', 'django.contrib.auth', 'django.contrib.contenttypes', 'django.contrib.sessions', 'django.contrib.messages', 'whitenoise.runserver_nostatic', 'django.contrib.staticfiles', 'django.contrib.sites', 'django.contrib.sitemaps', 'automationcommon', 'automationlookup', 'automationoauth', 'corsheaders', 'crispy_forms', 'django_filters', 'drf_yasg', 'rest_framework', 'ucamwebauth', 'robots', 'smsjwplatform', 'legacysms', 'mediaplatform', 'mediaplatform_jwp', 'ui', 'api']</em><a class="headerlink" href="#mediawebapp.settings.base.INSTALLED_APPS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Installed applications</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.base.MIDDLEWARE">
-<code class="descclassname">smswebapp.settings.base.</code><code class="descname">MIDDLEWARE</code><em class="property"> = ['django.middleware.security.SecurityMiddleware', 'django.middleware.clickjacking.XFrameOptionsMiddleware', 'whitenoise.middleware.WhiteNoiseMiddleware', 'django.contrib.sessions.middleware.SessionMiddleware', 'corsheaders.middleware.CorsMiddleware', 'django.middleware.common.CommonMiddleware', 'django.middleware.csrf.CsrfViewMiddleware', 'django.contrib.auth.middleware.AuthenticationMiddleware', 'django.contrib.messages.middleware.MessageMiddleware', 'smsjwplatform.middleware.user_lookup_middleware']</em><a class="headerlink" href="#smswebapp.settings.base.MIDDLEWARE" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.base.MIDDLEWARE">
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">MIDDLEWARE</code><em class="property"> = ['django.middleware.security.SecurityMiddleware', 'django.middleware.clickjacking.XFrameOptionsMiddleware', 'whitenoise.middleware.WhiteNoiseMiddleware', 'django.contrib.sessions.middleware.SessionMiddleware', 'corsheaders.middleware.CorsMiddleware', 'django.middleware.common.CommonMiddleware', 'django.middleware.csrf.CsrfViewMiddleware', 'django.contrib.auth.middleware.AuthenticationMiddleware', 'django.contrib.messages.middleware.MessageMiddleware', 'mediawebapp.middleware.user_lookup_middleware']</em><a class="headerlink" href="#mediawebapp.settings.base.MIDDLEWARE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Installed middleware</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.base.ROOT_URLCONF">
-<code class="descclassname">smswebapp.settings.base.</code><code class="descname">ROOT_URLCONF</code><em class="property"> = 'smswebapp.urls'</em><a class="headerlink" href="#smswebapp.settings.base.ROOT_URLCONF" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.base.ROOT_URLCONF">
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">ROOT_URLCONF</code><em class="property"> = 'mediawebapp.urls'</em><a class="headerlink" href="#mediawebapp.settings.base.ROOT_URLCONF" title="Permalink to this definition">¶</a></dt>
 <dd><p>Root URL patterns</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.base.TEMPLATES">
-<code class="descclassname">smswebapp.settings.base.</code><code class="descname">TEMPLATES</code><em class="property"> = [{'BACKEND': 'django.template.backends.django.DjangoTemplates', 'DIRS': ['/usr/src/frontend/'], 'APP_DIRS': True, 'OPTIONS': {'context_processors': ['django.template.context_processors.debug', 'django.template.context_processors.request', 'django.contrib.auth.context_processors.auth', 'django.contrib.messages.context_processors.messages']}}]</em><a class="headerlink" href="#smswebapp.settings.base.TEMPLATES" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.base.TEMPLATES">
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">TEMPLATES</code><em class="property"> = [{'BACKEND': 'django.template.backends.django.DjangoTemplates', 'DIRS': ['/usr/src/frontend/'], 'APP_DIRS': True, 'OPTIONS': {'context_processors': ['django.template.context_processors.debug', 'django.template.context_processors.request', 'django.contrib.auth.context_processors.auth', 'django.contrib.messages.context_processors.messages']}}]</em><a class="headerlink" href="#mediawebapp.settings.base.TEMPLATES" title="Permalink to this definition">¶</a></dt>
 <dd><p>Template loading. We include FRONTEND_APP_BUILD_DIR as a template dir so we can use the frontend
 index.html as a template.</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.base.WSGI_APPLICATION">
-<code class="descclassname">smswebapp.settings.base.</code><code class="descname">WSGI_APPLICATION</code><em class="property"> = 'smswebapp.wsgi.application'</em><a class="headerlink" href="#smswebapp.settings.base.WSGI_APPLICATION" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.base.WSGI_APPLICATION">
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">WSGI_APPLICATION</code><em class="property"> = 'mediawebapp.wsgi.application'</em><a class="headerlink" href="#mediawebapp.settings.base.WSGI_APPLICATION" title="Permalink to this definition">¶</a></dt>
 <dd><p>WSGI</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.base.DATABASES">
-<code class="descclassname">smswebapp.settings.base.</code><code class="descname">DATABASES</code><em class="property"> = {'default': {'ENGINE': 'django.db.backends.postgresql', 'NAME': 'webapp', 'PASSWORD': 'databasePass', 'USER': 'webappuser', 'PORT': '5432', 'HOST': 'db', 'ATOMIC_REQUESTS': False, 'AUTOCOMMIT': True, 'CONN_MAX_AGE': 0, 'OPTIONS': {}, 'TIME_ZONE': None, 'TEST': {'CHARSET': None, 'COLLATION': None, 'NAME': None, 'MIRROR': None}}}</em><a class="headerlink" href="#smswebapp.settings.base.DATABASES" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.base.DATABASES">
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">DATABASES</code><em class="property"> = {'default': {'ENGINE': 'django.db.backends.postgresql', 'NAME': 'webapp', 'HOST': 'db', 'PASSWORD': 'databasePass', 'USER': 'webappuser', 'PORT': '5432', 'ATOMIC_REQUESTS': False, 'AUTOCOMMIT': True, 'CONN_MAX_AGE': 0, 'OPTIONS': {}, 'TIME_ZONE': None, 'TEST': {'CHARSET': None, 'COLLATION': None, 'NAME': None, 'MIRROR': None}}}</em><a class="headerlink" href="#mediawebapp.settings.base.DATABASES" title="Permalink to this definition">¶</a></dt>
 <dd><p>Database configuration. The default settings allow configuration of the database from
 environment variables. An environment variable named <code class="docutils literal notranslate"><span class="pre">DJANGO_DB_&lt;key&gt;</span></code> will override the
 <code class="docutils literal notranslate"><span class="pre">DATABASES['default'][&lt;key&gt;]</span></code> setting.</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.base.AUTH_PASSWORD_VALIDATORS">
-<code class="descclassname">smswebapp.settings.base.</code><code class="descname">AUTH_PASSWORD_VALIDATORS</code><em class="property"> = [{'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'}, {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'}, {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'}, {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'}]</em><a class="headerlink" href="#smswebapp.settings.base.AUTH_PASSWORD_VALIDATORS" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.base.AUTH_PASSWORD_VALIDATORS">
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">AUTH_PASSWORD_VALIDATORS</code><em class="property"> = [{'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'}, {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'}, {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'}, {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'}]</em><a class="headerlink" href="#mediawebapp.settings.base.AUTH_PASSWORD_VALIDATORS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Password validation</p>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
@@ -248,8 +248,8 @@ environment variables. An environment variable named <code class="docutils liter
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.base.LANGUAGE_CODE">
-<code class="descclassname">smswebapp.settings.base.</code><code class="descname">LANGUAGE_CODE</code><em class="property"> = 'en-us'</em><a class="headerlink" href="#smswebapp.settings.base.LANGUAGE_CODE" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.base.LANGUAGE_CODE">
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">LANGUAGE_CODE</code><em class="property"> = 'en-us'</em><a class="headerlink" href="#mediawebapp.settings.base.LANGUAGE_CODE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Internationalization</p>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
@@ -258,32 +258,32 @@ environment variables. An environment variable named <code class="docutils liter
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.base.TIME_ZONE">
-<code class="descclassname">smswebapp.settings.base.</code><code class="descname">TIME_ZONE</code><em class="property"> = 'UTC'</em><a class="headerlink" href="#smswebapp.settings.base.TIME_ZONE" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.base.TIME_ZONE">
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">TIME_ZONE</code><em class="property"> = 'UTC'</em><a class="headerlink" href="#mediawebapp.settings.base.TIME_ZONE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Internationalization</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.base.USE_I18N">
-<code class="descclassname">smswebapp.settings.base.</code><code class="descname">USE_I18N</code><em class="property"> = True</em><a class="headerlink" href="#smswebapp.settings.base.USE_I18N" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.base.USE_I18N">
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">USE_I18N</code><em class="property"> = True</em><a class="headerlink" href="#mediawebapp.settings.base.USE_I18N" title="Permalink to this definition">¶</a></dt>
 <dd><p>Internationalization</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.base.USE_L10N">
-<code class="descclassname">smswebapp.settings.base.</code><code class="descname">USE_L10N</code><em class="property"> = True</em><a class="headerlink" href="#smswebapp.settings.base.USE_L10N" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.base.USE_L10N">
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">USE_L10N</code><em class="property"> = True</em><a class="headerlink" href="#mediawebapp.settings.base.USE_L10N" title="Permalink to this definition">¶</a></dt>
 <dd><p>Internationalization</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.base.USE_TZ">
-<code class="descclassname">smswebapp.settings.base.</code><code class="descname">USE_TZ</code><em class="property"> = True</em><a class="headerlink" href="#smswebapp.settings.base.USE_TZ" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.base.USE_TZ">
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">USE_TZ</code><em class="property"> = True</em><a class="headerlink" href="#mediawebapp.settings.base.USE_TZ" title="Permalink to this definition">¶</a></dt>
 <dd><p>Internationalization</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.base.STATIC_URL">
-<code class="descclassname">smswebapp.settings.base.</code><code class="descname">STATIC_URL</code><em class="property"> = '/static/'</em><a class="headerlink" href="#smswebapp.settings.base.STATIC_URL" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.base.STATIC_URL">
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">STATIC_URL</code><em class="property"> = '/static/'</em><a class="headerlink" href="#mediawebapp.settings.base.STATIC_URL" title="Permalink to this definition">¶</a></dt>
 <dd><p>Static files (CSS, JavaScript, Images)</p>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
@@ -292,39 +292,39 @@ environment variables. An environment variable named <code class="docutils liter
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.base.AUTHENTICATION_BACKENDS">
-<code class="descclassname">smswebapp.settings.base.</code><code class="descname">AUTHENTICATION_BACKENDS</code><em class="property"> = ['ucamwebauth.backends.RavenAuthBackend', 'django.contrib.auth.backends.ModelBackend']</em><a class="headerlink" href="#smswebapp.settings.base.AUTHENTICATION_BACKENDS" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.base.AUTHENTICATION_BACKENDS">
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">AUTHENTICATION_BACKENDS</code><em class="property"> = ['ucamwebauth.backends.RavenAuthBackend', 'django.contrib.auth.backends.ModelBackend']</em><a class="headerlink" href="#mediawebapp.settings.base.AUTHENTICATION_BACKENDS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Authentication backends</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.base.UCAMWEBAUTH_CREATE_USER">
-<code class="descclassname">smswebapp.settings.base.</code><code class="descname">UCAMWEBAUTH_CREATE_USER</code><em class="property"> = True</em><a class="headerlink" href="#smswebapp.settings.base.UCAMWEBAUTH_CREATE_USER" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.base.UCAMWEBAUTH_CREATE_USER">
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">UCAMWEBAUTH_CREATE_USER</code><em class="property"> = True</em><a class="headerlink" href="#mediawebapp.settings.base.UCAMWEBAUTH_CREATE_USER" title="Permalink to this definition">¶</a></dt>
 <dd><p>Allow the autocreation of users who have been successfully authenticated by
 Raven but do not exist in the local database.</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.base.UCAMWEBAUTH_LOGOUT_REDIRECT">
-<code class="descclassname">smswebapp.settings.base.</code><code class="descname">UCAMWEBAUTH_LOGOUT_REDIRECT</code><em class="property"> = '/'</em><a class="headerlink" href="#smswebapp.settings.base.UCAMWEBAUTH_LOGOUT_REDIRECT" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.base.UCAMWEBAUTH_LOGOUT_REDIRECT">
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">UCAMWEBAUTH_LOGOUT_REDIRECT</code><em class="property"> = '/'</em><a class="headerlink" href="#mediawebapp.settings.base.UCAMWEBAUTH_LOGOUT_REDIRECT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Redirect to this URL on log out</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.base.UCAMWEBAUTH_NOT_CURRENT">
-<code class="descclassname">smswebapp.settings.base.</code><code class="descname">UCAMWEBAUTH_NOT_CURRENT</code><em class="property"> = False</em><a class="headerlink" href="#smswebapp.settings.base.UCAMWEBAUTH_NOT_CURRENT" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.base.UCAMWEBAUTH_NOT_CURRENT">
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">UCAMWEBAUTH_NOT_CURRENT</code><em class="property"> = False</em><a class="headerlink" href="#mediawebapp.settings.base.UCAMWEBAUTH_NOT_CURRENT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Allow members who are not current members to log in?</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.base.JWPLATFORM_API_KEY">
-<code class="descclassname">smswebapp.settings.base.</code><code class="descname">JWPLATFORM_API_KEY</code><em class="property"> = ''</em><a class="headerlink" href="#smswebapp.settings.base.JWPLATFORM_API_KEY" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.base.JWPLATFORM_API_KEY">
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">JWPLATFORM_API_KEY</code><em class="property"> = ''</em><a class="headerlink" href="#mediawebapp.settings.base.JWPLATFORM_API_KEY" title="Permalink to this definition">¶</a></dt>
 <dd><p>JWPlatform API key. Loaded from the <code class="docutils literal notranslate"><span class="pre">JWPLATFORM_API_KEY</span></code> environment variable.</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.base.JWPLATFORM_API_SECRET">
-<code class="descclassname">smswebapp.settings.base.</code><code class="descname">JWPLATFORM_API_SECRET</code><em class="property"> = ''</em><a class="headerlink" href="#smswebapp.settings.base.JWPLATFORM_API_SECRET" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.base.JWPLATFORM_API_SECRET">
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">JWPLATFORM_API_SECRET</code><em class="property"> = ''</em><a class="headerlink" href="#mediawebapp.settings.base.JWPLATFORM_API_SECRET" title="Permalink to this definition">¶</a></dt>
 <dd><p>JWPlatform API secret. Loaded from the <code class="docutils literal notranslate"><span class="pre">JWPLATFORM_API_SECRET</span></code> environment variable.</p>
 </dd></dl>
 
@@ -339,7 +339,7 @@ Raven but do not exist in the local database.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="smswebapp.html" class="btn btn-neutral float-right" title="The Web App Project" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="mediawebapp.html" class="btn btn-neutral float-right" title="The Web App Project" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="developer.html" class="btn btn-neutral" title="Developer’s guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

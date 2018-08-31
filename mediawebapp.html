@@ -85,17 +85,17 @@
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">The Web App Project</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#settings">Settings</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#module-smswebapp.settings">Generic settings</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-smswebapp.settings.tox">Test-suite specific settings</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-smswebapp.settings.developer">Developer specific settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-mediawebapp.settings">Generic settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-mediawebapp.settings.tox">Test-suite specific settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-mediawebapp.settings.developer">Developer specific settings</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#custom-test-suite-runner">Custom test suite runner</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="mediaplatform.html">Media Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mediaplatform_jwp.html">JWPlatform Integration Application</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">REST API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="smsjwplatform.html">JWPlatform Integration Application</a></li>
 <li class="toctree-l1"><a class="reference internal" href="legacy-sms.html">Support for Legacy SMS</a></li>
 </ul>
 
@@ -148,7 +148,7 @@
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/smswebapp.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/mediawebapp.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -163,85 +163,85 @@
             
   <div class="section" id="the-web-app-project">
 <h1>The Web App Project<a class="headerlink" href="#the-web-app-project" title="Permalink to this headline">¶</a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">smswebapp</span></code> project contains top-level configuration and URL routes for
+<p>The <code class="docutils literal notranslate"><span class="pre">mediawebapp</span></code> project contains top-level configuration and URL routes for
 the entire web application.</p>
 <div class="section" id="settings">
 <h2>Settings<a class="headerlink" href="#settings" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">smswebapp</span></code> project ships a number of settings files.</p>
-<div class="section" id="module-smswebapp.settings">
-<span id="generic-settings"></span><span id="id1"></span><h3>Generic settings<a class="headerlink" href="#module-smswebapp.settings" title="Permalink to this headline">¶</a></h3>
-<p>The default <a class="reference internal" href="#module-smswebapp.settings" title="smswebapp.settings"><code class="xref py py-mod docutils literal notranslate"><span class="pre">smswebapp.settings</span></code></a> module contains settings which are
+<p>The <code class="docutils literal notranslate"><span class="pre">mediawebapp</span></code> project ships a number of settings files.</p>
+<div class="section" id="module-mediawebapp.settings">
+<span id="generic-settings"></span><span id="id1"></span><h3>Generic settings<a class="headerlink" href="#module-mediawebapp.settings" title="Permalink to this headline">¶</a></h3>
+<p>The default <a class="reference internal" href="#module-mediawebapp.settings" title="mediawebapp.settings"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mediawebapp.settings</span></code></a> module contains settings which are
 common to most deployment environments.</p>
 </div>
-<div class="section" id="module-smswebapp.settings.tox">
-<span id="test-suite-specific-settings"></span><span id="settings-testsuite"></span><h3>Test-suite specific settings<a class="headerlink" href="#module-smswebapp.settings.tox" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">smswebapp.settings_testsuite</span></code> module contains settings which are
+<div class="section" id="module-mediawebapp.settings.tox">
+<span id="test-suite-specific-settings"></span><span id="settings-testsuite"></span><h3>Test-suite specific settings<a class="headerlink" href="#module-mediawebapp.settings.tox" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">mediawebapp.settings_testsuite</span></code> module contains settings which are
 specific to the test suite environment. The default <code class="docutils literal notranslate"><span class="pre">tox</span></code> test environment
 uses this settings module when running the test suite.</p>
 <dl class="data">
-<dt id="smswebapp.settings.tox.JWPLATFORM_API_KEY">
-<code class="descclassname">smswebapp.settings.tox.</code><code class="descname">JWPLATFORM_API_KEY</code><em class="property"> = 'xxx-not-a-key-xxx'</em><a class="headerlink" href="#smswebapp.settings.tox.JWPLATFORM_API_KEY" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.tox.JWPLATFORM_API_KEY">
+<code class="descclassname">mediawebapp.settings.tox.</code><code class="descname">JWPLATFORM_API_KEY</code><em class="property"> = 'xxx-not-a-key-xxx'</em><a class="headerlink" href="#mediawebapp.settings.tox.JWPLATFORM_API_KEY" title="Permalink to this definition">¶</a></dt>
 <dd><p>When running the test suite, we do not call any external APIs but we <em>do</em> check that the
 <code class="docutils literal notranslate"><span class="pre">JWPLATFORM_...</span></code> settings must be set.</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.tox.JWPLATFORM_EMBED_PLAYER_KEY">
-<code class="descclassname">smswebapp.settings.tox.</code><code class="descname">JWPLATFORM_EMBED_PLAYER_KEY</code><em class="property"> = 'someplayer'</em><a class="headerlink" href="#smswebapp.settings.tox.JWPLATFORM_EMBED_PLAYER_KEY" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.tox.JWPLATFORM_EMBED_PLAYER_KEY">
+<code class="descclassname">mediawebapp.settings.tox.</code><code class="descname">JWPLATFORM_EMBED_PLAYER_KEY</code><em class="property"> = 'someplayer'</em><a class="headerlink" href="#mediawebapp.settings.tox.JWPLATFORM_EMBED_PLAYER_KEY" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use a fake player key for embedding.</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.tox.JWP_SYNC_ITEMS">
-<code class="descclassname">smswebapp.settings.tox.</code><code class="descname">JWP_SYNC_ITEMS</code><em class="property"> = False</em><a class="headerlink" href="#smswebapp.settings.tox.JWP_SYNC_ITEMS" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.tox.JWP_SYNC_ITEMS">
+<code class="descclassname">mediawebapp.settings.tox.</code><code class="descname">JWP_SYNC_ITEMS</code><em class="property"> = False</em><a class="headerlink" href="#mediawebapp.settings.tox.JWP_SYNC_ITEMS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Do not synchronise items using the JWP API unless tests expect it</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.tox.LOGGING">
-<code class="descclassname">smswebapp.settings.tox.</code><code class="descname">LOGGING</code><em class="property"> = None</em><a class="headerlink" href="#smswebapp.settings.tox.LOGGING" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.tox.LOGGING">
+<code class="descclassname">mediawebapp.settings.tox.</code><code class="descname">LOGGING</code><em class="property"> = None</em><a class="headerlink" href="#mediawebapp.settings.tox.LOGGING" title="Permalink to this definition">¶</a></dt>
 <dd><p>Be less verbose in logging with tox</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.tox.STATIC_ROOT">
-<code class="descclassname">smswebapp.settings.tox.</code><code class="descname">STATIC_ROOT</code><em class="property"> = '/tmp/workspace/build/static'</em><a class="headerlink" href="#smswebapp.settings.tox.STATIC_ROOT" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.tox.STATIC_ROOT">
+<code class="descclassname">mediawebapp.settings.tox.</code><code class="descname">STATIC_ROOT</code><em class="property"> = '/tmp/workspace/build/static'</em><a class="headerlink" href="#mediawebapp.settings.tox.STATIC_ROOT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Static files are collected into a directory determined by the tox
 configuration. See the tox.ini file.</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="smswebapp.settings.tox.TEST_RUNNER">
-<code class="descclassname">smswebapp.settings.tox.</code><code class="descname">TEST_RUNNER</code><em class="property"> = 'smswebapp.test.runner.BufferedDiscoverRunner'</em><a class="headerlink" href="#smswebapp.settings.tox.TEST_RUNNER" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.settings.tox.TEST_RUNNER">
+<code class="descclassname">mediawebapp.settings.tox.</code><code class="descname">TEST_RUNNER</code><em class="property"> = 'mediawebapp.test.runner.BufferedDiscoverRunner'</em><a class="headerlink" href="#mediawebapp.settings.tox.TEST_RUNNER" title="Permalink to this definition">¶</a></dt>
 <dd><p>The default test runner is changed to one which captures stdout and stderr
 when running tests.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-smswebapp.settings.developer">
-<span id="developer-specific-settings"></span><span id="settings-developer"></span><h3>Developer specific settings<a class="headerlink" href="#module-smswebapp.settings.developer" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="module-mediawebapp.settings.developer">
+<span id="developer-specific-settings"></span><span id="settings-developer"></span><h3>Developer specific settings<a class="headerlink" href="#module-mediawebapp.settings.developer" title="Permalink to this headline">¶</a></h3>
 </div>
 </div>
 <div class="section" id="custom-test-suite-runner">
 <h2>Custom test suite runner<a class="headerlink" href="#custom-test-suite-runner" title="Permalink to this headline">¶</a></h2>
 <p>The <a class="reference internal" href="#settings-testsuite"><span class="std std-ref">test suite settings</span></a> overrides the
 <code class="docutils literal notranslate"><span class="pre">TEST_RUNNER</span></code> setting to point to
-<a class="reference internal" href="#smswebapp.test.runner.BufferedTextTestRunner" title="smswebapp.test.runner.BufferedTextTestRunner"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedTextTestRunner</span></code></a>. This runner captures
+<a class="reference internal" href="#mediawebapp.test.runner.BufferedTextTestRunner" title="mediawebapp.test.runner.BufferedTextTestRunner"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedTextTestRunner</span></code></a>. This runner captures
 output to stdout and stderr and only reports the output if a test fails. This
 helps make our tests a little less noisy.</p>
 <dl class="class">
-<dt id="smswebapp.test.runner.BufferedDiscoverRunner">
-<em class="property">class </em><code class="descclassname">smswebapp.test.runner.</code><code class="descname">BufferedDiscoverRunner</code><span class="sig-paren">(</span><em>pattern=None</em>, <em>top_level=None</em>, <em>verbosity=1</em>, <em>interactive=True</em>, <em>failfast=False</em>, <em>keepdb=False</em>, <em>reverse=False</em>, <em>debug_mode=False</em>, <em>debug_sql=False</em>, <em>parallel=0</em>, <em>tags=None</em>, <em>exclude_tags=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#smswebapp.test.runner.BufferedDiscoverRunner" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.test.runner.BufferedDiscoverRunner">
+<em class="property">class </em><code class="descclassname">mediawebapp.test.runner.</code><code class="descname">BufferedDiscoverRunner</code><span class="sig-paren">(</span><em>pattern=None</em>, <em>top_level=None</em>, <em>verbosity=1</em>, <em>interactive=True</em>, <em>failfast=False</em>, <em>keepdb=False</em>, <em>reverse=False</em>, <em>debug_mode=False</em>, <em>debug_sql=False</em>, <em>parallel=0</em>, <em>tags=None</em>, <em>exclude_tags=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#mediawebapp.test.runner.BufferedDiscoverRunner" title="Permalink to this definition">¶</a></dt>
 <dd><p>A sub-class of <code class="xref py py-class docutils literal notranslate"><span class="pre">django.test.runner.DiscoverRunner</span></code> which has
 exactly the same behaviour except that the <code class="xref py py-attr docutils literal notranslate"><span class="pre">test_runner</span></code>
-attribute is set to <a class="reference internal" href="#smswebapp.test.runner.BufferedTextTestRunner" title="smswebapp.test.runner.BufferedTextTestRunner"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedTextTestRunner</span></code></a>.</p>
+attribute is set to <a class="reference internal" href="#mediawebapp.test.runner.BufferedTextTestRunner" title="mediawebapp.test.runner.BufferedTextTestRunner"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedTextTestRunner</span></code></a>.</p>
 <p>The upshot of this is that output to stdout and stderror is captured and
 only reported on test failure.</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="smswebapp.test.runner.BufferedTextTestRunner">
-<em class="property">class </em><code class="descclassname">smswebapp.test.runner.</code><code class="descname">BufferedTextTestRunner</code><span class="sig-paren">(</span><em>stream=None</em>, <em>descriptions=True</em>, <em>verbosity=1</em>, <em>failfast=False</em>, <em>buffer=True</em>, <em>resultclass=None</em>, <em>warnings=None</em>, <em>*</em>, <em>tb_locals=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#smswebapp.test.runner.BufferedTextTestRunner" title="Permalink to this definition">¶</a></dt>
+<dt id="mediawebapp.test.runner.BufferedTextTestRunner">
+<em class="property">class </em><code class="descclassname">mediawebapp.test.runner.</code><code class="descname">BufferedTextTestRunner</code><span class="sig-paren">(</span><em>stream=None</em>, <em>descriptions=True</em>, <em>verbosity=1</em>, <em>failfast=False</em>, <em>buffer=True</em>, <em>resultclass=None</em>, <em>warnings=None</em>, <em>*</em>, <em>tb_locals=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#mediawebapp.test.runner.BufferedTextTestRunner" title="Permalink to this definition">¶</a></dt>
 <dd><p>A sub-class of <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.TextTestRunner</span></code> with identical behaviour
 except that the <em>buffer</em> keyword argument to the constructor defaults to
 True.</p>

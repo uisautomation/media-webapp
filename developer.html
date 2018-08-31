@@ -101,16 +101,16 @@
 <li class="toctree-l3"><a class="reference internal" href="#documentation">Documentation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#code-style">Code-style</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#debugging">Debugging</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id3">Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Documentation</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="smswebapp.html">The Web App Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mediawebapp.html">The Web App Project</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mediaplatform.html">Media Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mediaplatform_jwp.html">JWPlatform Integration Application</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">REST API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="smsjwplatform.html">JWPlatform Integration Application</a></li>
 <li class="toctree-l1"><a class="reference internal" href="legacy-sms.html">Support for Legacy SMS</a></li>
 </ul>
 
@@ -300,18 +300,11 @@ pull request. The main rationale for this is a) it guards against accidentally
 branches in the main repository.</p>
 </div>
 <div class="section" id="unit-tests">
-<span id="travisci"></span><h3>Unit tests<a class="headerlink" href="#unit-tests" title="Permalink to this headline">¶</a></h3>
-<p>The project is set up on <a class="reference external" href="https://travis-ci.org/">Travis CI</a> to automatically
+<span id="circleci"></span><h3>Unit tests<a class="headerlink" href="#unit-tests" title="Permalink to this headline">¶</a></h3>
+<p>The project is set up on <a class="reference external" href="https://circleci.com/">CircleCI</a> to automatically
 run unit tests and build documentation on each commit to a branch and on each
 pull request.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">By logging into Travis CI via GitHub, you can enable Travis CI for your
-personal fork. This is <strong>highly recommended</strong> as you’ll get rapid feedback
-via email if you push a commit to a branch which does not pass the test
-suite.</p>
-</div>
-<p>In order to better match production, Travis CI is set up to run unit tests using
+<p>In order to better match production, CircleCI is set up to run unit tests using
 the PostgreSQL database and <em>not</em> sqlite. If you only run unit tests locally
 with sqlite then it is possible that some tests may fail.</p>
 </div>
@@ -322,15 +315,14 @@ with sqlite then it is possible that some tests may fail.</p>
 </div>
 <div class="section" id="documentation">
 <h3>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h3>
-<p>Travis CI has been set up so that when the master branch is built, the
+<p>CircleCI has been set up so that when the master branch is built, the
 documentation is deployed to <a class="reference external" href="https://uisautomation.github.io/media-webapp">https://uisautomation.github.io/media-webapp</a> via
 GitHub pages. The <a class="reference external" href="https://github.com/bb9e/">UIS robot</a> machine account’s
-personal token is set up in Travis via the <code class="docutils literal notranslate"><span class="pre">GITHUB_TOKEN</span></code> environment
-variable.</p>
+personal ssh is set up in CircleCI.</p>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last">Travis CI’s <a class="reference external" href="https://docs.travis-ci.com/user/deployment/pages/">documentation</a> on deploying to GitHub
-pages.</p>
+<p class="last">CircleCI’s <a class="reference external" href="https://github.com/DevProgress/onboarding/wiki/Using-Circle-CI-with-Github-Pages-for-Continuous-Delivery">documentation</a> on
+deploying to GitHub pages.</p>
 </div>
 </div>
 <div class="section" id="code-style">
@@ -355,9 +347,9 @@ development as a more sophisticated alternative to PDB. To use PuDB simply set b
 </pre></div>
 </div>
 </div>
-<div class="section" id="id3">
-<h3>Documentation<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
-<p>This documentation is re-built on each commit to master by Travis and posted to
+<div class="section" id="id4">
+<h3>Documentation<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>This documentation is re-built on each commit to master by CircleCI and posted to
 GitHub pages at <a class="reference external" href="https://uisautomation.github.io/media-webapp/">https://uisautomation.github.io/media-webapp/</a>.</p>
 </div>
 </div>

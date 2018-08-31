@@ -19,8 +19,8 @@ backend by setting ``DJANGO_DB_BACKEND``.
 Default settings
 ````````````````
 
-The default settings are given in the :py:mod:`smswebapp.settings.base` module:
+The default settings are given in the :py:mod:`mediawebapp.settings.base` module:
 
-.. automodule:: smswebapp.settings.base
+.. automodule:: mediawebapp.settings.base
     :members:
     :member-order: bysource

@@ -1,0 +1,733 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>JWPlatform Integration Application &mdash; Streaming Media Service Webapp  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="REST API" href="api.html" />
+    <link rel="prev" title="Media Platform" href="mediaplatform.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Streaming Media Service Webapp
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer’s guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mediawebapp.html">The Web App Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mediaplatform.html">Media Platform</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">JWPlatform Integration Application</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-mediaplatform_jwp.defaultsettings">Settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mediaplatform_jwp.models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#management-commands">Management commands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-mediaplatform_jwp.management.commands.jwpfetch">jwpfetch</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mediaplatform_jwp.api">JWPlatform API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mediaplatform_jwp.acl">ACLs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mediaplatform_jwp.apps">Application configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mediaplatform_jwp.systemchecks">System checks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">REST API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy-sms.html">Support for Legacy SMS</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Streaming Media Service Webapp</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>JWPlatform Integration Application</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/mediaplatform_jwp.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-mediaplatform_jwp">
+<span id="jwplatform-integration-application"></span><h1>JWPlatform Integration Application<a class="headerlink" href="#module-mediaplatform_jwp" title="Permalink to this headline">¶</a></h1>
+<p>JWPlatform integration</p>
+<div class="section" id="module-mediaplatform_jwp.defaultsettings">
+<span id="settings"></span><h2>Settings<a class="headerlink" href="#module-mediaplatform_jwp.defaultsettings" title="Permalink to this headline">¶</a></h2>
+<p>Default settings values for the <a class="reference internal" href="#module-mediaplatform_jwp" title="mediaplatform_jwp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mediaplatform_jwp</span></code></a> application.</p>
+<dl class="data">
+<dt id="mediaplatform_jwp.defaultsettings.JWPLATFORM_API_BASE_URL">
+<code class="descclassname">mediaplatform_jwp.defaultsettings.</code><code class="descname">JWPLATFORM_API_BASE_URL</code><em class="property"> = 'https://cdn.jwplayer.com/'</em><a class="headerlink" href="#mediaplatform_jwp.defaultsettings.JWPLATFORM_API_BASE_URL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base URL for the JWPlatform API. This can usually be left at its default value.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mediaplatform_jwp.defaultsettings.JWPLATFORM_API_KEY">
+<code class="descclassname">mediaplatform_jwp.defaultsettings.</code><code class="descname">JWPLATFORM_API_KEY</code><em class="property"> = None</em><a class="headerlink" href="#mediaplatform_jwp.defaultsettings.JWPLATFORM_API_KEY" title="Permalink to this definition">¶</a></dt>
+<dd><p>The jwplatform API key. Defaults to the empty string but a custom system check ensures that this
+setting has a non-empty value.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mediaplatform_jwp.defaultsettings.JWPLATFORM_API_SECRET">
+<code class="descclassname">mediaplatform_jwp.defaultsettings.</code><code class="descname">JWPLATFORM_API_SECRET</code><em class="property"> = None</em><a class="headerlink" href="#mediaplatform_jwp.defaultsettings.JWPLATFORM_API_SECRET" title="Permalink to this definition">¶</a></dt>
+<dd><p>The jwplatform API secret. Defaults to the empty string but a custom system check ensures that this
+setting has a non-empty value.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mediaplatform_jwp.defaultsettings.JWPLATFORM_CONTENT_BASE_URL">
+<code class="descclassname">mediaplatform_jwp.defaultsettings.</code><code class="descname">JWPLATFORM_CONTENT_BASE_URL</code><em class="property"> = 'https://content.jwplatform.com'</em><a class="headerlink" href="#mediaplatform_jwp.defaultsettings.JWPLATFORM_CONTENT_BASE_URL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base URL for the JWPlatform Content. This can usually be left at its default value.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mediaplatform_jwp.defaultsettings.JWPLATFORM_EMBED_PLAYER_KEY">
+<code class="descclassname">mediaplatform_jwp.defaultsettings.</code><code class="descname">JWPLATFORM_EMBED_PLAYER_KEY</code><em class="property"> = None</em><a class="headerlink" href="#mediaplatform_jwp.defaultsettings.JWPLATFORM_EMBED_PLAYER_KEY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Player key for the embedded player used by the <code class="xref py py-mod docutils literal notranslate"><span class="pre">embed</span></code> view.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mediaplatform_jwp.defaultsettings.JWPLATFORM_SIGNATURE_TIMEOUT">
+<code class="descclassname">mediaplatform_jwp.defaultsettings.</code><code class="descname">JWPLATFORM_SIGNATURE_TIMEOUT</code><em class="property"> = 3600</em><a class="headerlink" href="#mediaplatform_jwp.defaultsettings.JWPLATFORM_SIGNATURE_TIMEOUT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lifetime of signed URL in seconds.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference external" href="https://developer.jwplayer.com/jw-platform/docs/developer-guide/delivery-api/legacy-url-token-signing/">JWPlatform documentation on URL signing</a>.</p>
+</div>
+</dd></dl>
+
+<dl class="data">
+<dt id="mediaplatform_jwp.defaultsettings.JWP_FORCE_HTTPS_UPLOAD">
+<code class="descclassname">mediaplatform_jwp.defaultsettings.</code><code class="descname">JWP_FORCE_HTTPS_UPLOAD</code><em class="property"> = True</em><a class="headerlink" href="#mediaplatform_jwp.defaultsettings.JWP_FORCE_HTTPS_UPLOAD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Should we force http upload links to be https?</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mediaplatform_jwp.defaultsettings.JWP_SYNC_ITEMS">
+<code class="descclassname">mediaplatform_jwp.defaultsettings.</code><code class="descname">JWP_SYNC_ITEMS</code><em class="property"> = True</em><a class="headerlink" href="#mediaplatform_jwp.defaultsettings.JWP_SYNC_ITEMS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Should matching JWP videos should be creatred/updated when MediaItem objects change.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mediaplatform_jwp.defaultsettings.LOOKUP_PEOPLE_CACHE_LIFETIME">
+<code class="descclassname">mediaplatform_jwp.defaultsettings.</code><code class="descname">LOOKUP_PEOPLE_CACHE_LIFETIME</code><em class="property"> = 1800</em><a class="headerlink" href="#mediaplatform_jwp.defaultsettings.LOOKUP_PEOPLE_CACHE_LIFETIME" title="Permalink to this definition">¶</a></dt>
+<dd><p>Responses to the people endpoint of lookupproxy are cached to increase performance. We assume that
+lookup details on people change rarely. This setting specifies the lifetime of a single cached
+lookup resource for a person in seconds.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mediaplatform_jwp.defaultsettings.LOOKUP_PEOPLE_ID_SCHEME">
+<code class="descclassname">mediaplatform_jwp.defaultsettings.</code><code class="descname">LOOKUP_PEOPLE_ID_SCHEME</code><em class="property"> = 'mock'</em><a class="headerlink" href="#mediaplatform_jwp.defaultsettings.LOOKUP_PEOPLE_ID_SCHEME" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ID scheme to use when querying people in LOOKUP. This is almost always ‘crsid’ unless you are
+using test raven, in which case it is ‘mock’.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mediaplatform_jwp.defaultsettings.LOOKUP_ROOT">
+<code class="descclassname">mediaplatform_jwp.defaultsettings.</code><code class="descname">LOOKUP_ROOT</code><em class="property"> = None</em><a class="headerlink" href="#mediaplatform_jwp.defaultsettings.LOOKUP_ROOT" title="Permalink to this definition">¶</a></dt>
+<dd><p>URL of the lookup proxy’s API root.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mediaplatform_jwp.defaultsettings.OAUTH2_CLIENT_ID">
+<code class="descclassname">mediaplatform_jwp.defaultsettings.</code><code class="descname">OAUTH2_CLIENT_ID</code><em class="property"> = None</em><a class="headerlink" href="#mediaplatform_jwp.defaultsettings.OAUTH2_CLIENT_ID" title="Permalink to this definition">¶</a></dt>
+<dd><p>OAuth2 client id which the API server uses to identify itself to the OAuth2 token introspection
+endpoint.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mediaplatform_jwp.defaultsettings.OAUTH2_CLIENT_SECRET">
+<code class="descclassname">mediaplatform_jwp.defaultsettings.</code><code class="descname">OAUTH2_CLIENT_SECRET</code><em class="property"> = None</em><a class="headerlink" href="#mediaplatform_jwp.defaultsettings.OAUTH2_CLIENT_SECRET" title="Permalink to this definition">¶</a></dt>
+<dd><p>OAuth2 client secret which the API server uses to identify itself to the OAuth2 token introspection
+endpoint.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mediaplatform_jwp.defaultsettings.OAUTH2_LOOKUP_SCOPES">
+<code class="descclassname">mediaplatform_jwp.defaultsettings.</code><code class="descname">OAUTH2_LOOKUP_SCOPES</code><em class="property"> = ['lookup:anonymous']</em><a class="headerlink" href="#mediaplatform_jwp.defaultsettings.OAUTH2_LOOKUP_SCOPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of OAuth2 scopes the API server will request for the token it will use with lookup.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mediaplatform_jwp.defaultsettings.OAUTH2_MAX_RETRIES">
+<code class="descclassname">mediaplatform_jwp.defaultsettings.</code><code class="descname">OAUTH2_MAX_RETRIES</code><em class="property"> = 5</em><a class="headerlink" href="#mediaplatform_jwp.defaultsettings.OAUTH2_MAX_RETRIES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maximum number of retries when fetching URLs from the OAuth2 endpoint or OAuth2 authenticated URLs.
+This applies only to failed DNS lookups, socket connections and connection timeouts, never to
+requests where data has made it to the server.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mediaplatform_jwp.defaultsettings.OAUTH2_TOKEN_URL">
+<code class="descclassname">mediaplatform_jwp.defaultsettings.</code><code class="descname">OAUTH2_TOKEN_URL</code><em class="property"> = None</em><a class="headerlink" href="#mediaplatform_jwp.defaultsettings.OAUTH2_TOKEN_URL" title="Permalink to this definition">¶</a></dt>
+<dd><p>URL of the OAuth2 token endpoint the API server uses to request an authorisation token to perform
+OAuth2 token introspection.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-mediaplatform_jwp.models">
+<span id="models"></span><h2>Models<a class="headerlink" href="#module-mediaplatform_jwp.models" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="mediaplatform_jwp.models.CachedResource">
+<em class="property">class </em><code class="descclassname">mediaplatform_jwp.models.</code><code class="descname">CachedResource</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.models.CachedResource" title="Permalink to this definition">¶</a></dt>
+<dd><p>A cache of a JWPlatform resource.</p>
+<p>This model should be queried by way of the various type-specific helpers. For example, to
+filter videos by title:</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CachedResource</span><span class="o">.</span><span class="n">videos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__title</span><span class="o">=</span><span class="s1">&#39;some title&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Do not insert values directly, instead use the <code class="xref py py-func docutils literal notranslate"><span class="pre">set_videos`()</span></code> method to update the
+cached resources atomically:</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">set_resources</span><span class="p">((</span><span class="n">video</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">],</span> <span class="n">video</span><span class="p">)</span> <span class="k">for</span> <span class="n">video</span> <span class="ow">in</span> <span class="n">fetch_videos</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>N.B. Since we use Postgres-specific field types (JSONB), this model requires that Postgres be
+the database.</p>
+<dl class="attribute">
+<dt id="mediaplatform_jwp.models.CachedResource.CHANNEL">
+<code class="descname">CHANNEL</code><em class="property"> = 'channel'</em><a class="headerlink" href="#mediaplatform_jwp.models.CachedResource.CHANNEL" title="Permalink to this definition">¶</a></dt>
+<dd><p>channel resource type</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="mediaplatform_jwp.models.CachedResource.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mediaplatform_jwp.models.CachedResource.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mediaplatform_jwp.models.CachedResource.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mediaplatform_jwp.models.CachedResource.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform_jwp.models.CachedResource.VIDEO">
+<code class="descname">VIDEO</code><em class="property"> = 'video'</em><a class="headerlink" href="#mediaplatform_jwp.models.CachedResource.VIDEO" title="Permalink to this definition">¶</a></dt>
+<dd><p>video resource type</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform_jwp.models.CachedResource.channels">
+<code class="descname">channels</code><em class="property"> = &lt;mediaplatform_jwp.models.CachedResourceTypeManager object&gt;</em><a class="headerlink" href="#mediaplatform_jwp.models.CachedResource.channels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience manager instance whose base queryset is all the non-deleted channels</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform_jwp.models.CachedResource.objects">
+<code class="descname">objects</code><em class="property"> = &lt;django.db.models.manager.Manager object&gt;</em><a class="headerlink" href="#mediaplatform_jwp.models.CachedResource.objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Since we add an object manager, we need to explicitly add back the default one</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform_jwp.models.CachedResource.videos">
+<code class="descname">videos</code><em class="property"> = &lt;mediaplatform_jwp.models.CachedResourceTypeManager object&gt;</em><a class="headerlink" href="#mediaplatform_jwp.models.CachedResource.videos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience manager instance whose base queryset is all the non-deleted videos</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mediaplatform_jwp.models.CachedResourceTypeManager">
+<em class="property">class </em><code class="descclassname">mediaplatform_jwp.models.</code><code class="descname">CachedResourceTypeManager</code><span class="sig-paren">(</span><em>type</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.models.CachedResourceTypeManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>A models.Manager subclass which restricts the base query set to the <em>non-deleted</em> cached
+resources of a particular type.</p>
+<dl class="method">
+<dt id="mediaplatform_jwp.models.CachedResourceTypeManager.get_queryset">
+<code class="descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.models.CachedResourceTypeManager.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new QuerySet object. Subclasses can override this method to
+customize the behavior of the Manager.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mediaplatform_jwp.models.Channel">
+<em class="property">class </em><code class="descclassname">mediaplatform_jwp.models.</code><code class="descname">Channel</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.models.Channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>A JWPlatform channel resource.</p>
+<dl class="exception">
+<dt id="mediaplatform_jwp.models.Channel.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mediaplatform_jwp.models.Channel.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mediaplatform_jwp.models.Channel.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mediaplatform_jwp.models.Channel.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform_jwp.models.Channel.channel">
+<code class="descname">channel</code><a class="headerlink" href="#mediaplatform_jwp.models.Channel.channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Corresponding <code class="xref py py-class docutils literal notranslate"><span class="pre">mediaplatform.Channel</span></code>. Accessible from the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">mediaplatform.Channel</span></code> model via the <code class="docutils literal notranslate"><span class="pre">jwp</span></code> field. This can be NULL if there
+is no corresponding media item hosted by the Media Platform.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform_jwp.models.Channel.key">
+<code class="descname">key</code><a class="headerlink" href="#mediaplatform_jwp.models.Channel.key" title="Permalink to this definition">¶</a></dt>
+<dd><p>JWPlatform channel key</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform_jwp.models.Channel.updated">
+<code class="descname">updated</code><a class="headerlink" href="#mediaplatform_jwp.models.Channel.updated" title="Permalink to this definition">¶</a></dt>
+<dd><p>The updated timestamp from JWPlatform. Used to determine which items need updating. This is
+an integer field rather than a datetime field because JWP uses timestamps and we should
+store the same value to make sure we compare apples to apples.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mediaplatform_jwp.models.Video">
+<em class="property">class </em><code class="descclassname">mediaplatform_jwp.models.</code><code class="descname">Video</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.models.Video" title="Permalink to this definition">¶</a></dt>
+<dd><p>A JWPlatform video resource.</p>
+<dl class="exception">
+<dt id="mediaplatform_jwp.models.Video.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mediaplatform_jwp.models.Video.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mediaplatform_jwp.models.Video.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mediaplatform_jwp.models.Video.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform_jwp.models.Video.embed_url">
+<code class="descname">embed_url</code><a class="headerlink" href="#mediaplatform_jwp.models.Video.embed_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a URL with an embed view of a <code class="xref py py-class docutils literal notranslate"><span class="pre">mediaplatform.MediaItem</span></code>. Returns <code class="docutils literal notranslate"><span class="pre">None</span></code>
+if there is no JWP video associated with the item.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediaplatform_jwp.models.Video.get_sources">
+<code class="descname">get_sources</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.models.Video.get_sources" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses the JWP fetch API to retrieve a list of <code class="xref py py-class docutils literal notranslate"><span class="pre">mediaplatform.MediaItem.Source</span></code>
+instances for each source associated with the media item. Ignores the <code class="docutils literal notranslate"><span class="pre">downloadable</span></code>
+attribute of the item.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform_jwp.models.Video.item">
+<code class="descname">item</code><a class="headerlink" href="#mediaplatform_jwp.models.Video.item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Corresponding <code class="xref py py-class docutils literal notranslate"><span class="pre">mediaplatform.MediaItem</span></code>. Accessible from the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">mediaplatform.MediaItem</span></code> model via the <code class="docutils literal notranslate"><span class="pre">jwp</span></code> field. This can be NULL if there
+is no corresponding media item hosted by the Media Platform.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform_jwp.models.Video.key">
+<code class="descname">key</code><a class="headerlink" href="#mediaplatform_jwp.models.Video.key" title="Permalink to this definition">¶</a></dt>
+<dd><p>JWPlatform video key</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform_jwp.models.Video.sources">
+<code class="descname">sources</code><a class="headerlink" href="#mediaplatform_jwp.models.Video.sources" title="Permalink to this definition">¶</a></dt>
+<dd><p>A property which calls get_sources and caches the result.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform_jwp.models.Video.updated">
+<code class="descname">updated</code><a class="headerlink" href="#mediaplatform_jwp.models.Video.updated" title="Permalink to this definition">¶</a></dt>
+<dd><p>The updated timestamp from JWPlatform. Used to determine which items need updating. This is
+an integer field rather than a datetime field because JWP uses timestamps and we should
+store the same value to make sure we compare apples to apples.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="mediaplatform_jwp.models.set_resources">
+<code class="descclassname">mediaplatform_jwp.models.</code><code class="descname">set_resources</code><span class="sig-paren">(</span><em>resources</em>, <em>resource_type</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.models.set_resources" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function which updates the cached resources and marks resources as deleted if no
+longer present.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>resources</strong> (<em>iterable</em>) – iterable of dicts representing the JWPlatform resources</li>
+<li><strong>resource_type</strong> (<em>str</em>) – type of JWPlatform resource (e.g. “video”)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Iterates over all of the dicts in <em>resources</em> adding or updating corresponding
+<a class="reference internal" href="#mediaplatform_jwp.models.CachedResource" title="mediaplatform_jwp.models.CachedResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">CachedResource</span></code></a> models as it goes. After all resources have been added, any
+resources of the specified type which have not been created or updated are deleted from the
+cache.</p>
+<p>This is all run inside an atomic block. Note that these blocks can be nested so calls to
+this function can themselves be within an atomic block.</p>
+<p>[1] <a class="reference external" href="https://docs.djangoproject.com/en/2.0/topics/db/transactions/#django.db.transaction.atomic">https://docs.djangoproject.com/en/2.0/topics/db/transactions/#django.db.transaction.atomic</a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="management-commands">
+<h2>Management commands<a class="headerlink" href="#management-commands" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-mediaplatform_jwp.management.commands.jwpfetch">
+<span id="jwpfetch"></span><h3>jwpfetch<a class="headerlink" href="#module-mediaplatform_jwp.management.commands.jwpfetch" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">jwpfetch</span></code> management command fetches metadata on videos from JWPlayer via the JWPlatform
+management API and caches it in the database as a series of
+<a class="reference internal" href="#mediaplatform_jwp.models.CachedResource" title="mediaplatform_jwp.models.CachedResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">CachedResource</span></code></a> objects.</p>
+<p>It is designed to be called periodically without arguments to keep the local cache of the
+JWPlatform state in sync with reality.</p>
+<p>Note that resources which disappear from JWPlayer are <em>not</em> deleted from the database. Rather,
+their <code class="docutils literal notranslate"><span class="pre">deleted_at</span></code> attribute is set to a non-NULL date and time. The specialised object managers
+on :py:class`~mediaplatform_jwp.models.CachedResource` understand this and filter out deleted
+objects for you.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--sync-all</span></code> flag may be given to bypass the freshness check for updating database objects
+from the associated JWP metadata. If given, <em>all</em> py:class`mediaplatform.models.MediaItem` objects
+associated with a JWP video will have their metadata re-synchronised. This is a useful thing to do
+from time to time to make sure that all videos are in sync.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--skip-fetch</span></code> flag may be given to skip updating the cached resources from JWP and to only
+perform the database metadata synchronisation. This can be useful in combination with the
+<code class="docutils literal notranslate"><span class="pre">--sync-all</span></code> flag to make sure the database is consistent with all cached resources. Skipping
+only video or channel resources is controlled via the <code class="docutils literal notranslate"><span class="pre">--skip-video-fetch</span></code> and
+<code class="docutils literal notranslate"><span class="pre">--skip-channel-fetch</span></code> flags.</p>
+</div>
+</div>
+<div class="section" id="module-mediaplatform_jwp.api">
+<span id="jwplatform-api"></span><h2>JWPlatform API<a class="headerlink" href="#module-mediaplatform_jwp.api" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-mediaplatform_jwp.acl">
+<span id="acls"></span><h2>ACLs<a class="headerlink" href="#module-mediaplatform_jwp.acl" title="Permalink to this headline">¶</a></h2>
+<p>Module providing functionality for handling ACL’s stored in the JWPlayer custom property - sms_acl.</p>
+<dl class="class">
+<dt id="mediaplatform_jwp.acl.AceCam">
+<em class="property">class </em><code class="descclassname">mediaplatform_jwp.acl.</code><code class="descname">AceCam</code><a class="headerlink" href="#mediaplatform_jwp.acl.AceCam" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class encapsulates an ACE of the form CAM</p>
+<dl class="staticmethod">
+<dt id="mediaplatform_jwp.acl.AceCam.has_permission">
+<em class="property">static </em><code class="descname">has_permission</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.acl.AceCam.has_permission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Any authenticated user can see the media</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="mediaplatform_jwp.acl.AceCam.parse">
+<em class="property">static </em><code class="descname">parse</code><span class="sig-paren">(</span><em>ace</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.acl.AceCam.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses an ACE and constructs/return an AceCam if it matches or None if it doesn’t</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mediaplatform_jwp.acl.AceGroup">
+<em class="property">class </em><code class="descclassname">mediaplatform_jwp.acl.</code><code class="descname">AceGroup</code><span class="sig-paren">(</span><em>groupid</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.acl.AceGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class encapsulates an ACE of the form GROUP_{groupid}</p>
+<dl class="method">
+<dt id="mediaplatform_jwp.acl.AceGroup.has_permission">
+<code class="descname">has_permission</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.acl.AceGroup.has_permission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only a user belonging to the ‘groupid’ lookup group can see the media</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="mediaplatform_jwp.acl.AceGroup.parse">
+<em class="property">static </em><code class="descname">parse</code><span class="sig-paren">(</span><em>ace</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.acl.AceGroup.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses an ACE and constructs/return an AceGroup if it matches or None if it doesn’t</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mediaplatform_jwp.acl.AceInst">
+<em class="property">class </em><code class="descclassname">mediaplatform_jwp.acl.</code><code class="descname">AceInst</code><span class="sig-paren">(</span><em>instid</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.acl.AceInst" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class encapsulates an ACE of the form INST_{instid}</p>
+<dl class="method">
+<dt id="mediaplatform_jwp.acl.AceInst.has_permission">
+<code class="descname">has_permission</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.acl.AceInst.has_permission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only a user belonging to the ‘instid’ lookup institution can see the media</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="mediaplatform_jwp.acl.AceInst.parse">
+<em class="property">static </em><code class="descname">parse</code><span class="sig-paren">(</span><em>ace</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.acl.AceInst.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses an ACE and constructs/return an AceInst if it matches or None if it doesn’t</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mediaplatform_jwp.acl.AceUser">
+<em class="property">class </em><code class="descclassname">mediaplatform_jwp.acl.</code><code class="descname">AceUser</code><span class="sig-paren">(</span><em>crsid</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.acl.AceUser" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class encapsulates an ACE of the form USER_{crsid}</p>
+<dl class="method">
+<dt id="mediaplatform_jwp.acl.AceUser.has_permission">
+<code class="descname">has_permission</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.acl.AceUser.has_permission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only a user with this CRSID can see the media</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="mediaplatform_jwp.acl.AceUser.parse">
+<em class="property">static </em><code class="descname">parse</code><span class="sig-paren">(</span><em>ace</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.acl.AceUser.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses an ACE and constructs/return an AceUser if it matches or None if it doesn’t</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mediaplatform_jwp.acl.AceWorld">
+<em class="property">class </em><code class="descclassname">mediaplatform_jwp.acl.</code><code class="descname">AceWorld</code><a class="headerlink" href="#mediaplatform_jwp.acl.AceWorld" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class encapsulates an ACE of the form WORLD</p>
+<dl class="staticmethod">
+<dt id="mediaplatform_jwp.acl.AceWorld.has_permission">
+<em class="property">static </em><code class="descname">has_permission</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.acl.AceWorld.has_permission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Anyone can see the media</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="mediaplatform_jwp.acl.AceWorld.parse">
+<em class="property">static </em><code class="descname">parse</code><span class="sig-paren">(</span><em>ace</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.acl.AceWorld.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses an ACE and constructs/return an AceWorld if it matches or None if it doesn’t</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="mediaplatform_jwp.acl.build_acl">
+<code class="descclassname">mediaplatform_jwp.acl.</code><code class="descname">build_acl</code><span class="sig-paren">(</span><em>acl</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.acl.build_acl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterates over the acl and encapsulates each ACE with the corresponding Ace* Class.</p>
+<p>TODO there are performance enhancements that can be made
+(Eg only returning AceWorld, if it exists) but I have kept thing simple for now.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>acl</strong> – access control list</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of Ace* objects</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-mediaplatform_jwp.apps">
+<span id="application-configuration"></span><h2>Application configuration<a class="headerlink" href="#module-mediaplatform_jwp.apps" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="mediaplatform_jwp.apps.Config">
+<em class="property">class </em><code class="descclassname">mediaplatform_jwp.apps.</code><code class="descname">Config</code><span class="sig-paren">(</span><em>app_name</em>, <em>app_module</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.apps.Config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configuration for JWPlatform integration application.</p>
+<dl class="attribute">
+<dt id="mediaplatform_jwp.apps.Config.name">
+<code class="descname">name</code><em class="property"> = 'mediaplatform_jwp'</em><a class="headerlink" href="#mediaplatform_jwp.apps.Config.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The short name for this application.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediaplatform_jwp.apps.Config.ready">
+<code class="descname">ready</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.apps.Config.ready" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform application initialisation once the Django platform has been initialised.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform_jwp.apps.Config.verbose_name">
+<code class="descname">verbose_name</code><em class="property"> = 'JWPlatform Integration with Media Platform'</em><a class="headerlink" href="#mediaplatform_jwp.apps.Config.verbose_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The human-readable verbose name for this application.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-mediaplatform_jwp.systemchecks">
+<span id="system-checks"></span><h2>System checks<a class="headerlink" href="#module-mediaplatform_jwp.systemchecks" title="Permalink to this headline">¶</a></h2>
+<p>Custom system checks for the <a class="reference internal" href="#module-mediaplatform_jwp" title="mediaplatform_jwp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mediaplatform_jwp</span></code></a> application.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last">The <a class="reference external" href="https://docs.djangoproject.com/en/2.0/ref/checks/">Django System Check Framework</a>.</p>
+</div>
+<dl class="function">
+<dt id="mediaplatform_jwp.systemchecks.required_settings_check">
+<code class="descclassname">mediaplatform_jwp.systemchecks.</code><code class="descname">required_settings_check</code><span class="sig-paren">(</span><em>app_configs</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.systemchecks.required_settings_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>A system check ensuring that all required settings are specified.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference external" href="https://docs.djangoproject.com/en/2.0/ref/checks/">https://docs.djangoproject.com/en/2.0/ref/checks/</a></p>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="api.html" class="btn btn-neutral float-right" title="REST API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mediaplatform.html" class="btn btn-neutral" title="Media Platform" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, University of Cambridge Information Services.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
