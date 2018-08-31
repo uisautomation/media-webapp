@@ -1,5 +1,5 @@
 """
-The default :py:mod:`smswebapp.settings` module contains settings which are
+The default :py:mod:`mediawebapp.settings` module contains settings which are
 common to most deployment environments.
 
 """

@@ -9,15 +9,13 @@ from django.urls import reverse
 from django.utils.http import urlencode
 from rest_framework import serializers
 
-from smsjwplatform import jwplatform
 from mediaplatform import models as mpmodels
-from mediaplatform_jwp import management
-
+from mediaplatform_jwp.api import delivery as jwplatform, management as management
 
 LOG = logging.getLogger(__name__)
 
 
-# Model serializers
+# Model serializers for API calls
 #
 # The following serializers are to be used for list views and include minimal (if any) related
 # resources.

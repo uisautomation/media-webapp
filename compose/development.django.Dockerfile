@@ -21,6 +21,6 @@ ADD ./compose/start-devserver.sh ./compose/wait-for-it.sh ./compose/copy-legacy-
 # developer-specific settings.
 #
 # *DO NOT DEPLOY THIS TO PRODUCTION*
-ENV DJANGO_SETTINGS_MODULE smswebapp.settings_developer
+ENV DJANGO_SETTINGS_MODULE mediawebapp.settings_developer
 ENTRYPOINT ["/tmp/wait-for-it.sh", "db:5432", "--"]
 CMD ["/tmp/start-devserver.sh"]

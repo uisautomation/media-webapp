@@ -1,5 +1,5 @@
 """
-Custom system checks for the :py:mod:`smsjwplatform` application.
+Custom system checks for the :py:mod:`mediaplatform_jwp` application.
 
 .. seealso::
 
