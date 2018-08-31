@@ -6,9 +6,25 @@ from django.urls import reverse
 from django.utils.formats import localize
 from django.utils.html import format_html
 
-from smsjwplatform import jwplatform as api
+from automationlookup.models import UserLookup
 
-from .models import Video
+from mediaplatform_jwp.api import delivery as api
+from .models import Video, CachedResource
+
+
+admin.site.register(UserLookup, admin.ModelAdmin)
+
+
+@admin.register(CachedResource)
+class CachedResourceAdmin(admin.ModelAdmin):
+    list_display = ('title', 'type', 'deleted_at')
+
+    def get_queryset(self, request):
+        # Since CachedResource has multiple managers, be explicit about which one should be used.
+        return CachedResource.objects.all()
+
+    def title(self, obj):
+        return obj.data.get('title', '<no title>')
 
 
 @admin.register(Video)

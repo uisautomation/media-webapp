@@ -1,20 +1,20 @@
 The Web App Project
 ===================
 
-The ``smswebapp`` project contains top-level configuration and URL routes for
+The ``mediawebapp`` project contains top-level configuration and URL routes for
 the entire web application.
 
 Settings
 --------
 
-The ``smswebapp`` project ships a number of settings files.
+The ``mediawebapp`` project ships a number of settings files.
 
 .. _settings:
 
 Generic settings
 ````````````````
 
-.. automodule:: smswebapp.settings
+.. automodule:: mediawebapp.settings
     :members:
 
 .. _settings_testsuite:
@@ -22,7 +22,7 @@ Generic settings
 Test-suite specific settings
 ````````````````````````````
 
-.. automodule:: smswebapp.settings.tox
+.. automodule:: mediawebapp.settings.tox
     :members:
 
 .. _settings_developer:
@@ -30,7 +30,7 @@ Test-suite specific settings
 Developer specific settings
 ```````````````````````````
 
-.. automodule:: smswebapp.settings.developer
+.. automodule:: mediawebapp.settings.developer
     :members:
 
 Custom test suite runner
@@ -38,10 +38,10 @@ Custom test suite runner
 
 The :any:`test suite settings <settings_testsuite>` overrides the
 ``TEST_RUNNER`` setting to point to
-:py:class:`~smswebapp.test.runner.BufferedTextTestRunner`. This runner captures
+:py:class:`~mediawebapp.test.runner.BufferedTextTestRunner`. This runner captures
 output to stdout and stderr and only reports the output if a test fails. This
 helps make our tests a little less noisy.
 
-.. autoclass:: smswebapp.test.runner.BufferedDiscoverRunner
+.. autoclass:: mediawebapp.test.runner.BufferedDiscoverRunner
 
-.. autoclass:: smswebapp.test.runner.BufferedTextTestRunner
+.. autoclass:: mediawebapp.test.runner.BufferedTextTestRunner

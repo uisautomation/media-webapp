@@ -4,10 +4,12 @@ from django.urls import reverse
 from rest_framework import serializers
 
 from api import serializers as apiserializers, views as apiviews
-from smsjwplatform import jwplatform
+from mediaplatform_jwp.api import delivery as jwplatform
 
 LOG = logging.getLogger(__name__)
 
+
+# Model serializers for views
 
 class JSONLDMetaclass(serializers.SerializerMetaclass):
     def __new__(cls, clsname, bases, attrs):

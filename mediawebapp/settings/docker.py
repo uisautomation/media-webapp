@@ -2,7 +2,7 @@
 import os
 
 # Start from base settings
-from smswebapp.settings import *  # noqa: F401, F403
+from mediawebapp.settings import *  # noqa: F401, F403
 
 # Retrieve the secret key from the environment.
 SECRET_KEY = os.environ['DJANGO_SECRET_KEY']

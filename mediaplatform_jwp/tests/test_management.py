@@ -5,7 +5,7 @@ from django.test import TestCase
 
 from mediaplatform import models as mpmodels
 
-from .. import management
+from mediaplatform_jwp.api import management as management
 
 
 class ItemSyncTestCase(TestCase):
@@ -16,7 +16,8 @@ class ItemSyncTestCase(TestCase):
         self.jwp_item = mpmodels.MediaItem.objects.get(id='existing')
 
         # Patch JWP client
-        self.get_jwp_client_patcher = mock.patch('smsjwplatform.jwplatform.get_jwplatform_client')
+        self.get_jwp_client_patcher = (
+            mock.patch('mediaplatform_jwp.api.delivery.get_jwplatform_client'))
         self.get_jwp_client = self.get_jwp_client_patcher.start()
         self.addCleanup(self.get_jwp_client_patcher.stop)
         self.jwp_client = self.get_jwp_client()

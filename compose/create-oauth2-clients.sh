@@ -2,7 +2,7 @@
 #
 # Use Hydra command line client to create a client application.
 #
-# Create a client, "smswebapp", capable of requesting hydra.introspect and lookup:anonymous scopes.
+# Create a client, "mediawebapp", capable of requesting hydra.introspect and lookup:anonymous scopes.
 #
 set -xe
 
@@ -14,14 +14,14 @@ hydra connect \
 
 # Delete any existing clients. It is OK for these calls to fail if the
 # corresponding clients did not exist
-hydra clients delete smswebapp || echo "-- smswebapp not deleted"
+hydra clients delete mediawebapp || echo "-- mediawebapp not deleted"
 hydra clients delete lookupproxy || echo "-- lookupproxy not deleted"
 hydra clients delete lookupproxyserver || echo "-- lookupproxyserver not deleted"
 
-# Create smswebapp client which can request scopes to access the lookup proxy
+# Create mediawebapp client which can request scopes to access the lookup proxy
 # and to introspect tokens from hydra.
 hydra clients create \
-    --id smswebapp --secret smssecret \
+    --id mediawebapp --secret mediasecret \
     --grant-types client_credentials \
     --response-types token \
     --allowed-scopes lookup:anonymous,hydra.introspect
@@ -42,7 +42,7 @@ hydra clients create \
     --response-types token \
     --allowed-scopes hydra.introspect
 
-# We need to create a Hydra policy allowing the smswebapp to introspect tokens.
+# We need to create a Hydra policy allowing the mediawebapp to introspect tokens.
 # Delete a policy if it is already in place and re-create it
 hydra policies delete introspect-policy \
 	|| echo "-- introspect-policy not deleted"

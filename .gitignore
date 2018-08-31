@@ -105,7 +105,7 @@ venv.bak/
 *.sqlite3
 
 # Local configuration
-smswebapp/settings/local.py
+mediawebapp/settings/local.py
 secrets.env
 
 # PyCharm
