@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import {findDOMNode} from 'react-dom';
+import update from 'immutability-helper';
 
 import Avatar from '@material-ui/core/Avatar';
 import Grid from '@material-ui/core/Grid';
@@ -16,6 +18,9 @@ import BodySection from "../components/BodySection";
 import RenderedMarkdown from '../components/RenderedMarkdown';
 import Page from "../containers/Page";
 import IfOwnsChannel from "../containers/IfOwnsChannel";
+import {DragDropContext, DragSource, DropTarget} from "react-dnd";
+import HTML5Backend from 'react-dnd-html5-backend';
+import TouchBackend from 'react-dnd-touch-backend';
 
 /**
  * A editable list of media for a playlist. Upon mount, it fetches the playlist with a list of the
@@ -28,39 +33,32 @@ class PlaylistEditPage extends Component {
     this.state = {
       // The playlist resource
       playlist: { id: '', media: [] },
-
-      // The index of the items being dragged.
-      dragStart: null,
     }
   }
 
   componentWillMount() {
     // As soon as the index page mounts, fetch the playlist.
     const { match: { params: { pk } } } = this.props;
+    // FIXME use FetchPlaylist
     playlistGet(pk)
       .then(playlist => {
         this.setState({ playlist });
       });
   }
 
-  /**
-   * Function called when an item drag begins. Saves the index of the dragged item.
-   */
-  handleDragStart = (index) => {
-    this.setState({ dragStart: index })
-  };
-
-  /**
-   * Function called when an item is dropped on another item. Reorder the list so that the target
-   * item is dropped in place and the other items are shifted in the direction of the source item.
-   */
-  handleDrop = (index) => {
-    const media = this.state.playlist.media.slice();
-    media.splice(index, 0, ...media.splice(this.state.dragStart, 1));
-    this.setState({ playlist: { ...this.state.playlist, media } });
-    // save the new order
-    const { match: { params: { pk } } } = this.props;
-    playlistPatch({id: pk, mediaIds: media.map(({id}) => id)});
+  moveListItem = (dragIndex, hoverIndex) => {
+    const dragitem = this.state.playlist.media[dragIndex];
+    // FIXME remove dependency on immutability-helper
+    this.setState(
+      update(this.state, {
+        playlist: {
+          media: {
+            $splice: [[dragIndex, 1], [hoverIndex, 0, dragitem]],
+          },
+        },
+      }),
+    );
+    // FIXME de-bounce playlistPatch
   };
 
   render() {
@@ -73,8 +71,7 @@ class PlaylistEditPage extends Component {
         <div>
           <IfOwnsChannel channel={playlist.channel}>
             <EditableListSection
-              handleDragStart={this.handleDragStart}
-              handleDrop={this.handleDrop}
+              moveListItem={this.moveListItem}
               playlist={playlist}
             />
           </IfOwnsChannel>
@@ -101,7 +98,7 @@ class PlaylistEditPage extends Component {
 class EditableListSectionComponent extends Component {
   render() {
     const {
-      classes, handleDragStart, handleDrop, playlist: {title, description, media}
+      classes, playlist: {title, description, media}, moveListItem
     } = this.props;
     return (
       <BodySection>
@@ -118,35 +115,12 @@ class EditableListSectionComponent extends Component {
             </Typography>
             <List>
               {media.map(mediaResourceToItem).map((item, index) => (
-                <div key={index} ref={'item-' + index}
-                     onDragOver={event => event.preventDefault()}
-                     onDrop={(event) => {event.preventDefault(); handleDrop(index)}}
-                >
-                  <ListItem className={classes.listItem}>
-                    <Avatar src={item.imageUrl}/>
-                    <ListItemText primary={item.title}/>
-                    <ListItemSecondaryAction className={classes.action}>
-                      <div
-                        draggable={true}
-                        onDragStart={event => {
-                          handleDragStart(index);
-                          // setDragImage not supported for IE
-                          if (typeof event.dataTransfer.setDragImage === "function") {
-                            // Displays the ghost item correctly
-                            const ghost = this.refs['item-' + index];
-                            const x = ghost.clientWidth - 20;
-                            const y = ghost.clientHeight / 2;
-                            event.dataTransfer.setDragImage(ghost, x, y);
-                          }
-                          // this is required for FF compat
-                          event.dataTransfer.setData('text', "it doesn't matter");
-                        }}
-                      >
-                        <ReorderIcon/>
-                      </div>
-                    </ListItemSecondaryAction>
-                  </ListItem>
-                </div>
+                <PlaylistItem
+                  key={ item.url }
+                  index={ index }
+                  item={ item }
+                  moveListItem={ moveListItem }
+                />
               ))}
             </List>
           </Grid>
@@ -155,6 +129,93 @@ class EditableListSectionComponent extends Component {
     );
   }
 }
+
+const cardSource = {
+  beginDrag(props) {
+    return {
+      index: props.index,
+    };
+  },
+};
+
+const LIST_ITEM = 'listItem';
+
+const withDropSource = DragSource(LIST_ITEM, cardSource, (connect, monitor) => ({
+  connectDragSource: connect.dragSource(),
+  isDragging: monitor.isDragging(),
+}));
+
+const cardTarget = {
+  hover(props, monitor, component) {
+    const dragIndex = monitor.getItem().index;
+    const hoverIndex = props.index;
+
+    // Don't replace items with themselves
+    if (dragIndex === hoverIndex) {
+      return;
+    }
+
+    // Determine rectangle on screen
+    const hoverBoundingRect = findDOMNode(component).getBoundingClientRect();
+
+    // Get vertical middle
+    const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+
+    // Determine mouse position
+    const clientOffset = monitor.getClientOffset();
+
+    // Get pixels to the top
+    const hoverClientY = clientOffset.y - hoverBoundingRect.top;
+
+    // Only perform the move when the mouse has crossed half of the items height
+    // When dragging downwards, only move when the cursor is below 50%
+    // When dragging upwards, only move when the cursor is above 50%
+
+    // Dragging downwards
+    if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+      return;
+    }
+
+    // Dragging upwards
+    if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+      return;
+    }
+
+    // Time to actually perform the action
+    props.moveListItem(dragIndex, hoverIndex);
+
+    // Note: we're mutating the monitor item here!
+    // Generally it's better to avoid mutations,
+    // but it's good here for the sake of performance
+    // to avoid expensive index searches.
+    monitor.getItem().index = hoverIndex;
+  },
+};
+
+const withDropTarget = DropTarget(LIST_ITEM, cardTarget, connect => ({
+  connectDropTarget: connect.dropTarget(),
+}));
+
+class DraggableListItem extends Component {
+  render() {
+    const { classes, item: {imageUrl, title}, isDragging, connectDragSource, connectDropTarget } = this.props;
+    const opacity = isDragging ? 0 : 1;
+    return connectDragSource(
+      connectDropTarget(
+        <div style={{cursor: 'move', opacity}}>
+          <ListItem className={classes.listItem}>
+            <Avatar src={imageUrl}/>
+            <ListItemText primary={title}/>
+            <ListItemSecondaryAction className={classes.action}>
+              <ReorderIcon/>
+            </ListItemSecondaryAction>
+          </ListItem>
+        </div>
+      )
+    );
+  }
+}
+
 
 const styles = theme => ({
   action: {
@@ -168,6 +229,10 @@ const styles = theme => ({
   },
 });
 
-const EditableListSection = withStyles(styles)(EditableListSectionComponent);
+const PlaylistItem = withStyles(styles)(withDropTarget(withDropSource(DraggableListItem)));
+
+const BACKEND = 'ontouchstart' in document.documentElement ? TouchBackend : HTML5Backend;
+
+const EditableListSection = withStyles(styles)(DragDropContext(BACKEND)(EditableListSectionComponent));
 
 export default PlaylistEditPage;
