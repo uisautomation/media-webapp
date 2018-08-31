@@ -16,6 +16,9 @@ import Snackbar from "./Snackbar";
 import IfOwnsAnyChannel from "./IfOwnsAnyChannel";
 
 import { withProfile } from "../providers/ProfileProvider";
+import TouchBackend from "react-dnd-touch-backend";
+import HTML5Backend from "react-dnd-html5-backend/lib/index";
+import {DragDropContext} from "react-dnd/lib/index";
 
 const ConnectedNavigationPanel = withProfile(NavigationPanel);
 
@@ -163,4 +166,6 @@ const styles = theme => ({
   toolbar: theme.mixins.toolbar,
 });
 
-export default withStyles(styles)(Page);
+const BACKEND = 'ontouchstart' in document.documentElement ? TouchBackend : HTML5Backend;
+
+export default withStyles(styles)(DragDropContext(BACKEND)(Page));
