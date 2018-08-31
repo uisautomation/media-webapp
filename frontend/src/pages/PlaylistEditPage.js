@@ -17,19 +17,31 @@ import RenderedMarkdown from '../components/RenderedMarkdown';
 import Page from "../containers/Page";
 import IfOwnsChannel from "../containers/IfOwnsChannel";
 import Draggable from "../components/Draggable";
+import _ from "lodash";
 
 /**
  * A editable list of media for a playlist. Upon mount, it fetches the playlist with a list of the
  * media items and shows them to the user. The list can be re-ordered by drag/drop.
  */
 class PlaylistEditPage extends Component {
+
   constructor(props) {
     super(props);
 
     this.state = {
       // The playlist resource
       playlist: { id: '', media: [] },
-    }
+    };
+
+    this.patchMediaIdsDebounced = _.debounce(this.patchMediaIdsDebounced, 1000)
+  }
+
+  /**
+   * Updates the order of the playlist's mediaIds after being debounced.
+   */
+  patchMediaIdsDebounced(media) {
+    const { match: { params: { pk } } } = this.props;
+    playlistPatch({id: pk, mediaIds: media.map(({id}) => id)});
   }
 
   componentWillMount() {
@@ -46,7 +58,8 @@ class PlaylistEditPage extends Component {
     const media = this.state.playlist.media.slice();
     media.splice(hoverIndex, 0, ...media.splice(dragIndex, 1));
     this.setState({ playlist: { ...this.state.playlist, media } });
-    // FIXME de-bounce playlistPatch
+    // save the new order
+    this.patchMediaIdsDebounced(media);
   };
 
   render() {
