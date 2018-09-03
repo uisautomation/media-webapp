@@ -10,15 +10,13 @@ import UploadIcon from '@material-ui/icons/CloudUpload';
 import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
 
 import AppBar from "../components/AppBar";
+import DraggableContext from "../components/DraggableContext";
 import MotdBanner from "../components/MotdBanner";
 import NavigationPanel from "../components/NavigationPanel";
 import Snackbar from "./Snackbar";
 import IfOwnsAnyChannel from "./IfOwnsAnyChannel";
 
 import { withProfile } from "../providers/ProfileProvider";
-import TouchBackend from "react-dnd-touch-backend";
-import HTML5Backend from "react-dnd-html5-backend/lib/index";
-import {DragDropContext} from "react-dnd/lib/index";
 
 const ConnectedNavigationPanel = withProfile(NavigationPanel);
 
@@ -92,9 +90,11 @@ class Page extends React.Component {
           <div className={classes.toolbar} />
           <main className={classes.main}>
             <MotdBanner />
-            <div className={ [classes.children, gutterTop ? classes.gutterTop : ''].join(' ') }>
-              { children }
-            </div>
+            <DraggableContext>
+              <div className={ [classes.children, gutterTop ? classes.gutterTop : ''].join(' ') }>
+                { children }
+              </div>
+            </DraggableContext>
           </main>
         </div>
 
@@ -166,6 +166,4 @@ const styles = theme => ({
   toolbar: theme.mixins.toolbar,
 });
 
-const BACKEND = 'ontouchstart' in document.documentElement ? TouchBackend : HTML5Backend;
-
-export default withStyles(styles)(DragDropContext(BACKEND)(Page));
+export default withStyles(styles)(Page);
