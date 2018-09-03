@@ -74,13 +74,13 @@ const withDropTarget = DropTarget(DRAGGABLE, cardTarget, connect => ({
  * TODO note that styleguidist isn't picking up this description so it has been copied to
  * Draggable.md manually.
  */
-const Draggable = withDropTarget(withDropSource(({ isDragging, connectDragSource, connectDropTarget, children }) => {
+const Draggable = ({ isDragging, connectDragSource, connectDropTarget, children }) => {
   const opacity = isDragging ? 0 : 1;
   return connectDragSource(
     connectDropTarget(
       <div style={{cursor: 'move', opacity}}>{ children }</div>
   ))
-}));
+};
 
 Draggable.propTypes = {
   /**
@@ -95,4 +95,4 @@ Draggable.propTypes = {
   moveItem: PropTypes.func.isRequired,
 };
 
-export default Draggable;
+export default withDropTarget(withDropSource((Draggable)));
