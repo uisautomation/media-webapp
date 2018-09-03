@@ -215,34 +215,6 @@ class MediaItemSerializer(ChannelOwnedResourceModelSerializer):
 # on related resources.
 
 
-class ProfileSerializer(serializers.Serializer):
-    """
-    The profile of the current user.
-
-    """
-    isAnonymous = serializers.BooleanField(source='user.is_anonymous')
-    username = serializers.CharField(source='user.username', required=False)
-    channels = serializers.SerializerMethodField(
-        help_text="List of channels which the user has edit rights on")
-    displayName = serializers.CharField(source='person.displayName', required=False)
-    avatarImageUrl = serializers.SerializerMethodField()
-
-    def get_channels(self, obj):
-        qs = mpmodels.Channel.objects.all().editable_by_user(obj['user'])
-        return ChannelSerializer(qs, many=True, context=self.context).data
-
-    def get_avatarImageUrl(self, obj):
-        person = obj.get('person')
-        if person is None:
-            return None
-
-        for attr in person.get('attributes', []):
-            if attr.get('scheme') == 'jpegPhoto':
-                return 'data:image/jpeg;base64,' + attr['binaryData']
-
-        return None
-
-
 class SourceSerializer(serializers.Serializer):
     """
     A download source for a particular media type.
@@ -385,3 +357,31 @@ class PlaylistDetailSerializer(PlaylistSerializer):
 
     class Meta(PlaylistSerializer.Meta):
         fields = PlaylistSerializer.Meta.fields + ('channel', 'media')
+
+
+class ProfileSerializer(serializers.Serializer):
+    """
+    The profile of the current user.
+
+    """
+    isAnonymous = serializers.BooleanField(source='user.is_anonymous')
+    username = serializers.CharField(source='user.username', required=False)
+    channels = serializers.SerializerMethodField(
+        help_text="List of channels which the user has edit rights on")
+    displayName = serializers.CharField(source='person.displayName', required=False)
+    avatarImageUrl = serializers.SerializerMethodField()
+
+    def get_channels(self, obj):
+        qs = mpmodels.Channel.objects.all().editable_by_user(obj['user'])
+        return ChannelDetailSerializer(qs, many=True, context=self.context).data
+
+    def get_avatarImageUrl(self, obj):
+        person = obj.get('person')
+        if person is None:
+            return None
+
+        for attr in person.get('attributes', []):
+            if attr.get('scheme') == 'jpegPhoto':
+                return 'data:image/jpeg;base64,' + attr['binaryData']
+
+        return None
