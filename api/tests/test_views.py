@@ -802,6 +802,32 @@ class ChannelViewTestCase(ViewTestCase):
     def test_created_at_immutable(self):
         self.assert_field_immutable('createdAt', '2018-08-06T15:29:45.003231Z', 'created_at')
 
+    def test_media_item_count(self):
+        """Check that a count of media items are returned for the channel"""
+        # Tweak items to make sure count of items viewable to user and public are different
+        items = mpmodels.MediaItem.objects.all()[:2]
+        for i in items:
+            i.channel = self.channel
+            i.save()
+
+        items[0].view_permission.reset()
+        items[0].view_permission.is_public = True
+        items[0].view_permission.save()
+        items[1].view_permission.reset()
+        items[1].view_permission.is_signed_in = True
+        items[1].view_permission.save()
+
+        public_count = self.channel.items.all().viewable_by_user(None).count()
+        signed_in_count = self.channel.items.all().viewable_by_user(self.user).count()
+        self.assertGreater(signed_in_count, public_count)
+
+        response = self.view(self.get_request, pk=self.channel.id)
+        self.assertEqual(response.data['mediaCount'], public_count)
+
+        force_authenticate(self.get_request, user=self.user)
+        response = self.view(self.get_request, pk=self.channel.id)
+        self.assertEqual(response.data['mediaCount'], signed_in_count)
+
     def assert_field_mutable(
             self, field_name, new_value='testvalue', model_field_name=None, expected_value=None):
         expected_value = expected_value or new_value

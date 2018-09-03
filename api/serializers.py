@@ -346,10 +346,14 @@ class ChannelDetailSerializer(ChannelSerializer):
 
     """
     class Meta(ChannelSerializer.Meta):
-        fields = ChannelSerializer.Meta.fields + ('mediaUrl',)
+        fields = ChannelSerializer.Meta.fields + ('mediaUrl', 'mediaCount')
 
     mediaUrl = serializers.SerializerMethodField(
         help_text='URL pointing to list of media items for this channel'
+    )
+
+    mediaCount = serializers.SerializerMethodField(
+        help_text='Number of viewable media items in the channel'
     )
 
     def get_mediaUrl(self, obj):
@@ -363,6 +367,10 @@ class ChannelDetailSerializer(ChannelSerializer):
             return location
 
         return self.context['request'].build_absolute_uri(location)
+
+    def get_mediaCount(self, obj):
+        user = self.context['request'].user if 'request' in self.context else None
+        return obj.items.all().viewable_by_user(user).count()
 
 
 class PlaylistDetailSerializer(PlaylistSerializer):
