@@ -102,7 +102,7 @@ services:
   frontend_styleguidist:
     build:
       context: ..
-      dockerfile: ./compose/development.frontend.Dockerfile
+      dockerfile: ./compose/development.styleguidist.Dockerfile
 
     volumes:
       # For the frontend, mount the local frontend directory inside the container
