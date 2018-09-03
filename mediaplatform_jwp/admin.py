@@ -18,6 +18,7 @@ admin.site.register(UserLookup, admin.ModelAdmin)
 @admin.register(CachedResource)
 class CachedResourceAdmin(admin.ModelAdmin):
     list_display = ('title', 'type', 'deleted_at')
+    search_fields = ('data__title', 'data__description', 'key')
 
     def get_queryset(self, request):
         # Since CachedResource has multiple managers, be explicit about which one should be used.
