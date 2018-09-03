@@ -68,11 +68,8 @@ const withDropTarget = DropTarget(DRAGGABLE, cardTarget, connect => ({
  * A component which enables drap and drop on the component that it wraps. While react-dnd is quite
  * general, this component implements a special drag and drop case where the wrapped components are
  * both drag sources and drop targets. Note that the component must be surrounded by a
- * DraggableContext component for drag and drop to work. The component closely follows the
- * react-dnd example in https://gist.github.com/kavimaluskam/19b9bd5d3ae1142c01aee52059abac21.
- *
- * TODO note that styleguidist isn't picking up this description so it has been copied to
- * Draggable.md manually.
+ * `<DraggableContext/>` component for drag and drop to work. The component closely follows
+ * [an example for using react-dnd with material-ui components](https://gist.github.com/kavimaluskam/19b9bd5d3ae1142c01aee52059abac21).
  */
 const Draggable = ({ isDragging, connectDragSource, connectDropTarget, children }) => {
   const opacity = isDragging ? 0 : 1;
@@ -95,4 +92,5 @@ Draggable.propTypes = {
   moveItem: PropTypes.func.isRequired,
 };
 
-export default withDropTarget(withDropSource((Draggable)));
+/** @component */
+export default withDropTarget(withDropSource(Draggable));

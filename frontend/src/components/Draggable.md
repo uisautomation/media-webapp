@@ -1,16 +1,3 @@
-A component which enables drap and drop on the component that it wraps. While react-dnd is quite
-general, this component implements a special drag and drop case where the wrapped components are
-both drag sources and drop targets. Note that the component must be surrounded by a
-DraggableContext component for drag and drop to work. The component closely follows the
-react-dnd example in https://gist.github.com/kavimaluskam/19b9bd5d3ae1142c01aee52059abac21.
-
-#### Properties
-
-- **index (number - required)** A sequential index that defines the position of the draggable component within the set 
-  of target components.
-- **moveItem (func - required)** Called with dragIndex & hoverIndex when a source item is hovering above a valid target. 
-  It is responsible for updating the order of the collection.
-
 ### Examples
 
 ```js

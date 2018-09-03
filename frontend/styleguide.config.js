@@ -10,7 +10,6 @@ module.exports = {
   // propsParser: require('react-docgen-typescript').withCustomConfig('./tsconfig.json').parse,
 
   exampleMode: 'expand',
-  skipComponentsWithoutExample: true,
   usageMode: 'expand',
   webpackConfig: require('react-scripts-ts/config/webpack.config.dev.js'),
 };
