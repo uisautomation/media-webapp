@@ -11,7 +11,8 @@ import { withStyles } from '@material-ui/core/styles';
 import ReorderIcon from '@material-ui/icons/Reorder';
 
 
-import { playlistGet, playlistPatch, mediaResourceToItem } from '../api';
+import { playlistPatch, mediaResourceToItem } from '../api';
+import FetchPlaylist from "../containers/FetchPlaylist";
 import BodySection from "../components/BodySection";
 import RenderedMarkdown from '../components/RenderedMarkdown';
 import Page from "../containers/Page";
@@ -21,111 +22,102 @@ import _ from "lodash";
 
 /**
  * A editable list of media for a playlist. Upon mount, it fetches the playlist with a list of the
- * media items and shows them to the user. The list can be re-ordered by drag/drop.
+ * media items and shows them to the user. At the moment the list can only be re-ordered by drag/drop.
+ * The page is split into two components: page and content so that FetchPlaylist can be used
  */
-class PlaylistEditPage extends Component {
+
+const PlaylistEditPage = ({ match: { params: { pk } } }) => (
+  <Page gutterTop>
+    <FetchPlaylist id={ pk } component={ PlaylistEditPageContent } />
+  </Page>
+);
+
+const PlaylistEditPageContent = ({ resource: playlist }) => (
+  playlist
+  ?
+  <div>
+    <IfOwnsChannel channel={playlist.channel}>
+      <BodySection>
+        <Grid container justify='center'>
+          <Grid item xs={12} sm={10} md={8} lg={6}>
+            <Typography variant='display1' gutterBottom>
+              {playlist.title}
+            </Typography>
+            <Typography variant='body1' component='div'>
+              <RenderedMarkdown source={playlist.description}/>
+            </Typography>
+            <Typography variant='headline' gutterBottom>
+              Media items
+            </Typography>
+            <StyledReorderablePlaylistList playlist={playlist}/>
+          </Grid>
+        </Grid>
+      </BodySection>
+    </IfOwnsChannel>
+    <IfOwnsChannel channel={playlist.channel} hide>
+      <Typography variant="headline" component="div">
+        You cannot edit this playlist.
+      </Typography>
+    </IfOwnsChannel>
+  </div>
+  :
+  null
+);
+
+/**
+ * Displays a list of playlist items that can be reordered by dragging and dropping.
+ */
+
+class ReorderablePlaylistList extends Component {
 
   constructor(props) {
     super(props);
 
     this.state = {
       // The playlist resource
-      playlist: { id: '', media: [] },
+      media: this.props.playlist.media.slice(),
     };
-
-    this.patchMediaIdsDebounced = _.debounce(this.patchMediaIdsDebounced, 1000)
   }
 
   /**
    * Updates the order of the playlist's mediaIds after being debounced.
    */
-  patchMediaIdsDebounced(media) {
-    const { match: { params: { pk } } } = this.props;
+  patchMediaIdsDebounced = _.debounce((media) => {
+    const { playlist: { id: pk } } = this.props;
     playlistPatch({id: pk, mediaIds: media.map(({id}) => id)});
-  }
+  }, 800);
 
-  componentWillMount() {
-    // As soon as the index page mounts, fetch the playlist.
-    const { match: { params: { pk } } } = this.props;
-    // FIXME use FetchPlaylist
-    playlistGet(pk)
-      .then(playlist => {
-        this.setState({ playlist });
-      });
-  }
-
-  moveListItem = (dragIndex, hoverIndex) => {
-    const media = this.state.playlist.media.slice();
+  /**
+   * Handles the moveItem Draggable event - moves an item to the new position in the list.
+   */
+  handleMoveItem = (dragIndex, hoverIndex) => {
+    const media = this.state.media.slice();
     media.splice(hoverIndex, 0, ...media.splice(dragIndex, 1));
-    this.setState({ playlist: { ...this.state.playlist, media } });
+    this.setState({media: media});
     // save the new order
     this.patchMediaIdsDebounced(media);
   };
 
   render() {
-    const { playlist } = this.state;
+    const { classes } = this.props;
+    const { media } = this.state;
     return (
-      <Page>
-      {
-        playlist.id !== ''
-        ?
-        <div>
-          <IfOwnsChannel channel={playlist.channel}>
-            <EditableListSection
-              moveListItem={this.moveListItem}
-              playlist={playlist}
-            />
-          </IfOwnsChannel>
-          <IfOwnsChannel channel={playlist.channel} hide>
-            <Typography variant="headline" component="div">
-              You cannot edit this playlist.
-            </Typography>
-          </IfOwnsChannel>
-        </div>
-        :
-        null
-      }
-      </Page>
-    );
+      <List>
+        {media.map(mediaResourceToItem).map(({url, imageUrl, title}, index) => (
+          <Draggable key={url} index={index} moveItem={this.handleMoveItem}>
+            <ListItem className={classes.listItem}>
+              <Avatar src={imageUrl}/>
+              <ListItemText primary={title}/>
+              <ListItemSecondaryAction className={classes.action}>
+                <ReorderIcon/>
+              </ListItemSecondaryAction>
+            </ListItem>
+          </Draggable>
+        ))}
+      </List>
+    )
   }
 }
-
-/**
- * A section of the body with a heading and a editable playlist and allows reordering of the list
- * with drag and drop.
- */
-const EditableListSectionComponent = ({ classes, playlist, moveListItem }) => {
-  return (
-    <BodySection>
-      <Grid container justify='center'>
-        <Grid item xs={12} sm={10} md={8} lg={6}>
-          <Typography variant='display1' className={classes.title} gutterBottom>
-            {playlist.title}
-          </Typography>
-          <Typography variant='body1' component='div'>
-            <RenderedMarkdown source={playlist.description}/>
-          </Typography>
-          <Typography variant='headline' gutterBottom>
-            Media items
-          </Typography>
-          <List>
-            {playlist.media.map(mediaResourceToItem).map(({url, imageUrl, title}, index) => (
-              <Draggable key={ url } index={ index } moveItem={ moveListItem } >
-                <ListItem className={classes.listItem}>
-                  <Avatar src={imageUrl} />
-                  <ListItemText primary={title} />
-                  <ListItemSecondaryAction className={classes.action}>
-                    <ReorderIcon/>
-                  </ListItemSecondaryAction>
-                </ListItem>
-              </Draggable>
-            ))}
-          </List>
-        </Grid>
-      </Grid>
-    </BodySection>
-  )
-};
 
 const styles = theme => ({
   action: {
@@ -139,6 +131,6 @@ const styles = theme => ({
   },
 });
 
-const EditableListSection = withStyles(styles)(EditableListSectionComponent);
+const StyledReorderablePlaylistList = withStyles(styles)(ReorderablePlaylistList);
 
 export default PlaylistEditPage;
