@@ -7,7 +7,7 @@ Default settings values for the :py:mod:`legacysms` application.
 # is a bit mucky but, at the moment, Django does not have a standard way to specify default values
 # for settings.  See: https://stackoverflow.com/questions/8428556/
 
-LEGACY_SMS_REDIRECT_FORMAT = '{url.scheme}://{url.netloc}/_legacy{url.path}'
+LEGACY_SMS_REDIRECT_FORMAT = '{url.scheme}://{url.netloc}{url.path}'
 """
 Required. Format string for generating URL used when redirecting a request back to the legacy SMS.
 The format string should use a named parameter called *url* which is an instance of the tuple
