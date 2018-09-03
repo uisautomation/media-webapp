@@ -16,6 +16,7 @@ python-dateutil
 django-crispy-forms
 django-filter
 django-robots
+django-reversion
 
 # For loading fixtures
 PyYAML
