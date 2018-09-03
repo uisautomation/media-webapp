@@ -58,6 +58,11 @@ jobs:
           path: ~/project/build/doc
           destination: documentation
 
+      - persist_to_workspace:
+          root: .
+          paths:
+            - build/doc
+
       - run:
           name: Run codecov
           command: codecov
@@ -80,3 +85,24 @@ jobs:
             else
               echo "Skipping push step as there are no GCloud secrets"
             fi
+  deploy:
+    machine: true
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Deploy to GitHub Pages
+          command: ./.circleci/deploy-ghpages.sh ./build/doc
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
