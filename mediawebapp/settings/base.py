@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'ucamwebauth',
     'robots',
+    'reversion',
 
     'smsjwplatform',
     'legacysms',
@@ -58,7 +59,8 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'mediawebapp.middleware.user_lookup_middleware'
+    'mediawebapp.middleware.user_lookup_middleware',
+    'reversion.middleware.RevisionMiddleware',
 ]
 
 #: Root URL patterns
