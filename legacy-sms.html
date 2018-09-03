@@ -298,7 +298,7 @@ media id. Raises <code class="xref py py-exc docutils literal notranslate"><span
 <p>Default settings values for the <code class="xref py py-mod docutils literal notranslate"><span class="pre">legacysms</span></code> application.</p>
 <dl class="data">
 <dt id="legacysms.defaultsettings.LEGACY_SMS_REDIRECT_FORMAT">
-<code class="descclassname">legacysms.defaultsettings.</code><code class="descname">LEGACY_SMS_REDIRECT_FORMAT</code><em class="property"> = '{url.scheme}://{url.netloc}/_legacy{url.path}'</em><a class="headerlink" href="#legacysms.defaultsettings.LEGACY_SMS_REDIRECT_FORMAT" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">legacysms.defaultsettings.</code><code class="descname">LEGACY_SMS_REDIRECT_FORMAT</code><em class="property"> = '{url.scheme}://{url.netloc}{url.path}'</em><a class="headerlink" href="#legacysms.defaultsettings.LEGACY_SMS_REDIRECT_FORMAT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Required. Format string for generating URL used when redirecting a request back to the legacy SMS.
 The format string should use a named parameter called <em>url</em> which is an instance of the tuple
 subclass returned by calling <code class="xref py py-func docutils literal notranslate"><span class="pre">urllib.parse.urlsplit()</span></code> on the original SMS URL. On the SMS
