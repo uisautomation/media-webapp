@@ -6,6 +6,7 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.formats import localize
 from django.utils.html import format_html
+from reversion.admin import VersionAdmin
 
 from mediaplatform_jwp import models as jwpmodels
 from mediaplatform_jwp.api import delivery as api
@@ -100,7 +101,7 @@ class MediaItemAdminForm(forms.ModelForm):
 
 
 @admin.register(models.MediaItem)
-class MediaItemAdmin(admin.ModelAdmin):
+class MediaItemAdmin(VersionAdmin):
     fields = (
         'preview', 'channel', 'type', 'title', 'description', 'formatted_duration',
         'published_at', 'downloadable', 'tags', 'language', 'copyright', 'created_at',
@@ -191,7 +192,7 @@ class ChannelAdminForm(forms.ModelForm):
 
 
 @admin.register(models.Channel)
-class ChannelAdmin(admin.ModelAdmin):
+class ChannelAdmin(VersionAdmin):
     fields = (
         'title', 'description', 'item_count', 'owning_lookup_inst', 'created_at', 'updated_at',
         'deleted_at'
