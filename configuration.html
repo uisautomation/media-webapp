@@ -231,7 +231,7 @@ index.html as a template.</p>
 
 <dl class="data">
 <dt id="mediawebapp.settings.base.DATABASES">
-<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">DATABASES</code><em class="property"> = {'default': {'ENGINE': 'django.db.backends.postgresql', 'NAME': 'webapp', 'PASSWORD': 'databasePass', 'PORT': '5432', 'USER': 'webappuser', 'HOST': 'db', 'ATOMIC_REQUESTS': False, 'AUTOCOMMIT': True, 'CONN_MAX_AGE': 0, 'OPTIONS': {}, 'TIME_ZONE': None, 'TEST': {'CHARSET': None, 'COLLATION': None, 'NAME': None, 'MIRROR': None}}}</em><a class="headerlink" href="#mediawebapp.settings.base.DATABASES" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">DATABASES</code><em class="property"> = {'default': {'ENGINE': 'django.db.backends.postgresql', 'NAME': 'webapp', 'HOST': 'db', 'USER': 'webappuser', 'PORT': '5432', 'PASSWORD': 'databasePass', 'ATOMIC_REQUESTS': False, 'AUTOCOMMIT': True, 'CONN_MAX_AGE': 0, 'OPTIONS': {}, 'TIME_ZONE': None, 'TEST': {'CHARSET': None, 'COLLATION': None, 'NAME': None, 'MIRROR': None}}}</em><a class="headerlink" href="#mediawebapp.settings.base.DATABASES" title="Permalink to this definition">¶</a></dt>
 <dd><p>Database configuration. The default settings allow configuration of the database from
 environment variables. An environment variable named <code class="docutils literal notranslate"><span class="pre">DJANGO_DB_&lt;key&gt;</span></code> will override the
 <code class="docutils literal notranslate"><span class="pre">DATABASES['default'][&lt;key&gt;]</span></code> setting.</p>
