@@ -174,6 +174,11 @@ export interface IChannelResource {
   createdAt: string;
 };
 
+/** A channel resource as returned from the detail view. */
+export interface IChannelDetailResource extends IChannelResource {
+  mediaCount: number;
+};
+
 /** A channel list response. */
 type IChannelListResponse = IResourceListResponse<IChannelResource>;
 
@@ -330,7 +335,7 @@ export const channelList = (
 };
 
 /** Retrieve a channel resource. */
-export const channelGet = (id: string) : Promise<IChannelResource> => {
+export const channelGet = (id: string) : Promise<IChannelDetailResource> => {
   const resource = resourceFromPageById(id);
   if (resource) { return Promise.resolve(resource); }
   return apiFetch(API_ENDPOINTS.channelList + id);
