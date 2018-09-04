@@ -11,148 +11,111 @@ import { withStyles } from '@material-ui/core/styles';
 import ReorderIcon from '@material-ui/icons/Reorder';
 
 
-import { playlistGet, playlistPatch, mediaResourceToItem } from '../api';
+import { playlistPatch, mediaResourceToItem } from '../api';
+import FetchPlaylist from "../containers/FetchPlaylist";
 import BodySection from "../components/BodySection";
 import RenderedMarkdown from '../components/RenderedMarkdown';
 import Page from "../containers/Page";
 import IfOwnsChannel from "../containers/IfOwnsChannel";
+import Draggable from "../components/Draggable";
+import _ from "lodash";
 
 /**
  * A editable list of media for a playlist. Upon mount, it fetches the playlist with a list of the
- * media items and shows them to the user. The list can be re-ordered by drag/drop.
+ * media items and shows them to the user. At the moment the list can only be re-ordered by drag/drop.
+ * The page is split into two components: page and content so that FetchPlaylist can be used
  */
-class PlaylistEditPage extends Component {
+
+const PlaylistEditPage = ({ match: { params: { pk } } }) => (
+  <Page gutterTop>
+    <FetchPlaylist id={ pk } component={ PlaylistEditPageContent } />
+  </Page>
+);
+
+const PlaylistEditPageContent = ({ resource: playlist }) => (
+  playlist
+  ?
+  <div>
+    <IfOwnsChannel channel={playlist.channel}>
+      <BodySection>
+        <Grid container justify='center'>
+          <Grid item xs={12} sm={10} md={8} lg={6}>
+            <Typography variant='display1' gutterBottom>
+              {playlist.title}
+            </Typography>
+            <Typography variant='body1' component='div'>
+              <RenderedMarkdown source={playlist.description}/>
+            </Typography>
+            <Typography variant='headline' gutterBottom>
+              Media items
+            </Typography>
+            <StyledReorderablePlaylistList playlist={playlist}/>
+          </Grid>
+        </Grid>
+      </BodySection>
+    </IfOwnsChannel>
+    <IfOwnsChannel channel={playlist.channel} hide>
+      <Typography variant="headline" component="div">
+        You cannot edit this playlist.
+      </Typography>
+    </IfOwnsChannel>
+  </div>
+  :
+  null
+);
+
+/**
+ * Displays a list of playlist items that can be reordered by dragging and dropping.
+ */
+
+class ReorderablePlaylistList extends Component {
+
   constructor(props) {
     super(props);
 
     this.state = {
       // The playlist resource
-      playlist: { id: '', media: [] },
-
-      // The index of the items being dragged.
-      dragStart: null,
-    }
-  }
-
-  componentWillMount() {
-    // As soon as the index page mounts, fetch the playlist.
-    const { match: { params: { pk } } } = this.props;
-    playlistGet(pk)
-      .then(playlist => {
-        this.setState({ playlist });
-      });
+      media: this.props.playlist.media.slice(),
+    };
   }
 
   /**
-   * Function called when an item drag begins. Saves the index of the dragged item.
+   * Updates the order of the playlist's mediaIds after being debounced.
    */
-  handleDragStart = (index) => {
-    this.setState({ dragStart: index })
-  };
-
-  /**
-   * Function called when an item is dropped on another item. Reorder the list so that the target
-   * item is dropped in place and the other items are shifted in the direction of the source item.
-   */
-  handleDrop = (index) => {
-    const media = this.state.playlist.media.slice();
-    media.splice(index, 0, ...media.splice(this.state.dragStart, 1));
-    this.setState({ playlist: { ...this.state.playlist, media } });
-    // save the new order
-    const { match: { params: { pk } } } = this.props;
+  patchMediaIdsDebounced = _.debounce((media) => {
+    const { playlist: { id: pk } } = this.props;
     playlistPatch({id: pk, mediaIds: media.map(({id}) => id)});
+  }, 800);
+
+  /**
+   * Handles the moveItem Draggable event - moves an item to the new position in the list.
+   */
+  handleMoveItem = (dragIndex, hoverIndex) => {
+    const media = this.state.media.slice();
+    media.splice(hoverIndex, 0, ...media.splice(dragIndex, 1));
+    this.setState({media: media});
+    // save the new order
+    this.patchMediaIdsDebounced(media);
   };
 
   render() {
-    const { playlist } = this.state;
+    const { classes } = this.props;
+    const { media } = this.state;
     return (
-      <Page>
-      {
-        playlist.id !== ''
-        ?
-        <div>
-          <IfOwnsChannel channel={playlist.channel}>
-            <EditableListSection
-              handleDragStart={this.handleDragStart}
-              handleDrop={this.handleDrop}
-              playlist={playlist}
-            />
-          </IfOwnsChannel>
-          <IfOwnsChannel channel={playlist.channel} hide>
-            <Typography variant="headline" component="div">
-              You cannot edit this playlist.
-            </Typography>
-          </IfOwnsChannel>
-        </div>
-        :
-        null
-      }
-      </Page>
-    );
-  }
-}
-
-/**
- * A section of the body with a heading and a editable playlist and allows reordering of the list.
- * The component can't be a Stateless Function because of the use of references. The drag/drop
- * stuff should be abstracted at some point but I would like the page to bed down a little so we
- * can see how best to do it.
- */
-class EditableListSectionComponent extends Component {
-  render() {
-    const {
-      classes, handleDragStart, handleDrop, playlist: {title, description, media}
-    } = this.props;
-    return (
-      <BodySection>
-        <Grid container justify='center'>
-          <Grid item xs={12} sm={10} md={8} lg={6}>
-            <Typography variant='display1' className={classes.title} gutterBottom>
-              {title}
-            </Typography>
-            <Typography variant='body1' component='div'>
-              <RenderedMarkdown source={description}/>
-            </Typography>
-            <Typography variant='headline' gutterBottom>
-              Media items
-            </Typography>
-            <List>
-              {media.map(mediaResourceToItem).map((item, index) => (
-                <div key={index} ref={'item-' + index}
-                     onDragOver={event => event.preventDefault()}
-                     onDrop={(event) => {event.preventDefault(); handleDrop(index)}}
-                >
-                  <ListItem className={classes.listItem}>
-                    <Avatar src={item.imageUrl}/>
-                    <ListItemText primary={item.title}/>
-                    <ListItemSecondaryAction className={classes.action}>
-                      <div
-                        draggable={true}
-                        onDragStart={event => {
-                          handleDragStart(index);
-                          // setDragImage not supported for IE
-                          if (typeof event.dataTransfer.setDragImage === "function") {
-                            // Displays the ghost item correctly
-                            const ghost = this.refs['item-' + index];
-                            const x = ghost.clientWidth - 20;
-                            const y = ghost.clientHeight / 2;
-                            event.dataTransfer.setDragImage(ghost, x, y);
-                          }
-                          // this is required for FF compat
-                          event.dataTransfer.setData('text', "it doesn't matter");
-                        }}
-                      >
-                        <ReorderIcon/>
-                      </div>
-                    </ListItemSecondaryAction>
-                  </ListItem>
-                </div>
-              ))}
-            </List>
-          </Grid>
-        </Grid>
-      </BodySection>
-    );
+      <List>
+        {media.map(mediaResourceToItem).map(({url, imageUrl, title}, index) => (
+          <Draggable key={url} index={index} moveItem={this.handleMoveItem}>
+            <ListItem className={classes.listItem}>
+              <Avatar src={imageUrl}/>
+              <ListItemText primary={title}/>
+              <ListItemSecondaryAction className={classes.action}>
+                <ReorderIcon/>
+              </ListItemSecondaryAction>
+            </ListItem>
+          </Draggable>
+        ))}
+      </List>
+    )
   }
 }
 
@@ -168,6 +131,6 @@ const styles = theme => ({
   },
 });
 
-const EditableListSection = withStyles(styles)(EditableListSectionComponent);
+const StyledReorderablePlaylistList = withStyles(styles)(ReorderablePlaylistList);
 
 export default PlaylistEditPage;

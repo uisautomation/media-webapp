@@ -10,6 +10,7 @@ import UploadIcon from '@material-ui/icons/CloudUpload';
 import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
 
 import AppBar from "../components/AppBar";
+import DraggableContext from "../components/DraggableContext";
 import MotdBanner from "../components/MotdBanner";
 import NavigationPanel from "../components/NavigationPanel";
 import Snackbar from "./Snackbar";
@@ -89,9 +90,11 @@ class Page extends React.Component {
           <div className={classes.toolbar} />
           <main className={classes.main}>
             <MotdBanner />
-            <div className={ [classes.children, gutterTop ? classes.gutterTop : ''].join(' ') }>
-              { children }
-            </div>
+            <DraggableContext>
+              <div className={ [classes.children, gutterTop ? classes.gutterTop : ''].join(' ') }>
+                { children }
+              </div>
+            </DraggableContext>
           </main>
         </div>
 
