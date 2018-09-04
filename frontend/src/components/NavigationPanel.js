@@ -12,8 +12,6 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 
-import LatestMediaIcon from '@material-ui/icons/NewReleases';
-
 /** Side panel for the current user providing navigation links. */
 const NavigationPanel = ({ profile, classes }) => <div className={ classes.root }>
   <div className={ classes.profileBar }>
@@ -71,7 +69,7 @@ NavigationPanel.propTypes = {
     avatarImageUrl: PropTypes.string,
     displayName: PropTypes.string,
     isAnonymous: PropTypes.bool.isRequired,
-    username: PropTypes.string.isRequired,
+    username: PropTypes.string,
   }),
 };
 
