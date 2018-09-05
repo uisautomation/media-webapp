@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import dataclasses
 import itertools
 import secrets
@@ -78,6 +80,16 @@ class PermissionQuerySetMixin:
 
 
 class MediaItemQuerySet(PermissionQuerySetMixin, models.QuerySet):
+
+    def _viewable_condition(self, user):
+        # The item can be viewed if the user has view permission and the item is published.
+        # Overriding this, the item can be viewed if the user has edit permission.
+        published = models.Q(published_at__isnull=True) | models.Q(published_at__lt=datetime.now())
+        return (
+            (self._permission_condition('view_permission', user) & published) |
+            Q(self._permission_condition('channel__edit_permission', user))
+        )
+
     def annotate_viewable(self, user, name='viewable'):
         """
         Annotate the query set with a boolean indicating if the user can view the item.
@@ -85,11 +97,7 @@ class MediaItemQuerySet(PermissionQuerySetMixin, models.QuerySet):
         """
         return self.annotate(**{
             name: models.Case(
-                models.When(
-                    Q(self._permission_condition('view_permission', user) |
-                      self._permission_condition('channel__edit_permission', user)),
-                    then=models.Value(True)
-                ),
+                models.When(self._viewable_condition(user), then=models.Value(True)),
                 default=models.Value(False),
                 output_field=models.BooleanField()
             ),
@@ -100,12 +108,11 @@ class MediaItemQuerySet(PermissionQuerySetMixin, models.QuerySet):
         Filter the queryset to only those items which can be viewed by the passed Django user.
 
         """
-        return self.filter(Q(self._permission_condition('view_permission', user) |
-                             self._permission_condition('channel__edit_permission', user)))
+        return self.filter(self._viewable_condition(user))
 
     def _editable_condition(self, user):
-        # For the moment, we make sure that *all* SMS-derived objects are immutble to guard against
-        # accidents.
+        # For the moment, we make sure that *all* SMS-derived objects are immutable to guard
+        # against accidents.
         return (
             self._permission_condition('channel__edit_permission', user) &
             models.Q(sms__isnull=True) &
@@ -119,10 +126,7 @@ class MediaItemQuerySet(PermissionQuerySetMixin, models.QuerySet):
         """
         return self.annotate(**{
             name: models.Case(
-                models.When(
-                    self._editable_condition(user),
-                    then=models.Value(True)
-                ),
+                models.When(self._editable_condition(user), then=models.Value(True)),
                 default=models.Value(False),
                 output_field=models.BooleanField()
             ),
@@ -240,12 +244,12 @@ class MediaItem(models.Model):
     #: Duration
     duration = models.FloatField(editable=False, help_text='Duration of video', default=0.)
 
-    #: Type of media.
+    #: Type of media
     type = models.CharField(
         max_length=10, choices=TYPE_CHOICES, default=UNKNOWN, editable=False,
         help_text='Type of media (video, audio or unknown)')
 
-    #: Publication date
+    #: Publication date (we take null to mean it is published)
     published_at = models.DateTimeField(
         null=True, blank=True, help_text='Date from which video is visible')
 
