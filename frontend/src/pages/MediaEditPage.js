@@ -65,7 +65,7 @@ class MediaEditPage extends Component {
                   onChange={patch => this.setState({item: {...item, ...patch}})}
                 />
                 <div className={ classes.buttonSet }>
-                  <Button variant='outlined' href={ '/media/' + this.state.pk } >
+                  <Button variant='outlined' href={ '/media/' + this.getItemId() } >
                     Cancel
                   </Button>
                   <Button color='secondary' variant='contained' onClick={ () => this.save() } >
