@@ -214,7 +214,7 @@ class MediaItem(models.Model):
     TYPE_CHOICES = ((VIDEO, 'Video'), (AUDIO, 'Audio'))
 
     LANGUAGE_CHOICES = tuple(itertools.chain([('', 'None')], sorted(
-        ((language.part3, language.name) for language in languages),
+        ((language.part3, language.name) for language in languages if language.part3),
         key=lambda choice: choice[1]
     )))
 
