@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import Checkbox from '@material-ui/core/Checkbox';
+import FormControlLabel from "@material-ui/core/FormControlLabel";
 import TextField from '@material-ui/core/TextField';
 
 /**
@@ -8,7 +10,7 @@ import TextField from '@material-ui/core/TextField';
  * The onChange prop is called with a patch to the item as it is edited.
  */
 const ItemMetadataForm = ({
-  item: { title = '', description = '' },
+  item: { title = '', description = '', downloadable = false, copyright = '' },
   onChange,
   disabled,
   errors,
@@ -36,12 +38,35 @@ const ItemMetadataForm = ({
     rows={ 4 }
     value={ description }
   />
+
+  <FormControlLabel
+    control={
+      <Checkbox
+        checked={downloadable}
+        onChange={ event => onChange && onChange({ downloadable: event.target.checked }) }
+      />
+    }
+    label="Downloadable"
+  />
+
+  <TextField
+    fullWidth
+    error={ !!errors.copyright }
+    helperText={ errors.copyright ? errors.copyright.join(' ') : null }
+    disabled={ disabled }
+    label='Copyright'
+    margin='normal'
+    onChange={ event => onChange && onChange({ copyright: event.target.value }) }
+    value={ copyright }
+  />
 </div>);
 
 ItemMetadataForm.propTypes = {
   /** Media item resource. */
   item: PropTypes.shape({
+    copyright: PropTypes.string,
     description: PropTypes.string,
+    downloadable: PropTypes.bool,
     title: PropTypes.string,
   }).isRequired,
 
@@ -60,6 +85,9 @@ ItemMetadataForm.propTypes = {
 
     /** Error messages to show for the title field. */
     title: PropTypes.arrayOf(PropTypes.string),
+
+    /** Error messages to show for the copyright field. */
+    copyright: PropTypes.arrayOf(PropTypes.string),
   }),
 };
 
