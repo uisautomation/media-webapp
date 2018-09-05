@@ -96,12 +96,33 @@ class UploadViewTestCase(ViewTestCase):
         super().setUp()
         self.user = get_user_model().objects.create(username='spqr1')
 
+    def test_success(self):
+        self.client.force_login(self.user)
+        r = self.client.get(reverse('ui:media_item_new'))
+        self.assertEqual(r.status_code, 200)
+        self.assertTemplateUsed(r, 'ui/media_item_new.html')
+        self.assertIn('languages', r.context)
+
     def test_requires_login(self):
         r = self.client.get(reverse('ui:media_item_new'))
         self.assertNotEqual(r.status_code, 200)
         self.client.force_login(self.user)
         r = self.client.get(reverse('ui:media_item_new'))
         self.assertEqual(r.status_code, 200)
+
+
+class MediaEditTestCase(ViewTestCase):
+    def test_success(self):
+        item = self.non_deleted_media.get(id='populated')
+        # test
+        r = self.client.get(reverse('ui:media_item_edit', kwargs={'pk': item.pk}))
+        # check
+        self.assertEqual(r.status_code, 200)
+        self.assertTemplateUsed(r, 'ui/media_edit.html')
+        self.assertIn('languages', r.context)
+        resource = r.context['resource']
+        self.assertEqual(item.id, resource['id'])
+        self.assertEqual(item.title, resource['title'])
 
 
 class MediaItemAnalyticsViewTestCase(ViewTestCase):

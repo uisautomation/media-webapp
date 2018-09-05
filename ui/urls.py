@@ -20,6 +20,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path
 from django.views.generic import TemplateView
 
+from mediaplatform.models import MediaItem
 from . import views
 
 app_name = 'ui'
@@ -28,14 +29,13 @@ with open(os.path.join(settings.BASE_DIR, 'CHANGELOG.md')) as fobj:
     changelog = fobj.read()
 
 urlpatterns = [
-    path(
-        'media/new',
-        login_required(TemplateView.as_view(template_name="ui/media_item_new.html")),
-        name='media_item_new'
-    ),
+    path('media/new', login_required(TemplateView.as_view(
+        template_name="ui/media_item_new.html",
+        extra_context={'languages': MediaItem.LANGUAGE_CHOICES})
+    ), name='media_item_new'),
     path('media/<pk>/analytics', views.MediaItemAnalyticsView.as_view(),
          name='media_item_analytics'),
-    path('media/<pk>/edit', views.MediaView.as_view(), name='media_item_edit'),
+    path('media/<pk>/edit', views.MediaEditView.as_view(), name='media_item_edit'),
     path('media/<pk>', views.MediaView.as_view(), name='media_item'),
     path('channels/<pk>', views.ChannelView.as_view(), name='channel'),
     path(

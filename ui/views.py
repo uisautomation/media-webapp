@@ -20,6 +20,13 @@ class MediaView(apiviews.MediaItemMixin, generics.RetrieveAPIView):
     template_name = 'ui/media.html'
 
 
+class MediaEditView(apiviews.MediaItemMixin, generics.RetrieveAPIView):
+    """View for rendering the media item edit page. Extends the DRF's media item view."""
+    serializer_class = serializers.MediaItemEditPageSerializer
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'ui/media_edit.html'
+
+
 class MediaItemAnalyticsView(apiviews.MediaItemMixin, generics.RetrieveAPIView):
     """
     View for rendering an individual media item's analytics.

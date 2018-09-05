@@ -4,6 +4,7 @@ from django.urls import reverse
 from rest_framework import serializers
 
 from api import serializers as apiserializers, views as apiviews
+from mediaplatform.models import MediaItem
 from mediaplatform_jwp.api import delivery as jwplatform
 
 LOG = logging.getLogger(__name__)
@@ -119,12 +120,28 @@ class ResourcePageSerializer(serializers.Serializer):
 
 class MediaItemPageSerializer(ResourcePageSerializer):
     """
-    A serializer for media items which renders a ``json_ld`` field which is the representation
-    of the media item in JSON LD format along with the resource.
+    A serializer for media items which renders a ``json_ld`` field which is the representation of
+    the media item in JSON LD format along with the resource.
 
     """
-    json_ld = MediaItemJSONLDSerializer(source='*')
     resource = apiserializers.MediaItemDetailSerializer(source='*')
+
+    json_ld = MediaItemJSONLDSerializer(source='*')
+
+
+class MediaItemEditPageSerializer(ResourcePageSerializer):
+    """
+    A serializer for media items which renders a list of languages and their codes along with the
+    resource.
+
+    """
+    resource = apiserializers.MediaItemDetailSerializer(source='*')
+
+    languages = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_languages(_):
+        return MediaItem.LANGUAGE_CHOICES
 
 
 class ChannelPageSerializer(ResourcePageSerializer):
