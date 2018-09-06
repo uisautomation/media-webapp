@@ -5,12 +5,20 @@ import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import TextField from '@material-ui/core/TextField';
 
+import {LANGUAGES_FROM_PAGE} from "../api";
+import Autocomplete from "./Autocomplete";
+
+const languageOptions = LANGUAGES_FROM_PAGE ? LANGUAGES_FROM_PAGE.map(suggestion => ({
+  value: suggestion[0],
+  label: suggestion[1],
+})) : [];
+
 /**
  * A form which can edit a media item's metadata. Pass the media item resource in the item prop.
  * The onChange prop is called with a patch to the item as it is edited.
  */
 const ItemMetadataForm = ({
-  item: { title = '', description = '', downloadable = false, copyright = '' },
+  item: { title = '', description = '', downloadable = false, copyright = '', language = '' },
   onChange,
   disabled,
   errors,
@@ -58,6 +66,12 @@ const ItemMetadataForm = ({
     margin='normal'
     onChange={ event => onChange && onChange({ copyright: event.target.value }) }
     value={ copyright }
+  />
+
+  <Autocomplete
+    options={ languageOptions }
+    onChange={ selection => onChange && onChange({ language: selection.value }) }
+    value={ language }
   />
 </div>);
 
