@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import ChipInput from 'material-ui-chip-input'
+
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import TextField from '@material-ui/core/TextField';
@@ -18,7 +20,7 @@ const languagesOptionsFromPage = LANGUAGES_FROM_PAGE && LANGUAGES_FROM_PAGE.map(
  * The onChange prop is called with a patch to the item as it is edited.
  */
 const ItemMetadataForm = ({
-  item: { title = '', downloadable, description = '', copyright = '', language },
+  item: { title = '', downloadable, description = '', copyright = '', language, tags },
   languageOptions,
   onChange,
   disabled,
@@ -75,6 +77,18 @@ const ItemMetadataForm = ({
     onChange={ event => onChange && onChange({ copyright: event.target.value }) }
     value={ copyright }
   />
+
+  <ChipInput
+    label='Tags'
+    value={tags}
+    onAdd={(chip) => onChange && onChange({ tags: [ ...tags, chip ] })}
+    onDelete={(chip, index) => {
+      const copy = [ ...tags ];
+      copy.splice(index, 1);
+      onChange && onChange({ tags: copy })
+    }}
+  />
+
 </div>);
 
 ItemMetadataForm.propTypes = {
@@ -84,6 +98,7 @@ ItemMetadataForm.propTypes = {
     description: PropTypes.string,
     downloadable: PropTypes.bool,
     language: PropTypes.string,
+    tags: PropTypes.arrayOf(PropTypes.string),
     title: PropTypes.string,
   }).isRequired,
 
