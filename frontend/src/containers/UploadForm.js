@@ -110,7 +110,7 @@ class UploadForm extends Component {
 
         <Step>
           <StepLabel>Edit video metadata</StepLabel>
-          <StepContent>
+          <StepContent className={classes.metadata}>
             <ItemMetadataForm
               item={ draftItem }
               errors={ errors }
@@ -234,6 +234,12 @@ const styles = theme => ({
   buttonSet: {
     marginTop: theme.spacing.unit,
     textAlign: 'right',
+  },
+  metadata: {
+    // FIXME this padding allows enough room for the ItemMetadataForm's language drop-down to be seen.
+    '& >div': {
+      paddingBottom: 260
+    },
   },
   rightIcon: {
     marginLeft: theme.spacing.unit,
