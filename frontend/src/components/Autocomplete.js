@@ -156,7 +156,7 @@ const loadOptions = (options, inputValue) => {
  * `react-select` library. The `AsyncSelect` component was used in favour of the basic `Select`
  * component as the later was unable to handle very large lists of options efficiently.
  */
-const Autocomplete = ({ classes, label, options, defaultValue, onChange }) => (
+const Autocomplete = ({ classes, label, placeholder, options, defaultValue, onChange }) => (
   <AsyncSelect
     cacheOptions
     defaultOptions
@@ -179,6 +179,7 @@ const Autocomplete = ({ classes, label, options, defaultValue, onChange }) => (
     loadOptions={inputValue => loadOptions(options || [], inputValue)}
     onChange={onChange}
     defaultValue={options && options.find(option => option.value === defaultValue)}
+    placeholder={placeholder}
   />
 );
 
@@ -186,6 +187,9 @@ Autocomplete.propTypes = {
 
   /** The default to display as selected. */
   defaultValue: PropTypes.string,
+
+  /** The text field's label. */
+  label: PropTypes.string,
 
   /** Function called when an option is selected. The whole option object is passed. */
   onChange: PropTypes.func,
@@ -195,6 +199,9 @@ Autocomplete.propTypes = {
     label: PropTypes.string,
     value: PropTypes.string,
   })),
+
+  /** The text field's placeholder. */
+  placeholder: PropTypes.string,
 };
 
 export default withStyles(styles)(Autocomplete);
