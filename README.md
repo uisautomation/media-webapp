@@ -82,6 +82,8 @@ via Docker:
 * JWPLATFORM_EMBED_PLAYER_KEY
 * JWPLATFORM_API_KEY and JWPLATFORM_API_SECRET
 * OAUTH2_CLIENT_ID and OAUTH2_CLIENT_SECRET
+* CELERY_BROKER_URL: broker URL for celery. Defaults to
+    ``amqp://guest:guest@localhost:5672//``.
 
 The following environment variables are optional:
 * SMS_ENABLE_DEBUG_THIS_IS_DANGEROUS. Enables DJANGO DEBUG if set.
