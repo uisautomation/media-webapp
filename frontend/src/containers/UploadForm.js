@@ -240,12 +240,6 @@ const styles = theme => ({
     marginTop: theme.spacing.unit,
     textAlign: 'right',
   },
-  metadata: {
-    // this padding allows enough room for the ItemMetadataForm's language drop-down to be seen
-    '& >div': {
-      paddingBottom: 70
-    },
-  },
   rightIcon: {
     marginLeft: theme.spacing.unit,
   },
