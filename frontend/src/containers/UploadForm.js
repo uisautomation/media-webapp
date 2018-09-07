@@ -17,6 +17,7 @@ import MediaDropzone from '../components/MediaDropzone';
 import ItemMetadataForm from '../components/ItemMetadataForm';
 import { mediaCreate, mediaPatch, mediaUploadGet, } from '../api';
 import ChannelSelect from "./ChannelSelect";
+import * as moment from "moment";
 
 /**
  * A container component which takes a media item resource and upload endpoint via its props and
@@ -47,7 +48,11 @@ class UploadForm extends Component {
       channelId: null,
 
       // The current *draft* item being edited by the ItemMetadataForm.
-      draftItem: { },
+      // Initialised with sensible defaults.
+      draftItem: {
+        downloadable: true,
+        publishedAt: moment().format()
+      },
 
       // An error object as returned by the API or the empty object if there are no errors.
       errors: { },
