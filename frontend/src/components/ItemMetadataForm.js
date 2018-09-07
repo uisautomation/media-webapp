@@ -9,6 +9,8 @@ import TextField from '@material-ui/core/TextField';
 
 import {LANGUAGES_FROM_PAGE} from "../api";
 import Autocomplete from "./Autocomplete";
+import {withStyles} from "@material-ui/core/styles/index";
+import moment from "moment";
 
 const languagesOptionsFromPage = LANGUAGES_FROM_PAGE && LANGUAGES_FROM_PAGE.map(suggestion => ({
   label: suggestion[0] === '' ? '' : suggestion[1],
@@ -20,7 +22,8 @@ const languagesOptionsFromPage = LANGUAGES_FROM_PAGE && LANGUAGES_FROM_PAGE.map(
  * The onChange prop is called with a patch to the item as it is edited.
  */
 const ItemMetadataForm = ({
-  item: { title = '', downloadable, description = '', copyright = '', language, tags },
+  classes,
+  item: { title = '', downloadable, description = '', copyright = '', language, tags, publishedAt },
   languageOptions,
   onChange,
   disabled,
@@ -78,16 +81,41 @@ const ItemMetadataForm = ({
     value={ copyright }
   />
 
+
   <ChipInput
     label='Tags'
     value={tags}
     onAdd={(chip) => onChange && onChange({ tags: [ ...tags, chip ] })}
     onDelete={(chip, index) => {
-      const copy = [ ...tags ];
-      copy.splice(index, 1);
-      onChange && onChange({ tags: copy })
+      if (onChange) {
+        const copy = [ ...tags ];
+        copy.splice(index, 1);
+        onChange({ tags: copy });
+      }
     }}
   />
+
+  <div className={classes.publishedAt}>
+    <TextField
+      error={ !!errors.publishedAt }
+      helperText={ errors.publishedAt ? errors.publishedAt.join(' ') : null }
+      value={publishedAt ? moment(publishedAt).format("YYYY-MM-DD") : ''}
+      label="Published At"
+      type="date"
+      onChange={event => {
+        if (onChange) {
+          let changedPublishedAt = null;
+          if (event.target.value) {
+            changedPublishedAt = moment(event.target.value, "YYYY-MM-DD").format();
+          }
+          onChange({ publishedAt: changedPublishedAt });
+        }
+      }}
+      InputLabelProps={{
+        shrink: true,
+      }}
+    />
+  </div>
 
 </div>);
 
@@ -98,6 +126,7 @@ ItemMetadataForm.propTypes = {
     description: PropTypes.string,
     downloadable: PropTypes.bool,
     language: PropTypes.string,
+    publishedAt: PropTypes.string,
     tags: PropTypes.arrayOf(PropTypes.string),
     title: PropTypes.string,
   }).isRequired,
@@ -125,6 +154,8 @@ ItemMetadataForm.propTypes = {
     copyright: PropTypes.arrayOf(PropTypes.string),
     /** Error messages to show for the description field. */
     description: PropTypes.arrayOf(PropTypes.string),
+    /** Error messages to show for the publishedAt field. */
+    publishedAt: PropTypes.arrayOf(PropTypes.string),
     /** Error messages to show for the title field. */
     title: PropTypes.arrayOf(PropTypes.string),
   }),
@@ -135,4 +166,10 @@ ItemMetadataForm.defaultProps = {
   errors: { },
 };
 
-export default ItemMetadataForm;
+const styles = theme => ({
+  publishedAt: {
+    margin: [[theme.spacing.unit * 2, 0]]
+  },
+});
+
+export default withStyles(styles)(ItemMetadataForm);

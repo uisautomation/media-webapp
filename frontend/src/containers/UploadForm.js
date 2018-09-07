@@ -236,9 +236,9 @@ const styles = theme => ({
     textAlign: 'right',
   },
   metadata: {
-    // FIXME this padding allows enough room for the ItemMetadataForm's language drop-down to be seen.
+    // this padding allows enough room for the ItemMetadataForm's language drop-down to be seen
     '& >div': {
-      paddingBottom: 260
+      paddingBottom: 70
     },
   },
   rightIcon: {
