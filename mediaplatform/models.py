@@ -249,7 +249,7 @@ class MediaItem(models.Model):
         max_length=10, choices=TYPE_CHOICES, default=UNKNOWN, editable=False,
         help_text='Type of media (video, audio or unknown)')
 
-    #: Publication date (we take null to mean it is published)
+    #: Publication date
     published_at = models.DateTimeField(
         default=timezone.now, help_text='Date from which video is visible')
 
