@@ -40,7 +40,7 @@ const ItemMetadataForm = ({
     helperText={ errors.title ? errors.title.join(' ') : null }
     disabled={ disabled }
     label='Title'
-    placeholder='Enter a title for the media item'
+    placeholder='Enter a title, eg. Boundary Singularities'
     margin='normal'
     onChange={ event => onChange && onChange({ title: event.target.value }) }
     value={ title }
@@ -61,13 +61,13 @@ const ItemMetadataForm = ({
   />
 
   <FormControlLabel
+    checked={downloadable}
+    onChange={ event => onChange && onChange({ downloadable: event.target.checked }) }
     control={
       <Checkbox
-        checked={downloadable}
-        onChange={ event => onChange && onChange({ downloadable: event.target.checked }) }
       />
     }
-    label="The item can be downloaded (selecting this can improve your item's ranking)"
+    label="Allow media to be downloaded and indexed by search engines"
   />
 
   <ExpansionPanel
@@ -84,7 +84,7 @@ const ItemMetadataForm = ({
           options={ languagesOptionsFromPage }
           onChange={ selection => onChange && onChange({ language: selection.value }) }
           defaultValue={ language }
-          placeholder="Select the item's language"
+          placeholder="Select the item's language, eg. English"
         />
 
         <TextField
@@ -96,7 +96,7 @@ const ItemMetadataForm = ({
           margin='normal'
           onChange={ event => onChange && onChange({ copyright: event.target.value }) }
           value={ copyright }
-          placeholder="Enter the copyright protecting the item"
+          placeholder="Enter the copyright, eg. Peterhouse"
         />
 
         <ChipInput
@@ -112,7 +112,7 @@ const ItemMetadataForm = ({
               onChange({ tags: copy });
             }
           }}
-          placeholder="Enter text tags describing your item"
+          placeholder="Enter text tags, eg. Einstein, Christmas, Livestock"
         />
 
         <TextField

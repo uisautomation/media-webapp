@@ -36,7 +36,6 @@ const styles = theme => ({
     position: 'absolute',
     right: 0,
     zIndex: 10,
-
   },
   placeholder: {
     fontSize: 16,
@@ -58,7 +57,7 @@ const styles = theme => ({
   },
 });
 
-function NoOptionsMessage(props) {
+const NoOptionsMessage = props => {
   return (
     <Typography
       color="textSecondary"
@@ -68,13 +67,13 @@ function NoOptionsMessage(props) {
       {props.children}
     </Typography>
   );
-}
+};
 
-function inputComponent({ inputRef, ...props }) {
+const inputComponent = ({ inputRef, ...props }) => {
   return <div ref={inputRef} {...props} />;
-}
+};
 
-function Control(props) {
+const Control = props => {
   return (
     <TextField
       fullWidth
@@ -90,9 +89,9 @@ function Control(props) {
       {...props.selectProps.textFieldProps}
     />
   );
-}
+};
 
-function Option(props) {
+const Option = props => {
   return (
     <MenuItem
       buttonRef={props.innerRef}
@@ -106,9 +105,9 @@ function Option(props) {
       {props.children}
     </MenuItem>
   );
-}
+};
 
-function Placeholder(props) {
+const Placeholder = props => {
   return (
     <Typography
       color="textSecondary"
@@ -118,21 +117,21 @@ function Placeholder(props) {
       {props.children}
     </Typography>
   );
-}
+};
 
-function SingleValue(props) {
+const SingleValue = props => {
   return (
     <Typography className={props.selectProps.classes.singleValue} {...props.innerProps}>
       {props.children}
     </Typography>
   );
-}
+};
 
-function ValueContainer(props) {
+const ValueContainer = props => {
   return <div className={props.selectProps.classes.valueContainer}>{props.children}</div>;
 }
 
-function Menu(props) {
+const Menu = props => {
   return (
     <Paper square className={props.selectProps.classes.paper} {...props.innerProps}>
       {props.children}
@@ -141,12 +140,12 @@ function Menu(props) {
 }
 
 const loadOptions = (options, inputValue) => {
-      // filter options based on input and only return 20 options
-      const filteredOptions = options.filter(option =>
-        option.label.toLowerCase().includes(inputValue.toLowerCase())
-      ).slice(0, 20);
-      // return resolved promise with filtered options
-      return new Promise(resolve => resolve(filteredOptions));
+  // filter options based on input and only return 20 options
+  const filteredOptions = options.filter(option =>
+    option.label.toLowerCase().includes(inputValue.toLowerCase())
+  ).slice(0, 20);
+  // return resolved promise with filtered options
+  return new Promise(resolve => resolve(filteredOptions));
 };
 
 /**
