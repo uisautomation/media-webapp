@@ -1,4 +1,4 @@
-from datetime import datetime
+from django.utils import timezone
 
 import dataclasses
 import itertools
@@ -84,7 +84,7 @@ class MediaItemQuerySet(PermissionQuerySetMixin, models.QuerySet):
     def _viewable_condition(self, user):
         # The item can be viewed if the user has view permission and the item is published.
         # Overriding this, the item can be viewed if the user has edit permission.
-        published = models.Q(published_at__isnull=True) | models.Q(published_at__lt=datetime.now())
+        published = models.Q(published_at__isnull=True) | models.Q(published_at__lt=timezone.now())
         return (
             (self._permission_condition('view_permission', user) & published) |
             Q(self._permission_condition('channel__edit_permission', user))
@@ -214,7 +214,7 @@ class MediaItem(models.Model):
     TYPE_CHOICES = ((VIDEO, 'Video'), (AUDIO, 'Audio'))
 
     LANGUAGE_CHOICES = tuple(itertools.chain([('', 'None')], sorted(
-        ((language.part3, language.name) for language in languages if language.part3),
+        ((language.part3, language.name) for language in languages if language.part3 != ''),
         key=lambda choice: choice[1]
     )))
 
@@ -251,7 +251,7 @@ class MediaItem(models.Model):
 
     #: Publication date (we take null to mean it is published)
     published_at = models.DateTimeField(
-        null=True, blank=True, help_text='Date from which video is visible')
+        default=timezone.now, help_text='Date from which video is visible')
 
     #: Downloadable flag
     downloadable = models.BooleanField(

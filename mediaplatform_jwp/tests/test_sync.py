@@ -143,17 +143,6 @@ class SyncTestCase(TestCase):
             i1_v2.updated_at,
             mpmodels.MediaItem.objects_including_deleted.get(id=i1.id).updated_at)
 
-    def test_assigns_publication_date(self):
-        """If the JWP video has no published timestamp, it defaults to None to avoid accidental
-        publication.
-
-        """
-        v1 = make_video()
-        del v1['date']
-        set_resources_and_sync([v1])
-        i1 = mpmodels.MediaItem.objects.get(jwp__key=v1.key)
-        self.assertIsNone(i1.published_at)
-
     def test_basic_acl(self):
         """A video with no ACL maps to a Permission which denies everything."""
         v1, = set_resources_and_sync([make_video(acl=[])])
