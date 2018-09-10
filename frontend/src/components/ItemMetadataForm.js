@@ -172,6 +172,9 @@ ItemMetadataForm.defaultProps = {
 };
 
 const styles = theme => ({
+  languageContainer: {
+    marginTop: 12
+  },
   publishedAt: {
     margin: [[theme.spacing.unit * 2, 0]]
   },
@@ -181,9 +184,6 @@ const styles = theme => ({
     },
     marginTop: theme.spacing.unit * 3
   },
-  languageContainer: {
-    marginTop: 12
-  }
 });
 
 export default withStyles(styles)(ItemMetadataForm);
