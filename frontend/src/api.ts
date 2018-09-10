@@ -43,14 +43,6 @@ const PROFILE_FROM_PAGE = (
   [0]
 );
 
-// Extract the list of languages if it is embedded in the page
-export const LANGUAGES_FROM_PAGE = (
-  Array.from(document.getElementsByTagName('script'))
-  .filter((element: HTMLScriptElement) => element.type === 'application/languages+json')
-  .map((element: HTMLScriptElement) => JSON.parse(element.text))
-  [0]
-);
-
 /**
  * A function which retrieves a resource from the page by id. Note that, to avoid caching problems,
  * once retrieved, the resource is then removed from the RESOURCES_FROM_PAGE object.

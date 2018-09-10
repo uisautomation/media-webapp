@@ -3,17 +3,6 @@
 ```js
 const { Component } = require('react');
 
-const languageOptions = [
-  {value: '', label: ''},
-  {value: 'hye', label: 'Armenian'},
-  {value: 'bty', label: 'Bobot'},
-  {value: 'swc', label: 'Congo Swahili'},
-  {value: 'doq', label: 'Dominican Sign Language'},
-  {value: 'acp', label: 'Eastern Acipa'},
-  {value: 'fra', label: 'French'},
-];
-
-
 class RenderedForm extends Component {
   constructor(props) {
     super(props);
@@ -29,7 +18,6 @@ class RenderedForm extends Component {
         onChange={ patch => this.handlePatch(patch) }
         onSubmit={ () => alert('Submit!') }
         submitDisabled={ !item.name }
-        languageOptions={ languageOptions }
       />
       <h3>Item</h3>
       <div>{ JSON.stringify(item) }</div>

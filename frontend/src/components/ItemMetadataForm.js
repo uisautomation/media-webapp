@@ -15,10 +15,10 @@ import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import {withStyles} from "@material-ui/core/styles/index";
 
-import {LANGUAGES_FROM_PAGE} from "../api";
+import LANGUAGES_FROM_PAGE from "../data/iso-631-languages.json";
 import Autocomplete from "./Autocomplete";
 
-const languagesOptionsFromPage = LANGUAGES_FROM_PAGE && LANGUAGES_FROM_PAGE.map(suggestion => ({
+const languagesOptionsFromPage = LANGUAGES_FROM_PAGE.map(suggestion => ({
   label: suggestion[0] === '' ? '' : suggestion[1],
   value: suggestion[0],
 }));
@@ -30,7 +30,6 @@ const languagesOptionsFromPage = LANGUAGES_FROM_PAGE && LANGUAGES_FROM_PAGE.map(
 const ItemMetadataForm = ({
   classes,
   item: { title = '', downloadable, description = '', copyright = '', language, tags, publishedAt },
-  languageOptions,
   onChange,
   disabled,
   errors,
@@ -82,7 +81,7 @@ const ItemMetadataForm = ({
       <div>
         <Autocomplete
           label='Language'
-          options={ languageOptions || languagesOptionsFromPage }
+          options={ languagesOptionsFromPage }
           onChange={ selection => onChange && onChange({ language: selection.value }) }
           defaultValue={ language }
           placeholder="Select the item's language"
@@ -154,15 +153,6 @@ ItemMetadataForm.propTypes = {
     tags: PropTypes.arrayOf(PropTypes.string),
     title: PropTypes.string,
   }).isRequired,
-
-  /**
-   * A list of language selection options. If not supplied,
-   * the component will use LANGUAGES_FROM_PAGE.
-   */
-  languageOptions: PropTypes.arrayOf(PropTypes.shape({
-    label: PropTypes.string,
-    value: PropTypes.string,
-  })),
 
   /** Function called when the item changes. Passed a patch style object for the item. */
   onChange: PropTypes.func,

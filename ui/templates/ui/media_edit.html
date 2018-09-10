@@ -1,9 +1,0 @@
-{% extends 'ui/resource.html' %}
-{% block title %}Editing "{{ resource.title }}"{% endblock %}
-{% load to_json %}
-{% block extrabody %}
-{{ block.super }}
-<script type="application/languages+json">
-{{ languages|to_json }}
-</script>
-{% endblock %}
