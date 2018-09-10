@@ -84,6 +84,8 @@ via Docker:
 * OAUTH2_CLIENT_ID and OAUTH2_CLIENT_SECRET
 
 The following environment variables are optional:
+* DJANGO_SETTINGS_MODULE. Module on the Python import path which is used to load
+    settings. Default is "mediawebapp.settings.docker".
 * SMS_ENABLE_DEBUG_THIS_IS_DANGEROUS. Enables DJANGO DEBUG if set.
 * DANGEROUS_DISABLE_HTTPS_REDIRECT. Disables HTTP to HTTPS redirect.
 
