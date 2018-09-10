@@ -242,6 +242,12 @@ const styles = theme => ({
   rightIcon: {
     marginLeft: theme.spacing.unit,
   },
+  metadata: {
+    // this padding allows enough room for the ItemMetadataForm's language drop-down to be seen
+    '& >div': {
+      paddingBottom: 115
+    },
+  },
 });
 
 export default withStyles(styles)(UploadForm);

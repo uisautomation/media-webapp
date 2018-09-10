@@ -5,14 +5,10 @@ import moment from "moment";
 import ChipInput from 'material-ui-chip-input'
 
 import Checkbox from '@material-ui/core/Checkbox';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Grid from "@material-ui/core/Grid";
 import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
 
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import {withStyles} from "@material-ui/core/styles/index";
 
 import LANGUAGES_FROM_PAGE from "../data/iso-631-languages.json";
@@ -44,6 +40,7 @@ const ItemMetadataForm = ({
     margin='normal'
     onChange={ event => onChange && onChange({ title: event.target.value }) }
     value={ title }
+    InputLabelProps={ { shrink: true } }
   />
 
   <TextField
@@ -58,6 +55,7 @@ const ItemMetadataForm = ({
     onChange={ event => onChange && onChange({ description: event.target.value }) }
     rows={ 4 }
     value={ description }
+    InputLabelProps={ { shrink: true } }
   />
 
   <FormControlLabel
@@ -70,75 +68,68 @@ const ItemMetadataForm = ({
     label="Allow media to be downloaded and indexed by search engines"
   />
 
-  <ExpansionPanel
-    className={classes.advancedContainer}
-    defaultExpanded={copyright || language || (tags && tags.length > 0)}
-  >
-    <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-      <Typography>Advanced Settings</Typography>
-    </ExpansionPanelSummary>
-    <ExpansionPanelDetails className={classes.advanced}>
-      <div>
-        <Autocomplete
-          label='Language'
-          options={ languagesOptionsFromPage }
-          onChange={ selection => onChange && onChange({ language: selection.value }) }
-          defaultValue={ language }
-          placeholder="Select the item's language, eg. English"
-        />
-
-        <TextField
-          fullWidth
-          error={ !!errors.copyright }
-          helperText={ errors.copyright ? errors.copyright.join(' ') : null }
-          disabled={ disabled }
-          label='Copyright'
-          margin='normal'
-          onChange={ event => onChange && onChange({ copyright: event.target.value }) }
-          value={ copyright }
-          placeholder="Enter the copyright, eg. Peterhouse"
-        />
-
-        <ChipInput
-          className={classes.tags}
-          fullWidth
-          label='Tags'
-          value={tags}
-          onAdd={(chip) => onChange && onChange({ tags: [ ...tags, chip ] })}
-          onDelete={(chip, index) => {
-            if (onChange) {
-              const copy = [ ...tags ];
-              copy.splice(index, 1);
-              onChange({ tags: copy });
+  <Grid container spacing={8}>
+    <Grid item xs={12} sm={6}>
+      <TextField
+        className={classes.publishedAt}
+        fullWidth
+        error={ !!errors.publishedAt }
+        helperText={ errors.publishedAt ? errors.publishedAt.join(' ') : null }
+        value={publishedAt ? moment(publishedAt).format("YYYY-MM-DD") : ''}
+        label="When the item will be published"
+        type="date"
+        onChange={event => {
+          if (onChange) {
+            let changedPublishedAt = null;
+            if (event.target.value) {
+              changedPublishedAt = moment(event.target.value, "YYYY-MM-DD").format();
             }
-          }}
-          placeholder="Enter text tags, eg. Einstein, Christmas, Livestock"
-        />
+            onChange({ publishedAt: changedPublishedAt });
+          }
+        }}
+        InputLabelProps={ { shrink: true } }
+      />
+    </Grid>
+    <Grid item xs={12} sm={6} className={classes.languageContainer}>
+      <Autocomplete
+        label='Language'
+        options={ languagesOptionsFromPage }
+        onChange={ selection => onChange && onChange({ language: selection.value }) }
+        defaultValue={ language }
+        placeholder="Select a language, eg. English"
+      />
+    </Grid>
+  </Grid>
 
-        <TextField
-          className={classes.publishedAt}
-          fullWidth
-          error={ !!errors.publishedAt }
-          helperText={ errors.publishedAt ? errors.publishedAt.join(' ') : null }
-          value={publishedAt ? moment(publishedAt).format("YYYY-MM-DD") : ''}
-          label="When the item will be published"
-          type="date"
-          onChange={event => {
-            if (onChange) {
-              let changedPublishedAt = null;
-              if (event.target.value) {
-                changedPublishedAt = moment(event.target.value, "YYYY-MM-DD").format();
-              }
-              onChange({ publishedAt: changedPublishedAt });
-            }
-          }}
-          InputLabelProps={{
-            shrink: true,
-          }}
-        />
-      </div>
-    </ExpansionPanelDetails>
-  </ExpansionPanel>
+  <TextField
+    fullWidth
+    error={ !!errors.copyright }
+    helperText={ errors.copyright ? errors.copyright.join(' ') : null }
+    disabled={ disabled }
+    label='Copyright'
+    margin='normal'
+    onChange={ event => onChange && onChange({ copyright: event.target.value }) }
+    value={ copyright }
+    placeholder="Enter the copyright, eg. Peterhouse"
+    InputLabelProps={ { shrink: true } }
+  />
+
+  <ChipInput
+    className={classes.tags}
+    fullWidth
+    label='Tags'
+    value={tags}
+    onAdd={(chip) => onChange && onChange({ tags: [ ...tags, chip ] })}
+    onDelete={(chip, index) => {
+      if (onChange) {
+        const copy = [ ...tags ];
+        copy.splice(index, 1);
+        onChange({ tags: copy });
+      }
+    }}
+    placeholder="Enter text tags, eg. Einstein, Christmas, Livestock"
+    InputLabelProps={ { shrink: true } }
+  />
 
 </div>);
 
@@ -181,14 +172,6 @@ ItemMetadataForm.defaultProps = {
 };
 
 const styles = theme => ({
-  advanced: {
-    // this padding allows enough room for the ItemMetadataForm's language drop-down to be seen
-    paddingBottom: 110
-  },
-  advancedContainer: {
-    marginBottom: theme.spacing.unit * 2,
-    maxWidth: 500,
-  },
   publishedAt: {
     margin: [[theme.spacing.unit * 2, 0]]
   },
@@ -196,7 +179,11 @@ const styles = theme => ({
     '& input': {
       width: 300
     },
+    marginTop: theme.spacing.unit * 3
   },
+  languageContainer: {
+    marginTop: 12
+  }
 });
 
 export default withStyles(styles)(ItemMetadataForm);

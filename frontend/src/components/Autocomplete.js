@@ -170,9 +170,7 @@ const Autocomplete = ({ classes, label, placeholder, options, defaultValue, onCh
       ValueContainer,
     }}
     textFieldProps={{
-      InputLabelProps: {
-        shrink: true,
-      },
+      InputLabelProps: {shrink: true},
       label: label,
     }}
     loadOptions={inputValue => loadOptions(options || [], inputValue)}
