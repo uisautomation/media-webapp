@@ -20,6 +20,9 @@ const styles = theme => ({
       0.08,
     ),
   },
+  control: {
+    marginTop: 16,
+  },
   divider: {
     height: theme.spacing.unit * 2,
   },
@@ -77,6 +80,7 @@ const Control = props => {
   return (
     <TextField
       fullWidth
+      className={props.selectProps.classes.control}
       InputProps={{
         inputComponent,
         inputProps: {

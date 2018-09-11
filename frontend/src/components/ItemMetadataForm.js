@@ -76,7 +76,7 @@ const ItemMetadataForm = ({
         fullWidth
         error={ !!errors.publishedAt }
         helperText={ errors.publishedAt ? errors.publishedAt.join(' ') : null }
-        value={publishedAt ? moment(publishedAt).format(DATETIME_LOCAL_FORMAT) : ''}
+        defaultValue={publishedAt ? moment(publishedAt).format(DATETIME_LOCAL_FORMAT) : ''}
         label="When the item will be published"
         type="datetime-local"
         onChange={event => {
@@ -91,7 +91,7 @@ const ItemMetadataForm = ({
         InputLabelProps={ { shrink: true } }
       />
     </Grid>
-    <Grid item xs={12} sm={6} className={classes.languageContainer}>
+    <Grid item xs={12} sm={6}>
       <Autocomplete
         label='Language'
         options={ languagesOptionsFromPage }
@@ -173,11 +173,11 @@ ItemMetadataForm.defaultProps = {
 };
 
 const styles = theme => ({
-  languageContainer: {
-    marginTop: 12
-  },
   publishedAt: {
-    margin: [[theme.spacing.unit * 2, 0]]
+    '& >div': {
+      minHeight: 36
+    },
+    margin: [[theme.spacing.unit * 2, 0]],
   },
   tags: {
     '& input': {
