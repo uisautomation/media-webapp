@@ -302,6 +302,14 @@ class MediaItem(models.Model):
     #: Cached property which calls get_sources() to retrieve sources.
     sources = cached_property(get_sources, name='sources')
 
+    @cached_property
+    def fetched_analytics(self):
+        """
+        A cached property which returns legacy statistics if the media item is a legacy item.
+
+        """
+        return self.sms.fetch_analytics() if hasattr(self, 'sms') else []
+
     def get_embed_url(self):
         """
         Return a URL suitable for use in an IFrame which will render this media. This URL renders

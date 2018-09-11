@@ -1,8 +1,6 @@
-from collections import namedtuple
 import logging
 from urllib import parse as urlparse
 
-from django.db import connection
 from django.conf import settings
 from django.http import QueryDict
 from django.urls import reverse
@@ -323,28 +321,7 @@ class MediaItemAnalyticsListSerializer(serializers.Serializer):
     A list of media analytics data points.
 
     """
-    results = serializers.SerializerMethodField()
-
-    ResultRow = namedtuple('ResultRow', 'day num_hits')
-
-    # HACK: TODO: this should actually be done as some form of annotation on the media item. This
-    # requires that we either a) work our how to make a non-Djanog managed table interract nicely
-    # with QuerySet or b) work out how to annotate objects returned from a queryset with Python
-    # objects. b) would be preferable since we could re-use it for the download sources.
-    def get_results(self, obj):
-        results = []
-        if hasattr(obj, 'sms'):
-            with connection.cursor() as cursor:
-                cursor.execute(
-                    "SELECT day, num_hits FROM stats.media_stats_by_day WHERE media_id=%s",
-                    [obj.sms.id]
-                )
-                results = [
-                    MediaItemAnalyticsListSerializer.ResultRow._make(row)
-                    for row in cursor.fetchall()
-                ]
-
-        return MediaItemAnalyticsSerializer(results, many=True).data
+    results = MediaItemAnalyticsSerializer(source='fetched_analytics', many=True)
 
 
 class ChannelDetailSerializer(ChannelSerializer):
