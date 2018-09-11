@@ -19,8 +19,33 @@ const languagesOptionsFromPage = LANGUAGES_FROM_PAGE.map(suggestion => ({
   value: suggestion[0],
 }));
 
+/**
+ * A helper to test whether the browser has a native date-time picker.
+ */
+const isDatetimeSupported = () => {
+    const i = document.createElement("input");
+    i.setAttribute("type", "datetime-local");
+    return i.type !== "text"
+};
+
 // Datetime format string used to input/output dates to/from the datetime picker.
-const DATETIME_LOCAL_FORMAT = "YYYY-MM-DDTHH:mm";
+// Use a human-readible format if there is no native support.
+const DATETIME_LOCAL_FORMAT = isDatetimeSupported() ? "YYYY-MM-DDTHH:mm" : "YYYY-MM-DD HH:mm";
+
+// If the user is entering a free-text date, make sure we tell them the right format we need if
+// they get it wrong.
+const publishedAtErrors = publishedAt => {
+  const errors = publishedAt.map(
+    error => (
+      error.startsWith("Datetime has wrong format.")
+      ?
+      `Datetime has wrong format. Use ${DATETIME_LOCAL_FORMAT}.`
+      :
+      error
+    )
+  );
+  return errors.join(' ')
+};
 
 /**
  * A form which can edit a media item's metadata. Pass the media item resource in the item prop.
@@ -75,7 +100,7 @@ const ItemMetadataForm = ({
         className={classes.publishedAt}
         fullWidth
         error={ !!errors.publishedAt }
-        helperText={ errors.publishedAt ? errors.publishedAt.join(' ') : null }
+        helperText={ errors.publishedAt ? publishedAtErrors(errors.publishedAt) : null }
         defaultValue={publishedAt ? moment(publishedAt).format(DATETIME_LOCAL_FORMAT) : ''}
         label="When the item will be published"
         type="datetime-local"
