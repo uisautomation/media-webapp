@@ -18,7 +18,7 @@ class SyncTestCase(TestCase):
     def test_basic_functionality(self):
         """If a new video appears on JWP, a new MediaItem will be created to match it."""
         self.assertEqual(mpmodels.MediaItem.objects.count(), 0)
-        video = make_video(title='test title')
+        video = make_video(media_id='1234', title='test title')
         set_resources_and_sync([video])
         self.assertEqual(mpmodels.MediaItem.objects.count(), 1)
         item = mpmodels.MediaItem.objects.get(jwp__key=video.key)
@@ -26,7 +26,7 @@ class SyncTestCase(TestCase):
 
     def test_video_delete(self):
         """If a video is deleted, its media item is marked as deleted."""
-        v1, v2 = make_video(), make_video()
+        v1, v2 = make_video(media_id='1234'), make_video(media_id='2345')
         set_resources_and_sync([v1, v2])
         i1 = mpmodels.MediaItem.objects.get(jwp__key=v1.key)
         i2 = mpmodels.MediaItem.objects.get(jwp__key=v2.key)
@@ -38,7 +38,8 @@ class SyncTestCase(TestCase):
     def test_video_update(self):
         """If a video is updated, its corresponding media item is updated."""
         updated = timezone.now()
-        v1, v2 = make_video(updated=updated), make_video(updated=updated)
+        v1 = make_video(media_id='1234', updated=updated)
+        v2 = make_video(media_id='5678', updated=updated)
         set_resources_and_sync([v1, v2])
         i1 = mpmodels.MediaItem.objects.get(jwp__key=v1.key)
         i2 = mpmodels.MediaItem.objects.get(jwp__key=v2.key)
@@ -58,15 +59,15 @@ class SyncTestCase(TestCase):
 
     def test_sync_jwp(self):
         """New videos should create matching JWP video objects."""
-        v1, = set_resources_and_sync([make_video()])
+        v1, = set_resources_and_sync([make_video(media_id='1234')])
         jwp1 = jwpmodels.Video.objects.get(key=v1.key)
         i1 = mpmodels.MediaItem.objects.get(jwp__key=v1.key)
         self.assertIsNotNone(i1.jwp)
         self.assertEqual(jwp1.key, v1.key)
 
     def test_update_jwp(self):
-        """A video update should be reflected in the JWP vidoe object."""
-        v1, = set_resources_and_sync([make_video()])
+        """A video update should be reflected in the JWP video object."""
+        v1, = set_resources_and_sync([make_video(media_id='1234')])
         jwp1 = jwpmodels.Video.objects.get(key=v1.key)
         self.assertEqual(jwp1.updated, v1['updated'])
 
@@ -80,13 +81,13 @@ class SyncTestCase(TestCase):
         Check the default synchronised values.
 
         """
-        v1, = set_resources_and_sync([make_video()])
+        v1, = set_resources_and_sync([make_video(media_id='1234')])
         i1 = mpmodels.MediaItem.objects.get(jwp__key=v1.key)
         self.assertEqual(i1.downloadable, False)
         self.assertEqual(i1.language, '')
         self.assertEqual(i1.copyright, '')
         self.assertEqual(i1.tags, [])
-        self.assertFalse(hasattr(i1, 'sms'))
+        self.assertTrue(hasattr(i1, 'sms'))
 
     def test_sync_title(self):
         self.assert_attribute_sync('title')
@@ -103,7 +104,7 @@ class SyncTestCase(TestCase):
     def test_sync_duration(self):
         self.assert_attribute_sync('duration', test_value=10.2)
         # missing duration is handled
-        v1, = set_resources_and_sync([make_video(duration=None)])
+        v1, = set_resources_and_sync([make_video(media_id='1234', duration=None)])
         self.assertEqual(0., mpmodels.MediaItem.objects.get(jwp__key=v1.key).duration)
 
     def test_sync_type(self):
@@ -124,13 +125,13 @@ class SyncTestCase(TestCase):
             'keywords', model_attr='tags', test_value=['kw1', 'kw2 with spaces'])
 
     def test_sync_sms_media_id(self):
-        v1, = set_resources_and_sync([make_video(media_id=12345)])
+        v1, = set_resources_and_sync([make_video(media_id='12345')])
         self.assertEqual(
             12345, mpmodels.MediaItem.objects.get(jwp__key=v1.key).sms.id)
 
     def test_update_deleted_item(self):
         """A deleted media item should not be touched by update."""
-        v1, = set_resources_and_sync([make_video()])
+        v1, = set_resources_and_sync([make_video(media_id='1234')])
         i1 = mpmodels.MediaItem.objects.get(jwp__key=v1.key)
         set_resources_and_sync([])
         self.assertIsNotNone(mpmodels.MediaItem.objects_including_deleted.get(id=i1.id).deleted_at)
@@ -145,7 +146,7 @@ class SyncTestCase(TestCase):
 
     def test_basic_acl(self):
         """A video with no ACL maps to a Permission which denies everything."""
-        v1, = set_resources_and_sync([make_video(acl=[])])
+        v1, = set_resources_and_sync([make_video(acl=[], media_id='1234')])
         i1 = mpmodels.MediaItem.objects.get(jwp__key=v1.key)
 
         self.assertEqual(i1.view_permission.crsids, [])
@@ -157,9 +158,10 @@ class SyncTestCase(TestCase):
     def test_view_acls(self):
         """A video with ACLs maps to view permission."""
         v1, v2, v3 = set_resources_and_sync([
-            make_video(acl=['USER_spqr1', 'USER_abcd1', 'INST_botolph', 'GROUP_1234']),
-            make_video(acl=['WORLD']),
-            make_video(acl=['CAM']),
+            make_video(
+                media_id='123', acl=['USER_spqr1', 'USER_abcd1', 'INST_botolph', 'GROUP_1234']),
+            make_video(media_id='456', acl=['WORLD']),
+            make_video(media_id='789', acl=['CAM']),
         ])
         i1 = mpmodels.MediaItem.objects.get(jwp__key=v1.key)
         i2 = mpmodels.MediaItem.objects.get(jwp__key=v2.key)
@@ -186,7 +188,9 @@ class SyncTestCase(TestCase):
     def test_item_update_with_sms(self):
         """Test that updating an item's SMS last_updated_at updates SMS item."""
         last_updated_at = timezone.now()
-        v1, = set_resources_and_sync([make_video(media_id=1234, last_updated_at=last_updated_at)])
+        v1, = set_resources_and_sync([
+            make_video(media_id='1234', last_updated_at=last_updated_at)
+        ])
         i1 = mpmodels.MediaItem.objects.get(jwp__key=v1.key)
         self.assertEqual(i1.sms.last_updated_at, last_updated_at)
 
@@ -203,7 +207,7 @@ class SyncTestCase(TestCase):
 
     def test_item_update_with_sms_going_away(self):
         """Test that an SMS media item going away deletes it from the DB."""
-        v1, = set_resources_and_sync([make_video(media_id=1234)])
+        v1, = set_resources_and_sync([make_video(media_id='1234')])
         i1 = mpmodels.MediaItem.objects.get(jwp__key=v1.key)
         self.assertEqual(i1.sms.id, 1234)
 
@@ -222,7 +226,7 @@ class SyncTestCase(TestCase):
         A change up the updated field in the Cached resource should re-sync the video.
 
         """
-        v1, = set_resources_and_sync([make_video(media_id=1234)])
+        v1, = set_resources_and_sync([make_video(media_id='1234')])
         i1 = mpmodels.MediaItem.objects.get(jwp__key=v1.key)
 
         resource = CachedResource.videos.get(key=v1.key)
@@ -366,6 +370,15 @@ class SyncTestCase(TestCase):
         playlist = mpmodels.Playlist.objects.get(id=playlist.id)
         self.assertFalse(hasattr(playlist, 'sms'))
 
+    def test_only_sms_created(self):
+        """Only videos with SMS media ids are autocreated."""
+        v1, v2 = make_video(media_id='1234'), make_video()
+        set_resources_and_sync([v1, v2])
+        i1 = mpmodels.MediaItem.objects.filter(jwp__key=v1.key).first()
+        self.assertIsNotNone(i1)
+        i2 = mpmodels.MediaItem.objects.filter(jwp__key=v2.key).first()
+        self.assertIsNone(i2)
+
     def assert_attribute_sync(self, video_attr, model_attr=None, test_value='testing'):
         """
         Assert that an attribute on the video dict is correctly transferred to the underlying
@@ -373,7 +386,7 @@ class SyncTestCase(TestCase):
 
         """
         model_attr = model_attr if model_attr is not None else video_attr
-        v1, = set_resources_and_sync([make_video(**{video_attr: test_value})])
+        v1, = set_resources_and_sync([make_video(**{'media_id': '1234', video_attr: test_value})])
         self.assertEqual(
             test_value, getattr(mpmodels.MediaItem.objects.get(jwp__key=v1.key), model_attr))
 

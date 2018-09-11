@@ -120,13 +120,15 @@ def update_related_models_from_cache(update_all_videos=False):
         ))
     )
 
-    # For all videos needing a mediaplatform.MediaItem, create a blank one.
+    # For all videos needing a mediaplatform.MediaItem, create a blank one for videos arising from
+    # the SMS.
     jwp_keys_and_items = [
         (
             video.key,
             mpmodels.MediaItem(),
         )
         for video in videos_needing_items
+        if getattr(video, 'data', {}).get('custom', {}).get('sms_media_id') is not None
     ]
 
     # Insert all the media items in an efficient manner.
