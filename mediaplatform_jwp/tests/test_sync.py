@@ -71,7 +71,7 @@ class SyncTestCase(TestCase):
         self.assertEqual(jwp1.updated, v1['updated'])
 
         v1['updated'] += 20
-        v1, = set_resources_and_sync([make_video()])
+        v1, = set_resources_and_sync([v1])
         jwp1 = jwpmodels.Video.objects.get(key=v1.key)
         self.assertEqual(jwp1.updated, v1['updated'])
 
