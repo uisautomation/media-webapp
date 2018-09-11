@@ -58,7 +58,7 @@ class PlaylistCreatePageContents extends Component {
                 event => this.setState({playlist: {...playlist, channelId: event.target.value}})
               } />
               <PlaylistMetadataForm
-                item={playlist}
+                playlist={playlist}
                 errors={errors}
                 onChange={patch => this.setState({playlist: {...playlist, ...patch}})}
               />

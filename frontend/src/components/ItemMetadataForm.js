@@ -19,6 +19,9 @@ const languagesOptionsFromPage = LANGUAGES_FROM_PAGE.map(suggestion => ({
   value: suggestion[0],
 }));
 
+// Datetime format string used to input/output dates to/from the datetime picker.
+const DATETIME_LOCAL_FORMAT = "YYYY-MM-DDTHH:mm";
+
 /**
  * A form which can edit a media item's metadata. Pass the media item resource in the item prop.
  * The onChange prop is called with a patch to the item as it is edited.
@@ -36,7 +39,6 @@ const ItemMetadataForm = ({
     helperText={ errors.title ? errors.title.join(' ') : null }
     disabled={ disabled }
     label='Title'
-    placeholder='Enter a title, eg. Boundary Singularities'
     margin='normal'
     onChange={ event => onChange && onChange({ title: event.target.value }) }
     value={ title }
@@ -49,7 +51,6 @@ const ItemMetadataForm = ({
     helperText={ errors.description ? errors.description.join(' ') : null }
     disabled={ disabled }
     label='Description'
-    placeholder='Enter a description (markdown can be used)'
     margin='normal'
     multiline
     onChange={ event => onChange && onChange({ description: event.target.value }) }
@@ -75,14 +76,14 @@ const ItemMetadataForm = ({
         fullWidth
         error={ !!errors.publishedAt }
         helperText={ errors.publishedAt ? errors.publishedAt.join(' ') : null }
-        value={publishedAt ? moment(publishedAt).format("YYYY-MM-DD") : ''}
+        value={publishedAt ? moment(publishedAt).format(DATETIME_LOCAL_FORMAT) : ''}
         label="When the item will be published"
-        type="date"
+        type="datetime-local"
         onChange={event => {
           if (onChange) {
             let changedPublishedAt = null;
             if (event.target.value) {
-              changedPublishedAt = moment(event.target.value, "YYYY-MM-DD").format();
+              changedPublishedAt = moment(event.target.value, DATETIME_LOCAL_FORMAT).format();
             }
             onChange({ publishedAt: changedPublishedAt });
           }
@@ -96,7 +97,7 @@ const ItemMetadataForm = ({
         options={ languagesOptionsFromPage }
         onChange={ selection => onChange && onChange({ language: selection.value }) }
         defaultValue={ language }
-        placeholder="Select a language, eg. English"
+        placeholder="English"
       />
     </Grid>
   </Grid>
@@ -110,7 +111,7 @@ const ItemMetadataForm = ({
     margin='normal'
     onChange={ event => onChange && onChange({ copyright: event.target.value }) }
     value={ copyright }
-    placeholder="Enter the copyright, eg. Peterhouse"
+    placeholder="1876, St Botolph's College"
     InputLabelProps={ { shrink: true } }
   />
 
@@ -127,7 +128,7 @@ const ItemMetadataForm = ({
         onChange({ tags: copy });
       }
     }}
-    placeholder="Enter text tags, eg. Einstein, Christmas, Livestock"
+    placeholder="Einstein, Christmas, Livestock"
     InputLabelProps={ { shrink: true } }
   />
 

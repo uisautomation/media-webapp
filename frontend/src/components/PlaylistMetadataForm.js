@@ -22,6 +22,7 @@ const PlaylistMetadataForm = ({
     margin='normal'
     onChange={ event => onChange && onChange({ title: event.target.value }) }
     value={ title }
+    InputLabelProps={ { shrink: true } }
   />
 
   <TextField
@@ -35,6 +36,7 @@ const PlaylistMetadataForm = ({
     onChange={ event => onChange && onChange({ description: event.target.value }) }
     rows={ 4 }
     value={ description }
+    InputLabelProps={ { shrink: true } }
   />
 </div>);
 
