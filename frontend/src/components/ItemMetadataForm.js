@@ -102,7 +102,7 @@ const ItemMetadataForm = ({
         error={ !!errors.publishedAt }
         helperText={ errors.publishedAt ? publishedAtErrors(errors.publishedAt) : null }
         defaultValue={publishedAt ? moment(publishedAt).format(DATETIME_LOCAL_FORMAT) : ''}
-        label="When the item will be published"
+        label="Publication date and time"
         type="datetime-local"
         onChange={event => {
           if (onChange) {
