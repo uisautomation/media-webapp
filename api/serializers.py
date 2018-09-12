@@ -321,7 +321,7 @@ class MediaItemAnalyticsListSerializer(serializers.Serializer):
     A list of media analytics data points.
 
     """
-    results = MediaItemAnalyticsSerializer(source='fetched_analytics', many=True)
+    views_per_day = MediaItemAnalyticsSerializer(source='fetched_analytics', many=True)
 
 
 class ChannelDetailSerializer(ChannelSerializer):

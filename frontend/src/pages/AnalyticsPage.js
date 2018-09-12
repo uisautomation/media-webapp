@@ -9,7 +9,7 @@ import Page from "../containers/Page";
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import ShowChartIcon from '@material-ui/icons/ShowChart';
-import {mediaGet} from "../api";
+import {mediaGet, ANALYTICS_FROM_PAGE} from "../api";
 import Typography from '@material-ui/core/Typography';
 
 /**
@@ -118,13 +118,17 @@ const withChartData = WrappedComponent => props => {
 
   const summedByDate = {};
 
-  if (window.mediaItemAnalytics.length > 0) {
+  if (
+    ANALYTICS_FROM_PAGE.views_per_day &&
+    ANALYTICS_FROM_PAGE.views_per_day.length > 0
+  ) {
+    const views_per_day = ANALYTICS_FROM_PAGE.views_per_day;
     // Here we sum up all views for a particular day (irrespective of other variable) and
     // calculate the min and max dates.
-    for (let i = 0; i < window.mediaItemAnalytics.length; i ++) {
-      const date = new Date(window.mediaItemAnalytics[i].date);
+    for (let i = 0; i < ANALYTICS_FROM_PAGE.views_per_day.length; i ++) {
+      const date = new Date(ANALYTICS_FROM_PAGE.views_per_day[i].date);
       const views = date in summedByDate ? summedByDate[date] : 0;
-      summedByDate[date] = views + window.mediaItemAnalytics[i].views;
+      summedByDate[date] = views + ANALYTICS_FROM_PAGE.views_per_day[i].views;
       minDate = Math.min(minDate, date);
       maxDate = Math.max(maxDate, date);
     }
