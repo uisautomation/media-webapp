@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import Humanize from 'humanize-plus';
 
 import { withStyles } from '@material-ui/core/styles';
 
@@ -8,6 +9,11 @@ import BodySection from '../components/BodySection';
 import Page from "../containers/Page";
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableRow from '@material-ui/core/TableRow';
 import ShowChartIcon from '@material-ui/icons/ShowChart';
 import {mediaGet, ANALYTICS_FROM_PAGE} from "../api";
 import Typography from '@material-ui/core/Typography';
@@ -37,46 +43,65 @@ class AnalyticsPage extends Component {
 
   render() {
     const { mediaItem } = this.state;
-    const { chartData, classes, match: { params: { pk } } } = this.props;
+    const {
+      classes,
+      analytics: { viewsPerDay, size, totalViews },
+      match: { params: { pk } }
+    } = this.props;
 
     return (
       <Page>
         <BodySection classes={{ root: classes.section }}>
-          <Grid container spacing={16} >
-            <Grid item xs={12}>
-              <Typography variant="headline" component="div">
-                Viewing history (views per day)
-              </Typography>
+          <Typography variant="headline" component="div">
+            { mediaItem && mediaItem.title }
+          </Typography>
+        </BodySection>
+        <BodySection classes={{ root: classes.section }}>
+          <Typography variant="title" component="div" className={ classes.subtitle } >
+            General Statistics
+          </Typography>
+          <Grid container>
+            <Grid item xs={12} sm={6} md={3} lg={2}>
+              <Paper>
+                <Table>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>Total Views</TableCell>
+                      <TableCell numeric>{ totalViews }</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>Total Size</TableCell>
+                      <TableCell numeric>{ Humanize.fileSize(size) }</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </Paper>
             </Grid>
           </Grid>
         </BodySection>
         <BodySection classes={{ root: classes.section }}>
           <div className={ classes.chartContainer }>
+            <Typography variant="title" component="div" className={ classes.subtitle } >
+              Viewing history (views per day)
+            </Typography>
             {
-              chartData.length > 1
+              viewsPerDay.length > 1
               ?
-              <Typography variant='body1' component='div'>
-                <Chart
-                  chartType="AnnotationChart"
-                  data={chartData}
-                  options={{fill: 100, colors: ['#EF2E31']}}
-                />
-              </Typography>
+                <Typography variant='body1' component='div'>
+                  <Chart
+                    chartType="AnnotationChart"
+                    data={viewsPerDay}
+                    options={{fill: 100, colors: ['#EF2E31']}}
+                  />
+                </Typography>
               :
               <Typography variant="subheading">
                 There is no data available for the media
               </Typography>
-            }
+          }
           </div>
         </BodySection>
         <BodySection classes={{ root: classes.section }}>
-          <Grid container spacing={16}>
-            <Grid item xs={12}>
-              <Typography variant="headline" component="div">
-                { mediaItem && mediaItem.title }
-              </Typography>
-            </Grid>
-          </Grid>
           <Grid container justify='space-between' spacing={16}>
             <Grid item xs={12} sm={6} md={3} lg={2}/>
             <Grid item xs={12} sm={6} md={3} lg={2} style={{textAlign: 'right'}}>
@@ -101,7 +126,11 @@ class AnalyticsPage extends Component {
 }
 
 AnalyticsPage.propTypes = {
-  chartData: PropTypes.array.isRequired,
+  analytics: PropTypes.shape({
+    size: PropTypes.number,
+    totalViews: PropTypes.number,
+    viewsPerDay: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)),
+  }).isRequired,
   classes: PropTypes.object.isRequired,
 };
 
@@ -109,9 +138,13 @@ AnalyticsPage.propTypes = {
  * A higher-order component wrapper which retrieves the media item's analytics (resolved from
  * global data), generates the chart data for AnnotationChart, and passes it along.
  */
-const withChartData = WrappedComponent => props => {
+const withAnalytics = WrappedComponent => props => {
 
-  const chartData = [["Date", "Views"]];
+  const analytics = {
+    size: ANALYTICS_FROM_PAGE.size,
+    totalViews: 0,
+    viewsPerDay: [["Date", "Views"]],
+  };
 
   let minDate = new Date("9999-12-31");
   let maxDate = new Date("0000-01-01");
@@ -119,7 +152,6 @@ const withChartData = WrappedComponent => props => {
   const summedByDate = {};
 
   if (
-    ANALYTICS_FROM_PAGE.views_per_day &&
     ANALYTICS_FROM_PAGE.views_per_day.length > 0
   ) {
     const views_per_day = ANALYTICS_FROM_PAGE.views_per_day;
@@ -131,6 +163,7 @@ const withChartData = WrappedComponent => props => {
       summedByDate[date] = views + ANALYTICS_FROM_PAGE.views_per_day[i].views;
       minDate = Math.min(minDate, date);
       maxDate = Math.max(maxDate, date);
+      analytics.totalViews += ANALYTICS_FROM_PAGE.views_per_day[i].views
     }
 
     // Here we provide an ordered list of the views fill out missing days with zero views.
@@ -141,14 +174,14 @@ const withChartData = WrappedComponent => props => {
     let currentDate = addDays(new Date(minDate), -1);
 
     while (currentDate <= maxDate) {
-      chartData.push(
+      analytics.viewsPerDay.push(
         [currentDate, currentDate in summedByDate ? summedByDate[currentDate] : 0]
       );
       currentDate = addDays(currentDate, 1);
     }
   }
 
-  return (<WrappedComponent chartData={chartData} {...props} />);
+  return (<WrappedComponent analytics={analytics} {...props} />);
 };
 
 /**
@@ -163,7 +196,10 @@ const addDays = (date, days) => {
 /* tslint:disable object-literal-sort-keys */
 var styles = theme => ({
   section: {
-    marginTop: theme.spacing.unit,
+    marginTop: theme.spacing.unit * 2,
+  },
+  subtitle: {
+    marginBottom: theme.spacing.unit,
   },
   chartContainer: {
     /* Missing bottom border */
@@ -196,4 +232,4 @@ var styles = theme => ({
 });
 /* tslint:enable */
 
-export default withChartData(withStyles(styles)(AnalyticsPage));
+export default withAnalytics(withStyles(styles)(AnalyticsPage));
