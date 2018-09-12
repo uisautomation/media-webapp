@@ -200,7 +200,7 @@ complain.</p>
 
 <dl class="data">
 <dt id="mediawebapp.settings.base.INSTALLED_APPS">
-<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">INSTALLED_APPS</code><em class="property"> = ['django.contrib.admin', 'django.contrib.auth', 'django.contrib.contenttypes', 'django.contrib.sessions', 'django.contrib.messages', 'whitenoise.runserver_nostatic', 'django.contrib.staticfiles', 'django.contrib.sites', 'django.contrib.sitemaps', 'automationcommon', 'automationlookup', 'automationoauth', 'corsheaders', 'crispy_forms', 'django_filters', 'drf_yasg', 'rest_framework', 'ucamwebauth', 'robots', 'reversion', 'smsjwplatform', 'legacysms', 'mediaplatform', 'mediaplatform_jwp', 'ui', 'api']</em><a class="headerlink" href="#mediawebapp.settings.base.INSTALLED_APPS" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">INSTALLED_APPS</code><em class="property"> = ['django.contrib.admin', 'django.contrib.auth', 'django.contrib.contenttypes', 'django.contrib.sessions', 'django.contrib.messages', 'whitenoise.runserver_nostatic', 'django.contrib.staticfiles', 'django.contrib.sites', 'django.contrib.sitemaps', 'automationcommon', 'automationlookup', 'automationoauth', 'corsheaders', 'crispy_forms', 'django_filters', 'drf_yasg', 'rest_framework', 'ucamwebauth', 'robots', 'reversion', 'django_celery_beat', 'django_celery_results', 'smsjwplatform', 'legacysms', 'mediaplatform', 'mediaplatform_jwp', 'ui', 'api']</em><a class="headerlink" href="#mediawebapp.settings.base.INSTALLED_APPS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Installed applications</p>
 </dd></dl>
 
@@ -231,7 +231,7 @@ index.html as a template.</p>
 
 <dl class="data">
 <dt id="mediawebapp.settings.base.DATABASES">
-<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">DATABASES</code><em class="property"> = {'default': {'ENGINE': 'django.db.backends.postgresql', 'NAME': 'webapp', 'HOST': 'db', 'USER': 'webappuser', 'PORT': '5432', 'PASSWORD': 'databasePass', 'ATOMIC_REQUESTS': False, 'AUTOCOMMIT': True, 'CONN_MAX_AGE': 0, 'OPTIONS': {}, 'TIME_ZONE': None, 'TEST': {'CHARSET': None, 'COLLATION': None, 'NAME': None, 'MIRROR': None}}}</em><a class="headerlink" href="#mediawebapp.settings.base.DATABASES" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">DATABASES</code><em class="property"> = {'default': {'ENGINE': 'django.db.backends.postgresql', 'NAME': 'webapp', 'HOST': 'db', 'PORT': '5432', 'PASSWORD': 'databasePass', 'USER': 'webappuser', 'ATOMIC_REQUESTS': False, 'AUTOCOMMIT': True, 'CONN_MAX_AGE': 0, 'OPTIONS': {}, 'TIME_ZONE': None, 'TEST': {'CHARSET': None, 'COLLATION': None, 'NAME': None, 'MIRROR': None}}}</em><a class="headerlink" href="#mediawebapp.settings.base.DATABASES" title="Permalink to this definition">¶</a></dt>
 <dd><p>Database configuration. The default settings allow configuration of the database from
 environment variables. An environment variable named <code class="docutils literal notranslate"><span class="pre">DJANGO_DB_&lt;key&gt;</span></code> will override the
 <code class="docutils literal notranslate"><span class="pre">DATABASES['default'][&lt;key&gt;]</span></code> setting.</p>
