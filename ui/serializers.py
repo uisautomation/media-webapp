@@ -119,11 +119,12 @@ class ResourcePageSerializer(serializers.Serializer):
 
 class MediaItemPageSerializer(ResourcePageSerializer):
     """
-    A serializer for media items which renders a ``json_ld`` field which is the representation
-    of the media item in JSON LD format along with the resource.
+    A serializer for media items which renders a ``json_ld`` field which is the representation of
+    the media item in JSON LD format along with the resource.
 
     """
     json_ld = MediaItemJSONLDSerializer(source='*')
+
     resource = apiserializers.MediaItemDetailSerializer(source='*')
 
 

@@ -9,10 +9,10 @@ import { withStyles } from '@material-ui/core/styles';
 import Page from '../containers/Page';
 import ChannelSelect from '../containers/ChannelSelect';
 import BodySection from "../components/BodySection";
-import ItemMetadataForm from "../components/ItemMetadataForm";
 import {playlistCreate} from "../api";
 import {setMessageForNextPageLoad} from "../containers/Snackbar";
 import IfOwnsAnyChannel from "../containers/IfOwnsAnyChannel";
+import PlaylistMetadataForm from "../components/PlaylistMetadataForm";
 
 /**
  * A page which allows the user to create a new playlist.
@@ -57,8 +57,8 @@ class PlaylistCreatePageContents extends Component {
               <ChannelSelect errors={ errors.channelId } channelId={ playlist.channelId } onChange={
                 event => this.setState({playlist: {...playlist, channelId: event.target.value}})
               } />
-              <ItemMetadataForm
-                item={playlist}
+              <PlaylistMetadataForm
+                playlist={playlist}
                 errors={errors}
                 onChange={patch => this.setState({playlist: {...playlist, ...patch}})}
               />

@@ -36,8 +36,17 @@ class RenderedForm extends Component {
 If you want to show an error state, set the errors object:
 
 ```js
-const item = { title: 'The Dead Parrot Sketch' };
-const errors = { title: ['The parrot is alive.', 'It is sleeping.'] };
+const item = { 
+  title: 'The Dead Parrot Sketch', 
+  description: 'Oh what a lovely description!', 
+  copyright: 'Mike Bamford PLC'
+};
+const errors = { 
+  title: ['The parrot is alive.', 'It is sleeping.'],
+  description: ['Not really a description.', 'A bit too meta.'],
+  publishedAt: ['This is a fake date.', 'Fake fake date!'],
+  copyright: ['Not a proper copyright.', 'You are being silly.'],
+};
 
 <ItemMetadataForm item={ item } errors={ errors } />
 ```

@@ -243,8 +243,6 @@ def update_related_models_from_cache(update_all_videos=False):
             if published_timestamp is not None:
                 item.published_at = datetime.datetime.fromtimestamp(
                     published_timestamp, pytz.utc)
-            else:
-                item.published_at = None
 
             item.duration = _default_if_none(video.get('duration'), 0.)
 

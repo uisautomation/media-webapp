@@ -1,3 +1,4 @@
+import datetime
 from unittest import mock
 
 from django.conf import settings
@@ -255,6 +256,33 @@ class MediaItemTest(ModelTestCase):
         self.assert_user_cannot_edit(self.user, item)
         sms.delete()
         self.assert_user_can_edit(self.user, item)
+
+    def test_not_yet_published(self):
+        """Check that an item with a future published_at is not visible"""
+        item = models.MediaItem.objects.get(id='public')
+        item.published_at = datetime.datetime.now() + datetime.timedelta(days=1)
+        item.save()
+        self.assert_user_cannot_view(self.user, item)
+
+    def test_has_been_published(self):
+        """Check that an item with a past published_at is visible"""
+        item = models.MediaItem.objects.get(id='public')
+        item.published_at = datetime.datetime.now() - datetime.timedelta(days=1)
+        item.save()
+        self.assert_user_can_view(self.user, item)
+
+    def test_published_at_is_null(self):
+        """Check that an item with a null published_at is visible"""
+        self.assert_user_can_view(self.user, 'public')
+
+    def test_visible_if_not_published_but_editable(self):
+        """Check that an editable item with a future published_at is visible"""
+        item = models.MediaItem.objects.get(id='public')
+        item.published_at = datetime.datetime.now() + datetime.timedelta(days=1)
+        item.channel.edit_permission.crsids.append(self.user.username)
+        item.channel.edit_permission.save()
+        item.save()
+        self.assert_user_can_view(self.user, item)
 
     def assert_user_cannot_view(self, user, item_or_id):
         if isinstance(item_or_id, str):
