@@ -38,7 +38,7 @@ services:
     ports:
       - "8025:8025"
   # Main web application service
-  development_app:
+  development_app: &development_app
     build:
       context: ..
       dockerfile: ./compose/development.django.Dockerfile
@@ -53,6 +53,7 @@ services:
       - "lookupproxy"
       - "frontend_watch"
       - "hydra-create-clients"
+      - "celery"
     volumes:
       # For devserver, mount the local directory inside the container as a volume
       # to allow local changes to be reflected without having to re-build the
@@ -69,10 +70,36 @@ services:
     tty: true
     environment:
       DJANGO_FRONTEND_APP_BUILD_DIR: "/tmp/frontend_build"
+      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
     env_file:
       - base.env
       - development.env
       - ../secrets.env
+
+  # Celery task runner
+  celery:
+    <<: *development_app
+    expose: []
+    ports: []
+    # We embed the "beat" worker into our celery worker since there is only one
+    # instance. In production, one may have multiple workers but there should be
+    # only one beat worker. See
+    # http://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html#starting-the-scheduler
+    entrypoint: ['celery']
+    command: ['-A', 'mediawebapp', 'worker', '-l', 'info', '-B']
+    depends_on:
+      - "db"
+      - "mailhog"
+      - "hydra"
+      - "lookupproxy"
+      - "hydra-create-clients"
+      - "rabbitmq"
+
+  # RabbitMQ message broker
+  rabbitmq:
+    image: rabbitmq:alpine
+    expose:
+      - "5672"
 
   # Front end which is continually re-build using webpack's watch support. Used
   # to provide an updated source of files for the Django app.

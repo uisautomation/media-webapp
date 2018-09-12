@@ -42,3 +42,8 @@ tox
 
 # Serving
 gunicorn
+
+# Task runner
+celery<5
+django-celery-beat
+django-celery-results
