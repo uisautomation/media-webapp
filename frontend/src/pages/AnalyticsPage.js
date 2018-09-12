@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import Humanize from 'humanize-plus';
 
@@ -7,6 +7,7 @@ import { withStyles } from '@material-ui/core/styles';
 import {Chart} from "react-google-charts";
 import BodySection from '../components/BodySection';
 import Page from "../containers/Page";
+import FetchMediaItem from '../containers/FetchMediaItem';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
@@ -15,121 +16,104 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import ShowChartIcon from '@material-ui/icons/ShowChart';
-import {mediaGet, ANALYTICS_FROM_PAGE} from "../api";
+import {ANALYTICS_FROM_PAGE} from "../api";
 import Typography from '@material-ui/core/Typography';
 
 /**
  * The media item's analytics page
  */
-class AnalyticsPage extends Component {
+const AnalyticsPage = ({ match: { params: { pk } } }) => (
+  <Page>
+    <FetchMediaItem id={ pk } component={ ConnectedAnalyticsPageContents } />
+  </Page>
+);
 
-  constructor() {
-    super();
-
-    this.state = {
-      // The media item response from the API, if any.
-      mediaItem: null,
-    }
-  }
-
-  componentWillMount() {
-    // As soon as the page mounts, fetch the media item.
-    const { match: { params: { pk } } } = this.props;
-    mediaGet(pk).then(
-      response => this.setState({ mediaItem: response }),
-      error => this.setState({ mediaItem: null })
-    );
-  }
-
-  render() {
-    const { mediaItem } = this.state;
-    const {
-      classes,
-      analytics: { viewsPerDay, size, totalViews },
-      match: { params: { pk } }
-    } = this.props;
-
-    return (
-      <Page>
-        <BodySection classes={{ root: classes.section }}>
-          <Typography variant="headline" component="div">
-            { mediaItem && mediaItem.title }
-          </Typography>
-        </BodySection>
-        <BodySection classes={{ root: classes.section }}>
-          <Typography variant="title" component="div" className={ classes.subtitle } >
-            General Statistics
-          </Typography>
-          <Grid container>
-            <Grid item xs={12} sm={6} md={3} lg={2}>
-              <Paper>
-                <Table>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell>Total Views</TableCell>
-                      <TableCell numeric>{ totalViews }</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>Total Size</TableCell>
-                      <TableCell numeric>{ Humanize.fileSize(size) }</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </Paper>
-            </Grid>
-          </Grid>
-        </BodySection>
-        <BodySection classes={{ root: classes.section }}>
-          <div className={ classes.chartContainer }>
-            <Typography variant="title" component="div" className={ classes.subtitle } >
-              Viewing history (views per day)
+/**
+ * The media item's analytics page contents
+ */
+const AnalyticsPageContents = ({
+  classes,
+  analytics: { viewsPerDay, size, totalViews },
+  resource: mediaItem
+}) => (
+  <div>
+    <BodySection classes={{ root: classes.section }}>
+      <Typography variant="headline" component="div">
+        { mediaItem && mediaItem.title }
+      </Typography>
+    </BodySection>
+    <BodySection classes={{ root: classes.section }}>
+      <Typography variant="title" component="div" className={ classes.subtitle } >
+        General Statistics
+      </Typography>
+      <Grid container>
+        <Grid item xs={12} sm={6} md={3} lg={2}>
+          <Paper>
+            <Table>
+              <TableBody>
+                <TableRow>
+                  <TableCell>Total Views</TableCell>
+                  <TableCell numeric>{ totalViews }</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Total Size</TableCell>
+                  <TableCell numeric>{ Humanize.fileSize(size) }</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </Paper>
+        </Grid>
+      </Grid>
+    </BodySection>
+    <BodySection classes={{ root: classes.section }}>
+      <div className={ classes.chartContainer }>
+        <Typography variant="title" component="div" className={ classes.subtitle } >
+          Viewing history (views per day)
+        </Typography>
+        {
+          viewsPerDay.length > 1
+          ?
+            <Typography variant='body1' component='div'>
+              <Chart
+                chartType="AnnotationChart"
+                data={viewsPerDay}
+                options={{fill: 100, colors: ['#EF2E31']}}
+              />
             </Typography>
-            {
-              viewsPerDay.length > 1
-              ?
-                <Typography variant='body1' component='div'>
-                  <Chart
-                    chartType="AnnotationChart"
-                    data={viewsPerDay}
-                    options={{fill: 100, colors: ['#EF2E31']}}
-                  />
-                </Typography>
-              :
-              <Typography variant="subheading">
-                There is no data available for the media
-              </Typography>
+          :
+          <Typography variant="subheading">
+            There is no data available for the media
+          </Typography>
+      }
+      </div>
+    </BodySection>
+    <BodySection classes={{ root: classes.section }}>
+      <Grid container justify='space-between' spacing={16}>
+        <Grid item xs={12} sm={6} md={3} lg={2}/>
+        <Grid item xs={12} sm={6} md={3} lg={2} style={{textAlign: 'right'}}>
+          {
+            mediaItem && mediaItem.legacyStatisticsUrl
+            ?
+            <Button component='a' variant='outlined' className={ classes.link } fullWidth
+              href={mediaItem.legacyStatisticsUrl}
+            >
+              SMS Statistics
+              <ShowChartIcon className={ classes.rightIcon } />
+            </Button>
+            :
+            null
           }
-          </div>
-        </BodySection>
-        <BodySection classes={{ root: classes.section }}>
-          <Grid container justify='space-between' spacing={16}>
-            <Grid item xs={12} sm={6} md={3} lg={2}/>
-            <Grid item xs={12} sm={6} md={3} lg={2} style={{textAlign: 'right'}}>
-              {
-                mediaItem && mediaItem.legacyStatisticsUrl
-                ?
-                <Button component='a' variant='outlined' className={ classes.link } fullWidth
-                  href={mediaItem.legacyStatisticsUrl}
-                >
-                  SMS Statistics
-                  <ShowChartIcon className={ classes.rightIcon } />
-                </Button>
-                :
-                null
-              }
-            </Grid>
-          </Grid>
-        </BodySection>
-      </Page>
-    );
-  }
-}
+        </Grid>
+      </Grid>
+    </BodySection>
+  </div>
+);
 
-AnalyticsPage.propTypes = {
+AnalyticsPageContents.propTypes = {
   analytics: PropTypes.shape({
     size: PropTypes.number,
     totalViews: PropTypes.number,
-    viewsPerDay: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)),
+    viewsPerDay: PropTypes.arrayOf(PropTypes.array),
   }).isRequired,
   classes: PropTypes.object.isRequired,
 };
@@ -232,4 +216,6 @@ var styles = theme => ({
 });
 /* tslint:enable */
 
-export default withAnalytics(withStyles(styles)(AnalyticsPage));
+const ConnectedAnalyticsPageContents = withAnalytics(withStyles(styles)(AnalyticsPageContents));
+
+export default AnalyticsPage;
