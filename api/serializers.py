@@ -323,6 +323,8 @@ class MediaItemAnalyticsListSerializer(serializers.Serializer):
     """
     views_per_day = MediaItemAnalyticsSerializer(source='fetched_analytics', many=True)
 
+    size = serializers.IntegerField(source='fetched_size')
+
 
 class ChannelDetailSerializer(ChannelSerializer):
     """

@@ -310,6 +310,15 @@ class MediaItem(models.Model):
         """
         return self.sms.fetch_analytics() if hasattr(self, 'sms') else []
 
+    @cached_property
+    def fetched_size(self):
+        """
+        A cached property which returns the storage size of the video in bytes
+        (the sum of all the sources)
+
+        """
+        return self.jwp.fetch_size() if hasattr(self, 'jwp') else []
+
     def get_embed_url(self):
         """
         Return a URL suitable for use in an IFrame which will render this media. This URL renders
