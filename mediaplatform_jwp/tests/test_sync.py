@@ -379,6 +379,21 @@ class SyncTestCase(TestCase):
         i2 = mpmodels.MediaItem.objects.filter(jwp__key=v2.key).first()
         self.assertIsNone(i2)
 
+    def test_recreate_deleted_item(self):
+        """If a media item is deleted but not the cached resource or JWP video, the item is
+        re-created and synched."""
+        v1 = make_video(media_id='1234', title='testing')
+        set_resources_and_sync([v1])
+        i1 = mpmodels.MediaItem.objects.filter(jwp__key=v1.key).first()
+        self.assertIsNotNone(i1)
+        self.assertEqual(i1.title, 'testing')
+        i1.delete()
+
+        set_resources_and_sync([v1])
+        i1 = mpmodels.MediaItem.objects.filter(jwp__key=v1.key).first()
+        self.assertIsNotNone(i1)
+        self.assertEqual(i1.title, 'testing')
+
     def assert_attribute_sync(self, video_attr, model_attr=None, test_value='testing'):
         """
         Assert that an attribute on the video dict is correctly transferred to the underlying

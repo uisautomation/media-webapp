@@ -205,13 +205,14 @@ def update_related_models_from_cache(update_all_videos=False):
     )
 
     # Unless we were asked to update the metadata in all objects, only update those which were last
-    # updated before the corresponding JWP video resource. We use MEDIA_ITEM_FRESHNESS_THRESHOLD as
-    # a "fudge factor" to make sure that we err on the side of updating too many objects rather
-    # than relying on the JWP clock and our clock to be perfectly synchronised.
+    # updated before the corresponding JWP video resource OR were created by us.
     if not update_all_videos:
         updated_media_items = (
             updated_media_items
-            .filter(jwp__key__in=updated_jwp_video_keys)
+            .filter(
+                models.Q(jwp__key__in=updated_jwp_video_keys) |
+                models.Q(id__in=[item.id for _, item in jwp_keys_and_items])
+            )
         )
 
     # Iterate over all updated media items and set the metadata
