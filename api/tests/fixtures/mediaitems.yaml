@@ -65,6 +65,12 @@
     is_public: true
     allows_view_item: a
 
+- model: mediaplatform_jwp.Video
+  pk: jwpvid2
+  fields:
+    updated: 12345
+    item: a
+
 - model: mediaplatform.MediaItem
   pk: empty
   fields:

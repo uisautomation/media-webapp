@@ -275,11 +275,12 @@ class Video(models.Model):
 
     def fetch_size(self):
         """
-        Fetches the storage size of the video in bytes (the sum of all the sources)
+        Fetches the storage size of the video in bytes (the sum of all the sources).
+        Returns 0 if unable to get a size.
 
         """
-        data = CachedResource.videos.get(pk=self.pk).data
-        return int(data.get('size', '0'))
+        cache_resource = CachedResource.videos.filter(pk=self.pk).first()
+        return int(({} if cache_resource is None else cache_resource.data).get('size', '0'))
 
     @property
     def embed_url(self):

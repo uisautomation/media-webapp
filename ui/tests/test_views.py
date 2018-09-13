@@ -120,7 +120,8 @@ class MediaItemAnalyticsViewTestCase(ViewTestCase):
 
         self.assertEqual(r.status_code, 200)
         self.assertTemplateUsed(r, 'ui/analytics.html')
-        self.assertEqual(len(r.context['analytics']['results']), 0)
+        self.assertEqual(len(r.context['analytics']['views_per_day']), 0)
+        self.assertEqual(r.context['analytics']['size'], 0)
 
 
 class IndexViewTestCase(ViewTestCase):

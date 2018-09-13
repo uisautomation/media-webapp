@@ -313,11 +313,11 @@ class MediaItem(models.Model):
     @cached_property
     def fetched_size(self):
         """
-        A cached property which returns the storage size of the video in bytes
-        (the sum of all the sources)
+        A cached property which returns the storage size of the video in bytes (the sum of all the
+        sources). Returns 0 if no jwp record is found.
 
         """
-        return self.jwp.fetch_size() if hasattr(self, 'jwp') else []
+        return self.jwp.fetch_size() if hasattr(self, 'jwp') else 0
 
     def get_embed_url(self):
         """
