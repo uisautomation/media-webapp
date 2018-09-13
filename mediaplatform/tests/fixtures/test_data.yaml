@@ -96,6 +96,12 @@
     is_public: true
     allows_view_item: public
 
+- model: mediaplatform_jwp.Video
+  pk: jwpvidpublic
+  fields:
+    updated: 12345
+    item: public
+
 # A media item with a default (allow none) permission
 - model: mediaplatform.MediaItem
   pk: emptyperm

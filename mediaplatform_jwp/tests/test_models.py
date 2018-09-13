@@ -120,3 +120,22 @@ class CachedResourceTest(TestCase):
         self.assertEqual(self.videos.filter(data__x=5).first().key, 'foo')
         self.assertEqual(self.channels.count(), 1)
         self.assertEqual(self.channels.filter(data__z=5).first().key, 'buzz')
+
+
+class VideoTest(TestCase):
+    def setUp(self):
+        self.video = models.Video(key='abc123')
+
+    def test_fetch_size_success(self):
+        """ check that a size is successfully fetched """
+        models.CachedResource.objects.create(key=self.video.pk, type='video', data={'size': 54321})
+        self.assertEqual(self.video.fetch_size(), 54321)
+
+    def test_fetch_size_no_size(self):
+        """ check that a CachedResource with no data.size attribute is handled """
+        models.CachedResource.objects.create(key=self.video.pk, type='video', data={})
+        self.assertEqual(self.video.fetch_size(), 0)
+
+    def test_fetch_size_no_cached_resource(self):
+        """ check that no CachedResource is handled """
+        self.assertEqual(self.video.fetch_size(), 0)

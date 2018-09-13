@@ -9,6 +9,7 @@ from django.db import IntegrityError
 from django.test import TestCase, override_settings
 
 from legacysms import models as legacymodels
+from mediaplatform_jwp.models import CachedResource
 from .. import models
 
 
@@ -283,6 +284,17 @@ class MediaItemTest(ModelTestCase):
         item.channel.edit_permission.save()
         item.save()
         self.assert_user_can_view(self.user, item)
+
+    def test_fetched_size_success(self):
+        """ check that a size is successfully fetched """
+        CachedResource.objects.create(key='jwpvidpublic', type='video', data={'size': 54321})
+        item = models.MediaItem.objects.get(id='public')
+        self.assertEqual(item.fetched_size, 54321)
+
+    def test_fetched_size_no_jwp(self):
+        """ check that fetched_size doesn't error when the item doesn't have a Video """
+        item = models.MediaItem.objects.get(id='signedin')
+        self.assertEqual(item.fetched_size, 0)
 
     def assert_user_cannot_view(self, user, item_or_id):
         if isinstance(item_or_id, str):
