@@ -35,3 +35,6 @@ class Config(AppConfig):
 
         # Import, and thereby register, our custom signal handlers
         from . import signalhandlers  # noqa: F401
+
+        # Import, and thereby register, out tasks
+        from . import tasks  # noqa: F401
