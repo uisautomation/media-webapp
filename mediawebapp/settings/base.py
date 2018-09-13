@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'ucamwebauth',
     'robots',
     'reversion',
+    'django_celery_beat',
+    'django_celery_results',
 
     'smsjwplatform',
     'legacysms',
@@ -267,3 +269,9 @@ GTAG_ID = os.environ.get('GTAG_ID', '')
 SITE_ID = 1
 
 ROBOTS_USE_SCHEME_IN_HOST = True
+
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://guest:guest@localhost:5672//')
+
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+CELERY_RESULT_BACKEND = 'django-db'
