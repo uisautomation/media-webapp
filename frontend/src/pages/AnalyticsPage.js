@@ -43,7 +43,7 @@ const AnalyticsPageContents = ({
       </Typography>
     </BodySection>
     <BodySection classes={{ root: classes.section }}>
-      <Typography variant="title" component="div" className={ classes.subtitle } >
+      <Typography variant="title" component="div" gutterBottom >
         General Statistics
       </Typography>
       <Grid container>
@@ -67,7 +67,7 @@ const AnalyticsPageContents = ({
     </BodySection>
     <BodySection classes={{ root: classes.section }}>
       <div className={ classes.chartContainer }>
-        <Typography variant="title" component="div" className={ classes.subtitle } >
+        <Typography variant="title" component="div" gutterBottom >
           Viewing history (views per day)
         </Typography>
         {
@@ -181,9 +181,6 @@ const addDays = (date, days) => {
 var styles = theme => ({
   section: {
     marginTop: theme.spacing.unit * 2,
-  },
-  subtitle: {
-    marginBottom: theme.spacing.unit,
   },
   chartContainer: {
     /* Missing bottom border */
