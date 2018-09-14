@@ -15,6 +15,12 @@ Models
 .. automodule:: mediaplatform_jwp.models
     :members:
 
+Celery tasks
+------------
+
+.. automodule:: mediaplatform_jwp.tasks
+    :members:
+
 Management commands
 -------------------
 

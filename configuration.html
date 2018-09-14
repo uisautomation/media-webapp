@@ -231,7 +231,7 @@ index.html as a template.</p>
 
 <dl class="data">
 <dt id="mediawebapp.settings.base.DATABASES">
-<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">DATABASES</code><em class="property"> = {'default': {'ENGINE': 'django.db.backends.postgresql', 'NAME': 'webapp', 'HOST': 'db', 'PORT': '5432', 'PASSWORD': 'databasePass', 'USER': 'webappuser', 'ATOMIC_REQUESTS': False, 'AUTOCOMMIT': True, 'CONN_MAX_AGE': 0, 'OPTIONS': {}, 'TIME_ZONE': None, 'TEST': {'CHARSET': None, 'COLLATION': None, 'NAME': None, 'MIRROR': None}}}</em><a class="headerlink" href="#mediawebapp.settings.base.DATABASES" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">mediawebapp.settings.base.</code><code class="descname">DATABASES</code><em class="property"> = {'default': {'ATOMIC_REQUESTS': False, 'AUTOCOMMIT': True, 'CONN_MAX_AGE': 0, 'ENGINE': 'django.db.backends.postgresql', 'HOST': 'db', 'NAME': 'webapp', 'OPTIONS': {}, 'PASSWORD': 'databasePass', 'PORT': '5432', 'TEST': {'CHARSET': None, 'COLLATION': None, 'MIRROR': None, 'NAME': None}, 'TIME_ZONE': None, 'USER': 'webappuser'}}</em><a class="headerlink" href="#mediawebapp.settings.base.DATABASES" title="Permalink to this definition">¶</a></dt>
 <dd><p>Database configuration. The default settings allow configuration of the database from
 environment variables. An environment variable named <code class="docutils literal notranslate"><span class="pre">DJANGO_DB_&lt;key&gt;</span></code> will override the
 <code class="docutils literal notranslate"><span class="pre">DATABASES['default'][&lt;key&gt;]</span></code> setting.</p>
@@ -384,6 +384,7 @@ Raven but do not exist in the local database.</p>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

@@ -88,6 +88,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">JWPlatform Integration Application</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-mediaplatform_jwp.defaultsettings">Settings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-mediaplatform_jwp.models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mediaplatform_jwp.tasks">Celery tasks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#management-commands">Management commands</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#module-mediaplatform_jwp.management.commands.jwpfetch">jwpfetch</a></li>
 </ul>
@@ -479,6 +480,22 @@ this function can themselves be within an atomic block.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-mediaplatform_jwp.tasks">
+<span id="celery-tasks"></span><h2>Celery tasks<a class="headerlink" href="#module-mediaplatform_jwp.tasks" title="Permalink to this headline">¶</a></h2>
+<p>Celery tasks.</p>
+<dl class="function">
+<dt id="mediaplatform_jwp.tasks.fetch_channels">
+<code class="descclassname">mediaplatform_jwp.tasks.</code><code class="descname">fetch_channels</code><span class="sig-paren">(</span><em>client</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.tasks.fetch_channels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an iterable of dicts representing all channel resources in the JWPlatform database.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mediaplatform_jwp.tasks.fetch_videos">
+<code class="descclassname">mediaplatform_jwp.tasks.</code><code class="descname">fetch_videos</code><span class="sig-paren">(</span><em>client</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform_jwp.tasks.fetch_videos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an iterable of dicts representing all video resources in the JWPlatform database.</p>
+</dd></dl>
+
+</div>
 <div class="section" id="management-commands">
 <h2>Management commands<a class="headerlink" href="#management-commands" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="module-mediaplatform_jwp.management.commands.jwpfetch">
@@ -718,6 +735,7 @@ only video or channel resources is controlled via the <code class="docutils lite
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
