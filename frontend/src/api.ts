@@ -146,6 +146,17 @@ export interface IMediaQuery {
   playlist?: string;
 };
 
+export interface IViewsOnDay {
+  date: string,
+  views: number
+}
+
+/** A media item's analytics response */
+export interface IAnalyticsResponse {
+  views_per_day: IViewsOnDay[],
+  size: number
+}
+
 /** A profile response. */
 export interface IProfileResponse {
   isAnonymous: boolean;
@@ -308,11 +319,17 @@ export const mediaUploadGet = (item: IMediaResource) : Promise<IMediaUploadResou
   return apiFetch(API_ENDPOINTS.mediaList + item.id + '/upload');
 };
 
+/** Retrieve a media resource's analytics. */
+export const analyticsGet = (id: string) : Promise<IAnalyticsResponse> => {
+  if (ANALYTICS_FROM_PAGE) { return Promise.resolve(ANALYTICS_FROM_PAGE); }
+  return apiFetch(API_ENDPOINTS.mediaList + id + '/analytics');
+};
+
 /** Fetch the user's profile. */
 export const profileGet = (): Promise<IProfileResponse> => {
-  if(PROFILE_FROM_PAGE) { return Promise.resolve(PROFILE_FROM_PAGE); }
+  if (PROFILE_FROM_PAGE) { return Promise.resolve(PROFILE_FROM_PAGE); }
   return apiFetch(API_ENDPOINTS.profile);
-}
+};
 
 /** List channel resources. */
 export const channelList = (
