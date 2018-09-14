@@ -314,10 +314,14 @@ class MediaItem(models.Model):
     def fetched_size(self):
         """
         A cached property which returns the storage size of the video in bytes (the sum of all the
-        sources). Returns 0 if no jwp record is found.
+        sources). Returns 0 if the size isn't available.
 
         """
-        return self.jwp.fetch_size() if hasattr(self, 'jwp') else 0
+        return int(
+            getattr(
+                getattr(getattr(self, 'jwp', {}), 'resource', {}), 'data', {}
+            ).get('size', '0')
+        )
 
     def get_embed_url(self):
         """

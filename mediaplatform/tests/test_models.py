@@ -291,6 +291,17 @@ class MediaItemTest(ModelTestCase):
         item = models.MediaItem.objects.get(id='public')
         self.assertEqual(item.fetched_size, 54321)
 
+    def test_fetched_size_no_size(self):
+        """ check that fetched_size doesn't error when the resource.data doesn't have a size """
+        CachedResource.objects.create(key='jwpvidpublic', type='video', data={})
+        item = models.MediaItem.objects.get(id='public')
+        self.assertEqual(item.fetched_size, 0)
+
+    def test_fetched_size_no_resource(self):
+        """ check that fetched_size doesn't error when the Video doesn't have a resource """
+        item = models.MediaItem.objects.get(id='public')
+        self.assertEqual(item.fetched_size, 0)
+
     def test_fetched_size_no_jwp(self):
         """ check that fetched_size doesn't error when the item doesn't have a Video """
         item = models.MediaItem.objects.get(id='signedin')

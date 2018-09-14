@@ -273,14 +273,15 @@ class Video(models.Model):
     #: A property which calls get_sources and caches the result.
     sources = cached_property(get_sources, name='sources')
 
-    def fetch_size(self):
+    def get_resource(self):
         """
-        Fetches the storage size of the video in bytes (the sum of all the sources).
-        Returns 0 if unable to get a size.
+        Gets the Video's CachedResource.
 
         """
-        cache_resource = CachedResource.videos.filter(pk=self.pk).first()
-        return int(({} if cache_resource is None else cache_resource.data).get('size', '0'))
+        return CachedResource.videos.filter(pk=self.pk).first()
+
+    #: A property which calls get_resource and caches the result.
+    resource = cached_property(get_resource, name='resource')
 
     @property
     def embed_url(self):
