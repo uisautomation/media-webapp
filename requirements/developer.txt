@@ -4,7 +4,7 @@
 # Additional requirements useful for developers of the webapp
 
 # Django debugging
-django-debug-toolbar<1.10
+django-debug-toolbar>=1.10.1
 
 # Testing
 tox
