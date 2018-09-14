@@ -20,6 +20,15 @@ import {analyticsGet} from "../api";
 import Typography from '@material-ui/core/Typography';
 
 /**
+ * The media item's analytics page.
+ */
+const AnalyticsPage = ({ match: { params: { pk } } }) => (
+  <Page>
+    <FetchMediaItem id={ pk } component={ StyledAnalyticsPageContents } componentProps={{ id: pk }} />
+  </Page>
+);
+
+/**
  * A helper function to return a new date displaced from a given date by given number of days.
  */
 const addDays = (date, days) => {
@@ -78,111 +87,100 @@ const processAnalytics = (rawAnalytics) => {
 };
 
 /**
- * The media item's analytics page - retrieves the analytics and moves them to
+ * The media item's analytics page contents - retrieves the analytics and moves them to
  * AnalyticsPageContents.
  */
-class AnalyticsPage extends React.Component {
+
+class AnalyticsPageContents extends React.Component {
 
   state = { analytics: { viewsPerDay: [], size: 0, totalViews: 0 } };
 
   componentDidMount() {
-    const { match: { params: { pk } } } = this.props;
+    const { id } = this.props;
 
-    analyticsGet(pk).then(analytics => {
+    analyticsGet(id).then(analytics => {
       this.setState({ analytics: processAnalytics(analytics) })
     });
   }
 
   render() {
-    const { match: { params: { pk } } } = this.props;
-    const { analytics } = this.state;
-    return <Page>
-      <FetchMediaItem id={ pk } component={ StyledAnalyticsPageContents }
-                      componentProps={{ analytics }} />
-    </Page>
+    const { classes, resource: mediaItem } = this.props;
+    const { analytics: { viewsPerDay, size, totalViews } } = this.state;
+    return (
+      <div>
+        <BodySection classes={{root: classes.section}}>
+          <Typography variant="headline" component="div">
+            {mediaItem && mediaItem.title}
+          </Typography>
+        </BodySection>
+        <BodySection classes={{root: classes.section}}>
+          <Typography variant="title" component="div" gutterBottom>
+            General Statistics
+          </Typography>
+          <Grid container>
+            <Grid item xs={12} sm={6} md={3} lg={2}>
+              <Paper>
+                <Table>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>Total Views</TableCell>
+                      <TableCell numeric>{totalViews}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>Total Size</TableCell>
+                      <TableCell numeric>{Humanize.fileSize(size)}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </Paper>
+            </Grid>
+          </Grid>
+        </BodySection>
+        <BodySection classes={{root: classes.section}}>
+          <div className={classes.chartContainer}>
+            <Typography variant="title" component="div" gutterBottom>
+              Viewing history (views per day)
+            </Typography>
+            {
+              viewsPerDay.length > 1
+                ?
+                <Typography variant='body1' component='div'>
+                  <Chart
+                    chartType="AnnotationChart"
+                    data={viewsPerDay}
+                    options={{fill: 100, colors: ['#EF2E31']}}
+                  />
+                </Typography>
+                :
+                <Typography variant="subheading">
+                  There is no data available for the media
+                </Typography>
+            }
+          </div>
+        </BodySection>
+        <BodySection classes={{root: classes.section}}>
+          <Grid container justify='space-between' spacing={16}>
+            <Grid item xs={12} sm={6} md={3} lg={2}/>
+            <Grid item xs={12} sm={6} md={3} lg={2} style={{textAlign: 'right'}}>
+              {
+                mediaItem && mediaItem.legacyStatisticsUrl
+                  ?
+                  <Button component='a' variant='outlined' className={classes.link} fullWidth
+                          href={mediaItem.legacyStatisticsUrl}
+                  >
+                    SMS Statistics
+                    <ShowChartIcon className={classes.rightIcon}/>
+                  </Button>
+                  :
+                  null
+              }
+            </Grid>
+          </Grid>
+        </BodySection>
+      </div>
+    )
   }
 }
-
-/**
- * The media item's analytics page contents
- */
-const AnalyticsPageContents = ({
-  classes,
-  analytics: { viewsPerDay, size, totalViews },
-  resource: mediaItem
-}) => (
-  <div>
-    <BodySection classes={{root: classes.section}}>
-      <Typography variant="headline" component="div">
-        {mediaItem && mediaItem.title}
-      </Typography>
-    </BodySection>
-    <BodySection classes={{root: classes.section}}>
-      <Typography variant="title" component="div" gutterBottom>
-        General Statistics
-      </Typography>
-      <Grid container>
-        <Grid item xs={12} sm={6} md={3} lg={2}>
-          <Paper>
-            <Table>
-              <TableBody>
-                <TableRow>
-                  <TableCell>Total Views</TableCell>
-                  <TableCell numeric>{totalViews}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Total Size</TableCell>
-                  <TableCell numeric>{Humanize.fileSize(size)}</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </Paper>
-        </Grid>
-      </Grid>
-    </BodySection>
-    <BodySection classes={{root: classes.section}}>
-      <div className={classes.chartContainer}>
-        <Typography variant="title" component="div" gutterBottom>
-          Viewing history (views per day)
-        </Typography>
-        {
-          viewsPerDay.length > 1
-            ?
-            <Typography variant='body1' component='div'>
-              <Chart
-                chartType="AnnotationChart"
-                data={viewsPerDay}
-                options={{fill: 100, colors: ['#EF2E31']}}
-              />
-            </Typography>
-            :
-            <Typography variant="subheading">
-              There is no data available for the media
-            </Typography>
-        }
-      </div>
-    </BodySection>
-    <BodySection classes={{root: classes.section}}>
-      <Grid container justify='space-between' spacing={16}>
-        <Grid item xs={12} sm={6} md={3} lg={2}/>
-        <Grid item xs={12} sm={6} md={3} lg={2} style={{textAlign: 'right'}}>
-          {
-            mediaItem && mediaItem.legacyStatisticsUrl
-              ?
-              <Button component='a' variant='outlined' className={classes.link} fullWidth
-                      href={mediaItem.legacyStatisticsUrl}
-              >
-                SMS Statistics
-                <ShowChartIcon className={classes.rightIcon}/>
-              </Button>
-              :
-              null
-          }
-        </Grid>
-      </Grid>
-    </BodySection>
-  </div>
-);
 
 AnalyticsPageContents.propTypes = {
   analytics: PropTypes.shape({
