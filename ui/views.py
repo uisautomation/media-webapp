@@ -26,9 +26,9 @@ class MediaItemAnalyticsView(apiviews.MediaItemMixin, generics.RetrieveAPIView):
     Extends the DRF's media item analytics view.
 
     """
-    serializer_class = serializers.MediaItemAnalyticsPageSerializer
+    serializer_class = serializers.ResourcePageSerializer
     renderer_classes = [TemplateHTMLRenderer]
-    template_name = 'ui/analytics.html'
+    template_name = 'ui/resource.html'
 
 
 class ChannelView(apiviews.ChannelMixin, generics.RetrieveAPIView):

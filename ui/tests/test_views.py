@@ -11,7 +11,6 @@ from django.test import override_settings
 from django.urls import reverse
 
 import mediaplatform_jwp.api.delivery as api
-from api.tests import create_stats_table, delete_stats_table
 from api.tests.test_views import ViewTestCase as _ViewTestCase, DELIVERY_VIDEO_FIXTURE
 
 
@@ -102,26 +101,6 @@ class UploadViewTestCase(ViewTestCase):
         self.client.force_login(self.user)
         r = self.client.get(reverse('ui:media_item_new'))
         self.assertEqual(r.status_code, 200)
-
-
-class MediaItemAnalyticsViewTestCase(ViewTestCase):
-    def setUp(self):
-        super().setUp()
-        create_stats_table()
-        self.addCleanup(delete_stats_table)
-
-    def test_success(self):
-        """checks that a media item's analytics are rendered successfully"""
-
-        item = self.non_deleted_media.get(id='populated')
-
-        # test
-        r = self.client.get(reverse('ui:media_item_analytics', kwargs={'pk': item.pk}))
-
-        self.assertEqual(r.status_code, 200)
-        self.assertTemplateUsed(r, 'ui/analytics.html')
-        self.assertEqual(len(r.context['analytics']['views_per_day']), 0)
-        self.assertEqual(r.context['analytics']['size'], 0)
 
 
 class IndexViewTestCase(ViewTestCase):

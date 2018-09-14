@@ -43,14 +43,6 @@ const PROFILE_FROM_PAGE = (
   [0]
 );
 
-// Extract the media item's analytics if it is embedded in the page
-export const ANALYTICS_FROM_PAGE = (
-  Array.from(document.getElementsByTagName('script'))
-  .filter((element: HTMLScriptElement) => element.type === 'application/analytics+json')
-  .map((element: HTMLScriptElement) => JSON.parse(element.text))
-  [0]
-);
-
 /**
  * A function which retrieves a resource from the page by id. Note that, to avoid caching problems,
  * once retrieved, the resource is then removed from the RESOURCES_FROM_PAGE object.
@@ -321,7 +313,6 @@ export const mediaUploadGet = (item: IMediaResource) : Promise<IMediaUploadResou
 
 /** Retrieve a media resource's analytics. */
 export const analyticsGet = (id: string) : Promise<IAnalyticsResponse> => {
-  if (ANALYTICS_FROM_PAGE) { return Promise.resolve(ANALYTICS_FROM_PAGE); }
   return apiFetch(API_ENDPOINTS.mediaList + id + '/analytics');
 };
 
