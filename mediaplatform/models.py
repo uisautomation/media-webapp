@@ -151,6 +151,41 @@ class MediaItemQuerySet(PermissionQuerySetMixin, models.QuerySet):
         """
         return self.filter(self._editable_condition(user))
 
+    def _downloadable_condition(self, user):
+        # The item can be downloaded if any of the following are satisfied:
+        #
+        # 1. The downloadable flag is set on the item.
+        # 2. The user has the "mediaplatform.download_mediaitem" permission.
+
+        # If the user has the correct permission, return a tautology. There doesn't appear to be a
+        # cleaner way to express "True" as a Django Q() expression
+        if user is not None and user.has_perm('mediaplatform.download_mediaitem'):
+            return models.Q(id=models.F('id'))
+
+        return models.Q(downloadable=True)
+
+    def annotate_downloadable(self, user, name='downloadable_by_user'):
+        """
+        Annotate the query set with a boolean indicating if the user can download the item. To
+        avoid clashing with the model's downloadable flag, the annotation is called
+        "downloadable_by_user".
+
+        """
+        return self.annotate(**{
+            name: models.Case(
+                models.When(self._downloadable_condition(user), then=models.Value(True)),
+                default=models.Value(False),
+                output_field=models.BooleanField()
+            ),
+        })
+
+    def downloadable_by_user(self, user):
+        """
+        Filter the queryset to only those items which can be downloaded by the passed Django user.
+
+        """
+        return self.filter(self._downloadable_condition(user))
+
 
 class MediaItemManager(models.Manager):
     """
@@ -219,6 +254,11 @@ class MediaItem(models.Model):
 
         #: Height of the stream or None if this is an audio stream
         height: typing.Optional[int] = None
+
+    class Meta:
+        permissions = (
+            ('download_mediaitem', 'Can download media associated with a media item'),
+        )
 
     VIDEO = 'video'
     AUDIO = 'audio'
@@ -298,21 +338,16 @@ class MediaItem(models.Model):
     def __str__(self):
         return '{} ("{}")'.format(self.id, self.title)
 
-    def get_sources(self, only_if_downloadable=True):
+    @cached_property
+    def sources(self):
         """
-        Retrieve and return a list of :py:class:`~.MediaItem.Source` instances representing the raw
-        media sources for this media item.
-
-        By default, the source list will be empty if the media item is not marked as downloadable.
-        Set the *only_if_downloadable* parameter to ``True`` to skip this check.
+        A list of :py:class:`~.MediaItem.Source` instances representing the raw media sources for
+        this media item. This list is populated irrespective of the downloadable flag.
 
         """
-        if (not self.downloadable and only_if_downloadable) or not hasattr(self, 'jwp'):
+        if not hasattr(self, 'jwp'):
             return []
         return self.jwp.sources
-
-    #: Cached property which calls get_sources() to retrieve sources.
-    sources = cached_property(get_sources, name='sources')
 
     @cached_property
     def fetched_analytics(self):

@@ -328,6 +328,26 @@ class MediaItemTest(ModelTestCase):
         # check that the user can now view the item
         self.assert_user_can_view(new_user, item)
 
+    def test_super_downloaded(self):
+        """A user with mediaplatform.download_mediaitem permission can always download."""
+        new_user = get_user_model().objects.create(username='newuser')
+        item = models.MediaItem.objects.get(id='signedin')
+        item.downloadable = False
+        self.assert_user_cannot_download(new_user, item)
+
+        # add the permission to the user
+        view_permission = Permission.objects.get(
+            codename='download_mediaitem', content_type__app_label='mediaplatform')
+        new_user.user_permissions.add(view_permission)
+        new_user.save()
+
+        # we need to re-fetch the suer to avoid the permissions cache
+        new_user = get_user_model().objects.get(username=new_user.username)
+        self.assertTrue(new_user.has_perm('mediaplatform.download_mediaitem'))
+
+        # check that the user can now view the item
+        self.assert_user_can_download(new_user, item)
+
     def assert_user_cannot_view(self, user, item_or_id):
         if isinstance(item_or_id, str):
             item_or_id = models.MediaItem.objects_including_deleted.get(id=item_or_id)
@@ -384,6 +404,36 @@ class MediaItemTest(ModelTestCase):
             .annotate_editable(user, name='TEST_editable')
             .get(id=item_or_id.id)
             .TEST_editable
+        )
+
+    def assert_user_cannot_download(self, user, item_or_id):
+        if isinstance(item_or_id, str):
+            item_or_id = models.MediaItem.objects_including_deleted.get(id=item_or_id)
+        self.assertFalse(
+            models.MediaItem.objects_including_deleted.all()
+            .filter(id=item_or_id.id)
+            .downloadable_by_user(user)
+            .exists()
+        )
+        self.assertFalse(
+            models.MediaItem.objects_including_deleted.all()
+            .annotate_downloadable(user, name='TEST_downloadable')
+            .get(id=item_or_id.id)
+            .TEST_downloadable
+        )
+
+    def assert_user_can_download(self, user, item_or_id):
+        if isinstance(item_or_id, str):
+            item_or_id = models.MediaItem.objects_including_deleted.get(id=item_or_id)
+        self.assertTrue(
+            models.MediaItem.objects.all().downloadable_by_user(user).filter(id=item_or_id.id)
+            .exists()
+        )
+        self.assertTrue(
+            models.MediaItem.objects_including_deleted.all()
+            .annotate_downloadable(user, name='TEST_downloadable')
+            .get(id=item_or_id.id)
+            .TEST_downloadable
         )
 
 

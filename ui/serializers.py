@@ -88,7 +88,7 @@ class MediaItemJSONLDSerializer(JSONLDSerializer):
         return self._reverse('api:media_embed', kwargs={'pk': obj.id})
 
     def get_contentUrl(self, obj):
-        if not obj.downloadable:
+        if not obj.downloadable_by_user:
             return None
         return self._reverse('api:media_source', kwargs={'pk': obj.id})
 

@@ -150,12 +150,11 @@ class MediaItemSerializer(ChannelOwnedResourceModelSerializer):
         fields = (
             'url', 'id', 'title', 'description', 'duration', 'type', 'publishedAt',
             'downloadable', 'language', 'copyright', 'tags', 'createdAt',
-            'updatedAt', 'posterImageUrl', 'channelId', 'embedUrl',
+            'updatedAt', 'posterImageUrl', 'channelId', 'embedUrl', 'downloadableByUser',
         )
 
         read_only_fields = (
-            'url', 'id', 'duration', 'type', 'createdAt', 'updatedAt', 'posterImageUrl'
-            'embedUrl'
+            'url', 'id', 'duration', 'type', 'createdAt', 'updatedAt',
         )
         extra_kwargs = {
             'createdAt': {'source': 'created_at'},
@@ -170,6 +169,15 @@ class MediaItemSerializer(ChannelOwnedResourceModelSerializer):
 
     embedUrl = serializers.SerializerMethodField(
         help_text='A URL suitable for embedding this media item in an IFrame', read_only=True)
+
+    downloadableByUser = serializers.BooleanField(
+        source='downloadable_by_user',
+        help_text=(
+            'Whether the current user can download this media item. '
+            'Some users can download media even if the downloadable flag is False.'
+        ),
+        read_only=True
+    )
 
     def create(self, validated_data):
         """
@@ -282,9 +290,11 @@ class MediaItemDetailSerializer(MediaItemSerializer):
         fields = MediaItemSerializer.Meta.fields + (
             'channel', 'sources', 'legacyStatisticsUrl', 'bestSourceUrl')
 
+        read_only_fields = MediaItemSerializer.Meta.read_only_fields + ('sources',)
+
     channel = ChannelSerializer(read_only=True)
 
-    sources = SourceSerializer(many=True, read_only=True)
+    sources = serializers.SerializerMethodField()
 
     legacyStatisticsUrl = serializers.SerializerMethodField()
 
@@ -297,12 +307,16 @@ class MediaItemDetailSerializer(MediaItemSerializer):
             settings.LEGACY_SMS_FRONTEND_URL, f'media/{obj.sms.id:d}/statistics')
 
     def get_bestSourceUrl(self, obj):
-        if len(obj.sources) == 0:
+        if not obj.downloadable_by_user or len(obj.sources) == 0:
             return None
         url = reverse('api:media_source', kwargs={'pk': obj.id})
         if 'request' in self.context:
             url = self.context['request'].build_absolute_uri(url)
         return url
+
+    def get_sources(self, obj):
+        sources = obj.sources if obj.downloadable_by_user else []
+        return SourceSerializer(sources, many=True, context=self.context).data
 
 
 class MediaItemAnalyticsSerializer(serializers.Serializer):
