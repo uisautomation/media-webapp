@@ -367,6 +367,19 @@ Set the <em>only_if_downloadable</em> parameter to <code class="docutils literal
 <dd><p>Cached property which calls get_sources() to retrieve sources.</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.fetched_analytics">
+<code class="descname">fetched_analytics</code><a class="headerlink" href="#mediaplatform.models.MediaItem.fetched_analytics" title="Permalink to this definition">¶</a></dt>
+<dd><p>A cached property which returns legacy statistics if the media item is a legacy item.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.fetched_size">
+<code class="descname">fetched_size</code><a class="headerlink" href="#mediaplatform.models.MediaItem.fetched_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>A cached property which returns the storage size of the video in bytes (the sum of all the
+sources). Returns 0 if the size isn’t available.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="mediaplatform.models.MediaItem.get_embed_url">
 <code class="descname">get_embed_url</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.MediaItem.get_embed_url" title="Permalink to this definition">¶</a></dt>
