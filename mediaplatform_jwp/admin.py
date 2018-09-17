@@ -9,7 +9,7 @@ from django.utils.html import format_html
 from automationlookup.models import UserLookup
 
 from mediaplatform_jwp.api import delivery as api
-from .models import Video, CachedResource
+from .models import Video, CachedResource, Channel
 
 
 admin.site.register(UserLookup, admin.ModelAdmin)
@@ -75,3 +75,30 @@ class VideoAdmin(admin.ModelAdmin):
         """Ensure that related items are also fetched by the queryset."""
         qs = super().get_queryset(request)
         return qs.select_related('item')
+
+
+@admin.register(Channel)
+class ChannelAdmin(admin.ModelAdmin):
+    fields = ('key', 'resource', 'channel_link')
+    list_display = ('key', 'channel_link')
+    search_fields = ('key', 'channel__title', 'channel__description')
+    readonly_fields = ('key', 'channel_link')
+    autocomplete_fields = ('resource',)
+
+    def channel_link(self, obj):
+        """A link to the corresponding channel in the admin."""
+        if obj.channel is None:
+            return '\N{EM DASH}'
+
+        return format_html(
+            '<a href="{}">{}</a>',
+            reverse('admin:mediaplatform_channel_change', args=(obj.channel.pk,)),
+            obj.channel.title if obj.channel.title != '' else '[Untitled]'
+        )
+
+    channel_link.short_description = 'Channel'
+
+    def get_queryset(self, request):
+        """Ensure that related channels are also fetched by the queryset."""
+        qs = super().get_queryset(request)
+        return qs.select_related('channel')
