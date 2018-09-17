@@ -7,6 +7,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.http import QueryDict
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from rest_framework.authtoken.models import Token
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 import mediaplatform_jwp.api.delivery as api
@@ -77,6 +78,16 @@ class ProfileViewTestCase(ViewTestCase):
         """A non-anonymous user should have is_anonymous set to False and username set."""
         force_authenticate(self.get_request, user=self.user)
         response = self.view(self.get_request)
+        self.assertFalse(response.data['isAnonymous'])
+        self.assertEqual(response.data['username'], self.user.username)
+        self.assertEqual(response.data['displayName'], self.get_person.return_value['displayName'])
+        self.assertIn('xxxx', response.data['avatarImageUrl'])
+
+    def test_token_authenticated(self):
+        """A token-authenticated user should get expected media back."""
+        token = Token.objects.create(user=self.user)
+        token_get_request = self.factory.get('/', HTTP_AUTHORIZATION=f'Token {token.key}')
+        response = self.view(token_get_request)
         self.assertFalse(response.data['isAnonymous'])
         self.assertEqual(response.data['username'], self.user.username)
         self.assertEqual(response.data['displayName'], self.get_person.return_value['displayName'])
@@ -239,6 +250,23 @@ class MediaItemListViewTestCase(ViewTestCase):
 
         response = self.view(request)
         self.assertEqual(response.status_code, 400)  # bad request: playlist doesn't exist
+
+    def test_token_auth_list(self):
+        """A token-authenticated user should get expected media back."""
+        token = Token.objects.create(user=self.user)
+        token_get_request = self.factory.get('/', HTTP_AUTHORIZATION=f'Token {token.key}')
+        response_data = self.view(token_get_request).data
+        self.assertIn('results', response_data)
+
+        # sanity check that the viewable lists differ
+        self.assertNotEqual(self.viewable_by_user.count(), self.viewable_by_anon.count())
+
+        self.assertNotEqual(len(response_data['results']), 0)
+        self.assertEqual(len(response_data['results']), self.viewable_by_user.count())
+
+        expected_ids = set(o.id for o in self.viewable_by_user)
+        for item in response_data['results']:
+            self.assertIn(item['id'], expected_ids)
 
 
 class MediaItemViewTestCase(ViewTestCase):
