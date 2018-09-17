@@ -82,12 +82,24 @@ class PermissionQuerySetMixin:
 class MediaItemQuerySet(PermissionQuerySetMixin, models.QuerySet):
 
     def _viewable_condition(self, user):
-        # The item can be viewed if the user has view permission and the item is published.
-        # Overriding this, the item can be viewed if the user has edit permission.
+        # The item can be viewed if any of the following are satisfied:
+        #
+        # 1. The user has view permission and the item is published.
+        # 2. The user has edit permission as determined by _editable_condition().
+        # 3. The user has the "mediaplatform.view_mediaitem" permission.
+
+        # If the user has the correct permission, return a tautology. There doesn't appear to be a
+        # cleaner way to express "True" as a Django Q() expression
+        if user is not None and user.has_perm('mediaplatform.view_mediaitem'):
+            return models.Q(id=models.F('id'))
+
+        # An item is "published" if it either has no publication time or the publication time is in
+        # the past.
         published = models.Q(published_at__isnull=True) | models.Q(published_at__lt=timezone.now())
+
         return (
             (self._permission_condition('view_permission', user) & published) |
-            Q(self._permission_condition('channel__edit_permission', user))
+            self._editable_condition(user)
         )
 
     def annotate_viewable(self, user, name='viewable'):
