@@ -58,11 +58,6 @@ jobs:
           path: ~/project/build/doc
           destination: documentation
 
-      - persist_to_workspace:
-          root: .
-          paths:
-            - build/doc
-
       - run:
           name: Run codecov
           command: codecov
@@ -86,6 +81,17 @@ jobs:
               echo "Skipping push step as there are no GCloud secrets"
             fi
 
+      - deploy:
+          name: Save build number (for deploy steps)
+          command: |
+            echo ${CIRCLE_BUILD_NUM} > docker-build_number.txt
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - build/doc
+            - docker-build_number.txt
+
   docs:
     machine: true
     steps:
@@ -99,20 +105,22 @@ jobs:
   deploy:
     machine: true
     environment:
-      CIRCLE_PROJECT_USERNAME: 'uisautomation'
-      CIRCLE_PROJECT_REPONAME: 'media-deploy'
-      CIRCLE_BRANCH: 'master'
-      CIRCLECI_JOB_NAME: 'deploy'
+      DEPLOY_CIRCLE_PROJECT_USERNAME: 'uisautomation'
+      DEPLOY_CIRCLE_PROJECT_REPONAME: 'media-deploy'
+      DEPLOY_CIRCLE_BRANCH: 'deploy-to-development'
+      DEPLOY_CIRCLECI_JOB_NAME: 'deploy'
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - deploy:
-          name: conditionally run a deploy job
+          name: deploy to development
           command: |
             if [ ! -z "$GCLOUD_SERVICE_KEY" ]; then
-              curl --user ${CIRCLE_API_PROJECT_TOKEN}: \
-                --data build_parameters[CIRCLE_JOB]=$CIRCLECI_JOB_NAME \
-                --data build_parameters[IMAGE_TAG]=build-$CIRCLE_BUILD_NUM \
-                https://circleci.com/api/v1.1/project/github/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/tree/$CIRCLE_BRANCH
+              curl --user ${DEPLOY_CIRCLE_API_PROJECT_TOKEN}: \
+                --data build_parameters[CIRCLE_JOB]=$DEPLOY_CIRCLECI_JOB_NAME \
+                --data build_parameters[IMAGE_TAG]=build-$(cat docker-build_number.txt) \
+                https://circleci.com/api/v1.1/project/github/$DEPLOY_CIRCLE_PROJECT_USERNAME/$DEPLOY_CIRCLE_PROJECT_REPONAME/tree/$DEPLOY_CIRCLE_BRANCH
             else
               echo "Skipping deploy as there are no GCloud secrets"
             fi
