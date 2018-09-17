@@ -85,7 +85,8 @@ jobs:
             else
               echo "Skipping push step as there are no GCloud secrets"
             fi
-  deploy:
+
+  docs:
     machine: true
     steps:
       - checkout
@@ -95,14 +96,42 @@ jobs:
           name: Deploy to GitHub Pages
           command: ./.circleci/deploy-ghpages.sh ./build/doc
 
+  deploy:
+    machine: true
+    environment:
+      CIRCLE_PROJECT_USERNAME: 'uisautomation'
+      CIRCLE_PROJECT_REPONAME: 'media-deploy'
+      CIRCLE_BRANCH: 'master'
+      CIRCLECI_JOB_NAME: 'deploy'
+    steps:
+      - checkout
+      - deploy:
+          name: conditionally run a deploy job
+          command: |
+            if [ ! -z "$GCLOUD_SERVICE_KEY" ]; then
+              curl --user ${CIRCLE_API_PROJECT_TOKEN}: \
+                --data build_parameters[CIRCLE_JOB]=$CIRCLECI_JOB_NAME \
+                --data build_parameters[IMAGE_TAG]=build-$CIRCLE_BUILD_NUM \
+                https://circleci.com/api/v1.1/project/github/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/tree/$CIRCLE_BRANCH
+            else
+              echo "Skipping deploy as there are no GCloud secrets"
+            fi
+
 workflows:
   version: 2
   build-and-deploy:
     jobs:
       - build
-      - deploy:
+      - docs:
           requires:
-            - build
+          - build
           filters:
             branches:
               only: master
+      - request-deploy:
+          type: approval
+          requires:
+          - build
+      - deploy:
+          requires:
+            - request-deploy
