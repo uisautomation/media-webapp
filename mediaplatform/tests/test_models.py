@@ -287,7 +287,9 @@ class MediaItemTest(ModelTestCase):
 
     def test_fetched_size_success(self):
         """ check that a size is successfully fetched """
-        CachedResource.objects.create(key='jwpvidpublic', type='video', data={'size': 54321})
+        resource = models.MediaItem.objects.get(id='public').jwp.resource
+        resource.data['size'] = 54321
+        resource.save()
         item = models.MediaItem.objects.get(id='public')
         self.assertEqual(item.fetched_size, 54321)
 
