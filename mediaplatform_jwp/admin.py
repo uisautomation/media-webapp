@@ -30,10 +30,11 @@ class CachedResourceAdmin(admin.ModelAdmin):
 
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
-    fields = ('key', 'preview', 'item_link', 'updated_datetime', 'updated')
+    fields = ('key', 'preview', 'resource', 'item_link', 'updated_datetime', 'updated')
     list_display = ('key', 'item_link', 'updated_datetime')
     search_fields = ('key', 'item__title', 'item__description')
     readonly_fields = ('key', 'updated', 'updated_datetime', 'item_link', 'preview')
+    autocomplete_fields = ('resource',)
 
     def updated_datetime(self, obj):
         """A more friendly "updated" time which presents it as a localised string."""
