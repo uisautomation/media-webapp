@@ -42,7 +42,7 @@ class Page extends React.Component {
       <div className={ classes.page }>
         <AppBar
           classes={{root: classes.appBar}}
-          position='absolute'
+          position='fixed'
           defaultSearch={defaultSearch}
           onMenuClick={ this.handleDrawerToggle }
         >
@@ -125,27 +125,24 @@ const styles = theme => ({
   },
 
   drawerPaper: {
-    position: 'relative',
+    left: 0,
+    position: 'fixed',
+    top: 0,
     width: theme.dimensions.drawerWidth,
   },
 
   children: {
-    flexGrow: 1,
+    /* No default styles. */
   },
 
   page: {
-    display: 'flex',
-    height: '100vh',
     minHeight: '100vh',
-    overflow: 'hidden',
-    width: '100%',
   },
 
   content: {
-    display: 'flex',
-    flexDirection: 'column',
-    flexGrow: 1,
-    maxWidth: '100%',
+    [theme.breakpoints.up('md')]: {
+      paddingLeft: theme.dimensions.drawerWidth,
+    },
   },
 
   gutterTop: {
@@ -157,10 +154,7 @@ const styles = theme => ({
   },
 
   main: {
-    display: 'flex',
-    flexDirection: 'column',
-    flexGrow: 1,
-    overflowY: 'auto',
+    /* No default styles. */
   },
 
   toolbar: theme.mixins.toolbar,
