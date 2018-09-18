@@ -11,6 +11,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 
 import mediaplatform_jwp.api.delivery as api
 import mediaplatform.models as mpmodels
+from mediaplatform_jwp.models import CachedResource
 
 from . import create_stats_table, delete_stats_table, add_stat
 from .. import views
@@ -670,6 +671,9 @@ class MediaItemAnalyticsViewCase(ViewTestCase):
 
     def test_success(self):
         """Check that analytics for a media item is returned"""
+
+        CachedResource.objects.create(key='jwpvid1', type='video', data={'size': 12345})
+
         item = self.non_deleted_media.get(id='populated')
         media_id = item.sms.id
         add_stat(day=datetime.date(2018, 5, 17), num_hits=3, media_id=media_id)
@@ -680,17 +684,21 @@ class MediaItemAnalyticsViewCase(ViewTestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        results = response.data['results']
+        views_per_day = response.data['views_per_day']
 
-        self.assertEqual(results[0]['date'], '2018-05-17')
-        self.assertEqual(results[0]['views'], 3)
-        self.assertEqual(results[1]['date'], '2018-03-22')
-        self.assertEqual(results[1]['views'], 4)
+        self.assertEqual(views_per_day[0]['date'], '2018-05-17')
+        self.assertEqual(views_per_day[0]['views'], 3)
+        self.assertEqual(views_per_day[1]['date'], '2018-03-22')
+        self.assertEqual(views_per_day[1]['views'], 4)
+
+        self.assertEqual(response.data['size'], 12345)
 
     def test_no_legacy_sms(self):
         """
         Check that no analytics are returned if a media item doesn't have a legacysms.MediaItem
         """
+        CachedResource.objects.create(key='jwpvid2', type='video', data={'size': 54321})
+
         item = self.non_deleted_media.get(id='a')
 
         # test
@@ -698,9 +706,12 @@ class MediaItemAnalyticsViewCase(ViewTestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        results = response.data['results']
+        views_per_day = response.data['views_per_day']
 
-        self.assertEqual(len(results), 0)
+        self.assertEqual(len(views_per_day), 0)
+
+        # also check that size is still populated
+        self.assertEqual(response.data['size'], 54321)
 
 
 class ChannelListViewTestCase(ViewTestCase):

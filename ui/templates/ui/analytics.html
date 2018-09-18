@@ -2,7 +2,7 @@
 {% load to_json %}
 {% block extrabody %}
 {{ block.super }}
-<script>
-  window.mediaItemAnalytics = {% autoescape off %}{{ analytics.results|to_json }}{% endautoescape %};
+<script type="application/analytics+json">
+{{ analytics|to_json }}
 </script>
 {% endblock %}

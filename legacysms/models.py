@@ -1,4 +1,6 @@
-from django.db import models
+from collections import namedtuple
+
+from django.db import models, connection
 
 
 class MediaItem(models.Model):
@@ -20,6 +22,23 @@ class MediaItem(models.Model):
     #: Some SMS object have this set to NULL, so we should allow it too.
     last_updated_at = models.DateTimeField(
         help_text='Last updated at time from SMS', editable=False, null=True)
+
+    ResultRow = namedtuple('ResultRow', 'day num_hits')
+
+    def fetch_analytics(self):
+        """
+        A helper method that returns legacy statistics for the media item.
+
+        """
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT day, num_hits FROM stats.media_stats_by_day WHERE media_id=%s",
+                [self.id]
+            )
+            return [
+                MediaItem.ResultRow._make(row)
+                for row in cursor.fetchall()
+            ]
 
     def __str__(self):
         return 'Legacy SMS media item {}'.format(self.id)

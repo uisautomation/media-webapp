@@ -120,3 +120,19 @@ class CachedResourceTest(TestCase):
         self.assertEqual(self.videos.filter(data__x=5).first().key, 'foo')
         self.assertEqual(self.channels.count(), 1)
         self.assertEqual(self.channels.filter(data__z=5).first().key, 'buzz')
+
+
+class VideoTest(TestCase):
+    def setUp(self):
+        self.video = models.Video(key='abc123')
+
+    def test_has_cached_resource(self):
+        """ check that a video has a cached resource """
+        resource = models.CachedResource.objects.create(
+            key=self.video.pk, type='video', data={'size': 54321}
+        )
+        self.assertEqual(self.video.resource, resource)
+
+    def test_has_no_cached_resource(self):
+        """ check that a video has no cached resource """
+        self.assertIsNone(self.video.resource)

@@ -273,6 +273,14 @@ class Video(models.Model):
     #: A property which calls get_sources and caches the result.
     sources = cached_property(get_sources, name='sources')
 
+    @cached_property
+    def resource(self):
+        """
+        Cached property that returns the Video's CachedResource.
+
+        """
+        return CachedResource.videos.filter(pk=self.pk).first()
+
     @property
     def embed_url(self):
         """
