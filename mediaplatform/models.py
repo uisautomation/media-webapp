@@ -80,6 +80,18 @@ class PermissionQuerySetMixin:
 
 class MediaItemQuerySet(PermissionQuerySetMixin, models.QuerySet):
 
+    def _published_condition(self):
+        # An item is *NOT* published if any of the following are true:
+        #
+        # 1. It has a publication time is in the future.
+        # 2. It has an associated JWP video and that video's status is not "ready".
+        #
+        # We negate the OR of these checks to determined if a video is published.
+        return ~(
+            models.Q(published_at__gt=timezone.now()) |
+            (models.Q(jwp__isnull=False) & ~models.Q(jwp__resource__data__status='ready'))
+        )
+
     def _viewable_condition(self, user):
         # The item can be viewed if any of the following are satisfied:
         #
@@ -92,12 +104,11 @@ class MediaItemQuerySet(PermissionQuerySetMixin, models.QuerySet):
         if user is not None and user.has_perm('mediaplatform.view_mediaitem'):
             return models.Q(id=models.F('id'))
 
-        # An item is "published" if it either has no publication time or the publication time is in
-        # the past.
-        published = models.Q(published_at__isnull=True) | models.Q(published_at__lt=timezone.now())
-
         return (
-            (self._permission_condition('view_permission', user) & published) |
+            (
+                self._permission_condition('view_permission', user) &
+                self._published_condition()
+            ) |
             self._editable_condition(user)
         )
 
