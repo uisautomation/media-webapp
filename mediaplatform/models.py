@@ -1,5 +1,3 @@
-from django.utils import timezone
-
 import dataclasses
 import itertools
 import secrets
@@ -12,6 +10,7 @@ from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
 from django.utils.functional import cached_property
 from iso639 import languages
 
