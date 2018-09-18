@@ -246,6 +246,10 @@ class Video(models.Model):
     #: store the same value to make sure we compare apples to apples.
     updated = models.BigIntegerField(help_text='Last updated timestamp', editable=False)
 
+    #: Cached resource instance associated with this video.
+    resource = models.OneToOneField(
+        CachedResource, on_delete=models.CASCADE, related_name='video')
+
     def get_sources(self):
         """
         Uses the JWP fetch API to retrieve a list of :py:class:`mediaplatform.MediaItem.Source`
@@ -272,14 +276,6 @@ class Video(models.Model):
 
     #: A property which calls get_sources and caches the result.
     sources = cached_property(get_sources, name='sources')
-
-    @cached_property
-    def resource(self):
-        """
-        Cached property that returns the Video's CachedResource.
-
-        """
-        return CachedResource.videos.filter(pk=self.pk).first()
 
     @property
     def embed_url(self):
@@ -311,3 +307,7 @@ class Channel(models.Model):
     #: an integer field rather than a datetime field because JWP uses timestamps and we should
     #: store the same value to make sure we compare apples to apples.
     updated = models.BigIntegerField(help_text='Last updated timestamp', editable=False)
+
+    #: Cached resource instance associated with this channel.
+    resource = models.OneToOneField(
+        CachedResource, on_delete=models.CASCADE, related_name='channel')

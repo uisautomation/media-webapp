@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'reversion',
     'django_celery_beat',
     'django_celery_results',
+    'rest_framework.authtoken',
 
     'smsjwplatform',
     'legacysms',
@@ -223,6 +224,7 @@ LOGGING = {
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ],
     'EXCEPTION_HANDLER': 'api.views.exception_handler',
 }
