@@ -373,7 +373,7 @@ class PlaylistDetailSerializer(PlaylistSerializer):
 
     channel = ChannelSerializer(read_only=True)
 
-    media = MediaItemSerializer(many=True, source='fetched_media_items_in_order')
+    media = MediaItemSerializer(many=True, source='ordered_media_item_queryset')
 
     class Meta(PlaylistSerializer.Meta):
         fields = PlaylistSerializer.Meta.fields + ('channel', 'media')
