@@ -118,6 +118,7 @@ class MediaItemListMixin(ListMixinBase):
     def get_queryset(self):
         return (
             super().get_queryset().all()
+            .annotate_downloadable(self.request.user)
             .select_related('jwp')
         )
 
@@ -271,6 +272,11 @@ class MediaItemSourceView(MediaItemMixin, generics.RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         item = self.get_object()
+
+        # Check if user can download media item
+        if not item.downloadable_by_user:
+            raise Http404()
+
         mime_type = request.GET.get('mimeType')
         width = request.GET.get('width')
         height = request.GET.get('height')
@@ -286,11 +292,11 @@ class MediaItemSourceView(MediaItemMixin, generics.RetrieveAPIView):
         if mime_type is None and width is None and height is None:
             # If nothing was specified, return the "best" source.
             video_sources = [
-                source for source in item.get_sources()
+                source for source in item.sources
                 if source.mime_type.startswith('video/') and source.height is not None
             ]
             audio_sources = [
-                source for source in item.get_sources()
+                source for source in item.sources
                 if source.mime_type.startswith('audio/')
             ]
 
@@ -301,7 +307,7 @@ class MediaItemSourceView(MediaItemMixin, generics.RetrieveAPIView):
                 # Sort videos by descending height
                 return redirect(sorted(video_sources, key=lambda s: -s.height)[0].url)
         else:
-            for source in item.get_sources():
+            for source in item.sources:
                 if (source.mime_type == mime_type and source.width == width
                         and source.height == height):
                     return redirect(source.url)
