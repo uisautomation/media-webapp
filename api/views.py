@@ -70,25 +70,94 @@ class ListPagination(pagination.CursorPagination):
     page_size = 50
 
 
-class ListMixinBase:
+class ViewMixinBase:
     """
-    Base class for the various ListView mixin classes which ensures that the list only contains
-    resources viewable by the user, annotates the resources with the viewable and editable
-    flags and selects related JWPlatform and SMS objects.
+    A generic mixin class for API views which provides helper methods to filter querysets of
+    MediaItem, Channel and Playlist objects for the request user and to be annotated with all of
+    the fields required by the non-detail serialisers.
 
-    Sets permission_classes to :py:class:`~.permissions.MediaPlatformPermission` so that safe and
-    unsafe operations are appropriately restricted.
+    Additionally, there are helper methods to annotate a query set with fields required by the
+    detail serialisers.
+
+    It also defines an appropriate permission class to forbid non-editors from performing "unsafe"
+    operations on the objects.
 
     """
     permission_classes = [permissions.MediaPlatformPermission]
 
-    def get_queryset(self):
+    def filter_media_item_qs(self, qs):
+        """
+        Filters a MediaItem queryset so that only the appropriate objects are returned for the
+        user, annotates the objects with any fields required by the serialisers and selects any
+        related objects used by the serialisers.
+
+        """
         return (
-            super().get_queryset().all()
+            self._filter_permissions(qs)
+            .select_related('sms')
+            .select_related('jwp')
+            .annotate_downloadable(self.request.user)
+        )
+
+    def filter_channel_qs(self, qs):
+        """
+        Filters a Channel queryset so that only the appropriate objects are returned for the user,
+        annotates the objects with any fields required by the serialisers and selects any related
+        objects used by the serialisers.
+
+        """
+        # For the moment we only need to respect permissions
+        return self._filter_permissions(qs)
+
+    def filter_playlist_qs(self, qs):
+        """
+        Filters a Playlist queryset so that only the appropriate objects are returned for the user,
+        annotates the objects with any fields required by the serialisers and selects any related
+        objects used by the serialisers.
+
+        """
+        # For the moment we only need to respect permissions
+        return self._filter_permissions(qs)
+
+    def add_media_item_detail(self, qs):
+        """
+        Add any extra annotations to a MediaItem query set which are required to render the detail
+        view via MediaItemDetailSerializer.
+
+        """
+        return qs.select_related('channel')
+
+    def add_channel_detail(self, qs):
+        """
+        Add any extra annotations to a Channel query set which are required to render the detail
+        view via ChannelDetailSerializer.
+
+        """
+        # Currently this is a no-op
+        return qs
+
+    def add_playlist_detail(self, qs):
+        """
+        Add any extra annotations to a Playlist query set which are required to render the detail
+        view via PlaylistDetailSerializer.
+
+        """
+        return qs.select_related('channel')
+
+    def _filter_permissions(self, qs):
+        """
+        Filter the passed queryset so that only items viewable by the request user are present and
+        that the viewable and editable annotations are added. Works for MediaItem, Channel and
+        Playlist.
+
+        """
+        # We use qs.all() here because we want to allow a manager object (e.g. MediaItem.objects)
+        # to be passed as well.
+        return (
+            qs.all()
             .viewable_by_user(self.request.user)
             .annotate_viewable(self.request.user)
             .annotate_editable(self.request.user)
-            .select_related('sms')
         )
 
 
@@ -117,7 +186,7 @@ class MediaItemListSearchFilter(filters.SearchFilter):
         return filtered_qs
 
 
-class MediaItemListMixin(ListMixinBase):
+class MediaItemListMixin(ViewMixinBase):
     """
     A mixin class for DRF generic views which has all of the specialisations necessary for listing
     (and possibly creating/deleting) media items. Use this mixin with ListAPIView or
@@ -127,11 +196,7 @@ class MediaItemListMixin(ListMixinBase):
     queryset = mpmodels.MediaItem.objects
 
     def get_queryset(self):
-        return (
-            super().get_queryset().all()
-            .annotate_downloadable(self.request.user)
-            .select_related('jwp')
-        )
+        return self.filter_media_item_qs(super().get_queryset())
 
 
 class MediaItemMixin(MediaItemListMixin):
@@ -141,6 +206,8 @@ class MediaItemMixin(MediaItemListMixin):
     or RetrieveUpdateAPIView to form a concrete view class.
 
     """
+    def get_queryset(self):
+        return self.add_media_item_detail(super().get_queryset())
 
 
 def _user_playlists(request):
@@ -390,7 +457,7 @@ class MediaItemPosterView(MediaItemMixin, generics.RetrieveAPIView):
         return redirect(delivery.Video({'key': jwp.key}).get_poster_url(width=width))
 
 
-class ChannelListMixin(ListMixinBase):
+class ChannelListMixin(ViewMixinBase):
     """
     A mixin class for DRF generic views which has all of the specialisations necessary for listing
     (and possibly creating/deleting) channels. Use this mixin with ListAPIView or
@@ -398,6 +465,9 @@ class ChannelListMixin(ListMixinBase):
 
     """
     queryset = mpmodels.Channel.objects
+
+    def get_queryset(self):
+        return self.filter_channel_qs(super().get_queryset())
 
 
 class ChannelMixin(ChannelListMixin):
@@ -407,6 +477,8 @@ class ChannelMixin(ChannelListMixin):
     or RetrieveUpdateAPIView to form a concrete view class.
 
     """
+    def get_queryset(self):
+        return self.add_channel_detail(super().get_queryset())
 
 
 class ChannelListFilterSet(df_filters.FilterSet):
@@ -445,7 +517,7 @@ class ChannelView(ChannelMixin, generics.RetrieveUpdateAPIView):
     serializer_class = serializers.ChannelDetailSerializer
 
 
-class PlaylistListMixin(ListMixinBase):
+class PlaylistListMixin(ViewMixinBase):
     """
     A mixin class for DRF generic views which has all of the specialisations necessary for listing
     (and possibly creating/deleting) playlists. Use this mixin with ListAPIView or
@@ -453,6 +525,9 @@ class PlaylistListMixin(ListMixinBase):
 
     """
     queryset = mpmodels.Playlist.objects
+
+    def get_queryset(self):
+        return self.filter_playlist_qs(super().get_queryset())
 
 
 class PlaylistMixin(PlaylistListMixin):
@@ -462,6 +537,8 @@ class PlaylistMixin(PlaylistListMixin):
     or RetrieveUpdateAPIView to form a concrete view class.
 
     """
+    def get_queryset(self):
+        return self.add_playlist_detail(super().get_queryset())
 
 
 class PlaylistListFilterSet(df_filters.FilterSet):
