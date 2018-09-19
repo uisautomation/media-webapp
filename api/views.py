@@ -540,6 +540,14 @@ class PlaylistMixin(PlaylistListMixin):
     def get_queryset(self):
         return self.add_playlist_detail(super().get_queryset())
 
+    def get_object(self):
+        obj = super().get_object()
+
+        # annotate object with media for user
+        obj.media_for_user = self.filter_media_item_qs(obj.ordered_media_item_queryset)
+
+        return obj
+
 
 class PlaylistListFilterSet(df_filters.FilterSet):
     class Meta:

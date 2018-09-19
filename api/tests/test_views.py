@@ -1,4 +1,5 @@
 import datetime
+import random
 from unittest import mock
 
 from dateutil import parser as dateparser
@@ -1048,6 +1049,50 @@ class PlaylistViewTestCase(ViewTestCase):
 
     def test_created_at_immutable(self):
         self.assert_field_immutable('createdAt', '2018-08-06T15:29:45.003231Z', 'created_at')
+
+    def test_view_permission_respected(self):
+        """The media items returned in mediaForUser respects view permissions."""
+        playlist = self.playlists.get(id='public')
+
+        # Get a list of all media item ids (included deleted ones) and those viewable by the user.
+        # The lists should differ.
+        all_media_ids = set(
+            m.id for m in mpmodels.MediaItem.objects_including_deleted.all()
+        )
+        viewable_media_ids = set(
+            m.id for m in mpmodels.MediaItem.objects.all().viewable_by_user(self.user)
+        )
+        self.assertGreater(len(all_media_ids), len(viewable_media_ids))
+
+        # The public media item (which is laconically named "a" in the fixtures) should be in both
+        # lists. We'll not add it to the playlist so that we check that the mediaForUser field
+        # doesn't just return *all* media.
+        self.assertIn('a', all_media_ids)
+        self.assertIn('a', viewable_media_ids)
+
+        # More than just the public item is visible.
+        self.assertGreater(len(viewable_media_ids), 1)
+
+        # Form a list of media item ids for the playlist throwing in some ones which do not exist
+        # and set the playlist to have them. We randomly shuffle the list to check that they come
+        # back in the right order.
+        media_items = (
+            [id for id in all_media_ids if id != 'a'] +
+            ['dontexist', 'invalidid']
+        )
+        random.shuffle(media_items)
+        playlist.media_items = media_items
+        playlist.save()
+
+        # From the list of items, form the list we *expect* to get back.
+        expected_ids = [id for id in media_items if id in viewable_media_ids]
+        self.assertGreater(len(expected_ids), 0)
+
+        # Get the response and list of media ids
+        force_authenticate(self.get_request, user=self.user)
+        response = self.view(self.get_request, pk=playlist.id)
+        response_ids = [item['id'] for item in response.data['mediaForUser']]
+        self.assertEqual(response_ids, expected_ids)
 
     def assert_field_mutable(
             self, field_name, new_value='testvalue', model_field_name=None, expected_value=None):

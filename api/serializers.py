@@ -375,9 +375,12 @@ class PlaylistDetailSerializer(PlaylistSerializer):
 
     """
 
+    class Meta(PlaylistSerializer.Meta):
+        fields = PlaylistSerializer.Meta.fields + ('channel', 'mediaForUser')
+
     channel = ChannelSerializer(read_only=True)
 
-    media = MediaItemSerializer(many=True, source='ordered_media_item_queryset')
-
-    class Meta(PlaylistSerializer.Meta):
-        fields = PlaylistSerializer.Meta.fields + ('channel', 'media')
+    mediaForUser = MediaItemSerializer(
+        source='media_for_user', many=True,
+        help_text="List of media resources for this playlist in playlist order."
+    )
