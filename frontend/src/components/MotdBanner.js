@@ -43,9 +43,7 @@ const styles = theme => ({
   root: {
     backgroundColor: 'rgba(0, 0, 0, 0.08)',
     borderBottom: [[1, 'solid', theme.palette.divider]],
-    display: 'flex',
     marginBottom: -1,
-    ...theme.mixins.toolbar,
   },
 
   left: {
@@ -63,8 +61,9 @@ const styles = theme => ({
   message: {
     alignItems: 'center',
     display: 'flex',
-    flexGrow: 1,
     justifyContent: 'space-between',
+    paddingBottom: theme.spacing.unit * 2,
+    paddingTop: theme.spacing.unit * 2,
   },
 
   link: {
