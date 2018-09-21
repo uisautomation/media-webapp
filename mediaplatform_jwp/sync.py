@@ -456,7 +456,7 @@ def _ensure_resources(jwp_model, resource_queryset):
 
     # Bulk insert objects for all new resources.
     jwp_queryset.bulk_create([
-        jwp_model(key=resource.key, updated=resource.data.get('updated', 0))
+        jwp_model(key=resource.key, updated=resource.data.get('updated', 0), resource=resource)
         for resource in new_resources
     ])
 

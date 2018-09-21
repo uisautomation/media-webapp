@@ -65,12 +65,16 @@ def _perform_item_update(item):
             http_method='POST', **_flatten_dict(video_resource))
 
         # Get/create the corresponding cached JWP resource
-        video_key = response.get('media', {}).get('key')
+        resource_data = response.get('media', {})
+        video_key = resource_data.get('key')
         if video_key is None:
             raise RuntimeError('Unexpected response from JWP: {}'.format(repr(response)))
 
-        # Create a JWP video model
-        models.Video.objects.create(key=video_key, updated=updated, item=item)
+        # Create a JWP video model and update/create the associated cached resource for it
+        resource, _ = models.CachedResource.objects.get_or_create(
+            key=video_key, defaults={'data': resource_data}
+        )
+        models.Video.objects.create(key=video_key, updated=updated, item=item, resource=resource)
 
     # If there was an upload link in the response, record it.
     link_data = response.get('link')
