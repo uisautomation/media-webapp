@@ -4,7 +4,7 @@ Django views.
 """
 import logging
 from django.http import Http404, HttpResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 import requests
 
@@ -40,9 +40,9 @@ def embed(request, media_id):
         .filter(sms__id=media_id).first()
     )
 
-    # If we can't find the item, redirect back to SMS to see if it knows about it
+    # If we can't find the item, render the custom 404 error page from the api application.
     if item is None:
-        return legacyredirect.media_embed(media_id)
+        return render(request, 'api/embed_404.html', status=404)
 
     return redirect(reverse('api:media_embed', kwargs={'pk': item.id}))
 
