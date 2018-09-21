@@ -47,22 +47,20 @@ class EmbedTest(TestCaseWithFixtures):
 
     def test_no_media(self):
         """
-        Test redirect behaviour when no media is in local cache.
+        Test 404 behaviour when no media is in local cache.
 
         """
         r = self.client.get(reverse('legacysms:embed', kwargs={'media_id': 12345}))
-        self.assertRedirects(r, redirect.media_embed(12345)['Location'],
-                             fetch_redirect_response=False)
+        self.assertEqual(r.status_code, 404)
 
     def test_wrong_media(self):
         """
-        Test redirect behaviour when wrong media returned.
+        Test 404 behaviour when wrong media returned.
 
         """
         # Embedding fails with wrong media id
         r = self.client.get(reverse('legacysms:embed', kwargs={'media_id': 35}))
-        self.assertRedirects(r, redirect.media_embed(35)['Location'],
-                             fetch_redirect_response=False)
+        self.assertEqual(r.status_code, 404)
 
     def test_rss_media(self):
         """
