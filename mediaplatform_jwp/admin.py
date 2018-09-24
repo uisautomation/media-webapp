@@ -9,7 +9,7 @@ from django.utils.html import format_html
 from automationlookup.models import UserLookup
 
 from mediaplatform_jwp.api import delivery as api
-from .models import Video, CachedResource
+from .models import Video, CachedResource, Channel
 
 
 admin.site.register(UserLookup, admin.ModelAdmin)
@@ -30,10 +30,11 @@ class CachedResourceAdmin(admin.ModelAdmin):
 
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
-    fields = ('key', 'preview', 'item_link', 'updated_datetime', 'updated')
+    fields = ('key', 'preview', 'resource', 'item_link', 'updated_datetime', 'updated')
     list_display = ('key', 'item_link', 'updated_datetime')
     search_fields = ('key', 'item__title', 'item__description')
     readonly_fields = ('key', 'updated', 'updated_datetime', 'item_link', 'preview')
+    autocomplete_fields = ('resource',)
 
     def updated_datetime(self, obj):
         """A more friendly "updated" time which presents it as a localised string."""
@@ -74,3 +75,30 @@ class VideoAdmin(admin.ModelAdmin):
         """Ensure that related items are also fetched by the queryset."""
         qs = super().get_queryset(request)
         return qs.select_related('item')
+
+
+@admin.register(Channel)
+class ChannelAdmin(admin.ModelAdmin):
+    fields = ('key', 'resource', 'channel_link')
+    list_display = ('key', 'channel_link')
+    search_fields = ('key', 'channel__title', 'channel__description')
+    readonly_fields = ('key', 'channel_link')
+    autocomplete_fields = ('resource',)
+
+    def channel_link(self, obj):
+        """A link to the corresponding channel in the admin."""
+        if obj.channel is None:
+            return '\N{EM DASH}'
+
+        return format_html(
+            '<a href="{}">{}</a>',
+            reverse('admin:mediaplatform_channel_change', args=(obj.channel.pk,)),
+            obj.channel.title if obj.channel.title != '' else '[Untitled]'
+        )
+
+    channel_link.short_description = 'Channel'
+
+    def get_queryset(self, request):
+        """Ensure that related channels are also fetched by the queryset."""
+        qs = super().get_queryset(request)
+        return qs.select_related('channel')

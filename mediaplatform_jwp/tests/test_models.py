@@ -123,16 +123,11 @@ class CachedResourceTest(TestCase):
 
 
 class VideoTest(TestCase):
+    fixtures = ['mediaplatform_jwp/tests/fixtures/mediaitems.yaml']
+
     def setUp(self):
-        self.video = models.Video(key='abc123')
+        self.video = models.Video.objects.first()
 
     def test_has_cached_resource(self):
-        """ check that a video has a cached resource """
-        resource = models.CachedResource.objects.create(
-            key=self.video.pk, type='video', data={'size': 54321}
-        )
-        self.assertEqual(self.video.resource, resource)
-
-    def test_has_no_cached_resource(self):
-        """ check that a video has no cached resource """
-        self.assertIsNone(self.video.resource)
+        """A video has an associated cached resource """
+        self.assertIsNotNone(self.video.resource)

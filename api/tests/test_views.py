@@ -12,7 +12,6 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 
 import mediaplatform_jwp.api.delivery as api
 import mediaplatform.models as mpmodels
-from mediaplatform_jwp.models import CachedResource
 
 from . import create_stats_table, delete_stats_table, add_stat
 from .. import views
@@ -700,9 +699,9 @@ class MediaItemAnalyticsViewCase(ViewTestCase):
     def test_success(self):
         """Check that analytics for a media item is returned"""
 
-        CachedResource.objects.create(key='jwpvid1', type='video', data={'size': 12345})
-
         item = self.non_deleted_media.get(id='populated')
+        item.jwp.resource.data['size'] = 12345
+        item.jwp.resource.save()
         media_id = item.sms.id
         add_stat(day=datetime.date(2018, 5, 17), num_hits=3, media_id=media_id)
         add_stat(day=datetime.date(2018, 3, 22), num_hits=4, media_id=media_id)
@@ -725,9 +724,9 @@ class MediaItemAnalyticsViewCase(ViewTestCase):
         """
         Check that no analytics are returned if a media item doesn't have a legacysms.MediaItem
         """
-        CachedResource.objects.create(key='jwpvid2', type='video', data={'size': 54321})
-
         item = self.non_deleted_media.get(id='a')
+        item.jwp.resource.data['size'] = 54321
+        item.jwp.resource.save()
 
         # test
         response = views.MediaItemAnalyticsView().as_view()(self.get_request, pk=item.id)
