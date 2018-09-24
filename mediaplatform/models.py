@@ -17,6 +17,8 @@ from iso639 import languages
 
 
 #: The number of bytes of entropy in the tokens returned by _make_token.
+from requests import HTTPError
+
 _TOKEN_ENTROPY = 8
 
 
@@ -804,10 +806,19 @@ def _lookup_groupids_and_instids_for_user(user):
 
     """
     # automationlookup.get_person return values are cached
-    person = automationlookup.get_person(
-        identifier=user.username, scheme=getattr(settings, 'LOOKUP_SCHEME', 'crsid'),
-        fetch=['all_groups', 'all_insts']
-    )
+    try:
+        person = automationlookup.get_person(
+            identifier=user.username, scheme=getattr(settings, 'LOOKUP_SCHEME', 'crsid'),
+            fetch=['all_groups', 'all_insts']
+        )
+    except HTTPError as e:
+        if e.response.status_code == 404:
+            # A user with no entry in lookup should not be treated as an error - simply return
+            # empty lists.
+            return [], []
+        else:
+            raise e
+
     # "be liberal in what you accept" - do not assume that all the fields we expect to be
     # present in the result will be
     return (
