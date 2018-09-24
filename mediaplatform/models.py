@@ -372,17 +372,6 @@ class MediaItem(models.Model):
             ).get('size', '0')
         )
 
-    def get_jwp_embed_url(self):
-        """
-        Return an URL with an embed view of the media item and player. This comes directly from
-        jwplayer and thus the code inside can't be modified. This URL renders the media
-        unconditionally; it does not respect any view permissions.
-
-        """
-        if not hasattr(self, 'jwp'):
-            return None
-        return self.jwp.embed_url()
-
 
 class Permission(models.Model):
     """
