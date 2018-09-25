@@ -47,7 +47,13 @@ def get_profile(request):
     person resource for the user is non-anoymous.
 
     """
-    obj = {'user': request.user}
+    obj = {
+        'user': request.user,
+        'channels': annotate_channel_qs_for_detail(
+            mpmodels.Channel.objects.all().editable_by_user(request.user),
+            user=request.user
+        ),
+    }
     if not request.user.is_anonymous:
         try:
             obj['person'] = automationlookup.get_person(

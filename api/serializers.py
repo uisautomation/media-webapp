@@ -363,14 +363,10 @@ class ProfileSerializer(serializers.Serializer):
     """
     isAnonymous = serializers.BooleanField(source='user.is_anonymous')
     username = serializers.CharField(source='user.username', required=False)
-    channels = serializers.SerializerMethodField(
-        help_text="List of channels which the user has edit rights on")
+    channels = ChannelDetailSerializer(
+        help_text="List of channels which the user has edit rights on", many=True)
     displayName = serializers.CharField(source='person.displayName', required=False)
     avatarImageUrl = serializers.SerializerMethodField()
-
-    def get_channels(self, obj):
-        qs = mpmodels.Channel.objects.all().editable_by_user(obj['user'])
-        return ChannelDetailSerializer(qs, many=True, context=self.context).data
 
     def get_avatarImageUrl(self, obj):
         person = obj.get('person')
