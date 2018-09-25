@@ -169,7 +169,7 @@ class MediaItemListView(MediaItemListMixin, generics.ListCreateAPIView):
     filter_backends = (filters.OrderingFilter, MediaItemListSearchFilter,
                        df_filters.DjangoFilterBackend)
     ordering = '-publishedAt'
-    ordering_fields = ('publishedAt','updatedAt')
+    ordering_fields = ('publishedAt', 'updatedAt')
     pagination_class = ListPagination
     search_fields = ('title', 'description', 'tags')
     serializer_class = serializers.MediaItemSerializer
