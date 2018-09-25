@@ -475,9 +475,9 @@ class MediaItemEmbedTestCase(ViewTestCase):
     def test_basic_functionality(self):
         with mock.patch('time.time') as time:
             time.return_value = 123456
-            expected_url = api.player_embed_url(self.item.jwp.key, 'mock-key', format='html')
+            expected_embed_url = api.player_embed_url(self.item.jwp.key, 'mock-key', format='js')
             response = self.view(self.get_request, pk=self.item.id)
-        self.assertRedirects(response, expected_url, fetch_redirect_response=False)
+        self.assertContains(response, '<script src="%s"></script>' % expected_embed_url, html=True)
 
     def test_visibility(self):
         """If an item has no visibility, the embed view should 404."""

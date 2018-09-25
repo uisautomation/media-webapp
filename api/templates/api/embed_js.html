@@ -1,0 +1,12 @@
+{% load gtag_script_tag %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>{{ media_item.title }}</title>
+    <meta charset="utf-8">
+    {% gtag_script_tag %}
+  </head>
+  <body style="margin: 0">
+    <div id="botr_{{ media_item.jwp.key }}_{{ player_id }}_div"></div>
+    <script src="{{ embed_code }}"></script>
+</body>
