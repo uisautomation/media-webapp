@@ -372,16 +372,6 @@ class MediaItem(models.Model):
             ).get('size', '0')
         )
 
-    def get_embed_url(self):
-        """
-        Return a URL suitable for use in an IFrame which will render this media. This URL renders
-        the media unconditionally; it does not respect any view permissions.
-
-        """
-        if not hasattr(self, 'jwp'):
-            return None
-        return self.jwp.embed_url
-
 
 class Permission(models.Model):
     """

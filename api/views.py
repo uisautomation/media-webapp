@@ -226,13 +226,13 @@ class MediaItemEmbedView(MediaItemMixin, generics.RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         item = self.get_object()
-        url = item.get_embed_url()
-
-        # If the item has no associated embed URL, return a 404.
-        if url is None:
+        if not hasattr(item, 'jwp'):
             raise Http404()
-
-        return redirect(url)
+        return render(request, 'api/embed_js.html', {
+            'media_item': item,
+            'embed_code': item.jwp.embed_url(format='js'),
+            'player_id': settings.JWPLATFORM_EMBED_PLAYER_KEY
+        })
 
 
 class MediaItemSourceViewInspector(inspectors.ViewInspector):
