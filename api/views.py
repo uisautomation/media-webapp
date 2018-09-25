@@ -169,7 +169,7 @@ class MediaItemListView(MediaItemListMixin, generics.ListCreateAPIView):
     filter_backends = (filters.OrderingFilter, MediaItemListSearchFilter,
                        df_filters.DjangoFilterBackend)
     ordering = '-publishedAt'
-    ordering_fields = ('publishedAt',)
+    ordering_fields = ('publishedAt', 'updatedAt')
     pagination_class = ListPagination
     search_fields = ('title', 'description', 'tags')
     serializer_class = serializers.MediaItemSerializer
@@ -177,7 +177,7 @@ class MediaItemListView(MediaItemListMixin, generics.ListCreateAPIView):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.annotate(publishedAt=models.F('published_at'))
+        return qs.annotate(publishedAt=models.F('published_at'), updatedAt=models.F('updated_at'))
 
 
 class MediaItemView(MediaItemMixin, generics.RetrieveUpdateAPIView):
