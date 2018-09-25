@@ -272,6 +272,11 @@ class MediaItem(models.Model):
             ('download_mediaitem', 'Can download media associated with a media item'),
         )
 
+        indexes = (
+            models.Index(fields=['updated_at']),
+            models.Index(fields=['published_at']),
+        )
+
     VIDEO = 'video'
     AUDIO = 'audio'
     UNKNOWN = 'unknown'
