@@ -24,6 +24,22 @@ from . import serializers
 LOG = logging.getLogger(__name__)
 
 
+def annotate_channel_qs_for_detail(qs, user=None, name='item_count'):
+    """
+    Annotate a queryset returning Channel objects so that they can be serialised by a
+    ChannelDetailSerializer.
+
+    """
+    items_qs = (
+        mpmodels.MediaItem.objects.all().viewable_by_user(user)
+        .filter(channel=models.OuterRef('pk'))
+        .values('channel')
+        .annotate(count=models.Count('*'))
+        .values('count')
+    )
+    return qs.annotate(**{name: models.Subquery(items_qs, output_field=models.BigIntegerField())})
+
+
 def get_profile(request):
     """
     Return an object representing what is known about a user from a reques. Contains two keys:
@@ -376,6 +392,9 @@ class ChannelView(ChannelMixin, generics.RetrieveUpdateAPIView):
 
     """
     serializer_class = serializers.ChannelDetailSerializer
+
+    def get_queryset(self):
+        return annotate_channel_qs_for_detail(super().get_queryset(), user=self.request.user)
 
 
 class PlaylistListMixin(ListMixinBase):

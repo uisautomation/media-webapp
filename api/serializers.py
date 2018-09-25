@@ -324,7 +324,8 @@ class ChannelDetailSerializer(ChannelSerializer):
         help_text='URL pointing to list of media items for this channel'
     )
 
-    mediaCount = serializers.SerializerMethodField(
+    mediaCount = serializers.IntegerField(
+        source='item_count',
         help_text='Number of viewable media items in the channel'
     )
 
@@ -339,10 +340,6 @@ class ChannelDetailSerializer(ChannelSerializer):
             return location
 
         return self.context['request'].build_absolute_uri(location)
-
-    def get_mediaCount(self, obj):
-        user = self.context['request'].user if 'request' in self.context else None
-        return obj.items.all().viewable_by_user(user).count()
 
 
 class PlaylistDetailSerializer(PlaylistSerializer):
