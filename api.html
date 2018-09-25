@@ -176,6 +176,24 @@ on the <a class="reference external" href="https://www.django-rest-framework.org
 <div class="section" id="module-api.views">
 <span id="views"></span><h2>Views<a class="headerlink" href="#module-api.views" title="Permalink to this headline">¶</a></h2>
 <p>Views implementing the API endpoints.</p>
+<dl class="data">
+<dt id="api.views.POSTER_IMAGE_VALID_WIDTHS">
+<code class="descclassname">api.views.</code><code class="descname">POSTER_IMAGE_VALID_WIDTHS</code><em class="property"> = [320, 480, 640, 720, 1280, 1920]</em><a class="headerlink" href="#api.views.POSTER_IMAGE_VALID_WIDTHS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allowed poster image widths</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="api.views.POSTER_IMAGE_DEFAULT_WIDTH">
+<code class="descclassname">api.views.</code><code class="descname">POSTER_IMAGE_DEFAULT_WIDTH</code><em class="property"> = 720</em><a class="headerlink" href="#api.views.POSTER_IMAGE_DEFAULT_WIDTH" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default poster image width</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="api.views.POSTER_IMAGE_VALID_EXTENSIONS">
+<code class="descclassname">api.views.</code><code class="descname">POSTER_IMAGE_VALID_EXTENSIONS</code><em class="property"> = ['jpg']</em><a class="headerlink" href="#api.views.POSTER_IMAGE_VALID_EXTENSIONS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allowed poster image extensions</p>
+</dd></dl>
+
 <dl class="function">
 <dt id="api.views.get_profile">
 <code class="descclassname">api.views.</code><code class="descname">get_profile</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.get_profile" title="Permalink to this definition">¶</a></dt>
@@ -352,6 +370,12 @@ querysets depending on the incoming request.</p>
 <dd><p>alias of <a class="reference internal" href="#api.serializers.MediaItemAnalyticsListSerializer" title="api.serializers.MediaItemAnalyticsListSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.serializers.MediaItemAnalyticsListSerializer</span></code></a></p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="class">
+<dt id="api.views.MediaItemPosterView">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">MediaItemPosterView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.MediaItemPosterView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve a poster image for a media item.</p>
 </dd></dl>
 
 <dl class="class">
