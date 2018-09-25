@@ -335,11 +335,13 @@ VIDEOS_FIXTURE = [
         'custom': {'sms_media_id': 'media:34:', 'sms_acl': 'acl:WORLD:'},
         'mediatype': 'audio',
         'key': 'myaudiokey',
+        'status': 'ready',
     },
     {
         'custom': {'sms_media_id': 'media:34:', 'sms_acl': 'acl:WORLD:'},
         'mediatype': 'video',
         'key': 'myvideokey',
+        'status': 'ready',
     },
 ]
 
