@@ -799,11 +799,11 @@ class PlaylistTest(ModelTestCase):
         # only 'public' can be viewed
         self.assertEqual(media_items.first().id, 'public')
 
-    def test_fetched_media_items_in_order(self):
-        """The Playlist fetched_media_items_in_order property returns :py:class:`~.MediaItem`
+    def test_ordered_media_item_queryset(self):
+        """The Playlist ordered_media_item_queryset property returns :py:class:`~.MediaItem`
         objects in the correct order and doesn't fail for non-existant items."""
         playlist = models.Playlist.objects.get(id='public')
-        media = playlist.fetched_media_items_in_order
+        media = playlist.ordered_media_item_queryset
         self.assertEqual(len(media), 2)
         self.assertIsInstance(media[0], models.MediaItem)
         self.assertIsInstance(media[1], models.MediaItem)
