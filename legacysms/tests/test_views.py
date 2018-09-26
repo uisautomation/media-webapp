@@ -62,58 +62,36 @@ class EmbedTest(TestCaseWithFixtures):
         r = self.client.get(reverse('legacysms:embed', kwargs={'media_id': 35}))
         self.assertEqual(r.status_code, 404)
 
-    def test_rss_media(self):
+
+class RSSMediaTestCase(TestCaseWithFixtures):
+    def test_basic_functionality(self):
         """
         Test RSS media feed.
 
         """
-        # We mock time.time() here since URL signing uses the current time as an input and we want
-        # to ensure that we generate the same signature.
-        with mock.patch('time.time', return_value=12345):
-            # Try to embed a video
-            r = self.client.get(reverse('legacysms:rss_media', kwargs={'media_id': 34}))
+        item = mpmodels.MediaItem.objects.get(sms__id=34)
+        r = self.client.get(reverse('legacysms:rss_media', kwargs={'media_id': item.sms.id}))
+        expected_url = reverse('ui:media_item_rss', kwargs={'pk': item.id})
+        self.assertRedirects(r, expected_url, fetch_redirect_response=False)
 
-            # Should be redirect to RSS URL.
-            expected_url = api.pd_api_url('/v2/media/myvideokey', format='mrss')
-            self.assertRedirects(r, expected_url, fetch_redirect_response=False)
-
-    def test_rss_no_permission(self):
+    def test_no_permission(self):
         """
-        Tests the behaviour when the user's identity (if any) doesn't match the ACL for the RSS
-        feed.
+        RSS media 404s if the user doesn't have access.
 
         """
-        with mock.patch('mediaplatform_jwp.api.delivery.Video.from_media_id'
-                        ) as from_media_id:
-            from_media_id.return_value = api.Video({
-                'key': 'video-key',
-                'custom': {
-                    'sms_acl': 'acl:USER_mb2174:',
-                    'sms_media_id': 'media:34:',
-                }
-            })
-            self.assertEqual(api.Video.from_media_id(34).acl, ['USER_mb2174'])
+        item = mpmodels.MediaItem.objects.get(sms__id=34)
+        item.view_permission.reset()
+        item.view_permission.save()
+        r = self.client.get(reverse('legacysms:rss_media', kwargs={'media_id': item.sms.id}))
+        self.assertEqual(r.status_code, 404)
 
-            r = self.client.get(reverse('legacysms:rss_media', kwargs={'media_id': 34}))
-            self.assertEqual(r.status_code, 403)
-
-            self.client.force_login(User.objects.create(username='spqr1'))
-            r = self.client.get(reverse('legacysms:rss_media', kwargs={'media_id': 34}))
-            self.assertEqual(r.status_code, 403)
-
-    def test_rss_media_redirect(self):
+    def test_no_match(self):
         """
-        Test RSS media feed redirects if media item not found.
+        RSS media feed 404s if no media found.
 
         """
-        with mock.patch('mediaplatform_jwp.api.delivery.Video.from_media_id',
-                        side_effect=api.VideoNotFoundError()):
-            # Try to embed a video
-            r = self.client.get(reverse('legacysms:rss_media', kwargs={'media_id': 34}))
-
-            # Should be redirect
-            self.assertRedirects(r, redirect.media_rss(34)['Location'],
-                                 fetch_redirect_response=False)
+        r = self.client.get(reverse('legacysms:rss_media', kwargs={'media_id': 78654}))
+        self.assertEqual(r.status_code, 404)
 
 
 class DownloadTests(TestCase):

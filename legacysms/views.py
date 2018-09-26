@@ -35,10 +35,7 @@ def embed(request, media_id):
     In :py:mod:`~.urls` this view is named ``mediaplatform_jwp:embed``.
 
     """
-    item = (
-        mpmodels.MediaItem.objects.all().viewable_by_user(request.user)
-        .filter(sms__id=media_id).first()
-    )
+    item = _find_media_item(media_id, request)
 
     # If we can't find the item, render the custom 404 error page from the api application.
     if item is None:
@@ -48,15 +45,13 @@ def embed(request, media_id):
 
 
 def rss_media(request, media_id):
-    try:
-        video = api.Video.from_media_id(media_id, preferred_media_type='video')
-    except api.VideoNotFoundError:
-        # If we cannot find the item, simply redirect to the legacy SMS.
-        return legacyredirect.media_rss(media_id)
+    item = _find_media_item(media_id, request)
 
-    video.check_user_access(request.user)
+    # If we can't find the item, raise a 404.
+    if item is None:
+        raise Http404()
 
-    return redirect(api.pd_api_url(f'/v2/media/{video.key}', format='mrss'))
+    return redirect(reverse('ui:media_item_rss', kwargs={'pk': item.id}))
 
 
 #: Map between filename extensions passed to the download URL and the content type which should be
@@ -195,3 +190,15 @@ def media(request, media_id):
         return legacyredirect.media_page(media_id)
 
     return redirect(reverse('ui:media_item', kwargs={'pk': item.id}))
+
+
+def _find_media_item(media_id, request):
+    """
+    Locates a media item for the passed SMS media id for the user in the passed request. If no such
+    item can be found, return None.
+
+    """
+    return (
+        mpmodels.MediaItem.objects.all().viewable_by_user(request.user)
+        .filter(sms__id=media_id).first()
+    )
