@@ -201,3 +201,14 @@ class MediaItemAnalyticsPageSerializer(ResourcePageSerializer):
     """
     resource = apiserializers.MediaItemDetailSerializer(source='*')
     analytics = apiserializers.MediaItemAnalyticsListSerializer(source='*')
+
+
+class PlaylistRSSSerializer(serializers.Serializer):
+    """
+    Serialise a playlist resource into data suitable for :py:class:`ui.renderers.RSSRenderer`.
+
+    """
+    url = serializers.HyperlinkedIdentityField(view_name='ui:playlist_rss')
+    title = serializers.CharField()
+    description = serializers.CharField()
+    entries = MediaItemRSSEntitySerializer(many=True, source='downloadable_media_items')

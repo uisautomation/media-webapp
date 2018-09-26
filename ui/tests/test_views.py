@@ -233,3 +233,73 @@ class MediaRSSViewTestCase(ViewTestCase):
         # should not be visible
         r = self.client.get(reverse('ui:media_item_rss', kwargs={'pk': self.item.pk}))
         self.assertEqual(r.status_code, 404)
+
+
+class PlaylistRSSViewTestCase(ViewTestCase):
+    def setUp(self):
+        super().setUp()
+
+        # Create a playlist
+        channel = self.channels.first()
+        self.playlist = mpmodels.Playlist.objects.create(channel=channel, title='Testing playlist')
+
+        # Add first couple of media items to playlist and make sure that they are publicly viewable
+        # and downloadable.
+        self.assertGreater(mpmodels.MediaItem.objects.count(), 2)
+        for idx, item in enumerate(mpmodels.MediaItem.objects.all()[:2]):
+            item.title = f'Title for test item {idx}'
+            item.description = f'Description for test item {idx}'
+            item.downloadable = True
+            item.view_permission.reset()
+            item.view_permission.is_public = True
+            item.view_permission.save()
+            item.save()
+            self.playlist.media_items.append(item.id)
+        self.playlist.save()
+
+    def test_basic_functionality(self):
+        r = self.client.get(reverse('ui:playlist_rss', kwargs={'pk': self.playlist.id}))
+        self.assertEqual(r.status_code, 200)
+        content = r.content.decode('utf8')
+
+        for item in self.playlist.ordered_media_item_queryset:
+            self.assertIn(item.title, content)
+            self.assertIn(item.description, content)
+
+    def test_respects_visibility(self):
+        item = self.playlist.ordered_media_item_queryset.first()
+        item.view_permission.reset()
+        item.view_permission.crsids.append(self.user.username)
+        item.view_permission.save()
+
+        # Private item does not appear for anonymous user
+        r = self.client.get(reverse('ui:playlist_rss', kwargs={'pk': self.playlist.id}))
+        self.assertEqual(r.status_code, 200)
+        content = r.content.decode('utf8')
+        self.assertNotIn(item.title, content)
+
+        # Private item *does* appear for the correct user
+        self.client.force_login(self.user)
+        r = self.client.get(reverse('ui:playlist_rss', kwargs={'pk': self.playlist.id}))
+        self.assertEqual(r.status_code, 200)
+        content = r.content.decode('utf8')
+        self.assertIn(item.title, content)
+
+    def test_respects_downloadable(self):
+        item = self.playlist.ordered_media_item_queryset.first()
+
+        # Item does usually appear
+        r = self.client.get(reverse('ui:playlist_rss', kwargs={'pk': self.playlist.id}))
+        self.assertEqual(r.status_code, 200)
+        content = r.content.decode('utf8')
+        self.assertIn(item.title, content)
+
+        # Clear downloadable flag
+        item.downloadable = False
+        item.save()
+
+        # Item does not appear
+        r = self.client.get(reverse('ui:playlist_rss', kwargs={'pk': self.playlist.id}))
+        self.assertEqual(r.status_code, 200)
+        content = r.content.decode('utf8')
+        self.assertNotIn(item.title, content)

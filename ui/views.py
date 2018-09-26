@@ -72,3 +72,25 @@ class PlaylistView(apiviews.PlaylistMixin, generics.RetrieveAPIView):
     serializer_class = serializers.PlaylistPageSerializer
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'ui/resource.html'
+
+
+class PlaylistRSSView(apiviews.PlaylistMixin, generics.RetrieveAPIView):
+    """
+    Retrieve an individual playlist as RSS.
+
+    """
+    # We cannot simply make use of the normal DRF content negotiation and format_suffix_patterns()
+    # because this results in an additional "format" parameter being passed to the class which is
+    # then used to reverse() URLs for hyperlinked resources such as channels. Since none of those
+    # views support the format parameter, the reverse() call used by HyperlinkedIdentityField
+    # fails.
+    renderer_classes = [renderers.RSSRenderer]
+    serializer_class = serializers.PlaylistRSSSerializer
+
+    def get_object(self):
+        obj = super().get_object()
+        obj.downloadable_media_items = (
+            self.filter_media_item_qs(obj.ordered_media_item_queryset)
+            .downloadable_by_user(self.request.user)
+        )
+        return obj
