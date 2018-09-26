@@ -33,10 +33,11 @@ urlpatterns = [
         login_required(TemplateView.as_view(template_name="ui/media_item_new.html")),
         name='media_item_new'
     ),
-    path('media/<pk>/analytics', views.MediaItemAnalyticsView.as_view(),
+    path('media/<slug:pk>/analytics', views.MediaItemAnalyticsView.as_view(),
          name='media_item_analytics'),
-    path('media/<pk>/edit', views.MediaView.as_view(), name='media_item_edit'),
-    path('media/<pk>', views.MediaView.as_view(), name='media_item'),
+    path('media/<slug:pk>/edit', views.MediaView.as_view(), name='media_item_edit'),
+    path('media/<slug:pk>', views.MediaView.as_view(), name='media_item'),
+    path('media/<slug:pk>.rss', views.MediaItemRSSView.as_view(), name='media_item_rss'),
     path('channels/<pk>', views.ChannelView.as_view(), name='channel'),
     path(
         'playlists/new',

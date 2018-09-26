@@ -8,6 +8,8 @@ from mediaplatform_jwp.api import delivery as jwplatform
 
 LOG = logging.getLogger(__name__)
 
+MIME_TYPE_MAPPING = {'video': 'video/mp4', 'audio': 'audio/mp4'}
+
 
 # Model serializers for views
 
@@ -126,6 +128,54 @@ class MediaItemPageSerializer(ResourcePageSerializer):
     json_ld = MediaItemJSONLDSerializer(source='*')
 
     resource = apiserializers.MediaItemDetailSerializer(source='*')
+
+
+class MediaItemRSSEntitySerializer(serializers.Serializer):
+    """
+
+    """
+    url = serializers.HyperlinkedIdentityField(view_name='ui:media_item')
+    imageUrl = serializers.SerializerMethodField()
+    title = serializers.CharField()
+    description = serializers.CharField()
+    duration = serializers.IntegerField()
+    rights = serializers.CharField(source='copyright')
+    published_at = serializers.DateTimeField()
+    updated_at = serializers.DateTimeField()
+    enclosures = serializers.SerializerMethodField()
+
+    def get_imageUrl(self, obj):
+        return self._absolute_uri(reverse('api:media_poster', kwargs={
+            'pk': obj.id, 'width': 1920, 'extension': 'jpg'
+        }))
+
+    def get_enclosures(self, obj):
+        # Really we should simply use the sources attribute on the media item and serialise this
+        # with something like a MediaItemSourceRSSEnclosureSerializer. Unfortunately, getting the
+        # "sources" attribute requires a call to the JWP delivery API and may be too expensive/slow
+        # if there are large numbers of media items. In the future, if sources are cached in the
+        # database, we can do this "properly".
+        return [{
+            'url': self._absolute_uri(reverse('api:media_source', kwargs={'pk': obj.id})),
+            'mime_type': MIME_TYPE_MAPPING.get(obj.type, 'application/octet-stream')
+        }]
+
+    def _absolute_uri(self, uri):
+        request = self.context.get('request')
+        if request is None:
+            return uri
+        return request.build_absolute_uri(uri)
+
+
+class MediaItemRSSSerializer(serializers.Serializer):
+    """
+    Serialise a media item resource into data suitable for :py:class:`ui.renderers.RSSRenderer`.
+
+    """
+    url = serializers.HyperlinkedIdentityField(view_name='ui:media_item_rss')
+    title = serializers.CharField()
+    description = serializers.CharField()
+    entries = MediaItemRSSEntitySerializer(many=True, source='self_list')
 
 
 class ChannelPageSerializer(ResourcePageSerializer):
