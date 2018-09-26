@@ -12,6 +12,7 @@ from mediaplatform_jwp.api import delivery as api
 from mediaplatform import models as mpmodels
 
 from . import redirect as legacyredirect
+from . import models
 
 
 LOG = logging.getLogger(__name__)
@@ -192,6 +193,16 @@ def media(request, media_id):
     return redirect(reverse('ui:media_item', kwargs={'pk': item.id}))
 
 
+def rss_collection(request, collection_id):
+    playlist = _find_collection_playlist(collection_id, request)
+
+    # If we can't find the playlist, raise a 404.
+    if playlist is None:
+        raise Http404()
+
+    return redirect(reverse('ui:playlist_rss', kwargs={'pk': playlist.id}))
+
+
 def _find_media_item(media_id, request):
     """
     Locates a media item for the passed SMS media id for the user in the passed request. If no such
@@ -201,4 +212,20 @@ def _find_media_item(media_id, request):
     return (
         mpmodels.MediaItem.objects.all().viewable_by_user(request.user)
         .filter(sms__id=media_id).first()
+    )
+
+
+def _find_collection_playlist(collection_id, request):
+    """
+    Locates a playlist for the passed SMS collection id for the user in the passed request. If no
+    such playlist can be found, return None.
+
+    """
+    collection = models.Collection.objects.filter(id=collection_id).first()
+    if collection is None:
+        return None
+
+    return (
+        mpmodels.Playlist.objects.all().viewable_by_user(request.user)
+        .filter(id=collection.playlist.id).first()
     )

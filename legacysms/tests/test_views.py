@@ -16,11 +16,14 @@ from mediaplatform_jwp.models import CachedResource
 from mediaplatform import models as mpmodels
 from mediaplatform_jwp import sync
 
+from .. import models
 from .. import redirect
 from .. import views
 
 
 class TestCaseWithFixtures(TestCase):
+    fixtures = ['legacysms/tests/fixtures/objects.yaml']
+
     def setUp(self):
         for video in VIDEOS_FIXTURE:
             CachedResource.objects.create(type=CachedResource.VIDEO, key=video['key'], data=video)
@@ -305,6 +308,44 @@ class MediaPageTest(TestCaseWithFixtures):
         r = self.client.get(reverse('legacysms:media', kwargs={'media_id': 12345}))
         self.assertRedirects(r, redirect.media_page(12345)['Location'],
                              fetch_redirect_response=False)
+
+
+class RSSCollectionTestCase(TestCaseWithFixtures):
+    def setUp(self):
+        self.collection = models.Collection.objects.get(id=1234)
+
+    def test_basic_functionality(self):
+        """
+        Test RSS collection feed.
+
+        """
+        r = self.client.get(reverse(
+            'legacysms:rss_collection', kwargs={'collection_id': self.collection.id}
+        ))
+        expected_url = reverse('ui:playlist_rss', kwargs={'pk': self.collection.playlist.id})
+        self.assertRedirects(r, expected_url, fetch_redirect_response=False)
+
+    def test_no_permission(self):
+        """
+        RSS collection 404s if the user doesn't have access.
+
+        """
+        self.collection.playlist.view_permission.reset()
+        self.collection.playlist.view_permission.save()
+        r = self.client.get(reverse(
+            'legacysms:rss_collection', kwargs={'collection_id': self.collection.id}
+        ))
+        self.assertEqual(r.status_code, 404)
+
+    def test_no_match(self):
+        """
+        RSS collection feed 404s if no collection found.
+
+        """
+        r = self.client.get(reverse(
+            'legacysms:rss_collection', kwargs={'collection_id': 123456}
+        ))
+        self.assertEqual(r.status_code, 404)
 
 
 # Two media objects corresponding to the SMS media ID "34".
