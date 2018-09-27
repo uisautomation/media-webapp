@@ -16,28 +16,21 @@ from rest_framework.exceptions import ParseError
 import requests
 
 import mediaplatform.models as mpmodels
+from mediaplatform_jwp.api import delivery
 
 from . import permissions
 from . import serializers
 
 
 LOG = logging.getLogger(__name__)
+#: Allowed poster image widths
+POSTER_IMAGE_VALID_WIDTHS = [320, 480, 640, 720, 1280, 1920]
 
+#: Default poster image width
+POSTER_IMAGE_DEFAULT_WIDTH = 720
 
-def annotate_channel_qs_for_detail(qs, user=None, name='item_count'):
-    """
-    Annotate a queryset returning Channel objects so that they can be serialised by a
-    ChannelDetailSerializer.
-
-    """
-    items_qs = (
-        mpmodels.MediaItem.objects.all().viewable_by_user(user)
-        .filter(channel=models.OuterRef('pk'))
-        .values('channel')
-        .annotate(count=models.Count('*'))
-        .values('count')
-    )
-    return qs.annotate(**{name: models.Subquery(items_qs, output_field=models.BigIntegerField())})
+#: Allowed poster image extensions
+POSTER_IMAGE_VALID_EXTENSIONS = ['jpg']
 
 
 def get_profile(request):
@@ -191,7 +184,7 @@ class MediaItemListView(MediaItemListMixin, generics.ListCreateAPIView):
     filter_backends = (filters.OrderingFilter, MediaItemListSearchFilter,
                        df_filters.DjangoFilterBackend)
     ordering = '-publishedAt'
-    ordering_fields = ('publishedAt',)
+    ordering_fields = ('publishedAt', 'updatedAt')
     pagination_class = ListPagination
     search_fields = ('title', 'description', 'tags')
     serializer_class = serializers.MediaItemSerializer
@@ -199,7 +192,7 @@ class MediaItemListView(MediaItemListMixin, generics.ListCreateAPIView):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.annotate(publishedAt=models.F('published_at'))
+        return qs.annotate(publishedAt=models.F('published_at'), updatedAt=models.F('updated_at'))
 
 
 class MediaItemView(MediaItemMixin, generics.RetrieveUpdateAPIView):
@@ -345,6 +338,62 @@ class MediaItemAnalyticsView(MediaItemMixin, generics.RetrieveAPIView):
     serializer_class = serializers.MediaItemAnalyticsListSerializer
 
 
+class MediaItemPosterViewInspector(inspectors.ViewInspector):
+    def get_operation(self, operation_keys):
+        return openapi.Operation(
+            operation_id='media_poster',
+            responses=openapi.Responses(
+                {302: openapi.Response(description='Media poster image')}
+            ),
+            parameters=[
+                openapi.Parameter(
+                    name='width', in_=openapi.IN_PATH,
+                    description='Desired width of image.',
+                    type=openapi.TYPE_INTEGER,
+                    enum=POSTER_IMAGE_VALID_WIDTHS,
+                ),
+                openapi.Parameter(
+                    name='extension', in_=openapi.IN_PATH,
+                    description='Desired format of image.',
+                    type=openapi.TYPE_STRING,
+                    enum=POSTER_IMAGE_VALID_EXTENSIONS,
+                ),
+            ],
+            tags=['media'],
+        )
+
+
+class MediaItemPosterView(MediaItemMixin, generics.RetrieveAPIView):
+    """
+    Retrieve a poster image for a media item.
+
+    """
+    swagger_schema = MediaItemPosterViewInspector
+
+    def retrieve(self, request, *args, **kwargs):
+        jwp = getattr(self.get_object(), 'jwp', None)
+        if jwp is None:
+            raise Http404()
+
+        # Retrieve and parse parameters
+        width = kwargs.get('width')
+        extension = kwargs.get('extension')
+        try:
+            if width is not None:
+                width = int(width)
+        except ValueError:
+            raise ParseError()
+
+        # Check width has a valid value
+        if width not in POSTER_IMAGE_VALID_WIDTHS:
+            raise Http404()
+
+        if extension not in POSTER_IMAGE_VALID_EXTENSIONS:
+            raise Http404()
+
+        return redirect(delivery.Video({'key': jwp.key}).get_poster_url(width=width))
+
+
 class ChannelListMixin(ListMixinBase):
     """
     A mixin class for DRF generic views which has all of the specialisations necessary for listing
@@ -475,3 +524,19 @@ def exception_handler(exc, context):
     }
     new_context.update(context)
     return render(context['request'], 'api/embed_404.html', status=404, context=new_context)
+
+
+def annotate_channel_qs_for_detail(qs, user=None, name='item_count'):
+    """
+    Annotate a queryset returning Channel objects so that they can be serialised by a
+    ChannelDetailSerializer.
+
+    """
+    items_qs = (
+        mpmodels.MediaItem.objects.all().viewable_by_user(user)
+        .filter(channel=models.OuterRef('pk'))
+        .values('channel')
+        .annotate(count=models.Count('*'))
+        .values('count')
+    )
+    return qs.annotate(**{name: models.Subquery(items_qs, output_field=models.BigIntegerField())})

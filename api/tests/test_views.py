@@ -294,10 +294,7 @@ class MediaItemViewTestCase(ViewTestCase):
         self.assertEqual(response.data['title'], item.title)
         self.assertEqual(response.data['description'], item.description)
         self.assertEqual(dateparser.parse(response.data['publishedAt']), item.published_at)
-        self.assertIn(
-            'https://cdn.jwplayer.com/thumbs/{}-640.jpg'.format(item.jwp.key),
-            response.data['posterImageUrl']
-        )
+        self.assertIsNotNone(response.data['posterImageUrl'])
         self.assertIsNotNone(response.data['duration'])
 
     def test_video_not_found(self):
@@ -610,6 +607,65 @@ class MediaItemSourceViewTestCase(ViewTestCase):
             query['height'] = f'{height}'
         return self.client.get(
             reverse('api:media_source', kwargs={'pk': item.id}) + '?' + query.urlencode()
+        )
+
+
+class MediaItemPosterViewTestCase(ViewTestCase):
+    def setUp(self):
+        super().setUp()
+        self.view = views.MediaItemPosterView().as_view()
+        self.item = self.non_deleted_media.get(id='populated')
+        self.video = api.DeliveryVideo({'key': self.item.jwp.key})
+
+    def test_basic_functionality(self):
+        response = self.get(width=320)
+        self.assertRedirects(
+            response, self.video.get_poster_url(width=320), fetch_redirect_response=False)
+
+    def test_404_for_hidden_item(self):
+        """If an item is not viewable (or doesn't exist) a 404 is returned."""
+        # Succeeds initially
+        response = self.get(width=320)
+        self.assertRedirects(
+            response, self.video.get_poster_url(width=320), fetch_redirect_response=False)
+
+        # Hide item
+        self.item.view_permission.reset()
+        self.item.view_permission.save()
+
+        # Now 404s
+        response = self.get(width=320)
+        self.assertEqual(response.status_code, 404)
+
+    def test_valid_widths(self):
+        """For valid widths, a redirect response should be generated."""
+        for width in views.POSTER_IMAGE_VALID_WIDTHS:
+            response = self.get(width=width)
+            self.assertRedirects(
+                response, self.video.get_poster_url(width=width), fetch_redirect_response=False)
+
+    def test_invalid_widths(self):
+        """For invalid widths, a 404 should be generated."""
+        invalid_widths = [0, 100, 1000000]
+        for width in invalid_widths:
+            assert width not in views.POSTER_IMAGE_VALID_WIDTHS
+            response = self.get(width=width)
+            self.assertEqual(response.status_code, 404)
+
+    def test_invalid_extensions(self):
+        """For valid widths, invalid extensions should fail."""
+        invalid_extensions = ['foo']
+        for extension in invalid_extensions:
+            for width in views.POSTER_IMAGE_VALID_WIDTHS:
+                response = self.get(width=width, extension=extension)
+                self.assertEqual(response.status_code, 404)
+
+    def get(self, width, extension='jpg', item=None):
+        item = item if item is not None else self.item
+        return self.client.get(
+            reverse('api:media_poster', kwargs={
+                'pk': item.id, 'width': width, 'extension': extension,
+            })
         )
 
 

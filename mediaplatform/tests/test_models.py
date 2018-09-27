@@ -7,6 +7,7 @@ from django.contrib.auth.models import AnonymousUser, Permission
 from django.core.cache import cache
 from django.db import IntegrityError
 from django.test import TestCase, override_settings
+from django.utils import timezone
 
 from legacysms import models as legacymodels
 from mediaplatform_jwp.models import CachedResource
@@ -349,6 +350,56 @@ class MediaItemTest(ModelTestCase):
 
         # check that the user can now view the item
         self.assert_user_can_download(new_user, item)
+
+    def test_published_at_in_future_not_published(self):
+        """An item with publication date in the future is not published."""
+        item = models.MediaItem.objects.get(id='public')
+        self.assert_user_can_view(self.user, item)
+        item.published_at = timezone.now() + datetime.timedelta(days=1)
+        item.save()
+        self.assert_user_cannot_view(self.user, item)
+
+    def test_no_jwp_video_required_for_publication(self):
+        """An item does not need a JWP video to be published."""
+        item = models.MediaItem.objects.get(id='public')
+        self.assert_user_can_view(self.user, item)
+        item.jwp.delete()
+        self.assert_user_can_view(self.user, item)
+
+    def test_publications_requires_ready_jwp_video(self):
+        """An item with a JWP video must have that video be "ready" to be published."""
+        item = models.MediaItem.objects.get(id='public')
+        self.assert_user_can_view(self.user, item)
+        item.jwp.resource.data['status'] = 'error'
+        item.jwp.resource.save()
+        self.assert_user_cannot_view(self.user, item)
+
+    def test_future_published_items_visible_to_editor(self):
+        """An unpublished item can still be seen by someone who can edit it."""
+        item = models.MediaItem.objects.get(id='public')
+        item.channel.edit_permission.reset()
+        item.channel.edit_permission.crsids.append(self.user.username)
+        item.channel.edit_permission.save()
+        self.assert_user_can_view(None, item)
+        self.assert_user_can_view(self.user, item)
+        item.published_at = timezone.now() + datetime.timedelta(days=1)
+        item.save()
+        self.assert_user_cannot_view(None, item)
+        self.assert_user_can_view(self.user, item)
+
+    def test_items_with_errors_visible_to_editor(self):
+        """An item with JWP error can still be seen by someone who can edit it."""
+        item = models.MediaItem.objects.get(id='public')
+        item.channel.edit_permission.reset()
+        item.channel.edit_permission.crsids.append(self.user.username)
+        item.channel.edit_permission.save()
+        self.assert_user_can_view(None, item)
+        self.assert_user_can_view(self.user, item)
+        item.jwp.resource.data['status'] = 'error'
+        item.jwp.resource.save()
+        item.save()
+        self.assert_user_cannot_view(None, item)
+        self.assert_user_can_view(self.user, item)
 
     def assert_user_cannot_view(self, user, item_or_id):
         if isinstance(item_or_id, str):
@@ -748,11 +799,11 @@ class PlaylistTest(ModelTestCase):
         # only 'public' can be viewed
         self.assertEqual(media_items.first().id, 'public')
 
-    def test_fetched_media_items_in_order(self):
-        """The Playlist fetched_media_items_in_order property returns :py:class:`~.MediaItem`
+    def test_ordered_media_item_queryset(self):
+        """The Playlist ordered_media_item_queryset property returns :py:class:`~.MediaItem`
         objects in the correct order and doesn't fail for non-existant items."""
         playlist = models.Playlist.objects.get(id='public')
-        media = playlist.fetched_media_items_in_order
+        media = playlist.ordered_media_item_queryset
         self.assertEqual(len(media), 2)
         self.assertIsInstance(media[0], models.MediaItem)
         self.assertIsInstance(media[1], models.MediaItem)

@@ -1,5 +1,3 @@
-from django.utils import timezone
-
 import dataclasses
 import itertools
 import secrets
@@ -9,9 +7,10 @@ import automationlookup
 from django.conf import settings
 import django.contrib.postgres.fields as pgfields
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, expressions, functions
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
 from django.utils.functional import cached_property
 from iso639 import languages
 
@@ -83,6 +82,18 @@ class PermissionQuerySetMixin:
 
 class MediaItemQuerySet(PermissionQuerySetMixin, models.QuerySet):
 
+    def _published_condition(self):
+        # An item is *NOT* published if any of the following are true:
+        #
+        # 1. It has a publication time is in the future.
+        # 2. It has an associated JWP video and that video's status is not "ready".
+        #
+        # We negate the OR of these checks to determined if a video is published.
+        return ~(
+            models.Q(published_at__gt=timezone.now()) |
+            (models.Q(jwp__isnull=False) & ~models.Q(jwp__resource__data__status='ready'))
+        )
+
     def _viewable_condition(self, user):
         # The item can be viewed if any of the following are satisfied:
         #
@@ -95,12 +106,11 @@ class MediaItemQuerySet(PermissionQuerySetMixin, models.QuerySet):
         if user is not None and user.has_perm('mediaplatform.view_mediaitem'):
             return models.Q(id=models.F('id'))
 
-        # An item is "published" if it either has no publication time or the publication time is in
-        # the past.
-        published = models.Q(published_at__isnull=True) | models.Q(published_at__lt=timezone.now())
-
         return (
-            (self._permission_condition('view_permission', user) & published) |
+            (
+                self._permission_condition('view_permission', user) &
+                self._published_condition()
+            ) |
             self._editable_condition(user)
         )
 
@@ -260,6 +270,11 @@ class MediaItem(models.Model):
     class Meta:
         permissions = (
             ('download_mediaitem', 'Can download media associated with a media item'),
+        )
+
+        indexes = (
+            models.Index(fields=['updated_at']),
+            models.Index(fields=['published_at']),
         )
 
     VIDEO = 'video'
@@ -726,16 +741,25 @@ class Playlist(models.Model):
     #: visible.
     deleted_at = models.DateTimeField(null=True, blank=True)
 
-    @cached_property
-    def fetched_media_items_in_order(self):
-        """Helper method that fetch the playlist's :py:class:`~.MediaItem` objects
-        ordering them as defined by media_items."""
-        media_items_by_id = {
-            item.id: item
-            for item in MediaItem.objects.filter(id__in=self.media_items)
-                .select_related('jwp')
-        }
-        return [media_items_by_id[id] for id in self.media_items if id in media_items_by_id]
+    @property
+    def ordered_media_item_queryset(self):
+        """
+        A queryset which returns the media items for the play list with the same ordering as
+        :py:attr:`.media_items`.
+
+        """
+        all_media_items = (
+            MediaItem.objects
+            .filter(id__in=self.media_items)
+            .annotate(index=expressions.Func(
+                models.Value(self.media_items),
+                functions.Cast(models.F('id'), output_field=models.TextField()),
+                function='array_position'
+            ))
+            .order_by('index')
+        )
+
+        return all_media_items
 
     def __str__(self):
         return '{} ("{}")'.format(self.id, self.title)

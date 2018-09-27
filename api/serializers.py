@@ -8,7 +8,7 @@ from django.utils.http import urlencode
 from rest_framework import serializers
 
 from mediaplatform import models as mpmodels
-from mediaplatform_jwp.api import delivery as jwplatform, management as management
+from mediaplatform_jwp.api import management as management
 
 LOG = logging.getLogger(__name__)
 
@@ -198,15 +198,19 @@ class MediaItemSerializer(ChannelOwnedResourceModelSerializer):
         return obj
 
     def get_posterImageUrl(self, obj):
-        if not hasattr(obj, 'jwp'):
-            return None
-        return jwplatform.Video({'key': obj.jwp.key}).get_poster_url(width=640)
+        return self._build_absolute_uri(reverse(
+            'api:media_poster',
+            kwargs={'pk': obj.id, 'width': 720, 'extension': 'jpg'}
+        ))
 
     def get_embedUrl(self, obj):
-        url = reverse('api:media_embed', kwargs={'pk': obj.id})
+        return self._build_absolute_uri(
+            reverse('api:media_embed', kwargs={'pk': obj.id}))
+
+    def _build_absolute_uri(self, uri):
         if 'request' in self.context:
-            url = self.context['request'].build_absolute_uri(url)
-        return url
+            return self.context['request'].build_absolute_uri(uri)
+        return uri
 
 
 # Detail serialisers
@@ -350,7 +354,7 @@ class PlaylistDetailSerializer(PlaylistSerializer):
 
     channel = ChannelSerializer(read_only=True)
 
-    media = MediaItemSerializer(many=True, source='fetched_media_items_in_order')
+    media = MediaItemSerializer(many=True, source='ordered_media_item_queryset')
 
     class Meta(PlaylistSerializer.Meta):
         fields = PlaylistSerializer.Meta.fields + ('channel', 'media')
