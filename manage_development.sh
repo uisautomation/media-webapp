@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Wrapper script to run manahge.py in development. Arguments are passed directly
+# Wrapper script to run manage.py in development. Arguments are passed directly
 # to manage.py
 
 # Exit on failure
