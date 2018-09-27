@@ -3,9 +3,12 @@ Celery tasks.
 
 """
 import logging
+import random
+import time
 
 from celery import shared_task
 from django.db import transaction
+from jwplatform.errors import JWPlatformRateLimitExceededError
 
 from mediaplatform_jwp import models
 from mediaplatform_jwp import sync
@@ -96,11 +99,25 @@ def _fetch_list(list_callable, results_key):
     """
     current_offset = 0
     while True:
-        # We fetch only manual channels since those are the ones we sync via sms2jwplayer.
-        results = list_callable(
-            types_filter='manual',
-            result_offset=current_offset, result_limit=1000).get(results_key, [])
-        current_offset += len(results)
+        for retry_idx in range(10):
+            try:
+                # We fetch only manual channels since those are the ones we sync via sms2jwplayer.
+                results = list_callable(
+                    types_filter='manual',
+                    result_offset=current_offset, result_limit=1000).get(results_key, [])
+                current_offset += len(results)
+                break
+            except JWPlatformRateLimitExceededError:
+                # there was a rate limit error, sleep for a random duration to try and clear it
+                delay = random.randrange(20, 60)
+                LOG.warn(
+                    'Attempt %s failed due to rate limit error. Sleeping for %s seconds...',
+                    retry_idx + 1, delay
+                )
+                time.sleep(delay)
+        else:
+            # Only executed if the loop exited normally
+            raise RuntimeError('Aborting fetch after too many rety attempts')
 
         # Stop when we get no results
         if len(results) == 0:

@@ -23,8 +23,6 @@ from . import serializers
 
 
 LOG = logging.getLogger(__name__)
-
-
 #: Allowed poster image widths
 POSTER_IMAGE_VALID_WIDTHS = [320, 480, 640, 720, 1280, 1920]
 
@@ -42,7 +40,13 @@ def get_profile(request):
     person resource for the user is non-anoymous.
 
     """
-    obj = {'user': request.user}
+    obj = {
+        'user': request.user,
+        'channels': annotate_channel_qs_for_detail(
+            mpmodels.Channel.objects.all().editable_by_user(request.user),
+            user=request.user
+        ),
+    }
     if not request.user.is_anonymous:
         try:
             obj['person'] = automationlookup.get_person(
@@ -444,6 +448,9 @@ class ChannelView(ChannelMixin, generics.RetrieveUpdateAPIView):
     """
     serializer_class = serializers.ChannelDetailSerializer
 
+    def get_queryset(self):
+        return annotate_channel_qs_for_detail(super().get_queryset(), user=self.request.user)
+
 
 class PlaylistListMixin(ListMixinBase):
     """
@@ -517,3 +524,19 @@ def exception_handler(exc, context):
     }
     new_context.update(context)
     return render(context['request'], 'api/embed_404.html', status=404, context=new_context)
+
+
+def annotate_channel_qs_for_detail(qs, user=None, name='item_count'):
+    """
+    Annotate a queryset returning Channel objects so that they can be serialised by a
+    ChannelDetailSerializer.
+
+    """
+    items_qs = (
+        mpmodels.MediaItem.objects.all().viewable_by_user(user)
+        .filter(channel=models.OuterRef('pk'))
+        .values('channel')
+        .annotate(count=models.Count('*'))
+        .values('count')
+    )
+    return qs.annotate(**{name: models.Subquery(items_qs, output_field=models.BigIntegerField())})
