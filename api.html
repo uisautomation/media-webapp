@@ -436,6 +436,20 @@ querysets depending on the incoming request.</p>
 <dd><p>alias of <a class="reference internal" href="#api.serializers.ChannelDetailSerializer" title="api.serializers.ChannelDetailSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.serializers.ChannelDetailSerializer</span></code></a></p>
 </dd></dl>
 
+<dl class="method">
+<dt id="api.views.ChannelView.get_queryset">
+<code class="descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#api.views.ChannelView.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of items for this view.
+This must be an iterable, and may be a queryset.
+Defaults to using <cite>self.queryset</cite>.</p>
+<p>This method should always be used rather than accessing <cite>self.queryset</cite>
+directly, as <cite>self.queryset</cite> gets evaluated only once, and those results
+are cached for all subsequent requests.</p>
+<p>You may want to override this if you need to provide different
+querysets depending on the incoming request.</p>
+<p>(Eg. return a list of items that is specific to the user)</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -505,6 +519,13 @@ querysets depending on the incoming request.</p>
 suggests the user log in.</p>
 </dd></dl>
 
+<dl class="function">
+<dt id="api.views.annotate_channel_qs_for_detail">
+<code class="descclassname">api.views.</code><code class="descname">annotate_channel_qs_for_detail</code><span class="sig-paren">(</span><em>qs</em>, <em>user=None</em>, <em>name='item_count'</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.annotate_channel_qs_for_detail" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate a queryset returning Channel objects so that they can be serialised by a
+ChannelDetailSerializer.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="module-api.serializers">
 <span id="serializers"></span><h2>Serializers<a class="headerlink" href="#module-api.serializers" title="Permalink to this headline">¶</a></h2>
@@ -564,12 +585,6 @@ item.</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="api.serializers.ProfileSerializer">
-<em class="property">class </em><code class="descclassname">api.serializers.</code><code class="descname">ProfileSerializer</code><span class="sig-paren">(</span><em>instance=None</em>, <em>data=&lt;class 'rest_framework.fields.empty'&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.ProfileSerializer" title="Permalink to this definition">¶</a></dt>
-<dd><p>The profile of the current user.</p>
-</dd></dl>
-
-<dl class="class">
 <dt id="api.serializers.SourceSerializer">
 <em class="property">class </em><code class="descclassname">api.serializers.</code><code class="descname">SourceSerializer</code><span class="sig-paren">(</span><em>instance=None</em>, <em>data=&lt;class 'rest_framework.fields.empty'&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.SourceSerializer" title="Permalink to this definition">¶</a></dt>
 <dd><p>A download source for a particular media type.</p>
@@ -610,6 +625,12 @@ serializer in an UpdateView for MediaItem models.</p>
 <dt id="api.serializers.PlaylistDetailSerializer">
 <em class="property">class </em><code class="descclassname">api.serializers.</code><code class="descname">PlaylistDetailSerializer</code><span class="sig-paren">(</span><em>instance=None</em>, <em>data=&lt;class 'rest_framework.fields.empty'&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.PlaylistDetailSerializer" title="Permalink to this definition">¶</a></dt>
 <dd><p>An individual playlist including any information which should only appear in the detail view.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api.serializers.ProfileSerializer">
+<em class="property">class </em><code class="descclassname">api.serializers.</code><code class="descname">ProfileSerializer</code><span class="sig-paren">(</span><em>instance=None</em>, <em>data=&lt;class 'rest_framework.fields.empty'&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.ProfileSerializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>The profile of the current user.</p>
 </dd></dl>
 
 </div>
