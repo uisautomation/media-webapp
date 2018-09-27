@@ -111,7 +111,7 @@ def _fetch_list(list_callable, results_key):
                 # there was a rate limit error, sleep for a random duration to try and clear it
                 delay = random.randrange(20, 60)
                 LOG.warn(
-                    'Attempt %s failed due to rate limit error. Sleeping for {}s...',
+                    'Attempt %s failed due to rate limit error. Sleeping for %s seconds...',
                     retry_idx + 1, delay
                 )
                 time.sleep(delay)
