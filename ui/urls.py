@@ -30,17 +30,16 @@ with open(os.path.join(settings.BASE_DIR, 'CHANGELOG.md')) as fobj:
 urlpatterns = [
     path(
         'media/new',
-        login_required(TemplateView.as_view(template_name="ui/media_item_new.html")),
+        login_required(TemplateView.as_view(template_name="index.html")),
         name='media_item_new'
     ),
-    path('media/<pk>/analytics', views.MediaItemAnalyticsView.as_view(),
-         name='media_item_analytics'),
+    path('media/<pk>/analytics', views.MediaView.as_view(), name='media_item_analytics'),
     path('media/<pk>/edit', views.MediaView.as_view(), name='media_item_edit'),
     path('media/<pk>', views.MediaView.as_view(), name='media_item'),
     path('channels/<pk>', views.ChannelView.as_view(), name='channel'),
     path(
         'playlists/new',
-        login_required(TemplateView.as_view(template_name="ui/playlist_new.html")),
+        login_required(TemplateView.as_view(template_name='index.html')),
         name='playlist_new'
     ),
     path('playlists/<pk>', views.PlaylistView.as_view(), name='playlist'),
