@@ -1,4 +1,6 @@
-from django.contrib.auth.models import AnonymousUser
+from unittest import mock
+
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory
 
@@ -17,6 +19,13 @@ class MediaPlatformPermissionTestCase(TestCase):
         self.item = mpmodels.MediaItem.objects.get(id='empty')
         self.permission = permissions.MediaPlatformPermission()
         self.view = None  # if MediaPlatformPermission start using this, we need to set it
+        self.user = get_user_model().objects.first()
+        self.assertIsNotNone(self.user)
+
+        lookup_patcher = mock.patch('mediaplatform.models._lookup_groupids_and_instids_for_user')
+        self.lookup_groupids_and_instids_for_user = lookup_patcher.start()
+        self.addCleanup(lookup_patcher.stop)
+        self.lookup_groupids_and_instids_for_user.return_value = ([], [])
 
     def test_safe_allowed_in_general(self):
         self.assert_safe_has_permission()
@@ -112,9 +121,9 @@ class MediaPlatformPermissionTestCase(TestCase):
     def fetch_item(self, annotate_viewable=False, annotate_editable=False):
         qs = mpmodels.MediaItem.objects.all()
         if annotate_viewable:
-            qs = qs.annotate_viewable(AnonymousUser())
+            qs = qs.annotate_viewable(self.user)
         if annotate_editable:
-            qs = qs.annotate_editable(AnonymousUser())
+            qs = qs.annotate_editable(self.user)
         return qs.get(id=self.item.id)
 
 
