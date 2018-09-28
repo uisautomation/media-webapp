@@ -138,3 +138,14 @@ class ChannelViewTestCase(ViewTestCase):
         """A channel page renders."""
         r = self.client.get(reverse('ui:channel', kwargs={'pk': self.channel.id}))
         self.assertEqual(r.status_code, 200)
+
+
+class PlaylistViewTestCase(ViewTestCase):
+    def setUp(self):
+        super().setUp()
+        self.playlist = mpmodels.Playlist.objects.get(id='public')
+
+    def test_success(self):
+        """A playlist page renders."""
+        r = self.client.get(reverse('ui:playlist', kwargs={'pk': self.playlist.id}))
+        self.assertEqual(r.status_code, 200)
