@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Helmet } from 'react-helmet';
 
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
@@ -58,6 +59,9 @@ const MediaPageContents = ({ resource: item, classes }) => {
 
   return (
     <div>
+      {
+        item && item.title && <Helmet><title>{ item.title }</title></Helmet>
+      }
       <section className={ classes.playerSection }>
         <div className={ classes.playerWrapper }>
           <iframe

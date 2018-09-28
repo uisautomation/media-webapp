@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Humanize from 'humanize-plus';
+import { Helmet } from 'react-helmet';
 
 import { withStyles } from '@material-ui/core/styles';
 
@@ -108,6 +109,9 @@ class AnalyticsPageContents extends React.Component {
     const { analytics: { viewsPerDay, size, totalViews } } = this.state;
     return (
       <div>
+        {
+          mediaItem && mediaItem.title && <Helmet><title>{ mediaItem.title }</title></Helmet>
+        }
         <BodySection classes={{root: classes.section}}>
           <Typography variant="headline" component="div">
             {mediaItem && mediaItem.title}

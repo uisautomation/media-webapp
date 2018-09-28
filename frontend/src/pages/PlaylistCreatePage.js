@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Helmet } from 'react-helmet';
 
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
@@ -48,6 +49,7 @@ class PlaylistCreatePageContents extends Component {
 
     return (
       <BodySection>
+        <Helmet><title>Create new playlist</title></Helmet>
         <IfOwnsAnyChannel>
           <Grid container justify='center'>
             <Grid item xs={12} sm={10} md={8} lg={6}>

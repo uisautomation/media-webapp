@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Helmet } from 'react-helmet';
 
 import Button from '@material-ui/core/Button';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -62,6 +63,7 @@ class PageContent extends Component {
 
     return (
       <BodySection>
+        <Helmet><title>{ playlist.title }</title></Helmet>
         <Toolbar className={classes.toolbar}>
           <Typography variant='display1' className={classes.title}>
             { playlist.title }

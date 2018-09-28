@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Helmet } from 'react-helmet';
 
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -55,6 +56,7 @@ class MediaEditPage extends Component {
     const { item, errors } = this.state;
     return (
       <Page gutterTop>
+        <Helmet><title>Edit media item</title></Helmet>
         <BodySection>
           <IfOwnsChannel channel={item && item.channel}>
             <Grid container justify='center'>
