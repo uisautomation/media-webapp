@@ -229,13 +229,60 @@ keyword arguments in the url conf.</p>
 <dd></dd></dl>
 
 <dl class="class">
-<dt id="api.views.ListMixinBase">
-<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">ListMixinBase</code><a class="headerlink" href="#api.views.ListMixinBase" title="Permalink to this definition">¶</a></dt>
-<dd><p>Base class for the various ListView mixin classes which ensures that the list only contains
-resources viewable by the user, annotates the resources with the viewable and editable
-flags and selects related JWPlatform and SMS objects.</p>
-<p>Sets permission_classes to <code class="xref py py-class docutils literal notranslate"><span class="pre">MediaPlatformPermission</span></code> so that safe and
-unsafe operations are appropriately restricted.</p>
+<dt id="api.views.ViewMixinBase">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">ViewMixinBase</code><a class="headerlink" href="#api.views.ViewMixinBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>A generic mixin class for API views which provides helper methods to filter querysets of
+MediaItem, Channel and Playlist objects for the request user and to be annotated with all of
+the fields required by the non-detail serialisers.</p>
+<p>Additionally, there are helper methods to annotate a query set with fields required by the
+detail serialisers.</p>
+<p>It also defines an appropriate permission class to forbid non-editors from performing “unsafe”
+operations on the objects.</p>
+<dl class="method">
+<dt id="api.views.ViewMixinBase.filter_media_item_qs">
+<code class="descname">filter_media_item_qs</code><span class="sig-paren">(</span><em>qs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.ViewMixinBase.filter_media_item_qs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filters a MediaItem queryset so that only the appropriate objects are returned for the
+user, annotates the objects with any fields required by the serialisers and selects any
+related objects used by the serialisers.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.views.ViewMixinBase.filter_channel_qs">
+<code class="descname">filter_channel_qs</code><span class="sig-paren">(</span><em>qs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.ViewMixinBase.filter_channel_qs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filters a Channel queryset so that only the appropriate objects are returned for the user,
+annotates the objects with any fields required by the serialisers and selects any related
+objects used by the serialisers.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.views.ViewMixinBase.filter_playlist_qs">
+<code class="descname">filter_playlist_qs</code><span class="sig-paren">(</span><em>qs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.ViewMixinBase.filter_playlist_qs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filters a Playlist queryset so that only the appropriate objects are returned for the user,
+annotates the objects with any fields required by the serialisers and selects any related
+objects used by the serialisers.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.views.ViewMixinBase.add_media_item_detail">
+<code class="descname">add_media_item_detail</code><span class="sig-paren">(</span><em>qs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.ViewMixinBase.add_media_item_detail" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add any extra annotations to a MediaItem query set which are required to render the detail
+view via MediaItemDetailSerializer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.views.ViewMixinBase.add_channel_detail">
+<code class="descname">add_channel_detail</code><span class="sig-paren">(</span><em>qs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.ViewMixinBase.add_channel_detail" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add any extra annotations to a Channel query set which are required to render the detail
+view via ChannelDetailSerializer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.views.ViewMixinBase.add_playlist_detail">
+<code class="descname">add_playlist_detail</code><span class="sig-paren">(</span><em>qs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.ViewMixinBase.add_playlist_detail" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add any extra annotations to a Playlist query set which are required to render the detail
+view via PlaylistDetailSerializer.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
