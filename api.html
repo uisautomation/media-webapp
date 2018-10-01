@@ -194,35 +194,6 @@ on the <a class="reference external" href="https://www.django-rest-framework.org
 <dd><p>Allowed poster image extensions</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="api.views.get_profile">
-<code class="descclassname">api.views.</code><code class="descname">get_profile</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.get_profile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return an object representing what is known about a user from a reques. Contains two keys:
-<code class="docutils literal notranslate"><span class="pre">user</span></code> which is simply the user object from the request and <code class="docutils literal notranslate"><span class="pre">person</span></code> which is the lookup
-person resource for the user is non-anoymous.</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="api.views.ProfileView">
-<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">ProfileView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.ProfileView" title="Permalink to this definition">¶</a></dt>
-<dd><p>Endpoint to retrieve the profile of the current user.</p>
-<dl class="attribute">
-<dt id="api.views.ProfileView.serializer_class">
-<code class="descname">serializer_class</code><a class="headerlink" href="#api.views.ProfileView.serializer_class" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <a class="reference internal" href="#api.serializers.ProfileSerializer" title="api.serializers.ProfileSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.serializers.ProfileSerializer</span></code></a></p>
-</dd></dl>
-
-<dl class="method">
-<dt id="api.views.ProfileView.get_object">
-<code class="descname">get_object</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#api.views.ProfileView.get_object" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the object the view is displaying.</p>
-<p>You may want to override this if you need to provide non-standard
-queryset lookups.  Eg if objects are referenced using multiple
-keyword arguments in the url conf.</p>
-</dd></dl>
-
-</dd></dl>
-
 <dl class="class">
 <dt id="api.views.ListPagination">
 <em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">ListPagination</code><a class="headerlink" href="#api.views.ListPagination" title="Permalink to this definition">¶</a></dt>
@@ -271,7 +242,7 @@ view via MediaItemDetailSerializer.</p>
 
 <dl class="method">
 <dt id="api.views.ViewMixinBase.add_channel_detail">
-<code class="descname">add_channel_detail</code><span class="sig-paren">(</span><em>qs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.ViewMixinBase.add_channel_detail" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_channel_detail</code><span class="sig-paren">(</span><em>qs</em>, <em>name='item_count'</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.ViewMixinBase.add_channel_detail" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add any extra annotations to a Channel query set which are required to render the detail
 view via ChannelDetailSerializer.</p>
 </dd></dl>
@@ -281,6 +252,34 @@ view via ChannelDetailSerializer.</p>
 <code class="descname">add_playlist_detail</code><span class="sig-paren">(</span><em>qs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.ViewMixinBase.add_playlist_detail" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add any extra annotations to a Playlist query set which are required to render the detail
 view via PlaylistDetailSerializer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.views.ViewMixinBase.get_profile">
+<code class="descname">get_profile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#api.views.ViewMixinBase.get_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an object representing what is known about a user from the request. The object can
+eb serialised with <a class="reference internal" href="#api.serializers.ProfileSerializer" title="api.serializers.ProfileSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.serializers.ProfileSerializer</span></code></a>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.views.ProfileView">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">ProfileView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.ProfileView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint to retrieve the profile of the current user.</p>
+<dl class="attribute">
+<dt id="api.views.ProfileView.serializer_class">
+<code class="descname">serializer_class</code><a class="headerlink" href="#api.views.ProfileView.serializer_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#api.serializers.ProfileSerializer" title="api.serializers.ProfileSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.serializers.ProfileSerializer</span></code></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.views.ProfileView.get_object">
+<code class="descname">get_object</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#api.views.ProfileView.get_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the object the view is displaying.</p>
+<p>You may want to override this if you need to provide non-standard
+queryset lookups.  Eg if objects are referenced using multiple
+keyword arguments in the url conf.</p>
 </dd></dl>
 
 </dd></dl>
@@ -483,20 +482,6 @@ querysets depending on the incoming request.</p>
 <dd><p>alias of <a class="reference internal" href="#api.serializers.ChannelDetailSerializer" title="api.serializers.ChannelDetailSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.serializers.ChannelDetailSerializer</span></code></a></p>
 </dd></dl>
 
-<dl class="method">
-<dt id="api.views.ChannelView.get_queryset">
-<code class="descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#api.views.ChannelView.get_queryset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the list of items for this view.
-This must be an iterable, and may be a queryset.
-Defaults to using <cite>self.queryset</cite>.</p>
-<p>This method should always be used rather than accessing <cite>self.queryset</cite>
-directly, as <cite>self.queryset</cite> gets evaluated only once, and those results
-are cached for all subsequent requests.</p>
-<p>You may want to override this if you need to provide different
-querysets depending on the incoming request.</p>
-<p>(Eg. return a list of items that is specific to the user)</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="class">
@@ -564,13 +549,6 @@ querysets depending on the incoming request.</p>
 <code class="descclassname">api.views.</code><code class="descname">exception_handler</code><span class="sig-paren">(</span><em>exc</em>, <em>context</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.exception_handler" title="Permalink to this definition">¶</a></dt>
 <dd><p>A custom exception handler which handles 404s on embed views by rendering a template which
 suggests the user log in.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="api.views.annotate_channel_qs_for_detail">
-<code class="descclassname">api.views.</code><code class="descname">annotate_channel_qs_for_detail</code><span class="sig-paren">(</span><em>qs</em>, <em>user=None</em>, <em>name='item_count'</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.annotate_channel_qs_for_detail" title="Permalink to this definition">¶</a></dt>
-<dd><p>Annotate a queryset returning Channel objects so that they can be serialised by a
-ChannelDetailSerializer.</p>
 </dd></dl>
 
 </div>
