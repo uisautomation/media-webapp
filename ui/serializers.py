@@ -3,7 +3,7 @@ import logging
 from django.urls import reverse
 from rest_framework import serializers
 
-from api import serializers as apiserializers, views as apiviews
+from api import serializers as apiserializers
 from mediaplatform_jwp.api import delivery as jwplatform
 
 LOG = logging.getLogger(__name__)
@@ -110,11 +110,7 @@ class ResourcePageSerializer(serializers.Serializer):
     context under the "profile" key.
 
     """
-    profile = serializers.SerializerMethodField()
-
-    def get_profile(self, obj):
-        return apiserializers.ProfileSerializer(
-            apiviews.get_profile(self.context['request']), context=self.context).data
+    profile = apiserializers.ProfileSerializer(read_only=True)
 
 
 class MediaItemPageSerializer(ResourcePageSerializer):
