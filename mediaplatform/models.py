@@ -135,6 +135,13 @@ class MediaItemQuerySet(PermissionQuerySetMixin, models.QuerySet):
         return self.filter(self._viewable_condition(user))
 
     def _editable_condition(self, user):
+        # In #336 it was noted that the SMS check below is very expensive. While we wait for a
+        # proper fix, we can get a quick win by short-cutting this check if the user is anonymous;
+        # if the user is anonymous, return a condition which is always false. There does not appear
+        # to be a cleaner way to express "False" as a Django Q() expression
+        if user is None or user.is_anonymous:
+            return ~models.Q(id=models.F('id'))
+
         # For the moment, we make sure that *all* SMS-derived objects are immutable to guard
         # against accidents.
         return (
