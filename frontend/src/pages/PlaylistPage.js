@@ -82,7 +82,7 @@ class PageContent extends Component {
         </Toolbar>
         <RenderedMarkdown source={ playlist.description } />
         <Typography variant='headline' gutterBottom>Media items</Typography>
-        <MediaList resources={playlist.media} />
+        <MediaList resources={playlist.mediaForUser} />
         <DeletePlaylistDialog isOpen={this.state.deleteDialogOpen} title={playlist.title}
                               handleConfirmDelete={this.handleConfirmDelete}/>
       </BodySection>
