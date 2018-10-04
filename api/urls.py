@@ -16,7 +16,7 @@ urlpatterns = [
     path('media/<pk>/analytics', views.MediaItemAnalyticsView.as_view(),
          name='media_item_analytics'),
     path('media/<pk>/embed', views.MediaItemEmbedView.as_view(), name='media_embed'),
-    path('media/<pk>/source', views.MediaItemSourceView.as_view(), name='media_source'),
+    path('media/<pk>/source.mp4', views.MediaItemSourceView.as_view(), name='media_source'),
     path('media/<pk>/poster-<int:width>.<extension>',
          views.MediaItemPosterView.as_view(), name='media_poster'),
     path('channels/', views.ChannelListView.as_view(), name='channel_list'),

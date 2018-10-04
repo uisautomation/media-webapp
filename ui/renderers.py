@@ -104,10 +104,7 @@ class RSSRenderer(renderers.BaseRenderer):
             # The actual downloads themselves.
             for enclosure in entry['enclosures']:
                 # FIXME FIXME FIXME FIXME
-                fe.enclosure(
-                    url='http://downloads.sms.cam.ac.uk/2406625/2408197.mp4',
-                    type=enclosure['mime_type'], length='1501507294'
-                )
+                fe.enclosure(url=enclosure['url'], type=enclosure['mime_type'], length='23255441')
 
             fe.author(name='Harold The Barrel', email='harold@barrel.com')
             fe.podcast.itunes_author('Harold The Barrel')
