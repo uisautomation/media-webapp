@@ -63,6 +63,8 @@ class RSSRenderer(renderers.BaseRenderer):
 
         fg.podcast.itunes_author('Harold The Barrel')
         fg.podcast.itunes_category('Technology', 'Podcasting')
+        fg.language('en')
+        fg.podcast.itunes_explicit('clean')
 
         # TODO: Missing fields from playlists: author, contributors, logo, subtitle, and language.
 
@@ -96,9 +98,6 @@ class RSSRenderer(renderers.BaseRenderer):
             # Image. Note: iTunes *requires* this to end in ".jpg" or ".png" which is annoying.
             fe.podcast.itunes_image(entry['imageUrl'])
 
-            # FIXME FIXME FIXME FIXME FIXME
-            fg.image(url=entry['imageUrl'], title=entry['title'])
-
             # Duration in seconds.
             fe.podcast.itunes_duration(entry['duration'])
 
@@ -108,6 +107,9 @@ class RSSRenderer(renderers.BaseRenderer):
 
             fe.author(name='Harold The Barrel', email='harold@barrel.com')
             fe.podcast.itunes_author('Harold The Barrel')
+            # FIXME FIXME FIXME FIXME FIXME
+            fg.image(url=entry['imageUrl'], title=entry['title'])
+            fe.podcast.itunes_explicit('clean')
 
         # Render the feed.
         return fg.rss_str(pretty=True)
