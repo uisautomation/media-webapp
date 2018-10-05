@@ -108,7 +108,7 @@ class RSSRenderer(renderers.BaseRenderer):
                 # FIXME FIXME FIXME FIXME '23255441'
                 fe.enclosure(url=enclosure['url'], type=enclosure['mime_type'])
 
-            fe.author(name='Harold The Barrel', email='harold@barrel.com')
+#            fe.author(name='Harold The Barrel', email='harold@barrel.com')
             fe.podcast.itunes_author('Harold The Barrel')
 #            fe.podcast.itunes_explicit('clean')
 
