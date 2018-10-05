@@ -580,6 +580,17 @@ class MediaItemSourceViewTestCase(ViewTestCase):
         response = self.get()
         self.assertRedirects(response, source['file'], fetch_redirect_response=False)
 
+    def test_extension_ignored(self):
+        """Test that the extension set on the media_source_with_ext endpoint is ignored"""
+        source = DELIVERY_VIDEO_FIXTURE['sources'][0]
+        response = self.client.get(
+            reverse('api:media_source_with_ext', kwargs={
+                'pk': self.item.id,
+                'extension': 'mov'
+            })
+        )
+        self.assertRedirects(response, source['file'], fetch_redirect_response=False)
+
     def test_audio_best_source(self):
         """Best source will include audio if that is all there is."""
         sources = [
