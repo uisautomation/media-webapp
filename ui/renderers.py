@@ -61,11 +61,12 @@ class RSSRenderer(renderers.BaseRenderer):
         # Self link.
         fg.link(href=data['url'])
 
-        fg.image(url=data['entries'][0]['imageUrl'], title=data['entries'][0]['title'])
         fg.podcast.itunes_author('Harold The Barrel')
 #        fg.podcast.itunes_category('Technology', 'Podcasting')
-        fg.language('en')
 #        fg.podcast.itunes_explicit('clean')
+
+        # fg.image(url=data['entries'][0]['imageUrl'], title=data['entries'][0]['title'])
+        # fg.language('en')
 
         # TODO: Missing fields from playlists: author, contributors, logo, subtitle, and language.
 
