@@ -61,10 +61,11 @@ class RSSRenderer(renderers.BaseRenderer):
         # Self link.
         fg.link(href=data['url'])
 
+        fg.image(url=data['entries'][0]['imageUrl'], title=data['entries'][0]['title'])
         fg.podcast.itunes_author('Harold The Barrel')
-        fg.podcast.itunes_category('Technology', 'Podcasting')
+#        fg.podcast.itunes_category('Technology', 'Podcasting')
         fg.language('en')
-        fg.podcast.itunes_explicit('clean')
+#        fg.podcast.itunes_explicit('clean')
 
         # TODO: Missing fields from playlists: author, contributors, logo, subtitle, and language.
 
@@ -104,13 +105,11 @@ class RSSRenderer(renderers.BaseRenderer):
             # The actual downloads themselves.
             for enclosure in entry['enclosures']:
                 # FIXME FIXME FIXME FIXME
-                fe.enclosure(url=enclosure['url'], type=enclosure['mime_type'], length='23255441')
+                fe.enclosure(url=enclosure['url'], type=enclosure['mime_type'])#, length='23255441')
 
             fe.author(name='Harold The Barrel', email='harold@barrel.com')
             fe.podcast.itunes_author('Harold The Barrel')
-            # FIXME FIXME FIXME FIXME FIXME
-            fg.image(url=entry['imageUrl'], title=entry['title'])
-            fe.podcast.itunes_explicit('clean')
+#            fe.podcast.itunes_explicit('clean')
 
         # Render the feed.
         return fg.rss_str(pretty=True)
