@@ -104,8 +104,8 @@ class RSSRenderer(renderers.BaseRenderer):
 
             # The actual downloads themselves.
             for enclosure in entry['enclosures']:
-                # FIXME FIXME FIXME FIXME
-                fe.enclosure(url=enclosure['url'], type=enclosure['mime_type'])  # , length='23255441')
+                # FIXME FIXME FIXME FIXME '23255441'
+                fe.enclosure(url=enclosure['url'], type=enclosure['mime_type'])
 
             fe.author(name='Harold The Barrel', email='harold@barrel.com')
             fe.podcast.itunes_author('Harold The Barrel')
