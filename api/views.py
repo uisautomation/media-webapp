@@ -393,7 +393,10 @@ class MediaItemSourceView(MediaItemMixin, generics.RetrieveAPIView):
                 return redirect(audio_sources.pop().url)
             elif len(video_sources) != 0:
                 # Sort videos by descending height
-                return redirect(sorted(video_sources, key=lambda s: -s.height)[0].url)
+                source = sorted(video_sources, key=lambda s: -s.height)[0]
+                r = redirect(source.url)
+                r['Content-Type'] = source.mime_type
+                return r
         else:
             for source in item.sources:
                 if (source.mime_type == mime_type and source.width == width
