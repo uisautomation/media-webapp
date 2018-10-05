@@ -151,9 +151,15 @@ class MediaItemRSSEntitySerializer(serializers.Serializer):
         # "sources" attribute requires a call to the JWP delivery API and may be too expensive/slow
         # if there are large numbers of media items. In the future, if sources are cached in the
         # database, we can do this "properly".
+        mime_type = MIME_TYPE_MAPPING.get(obj.type, 'application/octet-stream')
+        # Unfortunately itunes requires a url with an extension so we have to use
+        # media_source_with_ext here.
         return [{
-            'url': self._absolute_uri(reverse('api:media_source', kwargs={'pk': obj.id})),
-            'mime_type': MIME_TYPE_MAPPING.get(obj.type, 'application/octet-stream')
+            'url': self._absolute_uri(reverse('api:media_source_with_ext', kwargs={
+                'pk': obj.id,
+                'extension': mime_type.split('/')[1]
+            })),
+            'mime_type': mime_type
         }]
 
     def _absolute_uri(self, uri):
