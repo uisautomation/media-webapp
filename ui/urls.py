@@ -44,9 +44,21 @@ urlpatterns = [
     ),
     path('playlists/<pk>', views.PlaylistView.as_view(), name='playlist'),
     path('playlists/<pk>/edit', views.PlaylistView.as_view(), name='playlist_edit'),
-    path('about', TemplateView.as_view(template_name="ui/about.html"), name='about'),
-    path('changelog', TemplateView.as_view(
-        template_name="ui/changelog.html", extra_context={'changelog': changelog}
-    ), name='changelog'),
+
+    # Static text page UI views. If many more static pages are added in future, we will want to
+    # think about a helper function for creating these paths.
+    path('about', TemplateView.as_view(template_name="index.html"), name='about'),
+    path('changelog', TemplateView.as_view(template_name="index.html"), name='about'),
+
+    # Static text page content views. If many more static pages are added in future, we will want
+    # to think about a helper function for creating these paths.
+    path('about.md', TemplateView.as_view(
+        template_name='ui/about.md', content_type='text/markdown; charset=UTF-8'
+    ), name='about'),
+    path('changelog.md', TemplateView.as_view(
+        template_name="ui/changelog.md", content_type='text/markdown; charset=UTF-8',
+        extra_context={'changelog': changelog}
+    ), name='changelog_markdown'),
+
     path('', TemplateView.as_view(template_name="index.html"), name='home'),
 ]
