@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { Link } from 'react-router-dom'
+
 import ButtonBase from '@material-ui/core/ButtonBase';
 import Grid from '@material-ui/core/Grid';
 
@@ -63,8 +65,8 @@ const ResourceList = withStyles(styles)(({
     resourceComponents = (cardProps || []).map(props => (
       <ButtonBase
         classes={{root: classes.buttonRoot}}
-        component='a'
-        href={props.href}
+        component={Link}
+        to={props.href}
       >
         <MediaItemCard
           classes={{root: classes.itemRoot}}
