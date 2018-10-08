@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Helmet } from 'react-helmet';
 
+import { Link } from 'react-router-dom'
+
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
@@ -67,7 +69,9 @@ class MediaEditPage extends Component {
                   onChange={patch => this.setState({item: {...item, ...patch}})}
                 />
                 <div className={ classes.buttonSet }>
-                  <Button variant='outlined' href={ '/media/' + this.getItemId() } >
+                  <Button
+                    variant='outlined' component={ Link } to={ '/media/' + this.getItemId() }
+                  >
                     Cancel
                   </Button>
                   <Button color='secondary' variant='contained' onClick={ () => this.save() } >
