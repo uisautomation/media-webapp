@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Helmet } from 'react-helmet';
 
-import { Link } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
@@ -13,7 +13,7 @@ import Page from '../containers/Page';
 import ChannelSelect from '../containers/ChannelSelect';
 import BodySection from "../components/BodySection";
 import {playlistCreate} from "../api";
-import {setMessageForNextPageLoad} from "../containers/Snackbar";
+import { showMessage } from "../containers/Snackbar";
 import IfOwnsAnyChannel from "../containers/IfOwnsAnyChannel";
 import PlaylistMetadataForm from "../components/PlaylistMetadataForm";
 
@@ -27,8 +27,12 @@ class PlaylistCreatePageContents extends Component {
     this.state = {
       // An error object as returned by the API or the empty object if there are no errors.
       errors: {},
+
       // The playlist being created.
       playlist: { channelId: '', title: '' },
+
+      // Whether the playlist was successfully created.
+      playlistCreated: false,
     };
   }
 
@@ -38,8 +42,8 @@ class PlaylistCreatePageContents extends Component {
   create() {
     playlistCreate(this.state.playlist)
       .then(playlist => {
-        setMessageForNextPageLoad(`Playlist "${playlist.title}" created.`);
-        window.location = '/playlists/' + playlist.id
+        this.setState({ playlistCreated: true, playlist });
+        showMessage(`Playlist "${playlist.title}" created.`);
       })
       .catch(({ body }) => this.setState({ errors: body })
     );
@@ -47,7 +51,11 @@ class PlaylistCreatePageContents extends Component {
 
   render() {
     const { classes } = this.props;
-    const { playlist, errors } = this.state;
+    const { playlist, errors, playlistCreated } = this.state;
+
+    if(playlistCreated) {
+      return <Redirect to={'/playlists/' + playlist.id} />;
+    }
 
     return (
       <BodySection>
