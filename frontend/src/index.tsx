@@ -17,6 +17,8 @@ import PlaylistPage from './pages/PlaylistPage';
 import StaticTextPage from './pages/StaticTextPage';
 import UploadPage from './pages/UploadPage';
 
+import Snackbar from "./containers/Snackbar";
+
 import ProfileProvider from './providers/ProfileProvider';
 
 import theme from './theme';
@@ -43,6 +45,9 @@ ReactDOM.render(
         <Route exact={true} path="/playlists/:pk/edit" component={PlaylistEditPage} />
         <Route exact={true} path="/about" component={StaticTextPage} />
         <Route exact={true} path="/changelog" component={StaticTextPage} />
+
+        { /* Global notification snackbar */ }
+        <Snackbar />
       </ProfileProvider>
     </MuiThemeProvider>
   </BrowserRouter>,

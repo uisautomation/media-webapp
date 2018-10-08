@@ -15,7 +15,6 @@ import AppBar from "../components/AppBar";
 import DraggableContext from "../components/DraggableContext";
 import MotdBanner from "../components/MotdBanner";
 import NavigationPanel from "../components/NavigationPanel";
-import Snackbar from "./Snackbar";
 import IfOwnsAnyChannel from "./IfOwnsAnyChannel";
 
 import { withProfile } from "../providers/ProfileProvider";
@@ -99,8 +98,6 @@ class Page extends React.Component {
             </DraggableContext>
           </main>
         </div>
-
-        <Snackbar/>
       </div>
     );
   }
