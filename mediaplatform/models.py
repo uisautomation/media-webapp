@@ -245,7 +245,15 @@ class MediaItemManager(models.Manager):
         return obj
 
 
-class MediaItem(models.Model):
+class CachedResourceHelperMixin:
+    """A mixin for helping with a model's CachedResource"""
+
+    def fetch_resource_data(self):
+        """Fetches the data from a model's CachedResource"""
+        return getattr(getattr(getattr(self, 'jwp', {}), 'resource', {}), 'data', {})
+
+
+class MediaItem(models.Model, CachedResourceHelperMixin):
     """
     An individual media item in the media platform.
 
@@ -388,11 +396,16 @@ class MediaItem(models.Model):
         sources). Returns 0 if the size isn't available.
 
         """
-        return int(
-            getattr(
-                getattr(getattr(self, 'jwp', {}), 'resource', {}), 'data', {}
-            ).get('size', '0')
-        )
+        return int(self.fetch_resource_data().get('size', '0'))
+
+    @cached_property
+    def fetched_author(self):
+        """
+        A cached property which returns the author of the video.
+        Returns None if the author isn't available.
+
+        """
+        return self.fetch_resource_data().get('author')
 
 
 class Permission(models.Model):
@@ -593,7 +606,7 @@ class ChannelManager(models.Manager):
         return obj
 
 
-class Channel(models.Model):
+class Channel(models.Model, CachedResourceHelperMixin):
     """
     An individual channel in the media platform.
 
@@ -631,6 +644,15 @@ class Channel(models.Model):
     #: Deletion time. If non-NULL, the channel has been "deleted" and should not usually be
     #: visible.
     deleted_at = models.DateTimeField(null=True, blank=True)
+
+    @cached_property
+    def fetched_author(self):
+        """
+        A cached property which returns the author of the channel.
+        Returns None if the author isn't available.
+
+        """
+        return self.fetch_resource_data().get('author')
 
     def __str__(self):
         return '{} ("{}")'.format(self.id, self.title)

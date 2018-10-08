@@ -8,9 +8,10 @@ from django.core.cache import cache
 from django.db import IntegrityError
 from django.test import TestCase, override_settings
 from django.utils import timezone
+from mock import Mock
 
 from legacysms import models as legacymodels
-from mediaplatform_jwp.models import CachedResource
+from mediaplatform.models import CachedResourceHelperMixin
 from .. import models
 
 
@@ -87,6 +88,37 @@ class ModelTestCase(TestCase):
             .get(id=item_or_id.id)
             .TEST_editable
         )
+
+
+class CachedResourceHelperMixinTest(TestCase):
+
+    class MockModel(CachedResourceHelperMixin):
+        """A mock model for testing CachedResourceHelperMixin"""
+        def __init__(self):
+            self.jwp = Mock()
+
+    def setUp(self):
+        self.model = self.MockModel()
+
+    def test_success(self):
+        """ check that the data is fetched """
+        self.model.jwp.resource.data = {'something': 1234}
+        self.assertEquals(self.model.fetch_resource_data(), {'something': 1234})
+
+    def test_no_data(self):
+        """ check that fetch_resource_data doesn't error when the resource doesn't have a data """
+        self.model.jwp.resource = {}
+        self.assertEquals(self.model.fetch_resource_data(), {})
+
+    def test_no_resource(self):
+        """ check that fetch_resource_data doesn't error when the Video doesn't have a resource """
+        self.model.jwp = {}
+        self.assertEquals(self.model.fetch_resource_data(), {})
+
+    def test_no_jwp(self):
+        """ check that fetch_resource_data doesn't error when the model doesn't have a Video """
+        model = CachedResourceHelperMixin()
+        self.assertEquals(model.fetch_resource_data(), {})
 
 
 class MediaItemTest(ModelTestCase):
@@ -288,27 +320,13 @@ class MediaItemTest(ModelTestCase):
 
     def test_fetched_size_success(self):
         """ check that a size is successfully fetched """
-        resource = models.MediaItem.objects.get(id='public').jwp.resource
-        resource.data['size'] = 54321
-        resource.save()
         item = models.MediaItem.objects.get(id='public')
         self.assertEqual(item.fetched_size, 54321)
 
-    def test_fetched_size_no_size(self):
-        """ check that fetched_size doesn't error when the resource.data doesn't have a size """
-        CachedResource.objects.create(key='jwpvidpublic', type='video', data={})
+    def test_fetched_author_success(self):
+        """ check that the author is successfully fetched """
         item = models.MediaItem.objects.get(id='public')
-        self.assertEqual(item.fetched_size, 0)
-
-    def test_fetched_size_no_resource(self):
-        """ check that fetched_size doesn't error when the Video doesn't have a resource """
-        item = models.MediaItem.objects.get(id='public')
-        self.assertEqual(item.fetched_size, 0)
-
-    def test_fetched_size_no_jwp(self):
-        """ check that fetched_size doesn't error when the item doesn't have a Video """
-        item = models.MediaItem.objects.get(id='signedin')
-        self.assertEqual(item.fetched_size, 0)
+        self.assertEqual(item.fetched_author, 'J. M. Barrie')
 
     def test_super_viewer(self):
         """A user with mediaplatform.view_mediaitem permission can always view."""
@@ -667,6 +685,10 @@ class ChannelTest(ModelTestCase):
         self.assert_user_cannot_edit(self.user, self.c1)
         sms.delete()
         self.assert_user_can_edit(self.user, self.c1)
+
+    def test_fetched_author_success(self):
+        """ check that the channel author is successfully fetched """
+        self.assertEqual(self.c1.fetched_author, 'J. M. Barrie')
 
     def assert_user_can_view(self, user, channel_or_id):
         if isinstance(channel_or_id, str):

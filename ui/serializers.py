@@ -134,6 +134,7 @@ class MediaItemRSSEntitySerializer(serializers.Serializer):
     imageUrl = serializers.SerializerMethodField()
     title = serializers.CharField()
     description = serializers.CharField()
+    author = serializers.CharField(source='fetched_author')
     duration = serializers.IntegerField()
     rights = serializers.CharField(source='copyright')
     published_at = serializers.DateTimeField()
@@ -177,6 +178,7 @@ class MediaItemRSSSerializer(serializers.Serializer):
     url = serializers.HyperlinkedIdentityField(view_name='ui:media_item_rss')
     title = serializers.CharField()
     description = serializers.CharField()
+    author = serializers.CharField(source='fetched_author')
     entries = MediaItemRSSEntitySerializer(many=True, source='self_list')
 
 
@@ -213,4 +215,5 @@ class PlaylistRSSSerializer(serializers.Serializer):
     url = serializers.HyperlinkedIdentityField(view_name='ui:playlist_rss')
     title = serializers.CharField()
     description = serializers.CharField()
+    author = serializers.CharField(source='channel.fetched_author')
     entries = MediaItemRSSEntitySerializer(many=True, source='downloadable_media_items')

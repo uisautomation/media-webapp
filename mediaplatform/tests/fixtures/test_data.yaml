@@ -17,6 +17,21 @@
   fields:
     allows_edit_channel: channel1
 
+- model: mediaplatform_jwp.Channel
+  pk: jwpchannel1
+  fields:
+    updated: 12345
+    channel: channel1
+    resource: crjwpchannel1
+
+- model: mediaplatform_jwp.CachedResource
+  pk: crjwpchannel1
+  fields:
+    created_at: 2010-09-15 14:40:45
+    updated_at: 2010-09-15 14:40:45
+    data:
+      author: "J. M. Barrie"
+
 # Deleted channel
 - model: mediaplatform.Channel
   pk: delchan
@@ -109,6 +124,8 @@
     data:
       keu: publicvid
       status: ready
+      author: "J. M. Barrie"
+      size: 54321
 
 - model: mediaplatform_jwp.Video
   pk: jwpvidpublic

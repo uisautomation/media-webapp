@@ -1,6 +1,9 @@
 from feedgen.feed import FeedGenerator
 from rest_framework import renderers
 
+# if no author is set for the item or channel this default is used
+DEFAULT_AUTHOR = 'Cambridge University'
+
 
 class RSSRenderer(renderers.BaseRenderer):
     """
@@ -58,10 +61,13 @@ class RSSRenderer(renderers.BaseRenderer):
         fg.description(_ensure_non_empty(data['description']))
         fg.podcast.itunes_summary(_ensure_non_empty(data['description']))
 
+        # The author.
+        fg.podcast.itunes_author(data['author'] if data['author'] else DEFAULT_AUTHOR)
+
         # Self link.
         fg.link(href=data['url'])
 
-        # TODO: Missing fields from playlists: author, contributors, logo, subtitle, and language.
+        # TODO: Missing fields from playlists: contributors, logo, subtitle, and language.
 
         # Add entries
         for entry in data['entries']:
@@ -75,6 +81,9 @@ class RSSRenderer(renderers.BaseRenderer):
             fe.title(entry['title'])
             fe.description(_ensure_non_empty(entry['description']))
             fe.summary(_ensure_non_empty(entry['description']))
+
+            # The author.
+            fe.podcast.itunes_author(entry['author'] if entry['author'] else DEFAULT_AUTHOR)
 
             # RSS only supports one link with nothing but a URL. So for the RSS link element the
             # last link with rel=alternate is used. We link to the UI view even though we use the
