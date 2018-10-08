@@ -102,7 +102,7 @@ const NavigationPanel = ({ profile, classes }) => <div className={ classes.root 
     <Divider />
     <div className={ classes.bottomPanel }>
       <Typography variant='caption' gutterBottom className={ classes.bottomLinks }>
-        <a href="/about">About</a>
+        <Link to='/about'>About</Link>
         <a href="mailto:media@uis.cam.ac.uk">Contact</a>
         <a href="https://github.com/uisautomation/media-webapp">Developers</a>
       </Typography>

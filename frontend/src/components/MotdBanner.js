@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { Link } from 'react-router-dom'
+
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
@@ -22,10 +24,10 @@ const MotdBanner = ({
       <div className={classes.left}>
         <ReleaseTag style={{marginRight: '0.5ex'}}>alpha</ReleaseTag>
         {' '}This service is in development.{' '} { /* whitespace coalescing in JSX sux! */ }
-        <a className={classes.link} href="/about#help-us">Help us improve it.</a>
+        <Link className={classes.link} to='/about'>Help us improve it.</Link>
       </div>
       <div className={classes.right}>
-        <Button color='primary' variant='text' component='a' size='small' href="/changelog">
+        <Button color='primary' variant='text' component={Link} size='small' to="/changelog">
           What's new?
         </Button>
       </div>
