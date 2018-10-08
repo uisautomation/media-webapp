@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Helmet } from 'react-helmet';
 
+import { Link } from 'react-router-dom'
+
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
@@ -65,7 +67,7 @@ class PlaylistCreatePageContents extends Component {
                 onChange={patch => this.setState({playlist: {...playlist, ...patch}})}
               />
               <div className={ classes.buttonSet }>
-                <Button variant='outlined' href='/' >Cancel</Button>
+                <Button variant='outlined' component={ Link } to='/' >Cancel</Button>
                 <Button color='secondary' variant='contained' onClick={ () => this.create() } >
                   Create
                 </Button>
