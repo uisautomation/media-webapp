@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { Link } from 'react-router-dom'
+
 import Drawer from '@material-ui/core/Drawer';
 import IconButton from '@material-ui/core/IconButton';
 import Hidden from '@material-ui/core/Hidden';
@@ -47,10 +49,10 @@ class Page extends React.Component {
           onMenuClick={ this.handleDrawerToggle }
         >
           <IfOwnsAnyChannel>
-            <IconButton color="inherit" component="a" href="/media/new">
+            <IconButton color='inherit' component={ Link } to='/media/new'>
               <UploadIcon />
             </IconButton>
-            <IconButton color="inherit" component="a" href="/playlists/new">
+            <IconButton color='inherit' component={ Link } to='/playlists/new'>
               <PlaylistAddIcon />
             </IconButton>
           </IfOwnsAnyChannel>
