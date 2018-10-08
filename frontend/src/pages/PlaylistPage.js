@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Helmet } from 'react-helmet';
 
+import { Link } from 'react-router-dom'
+
 import Button from '@material-ui/core/Button';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
@@ -69,8 +71,9 @@ class PageContent extends Component {
             { playlist.title }
           </Typography>
           <IfOwnsChannel channel={playlist.channel} className={classes.buttons}>
-            <Button component='a' color='primary' variant='contained'
-                    href={'/playlists/' + playlist.id + '/edit'}
+            <Button
+              component={ Link } color='primary' variant='contained'
+              to={'/playlists/' + playlist.id + '/edit'}
             >
               Edit
               <EditIcon className={classes.rightIcon}/>
