@@ -166,14 +166,14 @@ class MediaItemTest(ModelTestCase):
         self.assert_user_can_view(self.user, item)
 
     def test_public_item_editable_by_anon(self):
-        """An item with public editable permissions is editable by anonymous."""
+        """An item with public editable permissions is still not editable by anonymous."""
         item = models.MediaItem.objects.get(id='emptyperm')
         self.assert_user_cannot_edit(AnonymousUser(), item)
         self.assert_user_cannot_edit(None, item)
         item.channel.edit_permission.is_public = True
         item.channel.edit_permission.save()
-        self.assert_user_can_edit(AnonymousUser(), item)
-        self.assert_user_can_edit(None, item)
+        self.assert_user_cannot_edit(AnonymousUser(), item)
+        self.assert_user_cannot_edit(None, item)
 
     def test_signed_in_edit_permissions(self):
         """An item with signed in edit permissions is not editable by anonymous."""

@@ -23,8 +23,6 @@ from . import serializers
 
 
 LOG = logging.getLogger(__name__)
-
-
 #: Allowed poster image widths
 POSTER_IMAGE_VALID_WIDTHS = [320, 480, 640, 720, 1280, 1920]
 
@@ -33,37 +31,6 @@ POSTER_IMAGE_DEFAULT_WIDTH = 720
 
 #: Allowed poster image extensions
 POSTER_IMAGE_VALID_EXTENSIONS = ['jpg']
-
-
-def get_profile(request):
-    """
-    Return an object representing what is known about a user from a reques. Contains two keys:
-    ``user`` which is simply the user object from the request and ``person`` which is the lookup
-    person resource for the user is non-anoymous.
-
-    """
-    obj = {'user': request.user}
-    if not request.user.is_anonymous:
-        try:
-            obj['person'] = automationlookup.get_person(
-                identifier=request.user.username,
-                scheme=getattr(settings, 'LOOKUP_SCHEME', 'crsid'),
-                fetch=['jpegPhoto'],
-            )
-        except requests.HTTPError as e:
-            LOG.warning('Error fetching person: %s', e)
-    return obj
-
-
-class ProfileView(generics.RetrieveAPIView):
-    """
-    Endpoint to retrieve the profile of the current user.
-
-    """
-    serializer_class = serializers.ProfileSerializer
-
-    def get_object(self):
-        return get_profile(self.request)
 
 
 class ListPagination(pagination.CursorPagination):
@@ -127,14 +94,22 @@ class ViewMixinBase:
         """
         return qs.select_related('channel')
 
-    def add_channel_detail(self, qs):
+    def add_channel_detail(self, qs, name='item_count'):
         """
         Add any extra annotations to a Channel query set which are required to render the detail
         view via ChannelDetailSerializer.
 
         """
-        # Currently this is a no-op
-        return qs
+        items_qs = (
+            self.filter_media_item_qs(mpmodels.MediaItem.objects.all())
+            .filter(channel=models.OuterRef('pk'))
+            .values('channel')
+            .annotate(count=models.Count('*'))
+            .values('count')
+        )
+        return qs.annotate(**{
+            name: models.Subquery(items_qs, output_field=models.BigIntegerField())
+        })
 
     def add_playlist_detail(self, qs):
         """
@@ -159,6 +134,41 @@ class ViewMixinBase:
             .annotate_viewable(self.request.user)
             .annotate_editable(self.request.user)
         )
+
+    def get_profile(self):
+        """
+        Return an object representing what is known about a user from the request. The object can
+        eb serialised with :py:class:`api.serializers.ProfileSerializer`.
+
+        """
+        obj = {
+            'user': self.request.user,
+            'channels': self.add_channel_detail(
+                self.filter_channel_qs(mpmodels.Channel.objects.all())
+                .editable_by_user(self.request.user)
+            ),
+        }
+        if not self.request.user.is_anonymous:
+            try:
+                obj['person'] = automationlookup.get_person(
+                    identifier=self.request.user.username,
+                    scheme=getattr(settings, 'LOOKUP_SCHEME', 'crsid'),
+                    fetch=['jpegPhoto'],
+                )
+            except requests.HTTPError as e:
+                LOG.warning('Error fetching person: %s', e)
+        return obj
+
+
+class ProfileView(ViewMixinBase, generics.RetrieveAPIView):
+    """
+    Endpoint to retrieve the profile of the current user.
+
+    """
+    serializer_class = serializers.ProfileSerializer
+
+    def get_object(self):
+        return self.get_profile()
 
 
 class MediaItemListSearchFilter(filters.SearchFilter):

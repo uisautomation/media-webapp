@@ -15,10 +15,24 @@ from . import serializers
 LOG = logging.getLogger(__name__)
 
 
-class MediaView(apiviews.MediaItemMixin, generics.RetrieveAPIView):
+class ResourcePageMixin(apiviews.ViewMixinBase):
+    """
+    Mixin class for views which ensured the returned object is decorated with the current user's
+    profile as required by :py:class:`ui.serializers.ResourcePageSerializer`.
+
+    """
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'ui/resource.html'
+
+    def get_object(self):
+        obj = super().get_object()
+        obj.profile = self.get_profile()
+        return obj
+
+
+class MediaView(ResourcePageMixin, apiviews.MediaItemMixin, generics.RetrieveAPIView):
     """View for rendering an individual media item. Extends the DRF's media item view."""
     serializer_class = serializers.MediaItemPageSerializer
-    renderer_classes = [TemplateHTMLRenderer]
     template_name = 'ui/media.html'
 
 
@@ -49,29 +63,23 @@ class MediaItemRSSView(apiviews.MediaItemMixin, generics.RetrieveAPIView):
         return obj
 
 
-class MediaItemAnalyticsView(apiviews.MediaItemMixin, generics.RetrieveAPIView):
+class MediaItemAnalyticsView(ResourcePageMixin, apiviews.MediaItemMixin, generics.RetrieveAPIView):
     """
     View for rendering an individual media item's analytics.
     Extends the DRF's media item analytics view.
 
     """
     serializer_class = serializers.ResourcePageSerializer
-    renderer_classes = [TemplateHTMLRenderer]
-    template_name = 'ui/resource.html'
 
 
-class ChannelView(apiviews.ChannelMixin, generics.RetrieveAPIView):
+class ChannelView(ResourcePageMixin, apiviews.ChannelMixin, generics.RetrieveAPIView):
     """View for rendering an individual channel. Extends the DRF's channel view."""
     serializer_class = serializers.ChannelPageSerializer
-    renderer_classes = [TemplateHTMLRenderer]
-    template_name = 'ui/resource.html'
 
 
-class PlaylistView(apiviews.PlaylistMixin, generics.RetrieveAPIView):
+class PlaylistView(ResourcePageMixin, apiviews.PlaylistMixin, generics.RetrieveAPIView):
     """View for rendering an individual playlist. Extends the DRF's channel view."""
     serializer_class = serializers.PlaylistPageSerializer
-    renderer_classes = [TemplateHTMLRenderer]
-    template_name = 'ui/resource.html'
 
 
 class PlaylistRSSView(apiviews.PlaylistMixin, generics.RetrieveAPIView):

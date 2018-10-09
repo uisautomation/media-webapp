@@ -6,11 +6,11 @@ from unittest import mock
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AnonymousUser, Permission
+from django.contrib.auth.models import Permission
 from django.test import override_settings
 from django.urls import reverse
 
-import mediaplatform.models as mpmodels
+from mediaplatform import models as mpmodels
 import mediaplatform_jwp.api.delivery as api
 from api.tests.test_views import ViewTestCase as _ViewTestCase, DELIVERY_VIDEO_FIXTURE
 
@@ -23,10 +23,10 @@ class ViewTestCase(_ViewTestCase):
         self.mock_from_id.return_value = api.DeliveryVideo(DELIVERY_VIDEO_FIXTURE)
         self.addCleanup(dv_patch.stop)
 
-        get_profile_patch = mock.patch('api.views.get_profile')
-        self.get_profile = get_profile_patch.start()
-        self.get_profile.return_value = {'user': AnonymousUser()}
-        self.addCleanup(get_profile_patch.stop)
+        get_person_patch = mock.patch('automationlookup.get_person')
+        self.get_person = get_person_patch.start()
+        self.get_person.return_value = {}
+        self.addCleanup(get_person_patch.stop)
 
 
 class MediaViewTestCase(ViewTestCase):
@@ -128,6 +128,28 @@ class IndexViewTestCase(ViewTestCase):
         with self.settings(GTAG_ID=gtag_id):
             r = self.client.get(reverse('ui:home'))
         self.assertIn(gtag_id, r.content.decode('utf8'))
+
+
+class ChannelViewTestCase(ViewTestCase):
+    def setUp(self):
+        super().setUp()
+        self.channel = mpmodels.Channel.objects.get(id='channel1')
+
+    def test_success(self):
+        """A channel page renders."""
+        r = self.client.get(reverse('ui:channel', kwargs={'pk': self.channel.id}))
+        self.assertEqual(r.status_code, 200)
+
+
+class PlaylistViewTestCase(ViewTestCase):
+    def setUp(self):
+        super().setUp()
+        self.playlist = mpmodels.Playlist.objects.get(id='public')
+
+    def test_success(self):
+        """A playlist page renders."""
+        r = self.client.get(reverse('ui:playlist', kwargs={'pk': self.playlist.id}))
+        self.assertEqual(r.status_code, 200)
 
 
 class MediaRSSViewTestCase(ViewTestCase):
