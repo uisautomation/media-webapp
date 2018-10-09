@@ -17,6 +17,13 @@ urlpatterns = [
          name='media_item_analytics'),
     path('media/<pk>/embed', views.MediaItemEmbedView.as_view(), name='media_embed'),
     path('media/<pk>/source', views.MediaItemSourceView.as_view(), name='media_source'),
+    # This path is included because itunes doesn't accept an rss feed enclosure url without an
+    # extension. Note that MediaItemSourceView will ignore whatever <extension> is set to and it is
+    # the callers responsibility to ensure that the source type matches the extension.
+    path(
+        'media/<pk>/source.<extension>', views.MediaItemSourceView.as_view(),
+        name='media_source_with_ext'
+    ),
     path('media/<pk>/poster-<int:width>.<extension>',
          views.MediaItemPosterView.as_view(), name='media_poster'),
     path('channels/', views.ChannelListView.as_view(), name='channel_list'),

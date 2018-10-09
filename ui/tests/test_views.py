@@ -6,6 +6,7 @@ from unittest import mock
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
 from django.test import override_settings
 from django.urls import reverse
 
@@ -139,3 +140,178 @@ class PlaylistViewTestCase(ViewTestCase):
         """A playlist page renders."""
         r = self.client.get(reverse('ui:playlist', kwargs={'pk': self.playlist.id}))
         self.assertEqual(r.status_code, 200)
+
+
+class MediaRSSViewTestCase(ViewTestCase):
+    def setUp(self):
+        self.lookup_groupids_and_instids_for_user_patcher = mock.patch(
+                'mediaplatform.models._lookup_groupids_and_instids_for_user')
+        self.lookup_groupids_and_instids_for_user = (
+            self.lookup_groupids_and_instids_for_user_patcher.start())
+        self.lookup_groupids_and_instids_for_user.return_value = ([], [])
+        self.addCleanup(self.lookup_groupids_and_instids_for_user_patcher.stop)
+
+        # Make sure there is a public downloadable item to render
+        self.item = mpmodels.MediaItem.objects.get(id='populated')
+        self.item.view_permission.reset()
+        self.item.view_permission.is_public = True
+        self.item.view_permission.save()
+        self.item.downloadable = True
+        self.item.save()
+
+        self.new_user = get_user_model().objects.create(username='newuser')
+
+    def test_success(self):
+        """A downloadable viewable media item renders a RSS feed."""
+        r = self.client.get(reverse('ui:media_item_rss', kwargs={'pk': self.item.pk}))
+        self.assertEqual(r.status_code, 200)
+        self.assertIn(self.item.title, r.content.decode('utf-8'))
+
+    def test_non_downloadable(self):
+        """A non-downloadable item results in a 404."""
+        r = self.client.get(reverse('ui:media_item_rss', kwargs={'pk': self.item.pk}))
+        self.assertEqual(r.status_code, 200)
+        self.item.downloadable = False
+        self.item.save()
+        r = self.client.get(reverse('ui:media_item_rss', kwargs={'pk': self.item.pk}))
+        self.assertEqual(r.status_code, 404)
+
+    def test_super_downloader(self):
+        """A user with mediaplatform.download_mediaitem permission can always download."""
+        self.item.downloadable = False
+        self.item.save()
+        self.client.force_login(self.new_user)
+
+        # initially cannot see the item
+        r = self.client.get(reverse('ui:media_item_rss', kwargs={'pk': self.item.pk}))
+        self.assertEqual(r.status_code, 404)
+
+        # add the permission to the user
+        view_permission = Permission.objects.get(
+            codename='download_mediaitem', content_type__app_label='mediaplatform')
+        self.new_user.user_permissions.add(view_permission)
+        self.new_user.save()
+
+        # can now see the item
+        r = self.client.get(reverse('ui:media_item_rss', kwargs={'pk': self.item.pk}))
+        self.assertEqual(r.status_code, 200)
+
+    def test_non_visible(self):
+        """A non-visible item results in a 404."""
+        r = self.client.get(reverse('ui:media_item_rss', kwargs={'pk': self.item.pk}))
+        self.assertEqual(r.status_code, 200)
+        self.item.view_permission.reset()
+        self.item.view_permission.save()
+        r = self.client.get(reverse('ui:media_item_rss', kwargs={'pk': self.item.pk}))
+        self.assertEqual(r.status_code, 404)
+
+    def test_super_viewer(self):
+        """A user with mediaplatform.view_mediaitem permission can always view if download set."""
+        self.item.view_permission.reset()
+        self.item.view_permission.save()
+        self.client.force_login(self.new_user)
+
+        # initially cannot see the item
+        r = self.client.get(reverse('ui:media_item_rss', kwargs={'pk': self.item.pk}))
+        self.assertEqual(r.status_code, 404)
+
+        # add the permission to the user
+        view_permission = Permission.objects.get(
+            codename='view_mediaitem', content_type__app_label='mediaplatform')
+        self.new_user.user_permissions.add(view_permission)
+        self.new_user.save()
+
+        # can now see the item
+        r = self.client.get(reverse('ui:media_item_rss', kwargs={'pk': self.item.pk}))
+        self.assertEqual(r.status_code, 200)
+
+        # remove downloadable
+        self.item.downloadable = False
+        self.item.save()
+
+        # cannot see the item any more
+        r = self.client.get(reverse('ui:media_item_rss', kwargs={'pk': self.item.pk}))
+        self.assertEqual(r.status_code, 404)
+
+    def test_non_sms(self):
+        """A media item not visible unless it came from the SMS."""
+        # initially OK
+        r = self.client.get(reverse('ui:media_item_rss', kwargs={'pk': self.item.pk}))
+        self.assertEqual(r.status_code, 200)
+
+        # delete related SMS objed
+        self.item.sms.delete()
+
+        # should not be visible
+        r = self.client.get(reverse('ui:media_item_rss', kwargs={'pk': self.item.pk}))
+        self.assertEqual(r.status_code, 404)
+
+
+class PlaylistRSSViewTestCase(ViewTestCase):
+    def setUp(self):
+        super().setUp()
+
+        # Create a playlist
+        channel = self.channels.first()
+        self.playlist = mpmodels.Playlist.objects.create(channel=channel, title='Testing playlist')
+
+        # Add first couple of media items to playlist and make sure that they are publicly viewable
+        # and downloadable.
+        self.assertGreater(mpmodels.MediaItem.objects.count(), 2)
+        for idx, item in enumerate(mpmodels.MediaItem.objects.all()[:2]):
+            item.title = f'Title for test item {idx}'
+            item.description = f'Description for test item {idx}'
+            item.downloadable = True
+            item.view_permission.reset()
+            item.view_permission.is_public = True
+            item.view_permission.save()
+            item.save()
+            self.playlist.media_items.append(item.id)
+        self.playlist.save()
+
+    def test_basic_functionality(self):
+        r = self.client.get(reverse('ui:playlist_rss', kwargs={'pk': self.playlist.id}))
+        self.assertEqual(r.status_code, 200)
+        content = r.content.decode('utf8')
+
+        for item in self.playlist.ordered_media_item_queryset:
+            self.assertIn(item.title, content)
+            self.assertIn(item.description, content)
+
+    def test_respects_visibility(self):
+        item = self.playlist.ordered_media_item_queryset.first()
+        item.view_permission.reset()
+        item.view_permission.crsids.append(self.user.username)
+        item.view_permission.save()
+
+        # Private item does not appear for anonymous user
+        r = self.client.get(reverse('ui:playlist_rss', kwargs={'pk': self.playlist.id}))
+        self.assertEqual(r.status_code, 200)
+        content = r.content.decode('utf8')
+        self.assertNotIn(item.title, content)
+
+        # Private item *does* appear for the correct user
+        self.client.force_login(self.user)
+        r = self.client.get(reverse('ui:playlist_rss', kwargs={'pk': self.playlist.id}))
+        self.assertEqual(r.status_code, 200)
+        content = r.content.decode('utf8')
+        self.assertIn(item.title, content)
+
+    def test_respects_downloadable(self):
+        item = self.playlist.ordered_media_item_queryset.first()
+
+        # Item does usually appear
+        r = self.client.get(reverse('ui:playlist_rss', kwargs={'pk': self.playlist.id}))
+        self.assertEqual(r.status_code, 200)
+        content = r.content.decode('utf8')
+        self.assertIn(item.title, content)
+
+        # Clear downloadable flag
+        item.downloadable = False
+        item.save()
+
+        # Item does not appear
+        r = self.client.get(reverse('ui:playlist_rss', kwargs={'pk': self.playlist.id}))
+        self.assertEqual(r.status_code, 200)
+        content = r.content.decode('utf8')
+        self.assertNotIn(item.title, content)

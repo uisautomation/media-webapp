@@ -21,6 +21,9 @@ django-reversion
 # For loading fixtures
 PyYAML
 
+# rss feed generator
+feedgen
+
 # PRE-RELEASE WHITENOISE VERSION
 # We need at least version 4 of whitenoise to make use of the index_file
 # configuration option.
