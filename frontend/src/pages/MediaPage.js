@@ -1,5 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Helmet } from 'react-helmet';
+
+import { Link } from 'react-router-dom'
 
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
@@ -58,6 +61,9 @@ const MediaPageContents = ({ resource: item, classes }) => {
 
   return (
     <div>
+      {
+        item && item.title && <Helmet><title>{ item.title }</title></Helmet>
+      }
       <section className={ classes.playerSection }>
         <div className={ classes.playerWrapper }>
           <iframe
@@ -96,8 +102,9 @@ const MediaPageContents = ({ resource: item, classes }) => {
               item && item.id
               ?
               <IfOwnsChannel channel={item.channel} className={classes.fullWidth}>
-                <Button component='a' variant='outlined' className={ classes.link }
-                  href={ '/media/' + item.id + '/edit' } fullWidth
+                <Button
+                  component={ Link } variant='outlined' className={ classes.link }
+                  to={ '/media/' + item.id + '/edit' } fullWidth={ true }
                 >
                   Edit
                   <EditIcon className={ classes.rightIcon } />
@@ -109,8 +116,9 @@ const MediaPageContents = ({ resource: item, classes }) => {
             {
               item && item.id
               ?
-              <Button component='a' variant='outlined' className={ classes.link }
-                href={ '/media/' + item.id + '/analytics' } fullWidth
+              <Button
+                component={ Link } variant='outlined' className={ classes.link }
+                to={ '/media/' + item.id + '/analytics' } fullWidth={ true }
               >
                 Statistics
                 <AnalyticsIcon className={ classes.rightIcon } />

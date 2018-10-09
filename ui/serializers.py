@@ -3,7 +3,6 @@ import logging
 from django.urls import reverse
 from rest_framework import serializers
 
-from api import serializers as apiserializers
 from mediaplatform_jwp.api import delivery as jwplatform
 
 LOG = logging.getLogger(__name__)
@@ -104,46 +103,10 @@ class MediaItemJSONLDSerializer(JSONLDSerializer):
         return self.context['request'].build_absolute_uri(uri)
 
 
-class ResourcePageSerializer(serializers.Serializer):
-    """
-    Generic serializer for a page representing a resource. Adds the current user's profile to the
-    context under the "profile" key.
-
-    """
-    profile = apiserializers.ProfileSerializer(read_only=True)
-
-
-class MediaItemPageSerializer(ResourcePageSerializer):
+class MediaItemPageSerializer(serializers.Serializer):
     """
     A serializer for media items which renders a ``json_ld`` field which is the representation of
     the media item in JSON LD format along with the resource.
 
     """
     json_ld = MediaItemJSONLDSerializer(source='*')
-
-    resource = apiserializers.MediaItemDetailSerializer(source='*')
-
-
-class ChannelPageSerializer(ResourcePageSerializer):
-    """
-    A serializer for channels which renders the API resource.
-
-    """
-    resource = apiserializers.ChannelDetailSerializer(source='*')
-
-
-class PlaylistPageSerializer(ResourcePageSerializer):
-    """
-    A serializer for playlists which renders the API resource.
-
-    """
-    resource = apiserializers.PlaylistDetailSerializer(source='*')
-
-
-class MediaItemAnalyticsPageSerializer(ResourcePageSerializer):
-    """
-    A serializer for media items which renders the media item resource and analytics into the view.
-
-    """
-    resource = apiserializers.MediaItemDetailSerializer(source='*')
-    analytics = apiserializers.MediaItemAnalyticsListSerializer(source='*')

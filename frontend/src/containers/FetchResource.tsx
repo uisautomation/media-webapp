@@ -39,6 +39,16 @@ class FetchResource<Resource> extends React.Component<IProps<Resource>, IState<R
     this.fetch();
   }
 
+  public componentDidUpdate(oldProps: IProps<Resource>) {
+    // If the type or id of the resource changed, re-fetch it.
+    if(
+      (oldProps.fetchResource !== this.props.fetchResource) ||
+      (oldProps.id !== this.props.id)
+    ) {
+      this.fetch();
+    }
+  }
+
   public render() {
     const { isLoading, resource, error } = this.state;
     const { component: Component, componentProps } = this.props;
@@ -49,7 +59,10 @@ class FetchResource<Resource> extends React.Component<IProps<Resource>, IState<R
   private fetch() {
     const { fetchResource, id } = this.props;
 
-    this.setState({ isLoading: true });
+    // Clear any previous resource/loading state.
+    this.setState({ isLoading: true, resource: undefined });
+
+    // Fetch the resource.
     fetchResource(id)
       .then(resource => {
         if(this.props.id === id) {

@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import { Helmet } from 'react-helmet';
+
+import { Link, Redirect } from 'react-router-dom'
 
 import Button from '@material-ui/core/Button';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -12,7 +15,7 @@ import BodySection from '../components/BodySection';
 import RenderedMarkdown from '../components/RenderedMarkdown';
 import Page from "../containers/Page";
 import DeletePlaylistDialog from "../containers/DeletePlaylistDialog";
-import {setMessageForNextPageLoad} from "../containers/Snackbar";
+import { showMessage } from "../containers/Snackbar";
 import IfOwnsChannel from "../containers/IfOwnsChannel";
 import MediaList from "../components/MediaList";
 import {playlistDelete} from "../api";
@@ -33,6 +36,9 @@ class PageContent extends Component {
     this.state = {
       // Controls the visibility of the delete confirmation dialog.
       deleteDialogOpen: false,
+
+      // Has the playlist been deleted by the user?
+      playlistDeleted: false,
     }
   }
 
@@ -43,8 +49,8 @@ class PageContent extends Component {
     if (doDelete) {
       playlistDelete(playlist.id)
         .then(() => {
-          setMessageForNextPageLoad(`Playlist "${playlist.title}" deleted.`);
-          window.location = '/'
+          showMessage(`Playlist "${playlist.title}" deleted.`);
+          this.setState({ playlistDeleted: true });
         })
         .catch(({ body }) => this.setState({ errors: body }));
     }
@@ -55,6 +61,11 @@ class PageContent extends Component {
 
   render() {
     const { classes, resource: playlist } = this.props;
+    const { playlistDeleted } = this.state;
+
+    if (playlistDeleted) {
+      return <Redirect to='/' />;
+    }
 
     if (!playlist || !playlist.id) {
       return null;
@@ -62,13 +73,15 @@ class PageContent extends Component {
 
     return (
       <BodySection>
+        <Helmet><title>{ playlist.title }</title></Helmet>
         <Toolbar className={classes.toolbar}>
           <Typography variant='display1' className={classes.title}>
             { playlist.title }
           </Typography>
           <IfOwnsChannel channel={playlist.channel} className={classes.buttons}>
-            <Button component='a' color='primary' variant='contained'
-                    href={'/playlists/' + playlist.id + '/edit'}
+            <Button
+              component={ Link } color='primary' variant='contained'
+              to={'/playlists/' + playlist.id + '/edit'}
             >
               Edit
               <EditIcon className={classes.rightIcon}/>

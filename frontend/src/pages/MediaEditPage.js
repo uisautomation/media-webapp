@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import { Helmet } from 'react-helmet';
+
+import { Link, Redirect } from 'react-router-dom'
 
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -9,23 +12,26 @@ import Page from '../containers/Page';
 import BodySection from '../components/BodySection';
 import ItemMetadataForm from "../components/ItemMetadataForm";
 import {mediaGet, mediaPatch} from "../api";
-import { setMessageForNextPageLoad } from "../containers/Snackbar";
+import { showMessage } from "../containers/Snackbar";
 import IfOwnsChannel from "../containers/IfOwnsChannel";
 
 /**
  * A page which allows the user to edit a media item's metadata.
  */
 class MediaEditPage extends Component {
-  constructor(props) {
-    super(props);
+  state = {
+    // An error object as returned by the API or the empty object if there are no errors.
+    errors: {},
 
-    this.state = {
-      // An error object as returned by the API or the empty object if there are no errors.
-      errors: {},
-      // The media item being edited by the ItemMetadataForm.
-      item: { id: '' },
-    };
-  }
+    // The primary key of the item being edited.
+    itemId: null,
+
+    // The media item resource being edited by the ItemMetadataForm.
+    item: { },
+
+    // The item being edited has been successfully saved.
+    saveSuccess: false,
+  };
 
   /** Gets the media item's id. */
   getItemId = () => this.props.match.params.pk;
@@ -34,17 +40,38 @@ class MediaEditPage extends Component {
    * Retrieve the item.
    */
   componentWillMount() {
-    mediaGet(this.getItemId()).then(item => this.setState({ item }));
+    this.fetchIfNecessary();
+  }
+
+  componentDidUpdate() {
+    this.fetchIfNecessary();
+  }
+
+  /**
+   * Examine the pk prop and decide if we need to fetch a media item to populate the form.
+   */
+  fetchIfNecessary() {
+    const { match: { params: { pk } } } = this.props;
+    const { itemId } = this.state;
+    if(pk !== itemId) {
+      this.setState({ itemId: pk, saveSuccess: false });
+      mediaGet(pk).then(item => (item.id === pk) && this.setState({ item }));
+    }
   }
 
   /**
    * Save the edited item.
    */
   save() {
-    mediaPatch(this.state.item)
+    const { item } = this.state;
+
+    // Cannot save an item with no id.
+    if(!item.id) { return; }
+
+    mediaPatch(item)
       .then(() => {
-        setMessageForNextPageLoad('The media item has been updated.');
-        window.location = '/media/' + this.getItemId()
+        showMessage('The media item has been updated.');
+        this.setState({ saveSuccess: true });
       })
       .catch(({ body }) => this.setState({ errors: body })
     );
@@ -52,9 +79,13 @@ class MediaEditPage extends Component {
 
   render() {
     const { classes } = this.props;
-    const { item, errors } = this.state;
+    const { item, itemId, errors, saveSuccess } = this.state;
+
+    if(saveSuccess) { return <Redirect to={'/media/' + itemId} />; }
+
     return (
       <Page gutterTop>
+        <Helmet><title>Edit media item</title></Helmet>
         <BodySection>
           <IfOwnsChannel channel={item && item.channel}>
             <Grid container justify='center'>
@@ -65,7 +96,9 @@ class MediaEditPage extends Component {
                   onChange={patch => this.setState({item: {...item, ...patch}})}
                 />
                 <div className={ classes.buttonSet }>
-                  <Button variant='outlined' href={ '/media/' + this.getItemId() } >
+                  <Button
+                    variant='outlined' component={ Link } to={ '/media/' + this.getItemId() }
+                  >
                     Cancel
                   </Button>
                   <Button color='secondary' variant='contained' onClick={ () => this.save() } >
