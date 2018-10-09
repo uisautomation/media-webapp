@@ -3,6 +3,7 @@ import * as ReactDOM from 'react-dom';
 
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { MuiThemeProvider } from '@material-ui/core/styles';
+import { Helmet } from 'react-helmet';
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
 
 import AnalyticsPage from './pages/AnalyticsPage';
@@ -16,6 +17,8 @@ import PlaylistPage from './pages/PlaylistPage';
 import StaticTextPage from './pages/StaticTextPage';
 import UploadPage from './pages/UploadPage';
 
+import Snackbar from "./containers/Snackbar";
+
 import ProfileProvider from './providers/ProfileProvider';
 
 import theme from './theme';
@@ -24,6 +27,8 @@ ReactDOM.render(
   <BrowserRouter>
     <MuiThemeProvider theme={theme}>
       <ProfileProvider>
+        { /* A default title for the page which can be overridden by specific pages. */ }
+        <Helmet><title>The University of Cambridge Media Platform</title></Helmet>
         <CssBaseline />
         <Route exact={true} path="/" component={IndexPage} />
         <Switch>
@@ -40,6 +45,9 @@ ReactDOM.render(
         <Route exact={true} path="/playlists/:pk/edit" component={PlaylistEditPage} />
         <Route exact={true} path="/about" component={StaticTextPage} />
         <Route exact={true} path="/changelog" component={StaticTextPage} />
+
+        { /* Global notification snackbar */ }
+        <Snackbar />
       </ProfileProvider>
     </MuiThemeProvider>
   </BrowserRouter>,

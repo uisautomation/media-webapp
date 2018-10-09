@@ -30,26 +30,37 @@ with open(os.path.join(settings.BASE_DIR, 'CHANGELOG.md')) as fobj:
 urlpatterns = [
     path(
         'media/new',
-        login_required(TemplateView.as_view(template_name="ui/media_item_new.html")),
+        login_required(TemplateView.as_view(template_name="index.html")),
         name='media_item_new'
     ),
-    path('media/<slug:pk>/analytics', views.MediaItemAnalyticsView.as_view(),
-         name='media_item_analytics'),
+    path('media/<slug:pk>/analytics', views.MediaView.as_view(), name='media_item_analytics'),
     path('media/<slug:pk>/edit', views.MediaView.as_view(), name='media_item_edit'),
     path('media/<slug:pk>', views.MediaView.as_view(), name='media_item'),
     path('media/<slug:pk>.rss', views.MediaItemRSSView.as_view(), name='media_item_rss'),
     path('channels/<pk>', views.ChannelView.as_view(), name='channel'),
     path(
         'playlists/new',
-        login_required(TemplateView.as_view(template_name="ui/playlist_new.html")),
+        login_required(TemplateView.as_view(template_name='index.html')),
         name='playlist_new'
     ),
     path('playlists/<slug:pk>', views.PlaylistView.as_view(), name='playlist'),
     path('playlists/<slug:pk>.rss', views.PlaylistRSSView.as_view(), name='playlist_rss'),
     path('playlists/<slug:pk>/edit', views.PlaylistView.as_view(), name='playlist_edit'),
-    path('about', TemplateView.as_view(template_name="ui/about.html"), name='about'),
-    path('changelog', TemplateView.as_view(
-        template_name="ui/changelog.html", extra_context={'changelog': changelog}
-    ), name='changelog'),
+
+    # Static text page UI views. If many more static pages are added in future, we will want to
+    # think about a helper function for creating these paths.
+    path('about', TemplateView.as_view(template_name="index.html"), name='about'),
+    path('changelog', TemplateView.as_view(template_name="index.html"), name='about'),
+
+    # Static text page content views. If many more static pages are added in future, we will want
+    # to think about a helper function for creating these paths.
+    path('about.md', TemplateView.as_view(
+        template_name='ui/about.md', content_type='text/markdown; charset=UTF-8'
+    ), name='about'),
+    path('changelog.md', TemplateView.as_view(
+        template_name="ui/changelog.md", content_type='text/markdown; charset=UTF-8',
+        extra_context={'changelog': changelog}
+    ), name='changelog_markdown'),
+
     path('', TemplateView.as_view(template_name="index.html"), name='home'),
 ]

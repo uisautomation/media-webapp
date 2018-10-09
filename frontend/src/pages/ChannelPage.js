@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Helmet } from 'react-helmet';
 
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
@@ -24,6 +25,7 @@ const PageContent = ({ resource: channel }) => (
   channel && channel.id
   ?
   <BodySection>
+    <Helmet><title>{ channel.title }</title></Helmet>
     <Typography variant='display1' gutterBottom>{ channel.title }</Typography>
     <RenderedMarkdown source={ channel.description } />
     <Typography variant='headline' gutterBottom>Media items</Typography>

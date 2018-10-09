@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { Link } from 'react-router-dom'
+
 import Avatar from '@material-ui/core/Avatar';
 import Collapse from '@material-ui/core/Collapse';
 import List from '@material-ui/core/List';
@@ -48,7 +50,7 @@ class ChannelsMuiList extends React.Component {
     const { classes, channels, trimCount, ...otherProps } = this.props;
 
     const channelItems = channels.map(channel => (
-      <ListItem key={channel.id} button component='a' href={`/channels/${channel.id}`}>
+      <ListItem key={channel.id} button component={Link} to={`/channels/${channel.id}`}>
         <ListItemAvatar><Avatar>{ channel.title[0] }</Avatar></ListItemAvatar>
         <ListItemText
           primary={

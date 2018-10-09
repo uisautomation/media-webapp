@@ -1,6 +1,3 @@
-{% extends 'ui/statictext.html' %}
-{% block title %}About The University of Cambridge Media Platform{% endblock %}
-{% block markdown %}
 # About the Media Platform
 
 The University of Cambridge Media Platform is a cloud based service which allows
@@ -37,4 +34,3 @@ You can get the latest source code from our [Git
 repository](https://github.com/uisautomation/media-webapp) and contribute by
 [raising issues](https://github.com/uisautomation/media-webapp/issues) and
 submitting pull requests.
-{% endblock %}

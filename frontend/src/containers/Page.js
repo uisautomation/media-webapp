@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { Link } from 'react-router-dom'
+
 import Drawer from '@material-ui/core/Drawer';
 import IconButton from '@material-ui/core/IconButton';
 import Hidden from '@material-ui/core/Hidden';
@@ -13,7 +15,6 @@ import AppBar from "../components/AppBar";
 import DraggableContext from "../components/DraggableContext";
 import MotdBanner from "../components/MotdBanner";
 import NavigationPanel from "../components/NavigationPanel";
-import Snackbar from "./Snackbar";
 import IfOwnsAnyChannel from "./IfOwnsAnyChannel";
 
 import { withProfile } from "../providers/ProfileProvider";
@@ -47,10 +48,10 @@ class Page extends React.Component {
           onMenuClick={ this.handleDrawerToggle }
         >
           <IfOwnsAnyChannel>
-            <IconButton color="inherit" component="a" href="/media/new">
+            <IconButton color='inherit' component={ Link } to='/media/new'>
               <UploadIcon />
             </IconButton>
-            <IconButton color="inherit" component="a" href="/playlists/new">
+            <IconButton color='inherit' component={ Link } to='/playlists/new'>
               <PlaylistAddIcon />
             </IconButton>
           </IfOwnsAnyChannel>
@@ -97,8 +98,6 @@ class Page extends React.Component {
             </DraggableContext>
           </main>
         </div>
-
-        <Snackbar/>
       </div>
     );
   }

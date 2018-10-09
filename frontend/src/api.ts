@@ -25,34 +25,6 @@ const API_HEADERS = {
   'X-CSRFToken': CSRF_TOKEN,
 };
 
-// Iterate over all resources which have been embedded in the page and build a map keyed by
-// resource id.
-const RESOURCES_FROM_PAGE = new Map(
-  Array.from(document.getElementsByTagName('script'))
-  .filter((element: HTMLScriptElement) => element.type === 'application/resource+json')
-  .map((element: HTMLScriptElement) => JSON.parse(element.text))
-  .filter(({ id }) => !!id)
-  .map((resource): [string, any] => [resource.id, resource])
-);
-
-// Extract the user's profile if it is embedded in the page
-const PROFILE_FROM_PAGE = (
-  Array.from(document.getElementsByTagName('script'))
-  .filter((element: HTMLScriptElement) => element.type === 'application/profile+json')
-  .map((element: HTMLScriptElement) => JSON.parse(element.text))
-  [0]
-);
-
-/**
- * A function which retrieves a resource from the page by id. Note that, to avoid caching problems,
- * once retrieved, the resource is then removed from the RESOURCES_FROM_PAGE object.
- */
-const resourceFromPageById = (id: string) => {
-  const resource = RESOURCES_FROM_PAGE.get(id);
-  if(resource) { RESOURCES_FROM_PAGE.delete(id); }
-  return resource;
-};
-
 /**
  * When API calls fail, the related Promise is reject()-ed with an object implementing this
  * interface.
@@ -297,8 +269,6 @@ export const mediaCreate = (body: IMediaCreateResource) : Promise<IMediaResource
 
 /** Retrieve a media resource. */
 export const mediaGet = (id: string) : Promise<IMediaListResponse> => {
-  const resource = resourceFromPageById(id);
-  if (resource) { return Promise.resolve(resource); }
   return apiFetch(API_ENDPOINTS.mediaList + id);
 };
 
@@ -323,7 +293,6 @@ export const analyticsGet = (id: string) : Promise<IAnalyticsResponse> => {
 
 /** Fetch the user's profile. */
 export const profileGet = (): Promise<IProfileResponse> => {
-  if (PROFILE_FROM_PAGE) { return Promise.resolve(PROFILE_FROM_PAGE); }
   return apiFetch(API_ENDPOINTS.profile);
 };
 
@@ -336,8 +305,6 @@ export const channelList = (
 
 /** Retrieve a channel resource. */
 export const channelGet = (id: string) : Promise<IChannelDetailResource> => {
-  const resource = resourceFromPageById(id);
-  if (resource) { return Promise.resolve(resource); }
   return apiFetch(API_ENDPOINTS.channelList + id);
 };
 
@@ -350,8 +317,6 @@ export const playlistList = (
 
 /** Retrieve a playlist resource. */
 export const playlistGet = (id: string) : Promise<IPlaylistResource> => {
-  const resource = resourceFromPageById(id);
-  if (resource) { return Promise.resolve(resource); }
   return apiFetch(API_ENDPOINTS.playlistList + id);
 };
 

@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
+import { Link } from 'react-router-dom'
+
 import MuiAppBar from '@material-ui/core/AppBar';
 import Hidden from '@material-ui/core/Hidden';
 import IconButton from '@material-ui/core/IconButton';
@@ -83,9 +85,9 @@ class AppBar extends Component {
             </IconButton>
           </Hidden>
           <Typography variant="title" color="inherit">
-            <a href='/'>
+            <Link to='/'>
               <img src={LogoImage} alt="Media Platform" style={{verticalAlign: 'bottom', height: '1.8em'}} />
-            </a>
+            </Link>
           </Typography>
           <div className={ classes.centreSection }>
             <div className={ classes.searchFormContainer }>{ searchForm }</div>

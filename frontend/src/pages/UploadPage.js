@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet';
 
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
@@ -15,6 +16,7 @@ import IfOwnsAnyChannel from "../containers/IfOwnsAnyChannel";
  */
 const UploadPage = () => (
   <Page gutterTop>
+    <Helmet><title>Upload new media item</title></Helmet>
     <BodySection>
       <IfOwnsAnyChannel>
         <Grid container justify='center'>
