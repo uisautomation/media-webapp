@@ -6,6 +6,8 @@ import typing
 import automationlookup
 from django.conf import settings
 import django.contrib.postgres.fields as pgfields
+import django.contrib.postgres.indexes as pgindexes
+import django.contrib.postgres.search as pgsearch
 from django.db import models
 from django.db.models import Q, expressions, functions
 from django.db.models.signals import post_save
@@ -282,6 +284,7 @@ class MediaItem(models.Model):
         indexes = (
             models.Index(fields=['updated_at']),
             models.Index(fields=['published_at']),
+            pgindexes.GinIndex(fields=['text_search_vector']),
         )
 
     VIDEO = 'video'
@@ -349,6 +352,9 @@ class MediaItem(models.Model):
     #: List of tags for video
     tags = pgfields.ArrayField(models.CharField(max_length=256), default=_blank_array, blank=True,
                                help_text='Tags/keywords for item')
+
+    #: Full text search vector field
+    text_search_vector = pgsearch.SearchVectorField()
 
     #: Creation time
     created_at = models.DateTimeField(auto_now_add=True)
