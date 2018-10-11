@@ -5,11 +5,11 @@ FROM node:10
 WORKDIR /usr/src/app
 
 # Install any packages
-ADD ./frontend/package*.json ./
+ADD ./ui/frontend/package*.json ./
 RUN npm install
 
 # Copy the remaining files
-ADD ./frontend/ ./
+ADD ./ui/frontend/ ./
 
 # The frontend webapp folders will be mounted here as volumes.
 VOLUME /usr/src/app/src
