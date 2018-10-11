@@ -9,10 +9,9 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('mediaplatform_jwp', '0002_add_channel_model'),
-        ('smsjwplatform', '0003_auto_20180828_1555')
     ]
 
-    state_operations = [
+    operations = [
         migrations.CreateModel(
             name='CachedResource',
             fields=[
@@ -27,12 +26,7 @@ class Migration(migrations.Migration):
                 'db_table': 'mediaplatform_jwp_cachedresource',
             },
             bases=(models.Model,),
-        )
-    ]
-
-
-    operations = [
-        migrations.SeparateDatabaseAndState(state_operations=state_operations),
+        ),
         migrations.AddIndex(
             model_name='cachedresource',
             index=django.contrib.postgres.indexes.GinIndex(fields=['data'], name='mediaplatfo_data_55af3a_gin'),
