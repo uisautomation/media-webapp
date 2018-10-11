@@ -27,4 +27,5 @@ fi
 cd "$( dirname "${BASH_SOURCE[0]}")"
 
 set -x
-exec docker-compose --file compose/base.yml --file compose/${config}.yml $args
+exec docker-compose --project-name media \
+  --file compose/base.yml --file compose/${config}.yml $args
