@@ -37,6 +37,7 @@ POSTER_IMAGE_VALID_EXTENSIONS = ['jpg']
 
 class ListPagination(api_pagination.ExtendedCursorPagination):
     page_size = 50
+    page_size_query_param = 'page_size'
 
 
 class ViewMixinBase:
