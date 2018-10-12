@@ -18,8 +18,8 @@ coverage.xml
 *.log
 .git
 build
-frontend/node_modules
-frontend/build
+ui/frontend/node_modules
+build/frontend
 
 # To make sure we don't accidentally publish an image with secrets
 secrets.env

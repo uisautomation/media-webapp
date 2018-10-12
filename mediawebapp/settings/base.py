@@ -71,7 +71,7 @@ ROOT_URLCONF = 'mediawebapp.urls'
 # Serve the frontend files from the application root.
 FRONTEND_APP_BUILD_DIR = os.environ.get(
     'DJANGO_FRONTEND_APP_BUILD_DIR',
-    os.path.abspath(os.path.join(BASE_DIR, 'frontend', 'build'))
+    os.path.abspath(os.path.join(BASE_DIR, 'ui', 'frontend', 'build'))
 )
 
 #: Template loading. We include FRONTEND_APP_BUILD_DIR as a template dir so we can use the frontend
