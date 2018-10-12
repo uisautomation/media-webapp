@@ -8,8 +8,8 @@ services:
     env_file:
       - base.env
     volumes:
-      - media-postgres-data-local:/var/lib/postgresql/data
-      - media-postgres-backup-local:/backups
+      - postgres-data-local:/var/lib/postgresql/data
+      - postgres-backup-local:/backups
 
   # Lookup proxy service
   lookupproxy:
@@ -33,8 +33,8 @@ services:
     env_file:
       - lookupproxy.env
     volumes:
-      - media-lookupproxy-postgres-data-local:/var/lib/postgresql/data
-      - media-lookupproxy-postgres-backup-local:/backups
+      - lookupproxy-postgres-data-local:/var/lib/postgresql/data
+      - lookupproxy-postgres-backup-local:/backups
 
   # Hydra OAuth2 infrastructure
   hydra:
@@ -73,15 +73,15 @@ services:
     env_file:
       - hydra.env
     volumes:
-      - media-hydra-postgres-data-local:/var/lib/postgresql/data
-      - media-hydra-postgres-backup-local:/backups
+      - hydra-postgres-data-local:/var/lib/postgresql/data
+      - hydra-postgres-backup-local:/backups
 
 
 volumes:
   # Persistent volumes for postgres database data
-  media-postgres-data-local:
-  media-postgres-backup-local:
-  media-lookupproxy-postgres-data-local:
-  media-lookupproxy-postgres-backup-local:
-  media-hydra-postgres-data-local:
-  media-hydra-postgres-backup-local:
+  postgres-data-local:
+  postgres-backup-local:
+  lookupproxy-postgres-data-local:
+  lookupproxy-postgres-backup-local:
+  hydra-postgres-data-local:
+  hydra-postgres-backup-local:
