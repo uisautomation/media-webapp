@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'django_celery_results',
     'rest_framework.authtoken',
 
-    'smsjwplatform',
     'legacysms',
     'mediaplatform',
     'mediaplatform_jwp',
