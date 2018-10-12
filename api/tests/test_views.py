@@ -267,6 +267,17 @@ class MediaItemListViewTestCase(ViewTestCase):
         for item in response_data['results']:
             self.assertIn(item['id'], expected_ids)
 
+    def test_include_count(self):
+        """Asking to include a count should return a count of resources."""
+        response_data = self.view(self.factory.get('/?include_count=true')).data
+        self.assertIn('count', response_data)
+        self.assertGreater(response_data['count'], 0)
+
+    def test_count_not_include_by_default(self):
+        """Not asking for a coount should not include one."""
+        response_data = self.view(self.get_request).data
+        self.assertNotIn('count', response_data)
+
 
 class MediaItemViewTestCase(ViewTestCase):
     def setUp(self):
