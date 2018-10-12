@@ -25,6 +25,13 @@ Views
     :members:
     :member-order: bysource
 
+DRF Extensions
+--------------
+
+.. automodule:: api.pagination
+    :members:
+    :member-order: bysource
+
 Serializers
 -----------
 
