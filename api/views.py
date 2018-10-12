@@ -36,6 +36,7 @@ POSTER_IMAGE_VALID_EXTENSIONS = ['jpg']
 
 class ListPagination(pagination.CursorPagination):
     page_size = 50
+    page_size_query_param = 'page_size'
 
 
 class FullTextSearchFilter(filters.SearchFilter):
