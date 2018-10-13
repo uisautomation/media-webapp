@@ -200,6 +200,23 @@ on the <a class="reference external" href="https://www.django-rest-framework.org
 <dd></dd></dl>
 
 <dl class="class">
+<dt id="api.views.FullTextSearchFilter">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">FullTextSearchFilter</code><a class="headerlink" href="#api.views.FullTextSearchFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Custom filter based on <code class="xref py py-class docutils literal notranslate"><span class="pre">rest_framework.filters.SearchFilter</span></code> specialised to search
+object with a full-text search SearchVectorField. Unlike the standard search filter, this class
+accepts only one search field to be set in search_fields.</p>
+<p>The filter <em>always</em> annotates the objects with a search rank. The name is “search_rank” by
+default but can be overridden by setting search_rank_annotation on the view. If the search is
+empty then this rank will always be zero.</p>
+<dl class="method">
+<dt id="api.views.FullTextSearchFilter.filter_queryset">
+<code class="descname">filter_queryset</code><span class="sig-paren">(</span><em>request</em>, <em>queryset</em>, <em>view</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.FullTextSearchFilter.filter_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a filtered queryset.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="api.views.ViewMixinBase">
 <em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">ViewMixinBase</code><a class="headerlink" href="#api.views.ViewMixinBase" title="Permalink to this definition">¶</a></dt>
 <dd><p>A generic mixin class for API views which provides helper methods to filter querysets of
@@ -285,28 +302,6 @@ keyword arguments in the url conf.</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="api.views.MediaItemListSearchFilter">
-<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">MediaItemListSearchFilter</code><a class="headerlink" href="#api.views.MediaItemListSearchFilter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Custom filter based on <code class="xref py py-class docutils literal notranslate"><span class="pre">rest_framework.filters.SearchFilter</span></code> specialised to search
-<a class="reference internal" href="mediaplatform.html#mediaplatform.models.MediaItem" title="mediaplatform.models.MediaItem"><code class="xref py py-class docutils literal notranslate"><span class="pre">mediaplatform.models.MediaItem</span></code></a> objects. If the “tags” field is specified in the
-view’s <code class="docutils literal notranslate"><span class="pre">search_fields</span></code> attribute, then the tags field is searched for any tag matching the
-lower cased search term.</p>
-<dl class="method">
-<dt id="api.views.MediaItemListSearchFilter.get_search_terms">
-<code class="descname">get_search_terms</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.MediaItemListSearchFilter.get_search_terms" title="Permalink to this definition">¶</a></dt>
-<dd><p>Search terms are set by a ?search=… query parameter,
-and may be comma and/or whitespace delimited.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="api.views.MediaItemListSearchFilter.filter_queryset">
-<code class="descname">filter_queryset</code><span class="sig-paren">(</span><em>request</em>, <em>queryset</em>, <em>view</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.MediaItemListSearchFilter.filter_queryset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a filtered queryset.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
 <dt id="api.views.MediaItemListMixin">
 <em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">MediaItemListMixin</code><a class="headerlink" href="#api.views.MediaItemListMixin" title="Permalink to this definition">¶</a></dt>
 <dd><p>A mixin class for DRF generic views which has all of the specialisations necessary for listing
@@ -325,7 +320,9 @@ or RetrieveUpdateAPIView to form a concrete view class.</p>
 <dl class="class">
 <dt id="api.views.MediaItemListView">
 <em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">MediaItemListView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.MediaItemListView" title="Permalink to this definition">¶</a></dt>
-<dd><p>Endpoint to retrieve a list of media.</p>
+<dd><p>List and search Media items. If no other ordering is specified, results are returned in order
+of decreasing search relevance (if there is any search) and then by decreasing publication
+date.</p>
 <dl class="attribute">
 <dt id="api.views.MediaItemListView.pagination_class">
 <code class="descname">pagination_class</code><a class="headerlink" href="#api.views.MediaItemListView.pagination_class" title="Permalink to this definition">¶</a></dt>
