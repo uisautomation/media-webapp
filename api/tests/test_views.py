@@ -278,6 +278,88 @@ class MediaItemListViewTestCase(ViewTestCase):
         response_data = self.view(self.get_request).data
         self.assertNotIn('count', response_data)
 
+    def test_search_by_title(self):
+        """Items can be searched by title."""
+        item = mpmodels.MediaItem.objects.first()
+        item.title = 'some bananas'
+        item.view_permission.is_public = True
+        item.view_permission.save()
+        item.save()
+        self.assert_search_result(item, positive_query='Banana', negative_query='Pineapple')
+
+    def test_search_by_description(self):
+        """Items can be searched by description."""
+        item = mpmodels.MediaItem.objects.first()
+        item.description = 'some bananas'
+        item.view_permission.is_public = True
+        item.view_permission.save()
+        item.save()
+        self.assert_search_result(item, positive_query='Banana', negative_query='Pineapple')
+
+    def test_search_by_tags(self):
+        """Items can be searched by tags."""
+        item = mpmodels.MediaItem.objects.first()
+        item.tags = ['apples', 'oranges', 'top bananas']
+        item.view_permission.is_public = True
+        item.view_permission.save()
+        item.save()
+        self.assert_search_result(item, positive_query='Banana', negative_query='Pineapple')
+        self.assert_search_result(item, positive_query='Banana', negative_query='Pineapple')
+
+    def test_search_ordering(self):
+        """Items are sorted by relevance from search endpoint."""
+        items = mpmodels.MediaItem.objects.all()[:2]
+        for item in items:
+            item.view_permission.is_public = True
+            item.view_permission.save()
+
+        items[0].title = 'banana-y bananas are completely bananas'
+        items[0].save()
+        items[1].title = 'some bananas'
+        items[1].save()
+
+        # both items should appear in results
+        for item in items:
+            self.assert_search_result(item, positive_query='Banana')
+
+        # item 0 should be first
+        results = self.get_search_results('Banana')
+        self.assertEqual(results[0]['id'], items[0].id)
+
+        # make item 1 more relevant
+        items[1].description = (
+            'Bananas with bananas can banana the banana. Bruce Banana is not the Hulk')
+        items[1].save()
+
+        # both items should still appear in results
+        for item in items:
+            self.assert_search_result(item, positive_query='Banana')
+
+        # item 1 should be first
+        results = self.get_search_results('Banana')
+        self.assertEqual(results[0]['id'], items[1].id)
+
+    def assert_search_result(self, item, positive_query=None, negative_query=None):
+        # Item should appear in relevant query
+        if positive_query is not None:
+            self.assertTrue(any(
+                result_item['id'] == item.id
+                for result_item in self.get_search_results(positive_query)
+            ))
+
+        # Item should not appear in irrelevant query
+        if negative_query is not None:
+            self.assertFalse(any(
+                result_item['id'] == item.id
+                for result_item in self.get_search_results(negative_query)
+            ))
+
+    def get_search_results(self, query):
+        # this doesn't escape query which means tests should be kind in what they pass in here :)
+        get_request = self.factory.get('/?search=' + query)
+        response_data = self.view(get_request).data
+        return response_data['results']
+
 
 class MediaItemViewTestCase(ViewTestCase):
     def setUp(self):

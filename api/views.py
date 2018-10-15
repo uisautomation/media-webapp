@@ -6,6 +6,7 @@ import logging
 
 import automationlookup
 from django.conf import settings
+from django.contrib.postgres.search import SearchRank, SearchQuery
 from django.db import models
 from django.http import Http404
 from django.shortcuts import redirect, render
@@ -38,6 +39,42 @@ POSTER_IMAGE_VALID_EXTENSIONS = ['jpg']
 class ListPagination(api_pagination.ExtendedCursorPagination):
     page_size = 50
     page_size_query_param = 'page_size'
+
+
+class FullTextSearchFilter(filters.SearchFilter):
+    """
+    Custom filter based on :py:class:`rest_framework.filters.SearchFilter` specialised to search
+    object with a full-text search SearchVectorField. Unlike the standard search filter, this class
+    accepts only one search field to be set in search_fields.
+
+    The filter *always* annotates the objects with a search rank. The name is "search_rank" by
+    default but can be overridden by setting search_rank_annotation on the view. If the search is
+    empty then this rank will always be zero.
+
+    """
+    def filter_queryset(self, request, queryset, view):
+        search_terms = self.get_search_terms(request)
+        search_fields = getattr(view, 'search_fields', None)
+        search_rank_annotation = getattr(view, 'search_rank_annotation', 'search_rank')
+
+        if search_fields and len(search_fields) > 1:
+            raise ValueError('Can only handle a single search field')
+
+        # If there are no search terms, shortcut the search to return the entire query set but
+        # annotate it with a fake rank.
+        if not search_fields or not search_terms:
+            return queryset.annotate(**{
+                search_rank_annotation: models.Value(0, output_field=models.FloatField())
+            })
+
+        # Otherwise, form a query which is the logical OR of all the query terms.
+        query = SearchQuery(search_terms[0])
+        for t in search_terms[1:]:
+            query = query | SearchQuery(t)
+
+        return queryset.annotate(**{
+            search_rank_annotation: SearchRank(models.F(search_fields[0]), query)
+        }).filter(**{search_fields[0]: query})
 
 
 class ViewMixinBase:
@@ -174,31 +211,6 @@ class ProfileView(ViewMixinBase, generics.RetrieveAPIView):
         return self.get_profile()
 
 
-class MediaItemListSearchFilter(filters.SearchFilter):
-    """
-    Custom filter based on :py:class:`rest_framework.filters.SearchFilter` specialised to search
-    :py:class:`mediaplatform.models.MediaItem` objects. If the "tags" field is specified in the
-    view's ``search_fields`` attribute, then the tags field is searched for any tag matching the
-    lower cased search term.
-
-    """
-
-    def get_search_term(self, request):
-        return request.query_params.get(self.search_param, '')
-
-    def get_search_terms(self, request):
-        return [self.get_search_term(request)]
-
-    def filter_queryset(self, request, queryset, view):
-        filtered_qs = super().filter_queryset(request, queryset, view)
-
-        if 'tags' in getattr(view, 'search_fields', ()):
-            search_term = self.get_search_term(request)
-            filtered_qs |= queryset.filter(tags__contains=[search_term.lower()])
-
-        return filtered_qs
-
-
 class MediaItemListMixin(ViewMixinBase):
     """
     A mixin class for DRF generic views which has all of the specialisations necessary for listing
@@ -257,15 +269,19 @@ class MediaItemFilter(df_filters.FilterSet):
 ))
 class MediaItemListView(MediaItemListMixin, generics.ListCreateAPIView):
     """
-    Endpoint to retrieve a list of media.
+    List and search Media items. If no other ordering is specified, results are returned in order
+    of decreasing search relevance (if there is any search) and then by decreasing publication
+    date.
 
     """
-    filter_backends = (filters.OrderingFilter, MediaItemListSearchFilter,
+    filter_backends = (filters.OrderingFilter, FullTextSearchFilter,
                        df_filters.DjangoFilterBackend)
-    ordering = '-publishedAt'
+    # The default ordering is by search rank first and then publication date. If no search is used,
+    # the rank is a fixed value and the publication date dominates.
+    ordering = ('-search_rank', '-publishedAt')
     ordering_fields = ('publishedAt', 'updatedAt')
     pagination_class = ListPagination
-    search_fields = ('title', 'description', 'tags')
+    search_fields = ('text_search_vector',)
     serializer_class = serializers.MediaItemSerializer
     filterset_class = MediaItemFilter
 

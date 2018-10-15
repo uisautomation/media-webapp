@@ -6,7 +6,7 @@ FROM node:10 as frontend-builder
 WORKDIR /usr/src/app
 
 # Install packages and build frontend
-ADD ./frontend/ ./
+ADD ./ui/frontend/ ./
 RUN npm install && npm run build
 
 # Use python alpine image to run webapp proper
@@ -28,7 +28,7 @@ RUN pip install --upgrade --no-cache-dir -r requirements/base.txt && \
 
 # Copy the remaining files over
 ADD . .
-COPY --from=frontend-builder /usr/src/app/build/ /usr/src/frontend/
+COPY --from=frontend-builder /usr/src/app/build/ /usr/src/build/frontend/
 
 # Default environment for image.  By default, we use the settings module bundled
 # with this repo. Change DJANGO_SETTINGS_MODULE to install a custom settings.
@@ -39,7 +39,7 @@ COPY --from=frontend-builder /usr/src/app/build/ /usr/src/frontend/
 EXPOSE 8000
 ENV \
 	DJANGO_SETTINGS_MODULE=mediawebapp.settings.docker \
-	DJANGO_FRONTEND_APP_BUILD_DIR=/usr/src/frontend/ \
+	DJANGO_FRONTEND_APP_BUILD_DIR=/usr/src/build/frontend/ \
 	PORT=8000
 
 # Collect static files. We provide placeholder values for required settings.
