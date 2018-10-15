@@ -519,20 +519,25 @@ class ChannelListFilterSet(df_filters.FilterSet):
 class ChannelListView(ChannelListMixin, generics.ListCreateAPIView):
     """
     Endpoint to retrieve a list of channels.
+    List and search Channels. If no other ordering is specified, results are returned in order
+    of decreasing search relevance (if there is any search) and then by decreasing update
+    date.
 
     """
     filter_backends = (
-        filters.OrderingFilter, filters.SearchFilter, df_filters.DjangoFilterBackend)
-    ordering = '-createdAt'
-    ordering_fields = ('createdAt', 'title')
+        filters.OrderingFilter, FullTextSearchFilter, df_filters.DjangoFilterBackend)
+    # The default ordering is by search rank first and then update date. If no search is used,
+    # the rank is a fixed value and the update date dominates.
+    ordering = ('-search_rank', '-updatedAt')
+    ordering_fields = ('updatedAt', 'createdAt', 'title')
     pagination_class = ListPagination
-    search_fields = ('title', 'description')
+    search_fields = ('text_search_vector',)
     serializer_class = serializers.ChannelSerializer
     filterset_class = ChannelListFilterSet
 
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.annotate(createdAt=models.F('created_at'))
+        return qs.annotate(createdAt=models.F('created_at'), updatedAt=models.F('updated_at'))
 
 
 class ChannelView(ChannelMixin, generics.RetrieveUpdateAPIView):
@@ -587,14 +592,19 @@ class PlaylistListFilterSet(df_filters.FilterSet):
 class PlaylistListView(PlaylistListMixin, generics.ListCreateAPIView):
     """
     Endpoint to retrieve a list of playlists.
+    List and search Playlists. If no other ordering is specified, results are returned in order
+    of decreasing search relevance (if there is any search) and then by decreasing update
+    date.
 
     """
     filter_backends = (
-        filters.OrderingFilter, filters.SearchFilter, df_filters.DjangoFilterBackend)
-    ordering = '-updatedAt'
+        filters.OrderingFilter, FullTextSearchFilter, df_filters.DjangoFilterBackend)
+    # The default ordering is by search rank first and then update date. If no search is used,
+    # the rank is a fixed value and the update date dominates.
+    ordering = ('-search_rank', '-updatedAt')
     ordering_fields = ('updatedAt', 'createdAt', 'title')
     pagination_class = ListPagination
-    search_fields = ('title', 'description')
+    search_fields = ('text_search_vector',)
     serializer_class = serializers.PlaylistSerializer
     filter_fields = ('channel',)
     filterset_class = PlaylistListFilterSet
