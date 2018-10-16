@@ -907,6 +907,69 @@ class ChannelListViewTestCase(ViewTestCase):
         for item in response_data['results']:
             self.assertIn(item['id'], expected_ids)
 
+    def test_search_by_title(self):
+        """Channels can be searched by title."""
+        channel = mpmodels.Channel.objects.first()
+        channel.title = 'some bananas'
+        channel.save()
+        self.assert_search_result(channel, positive_query='Banana', negative_query='Pineapple')
+
+    def test_search_by_description(self):
+        """Channels can be searched by description."""
+        channel = mpmodels.Channel.objects.first()
+        channel.description = 'some bananas'
+        channel.save()
+        self.assert_search_result(channel, positive_query='Banana', negative_query='Pineapple')
+
+    def test_search_ordering(self):
+        """Channels are sorted by relevance from search endpoint."""
+        channels = mpmodels.Channel.objects.all()[:2]
+        channel1 = channels[0]
+        channel2 = channels[1]
+
+        channel1.title = 'banana-y bananas are completely bananas'
+        channel1.save()
+        self.assert_search_result(channel1, positive_query='Banana')
+
+        channel2.title = 'some bananas'
+        channel2.save()
+        self.assert_search_result(channel2, positive_query='Banana')
+
+        # channel1 should be first
+        results = self.get_search_results('Banana')
+        self.assertEqual(results[0]['id'], channel1.id)
+
+        # make channel2 more relevant
+        channel2.description = (
+            'Bananas with bananas can banana the banana. Bruce Banana is not the Hulk')
+        channel2.save()
+        self.assert_search_result(channel2, positive_query='Banana')
+
+        # channel2 should be first
+        results = self.get_search_results('Banana')
+        self.assertEqual(results[0]['id'], channel2.id)
+
+    def assert_search_result(self, channel, positive_query=None, negative_query=None):
+        # Channels should appear in relevant query
+        if positive_query is not None:
+            self.assertTrue(any(
+                result_item['id'] == channel.id
+                for result_item in self.get_search_results(positive_query)
+            ))
+
+        # Channels should not appear in irrelevant query
+        if negative_query is not None:
+            self.assertFalse(any(
+                result_item['id'] == channel.id
+                for result_item in self.get_search_results(negative_query)
+            ))
+
+    def get_search_results(self, query):
+        # this doesn't escape query which means tests should be kind in what they pass in here :)
+        get_request = self.factory.get('/?search=' + query)
+        response_data = self.view(get_request).data
+        return response_data['results']
+
 
 class ChannelViewTestCase(ViewTestCase):
     def setUp(self):
@@ -1080,6 +1143,78 @@ class PlaylistListViewTestCase(ViewTestCase):
         force_authenticate(request, user=self.user)
         response = self.view(request)
         self.assertEqual(response.status_code, 400)
+
+    def test_search_by_title(self):
+        """Playlist can be searched by title."""
+        playlist = mpmodels.Playlist.objects.first()
+        playlist.title = 'some bananas'
+        playlist.view_permission.is_public = True
+        playlist.view_permission.save()
+        playlist.save()
+        self.assert_search_result(playlist, positive_query='Banana', negative_query='Pineapple')
+
+    def test_search_by_description(self):
+        """Playlist can be searched by description."""
+        playlist = mpmodels.Playlist.objects.first()
+        playlist.description = 'some bananas'
+        playlist.view_permission.is_public = True
+        playlist.view_permission.save()
+        playlist.save()
+        self.assert_search_result(playlist, positive_query='Banana', negative_query='Pineapple')
+
+    def test_search_ordering(self):
+        """Playlists are sorted by relevance from search endpoint."""
+        playlists = mpmodels.Playlist.objects.all()[:2]
+        for playlist in playlists:
+            playlist.view_permission.is_public = True
+            playlist.view_permission.save()
+
+        playlists[0].title = 'banana-y bananas are completely bananas'
+        playlists[0].save()
+        playlists[1].title = 'some bananas'
+        playlists[1].save()
+
+        # both items should appear in results
+        for playlist in playlists:
+            self.assert_search_result(playlist, positive_query='Banana')
+
+        # item 0 should be first
+        results = self.get_search_results('Banana')
+        self.assertEqual(results[0]['id'], playlists[0].id)
+
+        # make item 1 more relevant
+        playlists[1].description = (
+            'Bananas with bananas can banana the banana. Bruce Banana is not the Hulk')
+        playlists[1].save()
+
+        # both items should still appear in results
+        for playlist in playlists:
+            self.assert_search_result(playlist, positive_query='Banana')
+
+        # item 1 should be first
+        results = self.get_search_results('Banana')
+        self.assertEqual(results[0]['id'], playlists[1].id)
+
+    def assert_search_result(self, item, positive_query=None, negative_query=None):
+        # Playlist should appear in relevant query
+        if positive_query is not None:
+            self.assertTrue(any(
+                result_item['id'] == item.id
+                for result_item in self.get_search_results(positive_query)
+            ))
+
+        # Playlist should not appear in irrelevant query
+        if negative_query is not None:
+            self.assertFalse(any(
+                result_item['id'] == item.id
+                for result_item in self.get_search_results(negative_query)
+            ))
+
+    def get_search_results(self, query):
+        # this doesn't escape query which means tests should be kind in what they pass in here :)
+        get_request = self.factory.get('/?search=' + query)
+        response_data = self.view(get_request).data
+        return response_data['results']
 
 
 class PlaylistViewTestCase(ViewTestCase):

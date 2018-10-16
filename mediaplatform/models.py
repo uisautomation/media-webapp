@@ -628,6 +628,9 @@ class Channel(models.Model):
         max_length=255, blank=False, default='',
         help_text='Lookup instid for institution which "owns" this channel')
 
+    #: Full text search vector field
+    text_search_vector = pgsearch.SearchVectorField()
+
     #: Creation time
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -640,6 +643,12 @@ class Channel(models.Model):
 
     def __str__(self):
         return '{} ("{}")'.format(self.id, self.title)
+
+    class Meta:
+        indexes = (
+            models.Index(fields=['updated_at']),
+            pgindexes.GinIndex(fields=['text_search_vector']),
+        )
 
 
 class PlaylistQuerySet(PermissionQuerySetMixin, models.QuerySet):
@@ -744,6 +753,9 @@ class Playlist(models.Model):
         help_text='Primary keys of media items in this playlist'
     )
 
+    #: Full text search vector field
+    text_search_vector = pgsearch.SearchVectorField()
+
     #: Creation time
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -776,6 +788,12 @@ class Playlist(models.Model):
 
     def __str__(self):
         return '{} ("{}")'.format(self.id, self.title)
+
+    class Meta:
+        indexes = (
+            models.Index(fields=['updated_at']),
+            pgindexes.GinIndex(fields=['text_search_vector']),
+        )
 
 
 @receiver(post_save, sender=MediaItem)
