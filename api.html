@@ -440,7 +440,10 @@ or RetrieveUpdateAPIView to form a concrete view class.</p>
 <dl class="class">
 <dt id="api.views.ChannelListView">
 <em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">ChannelListView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.ChannelListView" title="Permalink to this definition">¶</a></dt>
-<dd><p>Endpoint to retrieve a list of channels.</p>
+<dd><p>Endpoint to retrieve a list of channels.
+List and search Channels. If no other ordering is specified, results are returned in order
+of decreasing search relevance (if there is any search) and then by decreasing update
+date.</p>
 <dl class="attribute">
 <dt id="api.views.ChannelListView.pagination_class">
 <code class="descname">pagination_class</code><a class="headerlink" href="#api.views.ChannelListView.pagination_class" title="Permalink to this definition">¶</a></dt>
@@ -500,7 +503,10 @@ or RetrieveUpdateAPIView to form a concrete view class.</p>
 <dl class="class">
 <dt id="api.views.PlaylistListView">
 <em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">PlaylistListView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.PlaylistListView" title="Permalink to this definition">¶</a></dt>
-<dd><p>Endpoint to retrieve a list of playlists.</p>
+<dd><p>Endpoint to retrieve a list of playlists.
+List and search Playlists. If no other ordering is specified, results are returned in order
+of decreasing search relevance (if there is any search) and then by decreasing update
+date.</p>
 <dl class="attribute">
 <dt id="api.views.PlaylistListView.pagination_class">
 <code class="descname">pagination_class</code><a class="headerlink" href="#api.views.PlaylistListView.pagination_class" title="Permalink to this definition">¶</a></dt>
