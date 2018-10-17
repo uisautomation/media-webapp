@@ -84,7 +84,7 @@ const ResourceList = withStyles(styles)(({
   return (
     <Grid container spacing={16} {...otherProps}>
       { resourceComponents.map((item, index) => (
-        <Grid item xs={12} sm={6} md={4} lg={3} key={index} {...GridItemProps}>{ item }</Grid>
+        <Grid item key={index} {...GridItemProps}>{ item }</Grid>
       )) }
     </Grid>
   );
