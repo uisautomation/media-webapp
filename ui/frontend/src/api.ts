@@ -310,7 +310,7 @@ export const channelGet = (id: string) : Promise<IChannelDetailResource> => {
 
 /** List playlist resources. */
 export const playlistList = (
-  query: IChannelQuery = {}, { endpoint }: IAPIOptions = {}
+  query: IPlaylistQuery = {}, { endpoint }: IAPIOptions = {}
 ): Promise<IPlaylistListResponse> => {
   return apiFetch(appendQuery(endpoint || API_ENDPOINTS.playlistList, query));
 };
