@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { FetchResources, IPassedProps } from './FetchResources';
 
-import { IMediaQuery, IMediaResource, mediaList } from '../api';
+import {IMediaListResponse, IMediaQuery, IMediaResource, mediaList} from '../api';
 
 import MediaList from '../components/MediaList';
 
@@ -14,7 +14,10 @@ export interface IProps {
 
   /** Extra props to pass to the rendered component. */
   componentProps?: {[x: string]: any};
-};
+
+  /** Optional handler that makes the fetched response available to the parent */
+  onFetched(response: IMediaListResponse): void;
+}
 
 /**
  * A component which fetches a list of list of media items and passes them to a contained

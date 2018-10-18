@@ -9,12 +9,12 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import AnalyticsPage from './pages/AnalyticsPage';
 import ChannelPage from './pages/ChannelPage';
 import IndexPage from './pages/IndexPage';
-import SearchPage from './pages/SearchPage';
 import MediaEditPage from './pages/MediaEditPage';
 import MediaPage from './pages/MediaPage';
 import PlaylistCreatePage from './pages/PlaylistCreatePage';
 import PlaylistEditPage from './pages/PlaylistEditPage';
 import PlaylistPage from './pages/PlaylistPage';
+import SearchPage from './pages/SearchPage';
 import StaticTextPage from './pages/StaticTextPage';
 import UploadPage from './pages/UploadPage';
 

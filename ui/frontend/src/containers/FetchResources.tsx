@@ -6,14 +6,14 @@ export interface IState<Resource> {
   error?: IError;
   isLoading: boolean;
   resources: Resource[];
-};
+}
 
 export interface IPassedProps<Query, Resource> extends IState<Resource> {
   query: Query;
 
   /* And all the props from componentProps. */
   [x: string]: any;
-};
+}
 
 export interface IProps<Query, Resource> {
   /** Query to pass to API. */
@@ -27,7 +27,10 @@ export interface IProps<Query, Resource> {
 
   /** API function which fetches resources. */
   fetchResources(query: Query): Promise<IResourceListResponse<Resource>>;
-};
+
+  /** Optional handler that makes the fetched response available to the parent */
+  onFetched(response: IResourceListResponse<Resource>): void;
+}
 
 /**
  * A component which fetches a list of list of resources and passes them to a contained component.
@@ -37,19 +40,19 @@ export class FetchResources<Query, Resource>
 {
   public static defaultProps = {
     query: {},
-  }
+  };
 
   public state: IState<Resource> = {
     isLoading: false,
     resources: [],
-  }
+  };
 
   public componentDidMount() {
     this.fetch();
   }
 
   public componentDidUpdate(prevProps: IProps<Query, Resource>) {
-    if(prevProps.query !== this.props.query) {
+    if (prevProps.query !== this.props.query) {
       this.fetch();
     }
   }
@@ -62,21 +65,24 @@ export class FetchResources<Query, Resource>
   }
 
   private fetch() {
-    const { query, fetchResources } = this.props;
+    const { query, fetchResources, onFetched } = this.props;
 
     this.setState({ isLoading: true });
     fetchResources(query)
       .then(response => {
-        if(this.props.query === query) {
+        if (this.props.query === query) {
           this.setState({ isLoading: false, resources: response.results, error: undefined });
+          if (onFetched) {
+            onFetched(response);
+          }
         }
       })
       .catch(error => {
-        if(this.props.query === query) {
+        if (this.props.query === query) {
           this.setState({ isLoading: false, resources: [], error });
         }
       });
   }
-};
+}
 
 export default FetchResources;

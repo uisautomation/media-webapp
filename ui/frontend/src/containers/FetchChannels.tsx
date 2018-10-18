@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { FetchResources, IPassedProps } from './FetchResources';
 
-import { channelList, IChannelQuery, IChannelResource } from '../api';
+import { channelList, IChannelListResponse, IChannelQuery, IChannelResource } from '../api';
 
 import ChannelList from '../components/ChannelList';
 
@@ -14,7 +14,10 @@ export interface IProps {
 
   /** Extra props to pass to the rendered component. */
   componentProps?: {[x: string]: any};
-};
+
+  /** Optional handler that makes the fetched response available to the parent */
+  onFetched(response: IChannelListResponse): void;
+}
 
 /**
  * A component which fetches a list of list of channel items and passes them to a contained
