@@ -9,6 +9,7 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import AnalyticsPage from './pages/AnalyticsPage';
 import ChannelPage from './pages/ChannelPage';
 import IndexPage from './pages/IndexPage';
+import SearchPage from './pages/SearchPage';
 import MediaEditPage from './pages/MediaEditPage';
 import MediaPage from './pages/MediaPage';
 import PlaylistCreatePage from './pages/PlaylistCreatePage';
@@ -31,6 +32,7 @@ ReactDOM.render(
         <Helmet><title>The University of Cambridge Media Platform</title></Helmet>
         <CssBaseline />
         <Route exact={true} path="/" component={IndexPage} />
+        <Route exact={true} path="/search" component={SearchPage} />
         <Switch>
           <Route exact={true} path="/media/new" component={UploadPage} />
           <Route exact={true} path="/media/:pk" component={MediaPage} />
