@@ -796,6 +796,39 @@ class Playlist(models.Model):
         )
 
 
+class BillingAccount(models.Model):
+    """
+    A billing account represents a billable entity which is responsible for paying for resources
+    used by channels.
+
+    """
+    #: Primary key
+    id = models.CharField(
+        max_length=_TOKEN_LENGTH, primary_key=True, default=_make_token, editable=False)
+
+    #: Human readable description of billing account. Required.
+    description = models.TextField(help_text='Human readable description', null=False, blank=False)
+
+    #: "Owning" lookup instid. Currently this is non-NULL because all billing accounts have an
+    #: associated institution. This may change in the future.
+    lookup_instid = models.CharField(
+        max_length=255, blank=False, null=False,
+        help_text='Lookup instid for institution which operates this billing account.')
+
+    #: Creation time
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    #: Last update time
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = (
+            models.Index(fields=['created_at']),
+            models.Index(fields=['updated_at']),
+            models.Index(fields=['lookup_instid']),
+        )
+
+
 @receiver(post_save, sender=MediaItem)
 def _media_item_post_save_handler(*args, sender, instance, created, raw, **kwargs):
     """
