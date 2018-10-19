@@ -27,7 +27,7 @@ class ChannelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = mpmodels.Channel
         fields = (
-            'url', 'id', 'title', 'description', 'owningLookupInst', 'createdAt', 'updatedAt',
+            'url', 'id', 'title', 'description', 'createdAt', 'updatedAt',
         )
 
         read_only_fields = (
@@ -36,7 +36,6 @@ class ChannelSerializer(serializers.HyperlinkedModelSerializer):
         extra_kwargs = {
             'createdAt': {'source': 'created_at'},
             'updatedAt': {'source': 'updated_at'},
-            'owningLookupInst': {'source': 'owning_lookup_inst'},
             'url': {'view_name': 'api:channel'},
             'title': {'allow_blank': False},
         }

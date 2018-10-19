@@ -548,16 +548,16 @@ class ChannelTest(ModelTestCase):
 
     def setUp(self):
         super().setUp()
-        self.c1 = models.Channel.objects.get(id='channel1')
+        self.channel = models.Channel.objects.get(id='channel1')
 
     def test_creation_no_fields(self):
         """A Channel object should *not* be creatable with no field values."""
-        # TODO this should fail?
-        models.Channel.objects.create()
+        with self.assertRaises(IntegrityError):
+            models.Channel.objects.create()
 
-    def test_creation_title_only(self):
-        """A Channel object should be creatable with only a title."""
-        models.Channel.objects.create(title='XXX')
+    def test_creation_required_fields_only(self):
+        """A Channel object should be creatable with only the required fields."""
+        models.Channel.objects.create(billing_account=self.channel.billing_account)
 
     def test_no_deleted_in_objects(self):
         """The default queryset used by Channel.objects contains no deleted items."""
@@ -570,69 +570,69 @@ class ChannelTest(ModelTestCase):
 
     def test_public_channel_editable_by_anon(self):
         """An channel with public editable permissions is editable by anonymous."""
-        self.assert_user_cannot_edit(AnonymousUser(), self.c1)
-        self.assert_user_cannot_edit(None, self.c1)
-        self.c1.edit_permission.is_public = True
-        self.c1.edit_permission.save()
-        self.assert_user_can_edit(AnonymousUser(), self.c1)
-        self.assert_user_can_edit(None, self.c1)
+        self.assert_user_cannot_edit(AnonymousUser(), self.channel)
+        self.assert_user_cannot_edit(None, self.channel)
+        self.channel.edit_permission.is_public = True
+        self.channel.edit_permission.save()
+        self.assert_user_can_edit(AnonymousUser(), self.channel)
+        self.assert_user_can_edit(None, self.channel)
 
     def test_signed_in_edit_permissions(self):
         """An channel with signed in edit permissions is not editable by anonymous."""
-        self.assert_user_cannot_edit(AnonymousUser(), self.c1)
-        self.assert_user_cannot_edit(None, self.c1)
-        self.assert_user_cannot_edit(self.user, self.c1)
-        self.c1.edit_permission.is_signed_in = True
-        self.c1.edit_permission.save()
-        self.assert_user_cannot_edit(AnonymousUser(), self.c1)
-        self.assert_user_cannot_edit(None, self.c1)
-        self.assert_user_can_edit(self.user, self.c1)
+        self.assert_user_cannot_edit(AnonymousUser(), self.channel)
+        self.assert_user_cannot_edit(None, self.channel)
+        self.assert_user_cannot_edit(self.user, self.channel)
+        self.channel.edit_permission.is_signed_in = True
+        self.channel.edit_permission.save()
+        self.assert_user_cannot_edit(AnonymousUser(), self.channel)
+        self.assert_user_cannot_edit(None, self.channel)
+        self.assert_user_can_edit(self.user, self.channel)
 
     def test_channel_with_no_perms_not_editable(self):
         """An channel with empty permissions is not editable by the anonymous or signed in user."""
-        self.c1.edit_permission.reset()
-        self.c1.edit_permission.save()
-        self.assert_user_cannot_edit(AnonymousUser(), self.c1)
-        self.assert_user_cannot_edit(self.user, self.c1)
+        self.channel.edit_permission.reset()
+        self.channel.edit_permission.save()
+        self.assert_user_cannot_edit(AnonymousUser(), self.channel)
+        self.assert_user_cannot_edit(self.user, self.channel)
 
     def test_channel_with_matching_crsid_editable(self):
-        self.assert_user_cannot_edit(self.user, self.c1)
-        self.c1.edit_permission.crsids.extend(['spqr1', self.user.username, 'abcd1'])
-        self.c1.edit_permission.save()
-        self.assert_user_can_edit(self.user, self.c1)
+        self.assert_user_cannot_edit(self.user, self.channel)
+        self.channel.edit_permission.crsids.extend(['spqr1', self.user.username, 'abcd1'])
+        self.channel.edit_permission.save()
+        self.assert_user_can_edit(self.user, self.channel)
 
     def test_channel_with_matching_lookup_groups_editable(self):
         """
         A user who has at least one lookup group which is in the set of lookup groups for a media
-        self.c1 can edit it.
+        self.channel can edit it.
 
         """
         self.lookup_groupids_and_instids_for_user.return_value = ['A', 'B', 'C'], []
-        self.assert_user_cannot_edit(self.user, self.c1)
-        self.c1.edit_permission.lookup_groups.extend(['X', 'Y', 'A', 'B', 'Z'])
-        self.c1.edit_permission.save()
-        self.assert_user_can_edit(self.user, self.c1)
+        self.assert_user_cannot_edit(self.user, self.channel)
+        self.channel.edit_permission.lookup_groups.extend(['X', 'Y', 'A', 'B', 'Z'])
+        self.channel.edit_permission.save()
+        self.assert_user_can_edit(self.user, self.channel)
 
     def test_channel_with_matching_lookup_insts_editable(self):
         """
         A user who has at least one lookup institution which is in the set of lookup institutions
-        for a media self.c1 can edit it.
+        for a media self.channel can edit it.
 
         """
         self.lookup_groupids_and_instids_for_user.return_value = [], ['A', 'B', 'C']
-        self.assert_user_cannot_edit(self.user, self.c1)
-        self.c1.edit_permission.lookup_insts.extend(['X', 'Y', 'A', 'B', 'Z'])
-        self.c1.edit_permission.save()
-        self.assert_user_can_edit(self.user, self.c1)
+        self.assert_user_cannot_edit(self.user, self.channel)
+        self.channel.edit_permission.lookup_insts.extend(['X', 'Y', 'A', 'B', 'Z'])
+        self.channel.edit_permission.save()
+        self.assert_user_can_edit(self.user, self.channel)
 
     def test_edit_permission_created(self):
         """A new Channel has a edit permission created on save()."""
-        channel = models.Channel.objects.create(title='test channel')
+        channel = self.channel
         self.assertIsNotNone(models.Channel.objects.get(id=channel.id).edit_permission)
 
     def test_edit_permission_not_re_created(self):
         """The edit_permission is not changed if a Channel is updated."""
-        channel = models.Channel.objects.create(title='test channel')
+        channel = self.channel
         permission_id_1 = models.Channel.objects.get(id=channel.id).edit_permission.id
         channel = models.Channel.objects.get(id=channel.id)
         channel.title = 'changed'
@@ -642,13 +642,14 @@ class ChannelTest(ModelTestCase):
 
     def test_view_permission(self):
         """A channel can be viewed by everyone."""
-        self.assert_user_can_view(AnonymousUser(), self.c1)
-        self.assert_user_can_view(None, self.c1)
-        self.assert_user_can_view(self.user, self.c1)
+        self.assert_user_can_view(AnonymousUser(), self.channel)
+        self.assert_user_can_view(None, self.channel)
+        self.assert_user_can_view(self.user, self.channel)
 
     def test_create_for_user(self):
         """The create_for_user helper sets the edit permission."""
-        new_channel = models.Channel.objects.create_for_user(self.user)
+        new_channel = models.Channel.objects.create_for_user(
+            self.user, billing_account=self.channel.billing_account)
 
         # Re-fetch from DB to make sure changes have been applied
         channel = models.Channel.objects.get(id=new_channel.id)
@@ -657,16 +658,16 @@ class ChannelTest(ModelTestCase):
 
     def test_sms_collection_not_editable(self):
         """An item with associated SMS media item or channel is not editable."""
-        self.c1.edit_permission.is_public = True
-        self.c1.edit_permission.save()
+        self.channel.edit_permission.is_public = True
+        self.channel.edit_permission.save()
 
-        self.assert_user_can_edit(self.user, self.c1)
+        self.assert_user_can_edit(self.user, self.channel)
 
         # If there is a SMS collection, the editable permission goes away
-        sms = legacymodels.Collection.objects.create(id=12345, channel=self.c1)
-        self.assert_user_cannot_edit(self.user, self.c1)
+        sms = legacymodels.Collection.objects.create(id=12345, channel=self.channel)
+        self.assert_user_cannot_edit(self.user, self.channel)
         sms.delete()
-        self.assert_user_can_edit(self.user, self.c1)
+        self.assert_user_can_edit(self.user, self.channel)
 
     def assert_user_can_view(self, user, channel_or_id):
         if isinstance(channel_or_id, str):

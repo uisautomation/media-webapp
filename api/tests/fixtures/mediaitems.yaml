@@ -4,12 +4,29 @@
   fields:
     username: testuser
 
+# Test billing accounts
+- model: mediaplatform.BillingAccount
+  pk: bacct1
+  fields:
+    description: Testing billing account 1
+    lookup_instid: UIS
+    created_at: 2010-09-15 14:40:45
+    updated_at: 2010-09-15 14:40:45
+
+- model: mediaplatform.BillingAccount
+  pk: bacct2
+  fields:
+    description: Testing billing account 2
+    lookup_instid: ENG
+    created_at: 2010-09-15 14:40:45
+    updated_at: 2010-09-15 14:40:45
+
 # Test channels
 - model: mediaplatform.Channel
   pk: channel1
   fields:
     title: Test Channel 1
-    owning_lookup_inst: UIS
+    billing_account: bacct1
     created_at: 2010-09-15 14:40:45
     updated_at: 2010-09-15 14:40:45
 
@@ -22,7 +39,7 @@
   pk: channel2
   fields:
     title: Test Channel 2
-    owning_lookup_inst: ENG
+    billing_account: bacct2
     created_at: 2010-09-15 14:40:45
     updated_at: 2010-09-15 14:40:45
 
@@ -35,7 +52,7 @@
   pk: delchan
   fields:
     title: Test Channel 1
-    owning_lookup_inst: UIS
+    billing_account: bacct1
     created_at: 2010-09-15 14:40:45
     updated_at: 2010-09-15 14:40:45
     deleted_at: 2010-09-15 14:40:45

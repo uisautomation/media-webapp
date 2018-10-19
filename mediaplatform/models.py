@@ -622,14 +622,15 @@ class Channel(models.Model):
     #: Channel description
     description = models.TextField(help_text='Description of the channel', blank=True, default='')
 
-    #: "Owning" lookup institution id. We default to the blank string but, aside from "special"
-    #: internal channels, there should always be a lookup institution.
-    owning_lookup_inst = models.CharField(
-        max_length=255, blank=False, default='',
-        help_text='Lookup instid for institution which "owns" this channel')
-
     #: Full text search vector field
     text_search_vector = pgsearch.SearchVectorField()
+
+    #: Billing account associated with this channel. To avoid potential data loss, once a billing
+    #: account is associated with a channel we use the PROTECT argument to on_delete to prevent
+    #: deletion of the account until it has no channels.
+    billing_account = models.ForeignKey(
+        'BillingAccount', null=False, help_text='Billing account for the channel',
+        on_delete=models.PROTECT, related_name='channels')
 
     #: Creation time
     created_at = models.DateTimeField(auto_now_add=True)

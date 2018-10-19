@@ -111,10 +111,11 @@ class ProfileViewTestCase(ViewTestCase):
 
     def test_authenticated_channels(self):
         """An authenticated user should get their channels back."""
-        c1 = mpmodels.Channel.objects.create(title='c1')
+        billing_account = self.channels[0].billing_account
+        c1 = mpmodels.Channel.objects.create(title='c1', billing_account=billing_account)
         c1.edit_permission.reset()
         c1.edit_permission.save()
-        c2 = mpmodels.Channel.objects.create(title='c2')
+        c2 = mpmodels.Channel.objects.create(title='c2', billing_account=billing_account)
         c2.edit_permission.crsids.append(self.user.username)
         c2.edit_permission.save()
 
@@ -482,7 +483,8 @@ class MediaItemViewTestCase(ViewTestCase):
         item.sms.delete()
         item.channel.edit_permission.crsids.append(self.user.username)
         item.channel.edit_permission.save()
-        new_channel = mpmodels.Channel.objects.create(title='new channel')
+        new_channel = mpmodels.Channel.objects.create(
+            title='new channel', billing_account=self.channels[0].billing_account)
         new_channel.edit_permission.crsids.append(self.user.username)
         new_channel.edit_permission.save()
         request = self.factory.patch('/', {'channelId': new_channel.id})
@@ -984,7 +986,6 @@ class ChannelViewTestCase(ViewTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['id'], self.channel.id)
         self.assertEqual(response.data['title'], self.channel.title)
-        self.assertEqual(response.data['owningLookupInst'], self.channel.owning_lookup_inst)
 
     def test_not_found(self):
         """Check that a 404 is returned if no channel is found"""
@@ -1006,9 +1007,6 @@ class ChannelViewTestCase(ViewTestCase):
 
     def test_description_mutable(self):
         self.assert_field_mutable('description')
-
-    def test_owning_lookup_inst_mutable(self):
-        self.assert_field_mutable('owningLookupInst', 'ENG', 'owning_lookup_inst')
 
     def test_created_at_immutable(self):
         self.assert_field_immutable('createdAt', '2018-08-06T15:29:45.003231Z', 'created_at')

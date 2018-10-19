@@ -194,7 +194,7 @@ class ChannelAdminForm(forms.ModelForm):
 @admin.register(models.Channel)
 class ChannelAdmin(VersionAdmin):
     fields = (
-        'title', 'description', 'item_count', 'owning_lookup_inst', 'created_at', 'updated_at',
+        'title', 'description', 'item_count', 'created_at', 'updated_at',
         'deleted_at'
     )
     search_fields = ('id', 'title', 'description')

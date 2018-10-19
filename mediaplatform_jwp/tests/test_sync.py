@@ -254,7 +254,7 @@ class SyncTestCase(TestCase):
         self.assertIsNotNone(c)
         self.assertEqual(len(c.items.all()), 1)
         self.assertEqual(c.items.all()[0].title, 'test title')
-        self.assertEqual(c.owning_lookup_inst, 'UIS')
+        self.assertEqual(c.billing_account.lookup_instid, 'UIS')
 
     def test_basic_playlist_functionality(self):
         """If a new video and channel appears on JWP, objects are created."""
