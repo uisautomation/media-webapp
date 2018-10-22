@@ -282,8 +282,10 @@ class MediaItem(models.Model):
         )
 
         indexes = (
+            models.Index(fields=['created_at']),
             models.Index(fields=['updated_at']),
             models.Index(fields=['published_at']),
+            models.Index(fields=['deleted_at']),
             pgindexes.GinIndex(fields=['text_search_vector']),
         )
 
@@ -647,7 +649,9 @@ class Channel(models.Model):
 
     class Meta:
         indexes = (
+            models.Index(fields=['created_at']),
             models.Index(fields=['updated_at']),
+            models.Index(fields=['deleted_at']),
             pgindexes.GinIndex(fields=['text_search_vector']),
         )
 
@@ -792,7 +796,9 @@ class Playlist(models.Model):
 
     class Meta:
         indexes = (
+            models.Index(fields=['created_at']),
             models.Index(fields=['updated_at']),
+            models.Index(fields=['deleted_at']),
             pgindexes.GinIndex(fields=['text_search_vector']),
         )
 
