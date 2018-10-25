@@ -172,15 +172,6 @@ class ViewMixinBase:
         """
         return qs.select_related('channel')
 
-    def add_billing_account_item_detail(self, qs):
-        """
-        Add any extra annotations to a BillingAccount query set which are required to render the
-        detail view via BillingAccountDetailSerializer.
-
-        """
-        # Currently, no specialisation for billing account detail.
-        return qs
-
     def _filter_permissions(self, qs):
         """
         Filter the passed queryset so that only items viewable by the request user are present and
@@ -665,9 +656,6 @@ class BillingAccountMixin(BillingAccountListMixin):
     retrieving (and possibly updating) individual nilling accounts.
 
     """
-
-    def get_queryset(self):
-        return self.add_billing_account_item_detail(super().get_queryset())
 
 
 class BillingAccountListView(BillingAccountListMixin, generics.ListAPIView):
