@@ -6,7 +6,7 @@ import django.db.models.deletion
 
 def create_billing_account_association(apps, schema_editor):
     """
-    Associate each channel with a billing account, creating the bulling accounts if necessary.
+    Associate each channel with a billing account, creating the billing accounts if necessary.
 
     """
     Channel = apps.get_model('mediaplatform', 'Channel')
