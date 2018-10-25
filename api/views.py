@@ -127,6 +127,9 @@ class ViewMixinBase:
 
     def filter_billing_account_qs(self, qs):
         """
+        Filters a BillingAccount queryset so that only the appropriate objects are returned for the
+        user, annotates the objects with any fields required by the serialisers and selects any
+        related objects used by the serialisers.
 
         """
         # HACK: for the moment, billing accounts have no associated permissions so fake it so that
