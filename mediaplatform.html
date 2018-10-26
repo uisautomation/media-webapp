@@ -615,16 +615,17 @@ separate manager to avoid inadvertently including deleted objects in a query</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="mediaplatform.models.Channel.owning_lookup_inst">
-<code class="descname">owning_lookup_inst</code><a class="headerlink" href="#mediaplatform.models.Channel.owning_lookup_inst" title="Permalink to this definition">¶</a></dt>
-<dd><p>“Owning” lookup institution id. We default to the blank string but, aside from “special”
-internal channels, there should always be a lookup institution.</p>
-</dd></dl>
-
-<dl class="attribute">
 <dt id="mediaplatform.models.Channel.text_search_vector">
 <code class="descname">text_search_vector</code><a class="headerlink" href="#mediaplatform.models.Channel.text_search_vector" title="Permalink to this definition">¶</a></dt>
 <dd><p>Full text search vector field</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.Channel.billing_account">
+<code class="descname">billing_account</code><a class="headerlink" href="#mediaplatform.models.Channel.billing_account" title="Permalink to this definition">¶</a></dt>
+<dd><p>Billing account associated with this channel. To avoid potential data loss, once a billing
+account is associated with a channel we use the PROTECT argument to on_delete to prevent
+deletion of the account until it has no channels.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -789,6 +790,54 @@ visible.</p>
 <dl class="exception">
 <dt id="mediaplatform.models.Playlist.MultipleObjectsReturned">
 <em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mediaplatform.models.Playlist.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mediaplatform.models.BillingAccount">
+<em class="property">class </em><code class="descclassname">mediaplatform.models.</code><code class="descname">BillingAccount</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.BillingAccount" title="Permalink to this definition">¶</a></dt>
+<dd><p>A billing account represents a billable entity which is responsible for paying for resources
+used by channels.</p>
+<dl class="attribute">
+<dt id="mediaplatform.models.BillingAccount.id">
+<code class="descname">id</code><a class="headerlink" href="#mediaplatform.models.BillingAccount.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Primary key</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.BillingAccount.description">
+<code class="descname">description</code><a class="headerlink" href="#mediaplatform.models.BillingAccount.description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Human readable description of billing account. Required.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.BillingAccount.lookup_instid">
+<code class="descname">lookup_instid</code><a class="headerlink" href="#mediaplatform.models.BillingAccount.lookup_instid" title="Permalink to this definition">¶</a></dt>
+<dd><p>“Owning” lookup instid. Currently this is non-NULL because all billing accounts have an
+associated institution. This may change in the future.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.BillingAccount.created_at">
+<code class="descname">created_at</code><a class="headerlink" href="#mediaplatform.models.BillingAccount.created_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creation time</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.BillingAccount.updated_at">
+<code class="descname">updated_at</code><a class="headerlink" href="#mediaplatform.models.BillingAccount.updated_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Last update time</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="mediaplatform.models.BillingAccount.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mediaplatform.models.BillingAccount.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mediaplatform.models.BillingAccount.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mediaplatform.models.BillingAccount.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

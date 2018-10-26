@@ -251,6 +251,14 @@ objects used by the serialisers.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="api.views.ViewMixinBase.filter_billing_account_qs">
+<code class="descname">filter_billing_account_qs</code><span class="sig-paren">(</span><em>qs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.ViewMixinBase.filter_billing_account_qs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filters a BillingAccount queryset so that only the appropriate objects are returned for the
+user, annotates the objects with any fields required by the serialisers and selects any
+related objects used by the serialisers.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="api.views.ViewMixinBase.add_media_item_detail">
 <code class="descname">add_media_item_detail</code><span class="sig-paren">(</span><em>qs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.ViewMixinBase.add_media_item_detail" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add any extra annotations to a MediaItem query set which are required to render the detail
@@ -547,6 +555,64 @@ querysets depending on the incoming request.</p>
 
 </dd></dl>
 
+<dl class="class">
+<dt id="api.views.BillingAccountListMixin">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">BillingAccountListMixin</code><a class="headerlink" href="#api.views.BillingAccountListMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>A mixin class for DRF generic views which has all of the specialisations necessary for listing
+billing accounts.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api.views.BillingAccountMixin">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">BillingAccountMixin</code><a class="headerlink" href="#api.views.BillingAccountMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>A mixin class for DRF generic views which has all of the specialisations necessary for
+retrieving (and possibly updating) individual nilling accounts.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api.views.BillingAccountListView">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">BillingAccountListView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.BillingAccountListView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Billing accounts.</p>
+<dl class="attribute">
+<dt id="api.views.BillingAccountListView.pagination_class">
+<code class="descname">pagination_class</code><a class="headerlink" href="#api.views.BillingAccountListView.pagination_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#api.views.ListPagination" title="api.views.ListPagination"><code class="xref py py-class docutils literal notranslate"><span class="pre">ListPagination</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.views.BillingAccountListView.serializer_class">
+<code class="descname">serializer_class</code><a class="headerlink" href="#api.views.BillingAccountListView.serializer_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#api.serializers.BillingAccountSerializer" title="api.serializers.BillingAccountSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.serializers.BillingAccountSerializer</span></code></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.views.BillingAccountListView.get_queryset">
+<code class="descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#api.views.BillingAccountListView.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of items for this view.
+This must be an iterable, and may be a queryset.
+Defaults to using <cite>self.queryset</cite>.</p>
+<p>This method should always be used rather than accessing <cite>self.queryset</cite>
+directly, as <cite>self.queryset</cite> gets evaluated only once, and those results
+are cached for all subsequent requests.</p>
+<p>You may want to override this if you need to provide different
+querysets depending on the incoming request.</p>
+<p>(Eg. return a list of items that is specific to the user)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.views.BillingAccountView">
+<em class="property">class </em><code class="descclassname">api.views.</code><code class="descname">BillingAccountView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.BillingAccountView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Billing account.</p>
+<dl class="attribute">
+<dt id="api.views.BillingAccountView.serializer_class">
+<code class="descname">serializer_class</code><a class="headerlink" href="#api.views.BillingAccountView.serializer_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#api.serializers.BillingAccountDetailSerializer" title="api.serializers.BillingAccountDetailSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.serializers.BillingAccountDetailSerializer</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="function">
 <dt id="api.views.exception_handler">
 <code class="descclassname">api.views.</code><code class="descname">exception_handler</code><span class="sig-paren">(</span><em>exc</em>, <em>context</em><span class="sig-paren">)</span><a class="headerlink" href="#api.views.exception_handler" title="Permalink to this definition">¶</a></dt>
@@ -558,6 +624,14 @@ suggests the user log in.</p>
 <div class="section" id="module-api.serializers">
 <span id="serializers"></span><h2>Serializers<a class="headerlink" href="#module-api.serializers" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
+<dt id="api.serializers.RelatedBillinaAccountIdField">
+<em class="property">class </em><code class="descclassname">api.serializers.</code><code class="descname">RelatedBillinaAccountIdField</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.RelatedBillinaAccountIdField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Related field serializer which asserts that the billing account field can only be set to a
+billing account which allows the current user permission to create channels. If there is no
+user, the empty queryset is returned.</p>
+</dd></dl>
+
+<dl class="class">
 <dt id="api.serializers.ChannelSerializer">
 <em class="property">class </em><code class="descclassname">api.serializers.</code><code class="descname">ChannelSerializer</code><span class="sig-paren">(</span><em>instance=None</em>, <em>data=&lt;class 'rest_framework.fields.empty'&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.ChannelSerializer" title="Permalink to this definition">¶</a></dt>
 <dd><p>An individual channel.</p>
@@ -567,6 +641,13 @@ suggests the user log in.</p>
 <dd><p>Override behaviour when creating a new object using this serializer. If the current request
 is being passed in the context, give the request user edit and view permissions on the
 item.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.serializers.ChannelSerializer.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>instance</em>, <em>validated_data</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.ChannelSerializer.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override behaviour when updating to stop the user changing the billing account of an
+existing object.</p>
 </dd></dl>
 
 </dd></dl>
@@ -610,6 +691,12 @@ is being passed in the context, give the request user edit and view permissions 
 item.</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="class">
+<dt id="api.serializers.BillingAccountSerializer">
+<em class="property">class </em><code class="descclassname">api.serializers.</code><code class="descname">BillingAccountSerializer</code><span class="sig-paren">(</span><em>instance=None</em>, <em>data=&lt;class 'rest_framework.fields.empty'&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.BillingAccountSerializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>An individual billing account.</p>
 </dd></dl>
 
 <dl class="class">
@@ -659,6 +746,12 @@ serializer in an UpdateView for MediaItem models.</p>
 <dt id="api.serializers.ProfileSerializer">
 <em class="property">class </em><code class="descclassname">api.serializers.</code><code class="descname">ProfileSerializer</code><span class="sig-paren">(</span><em>instance=None</em>, <em>data=&lt;class 'rest_framework.fields.empty'&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.ProfileSerializer" title="Permalink to this definition">¶</a></dt>
 <dd><p>The profile of the current user.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api.serializers.BillingAccountDetailSerializer">
+<em class="property">class </em><code class="descclassname">api.serializers.</code><code class="descname">BillingAccountDetailSerializer</code><span class="sig-paren">(</span><em>instance=None</em>, <em>data=&lt;class 'rest_framework.fields.empty'&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#api.serializers.BillingAccountDetailSerializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>An individual billing account including related resources.</p>
 </dd></dl>
 
 </div>
