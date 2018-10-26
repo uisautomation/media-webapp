@@ -125,6 +125,20 @@ class ViewMixinBase:
         # For the moment we only need to respect permissions
         return self._filter_permissions(qs)
 
+    def filter_billing_account_qs(self, qs):
+        """
+        Filters a BillingAccount queryset so that only the appropriate objects are returned for the
+        user, annotates the objects with any fields required by the serialisers and selects any
+        related objects used by the serialisers.
+
+        """
+        # HACK: for the moment, billing accounts have no associated permissions so fake it so that
+        # everyone can view them and no-one can edit them.
+        return qs.annotate(
+            viewable=models.Value(True, output_field=models.BooleanField()),
+            editable=models.Value(False, output_field=models.BooleanField()),
+        )
+
     def add_media_item_detail(self, qs):
         """
         Add any extra annotations to a MediaItem query set which are required to render the detail
@@ -622,6 +636,55 @@ class PlaylistView(PlaylistMixin, generics.RetrieveUpdateDestroyAPIView):
 
     """
     serializer_class = serializers.PlaylistDetailSerializer
+
+
+class BillingAccountListMixin(ViewMixinBase):
+    """
+    A mixin class for DRF generic views which has all of the specialisations necessary for listing
+    billing accounts.
+
+    """
+    queryset = mpmodels.BillingAccount.objects
+
+    def get_queryset(self):
+        return self.filter_billing_account_qs(super().get_queryset())
+
+
+class BillingAccountMixin(BillingAccountListMixin):
+    """
+    A mixin class for DRF generic views which has all of the specialisations necessary for
+    retrieving (and possibly updating) individual nilling accounts.
+
+    """
+
+
+class BillingAccountListView(BillingAccountListMixin, generics.ListAPIView):
+    """
+    Billing accounts.
+
+    """
+    filter_backends = (filters.OrderingFilter,)
+    ordering = ('-updatedAt',)
+    ordering_fields = ('updatedAt', 'createdAt', 'lookupInstid')
+    pagination_class = ListPagination
+    serializer_class = serializers.BillingAccountSerializer
+
+    def get_queryset(self):
+        return (
+            super().get_queryset()
+            # Required for ordering filter
+            .annotate(updatedAt=models.F('updated_at'))
+            .annotate(createdAt=models.F('created_at'))
+            .annotate(lookupInstid=models.F('lookup_instid'))
+        )
+
+
+class BillingAccountView(BillingAccountMixin, generics.RetrieveAPIView):
+    """
+    Billing account.
+
+    """
+    serializer_class = serializers.BillingAccountDetailSerializer
 
 
 def exception_handler(exc, context):

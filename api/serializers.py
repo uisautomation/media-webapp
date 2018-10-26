@@ -19,6 +19,21 @@ LOG = logging.getLogger(__name__)
 # resources.
 
 
+class RelatedBillinaAccountIdField(serializers.PrimaryKeyRelatedField):
+    """
+    Related field serializer which asserts that the billing account field can only be set to a
+    billing account which allows the current user permission to create channels. If there is no
+    user, the empty queryset is returned.
+    """
+    def get_queryset(self):
+        if self.context is None or 'request' not in self.context:
+            return mpmodels.BillingAccount.objects.none()
+
+        # TODO: we have yet to implement channel-creation permissions for billing accounts so, for
+        # the moment, no-one can associate channels with billing acounts.
+        return mpmodels.BillingAccount.objects.none()
+
+
 class ChannelSerializer(serializers.HyperlinkedModelSerializer):
     """
     An individual channel.
@@ -27,19 +42,26 @@ class ChannelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = mpmodels.Channel
         fields = (
-            'url', 'id', 'title', 'description', 'owningLookupInst', 'createdAt', 'updatedAt',
+            'url', 'id', 'title', 'description', 'createdAt', 'updatedAt', 'billingAccountId',
+            'billingAccountUrl',
         )
 
         read_only_fields = (
-            'url', 'id', 'createdAt', 'updatedAt',
+            'url', 'id', 'createdAt', 'updatedAt', 'billingAccountId', 'billingAccountUrl',
         )
         extra_kwargs = {
             'createdAt': {'source': 'created_at'},
             'updatedAt': {'source': 'updated_at'},
-            'owningLookupInst': {'source': 'owning_lookup_inst'},
             'url': {'view_name': 'api:channel'},
             'title': {'allow_blank': False},
         }
+
+    billingAccountId = RelatedBillinaAccountIdField(
+        source='billing_account', required=True, write_only=True,
+        help_text='Unique id of owning billing account resource')
+
+    billingAccountUrl = serializers.HyperlinkedRelatedField(
+        source='billing_account', view_name='api:billing_account', read_only=True)
 
     def create(self, validated_data):
         """
@@ -58,6 +80,19 @@ class ChannelSerializer(serializers.HyperlinkedModelSerializer):
             obj = mpmodels.Channel.objects.create(**validated_data)
 
         return obj
+
+    def update(self, instance, validated_data):
+        """
+        Override behaviour when updating to stop the user changing the billing account of an
+        existing object.
+        """
+        # Note: channelId will already have been mapped into a channel object.
+        if 'billingAccountId' in validated_data:
+            raise serializers.ValidationError({
+                'billingAccountId': 'This field cannot be changed',
+            })
+
+        return super().update(instance, validated_data)
 
 
 class RelatedChannelIdField(serializers.PrimaryKeyRelatedField):
@@ -211,6 +246,29 @@ class MediaItemSerializer(ChannelOwnedResourceModelSerializer):
         if 'request' in self.context:
             return self.context['request'].build_absolute_uri(uri)
         return uri
+
+
+class BillingAccountSerializer(serializers.HyperlinkedModelSerializer):
+    """
+    An individual billing account.
+
+    """
+
+    class Meta:
+        model = mpmodels.BillingAccount
+        fields = (
+            'url', 'id', 'description', 'lookupInstid', 'createdAt', 'updatedAt',
+        )
+
+        read_only_fields = (
+            'url', 'id', 'description', 'lookupInstid', 'createdAt', 'updatedAt',
+        )
+        extra_kwargs = {
+            'createdAt': {'source': 'created_at'},
+            'updatedAt': {'source': 'updated_at'},
+            'url': {'view_name': 'api:billing_account'},
+            'lookupInstid': {'source': 'lookup_instid'},
+        }
 
 
 # Detail serialisers
@@ -382,3 +440,16 @@ class ProfileSerializer(serializers.Serializer):
                 return 'data:image/jpeg;base64,' + attr['binaryData']
 
         return None
+
+
+class BillingAccountDetailSerializer(BillingAccountSerializer):
+    """
+    An individual billing account including related resources.
+
+    """
+    class Meta(BillingAccountSerializer.Meta):
+        fields = BillingAccountSerializer.Meta.fields + ('channels',)
+
+        read_only_fields = BillingAccountSerializer.Meta.read_only_fields + ('channels',)
+
+    channels = ChannelSerializer(many=True)

@@ -162,7 +162,12 @@ def update_related_models_from_cache(update_all_videos=False):
     jwp_keys_and_channels = [
         (
             jw_channel.key,
-            mpmodels.Channel(),
+            mpmodels.Channel(billing_account=_ensure_billing_account(
+                jwp.parse_custom_field(
+                    'instid',
+                    jw_channel.data.get('custom', {}).get('sms_instid', 'instid::')
+                )
+            )),
         )
         for jw_channel in jw_channels_needing_channels
     ]
@@ -334,10 +339,9 @@ def update_related_models_from_cache(update_all_videos=False):
 
         custom = channel_data.get('custom', {})
 
+        # NB: The channel billing account is immutable and so we need not examine sms_instid here.
         channel.title = _default_if_none(channel_data.get('title'), '')
         channel.description = _default_if_none(channel_data.get('description'), '')
-        channel.owning_lookup_inst = jwp.parse_custom_field(
-            'instid', custom.get('sms_instid', 'instid::'))
 
         # Update edit permission
         channel.edit_permission.reset()
@@ -411,6 +415,17 @@ def update_related_models_from_cache(update_all_videos=False):
                 channel.sms.delete()
 
         channel.save()
+
+
+def _ensure_billing_account(lookup_instid):
+    """
+    Return a billing account associated with the specified institution id if one exists or create
+    one if not.
+
+    """
+    return mpmodels.BillingAccount.objects.get_or_create(
+            defaults={'description': f'Lookup instutution {lookup_instid}'},
+            lookup_instid=lookup_instid)[0]
 
 
 def _default_if_none(value, default):
