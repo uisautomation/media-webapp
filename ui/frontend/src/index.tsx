@@ -14,6 +14,7 @@ import MediaPage from './pages/MediaPage';
 import PlaylistCreatePage from './pages/PlaylistCreatePage';
 import PlaylistEditPage from './pages/PlaylistEditPage';
 import PlaylistPage from './pages/PlaylistPage';
+import SearchPage from './pages/SearchPage';
 import StaticTextPage from './pages/StaticTextPage';
 import UploadPage from './pages/UploadPage';
 
@@ -31,6 +32,7 @@ ReactDOM.render(
         <Helmet><title>The University of Cambridge Media Platform</title></Helmet>
         <CssBaseline />
         <Route exact={true} path="/" component={IndexPage} />
+        <Route exact={true} path="/search" component={SearchPage} />
         <Switch>
           <Route exact={true} path="/media/new" component={UploadPage} />
           <Route exact={true} path="/media/:pk" component={MediaPage} />

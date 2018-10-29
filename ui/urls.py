@@ -63,4 +63,5 @@ urlpatterns = [
     ), name='changelog_markdown'),
 
     path('', TemplateView.as_view(template_name="index.html"), name='home'),
+    path('search', TemplateView.as_view(template_name="index.html"), name='search'),
 ]
