@@ -12,6 +12,11 @@
     created_at: 2010-09-15 14:40:45
     updated_at: 2010-09-15 14:40:45
 
+- model: mediaplatform.Permission
+  pk: pbacct1
+  fields:
+    allows_create_channel_on_billing_account: bacct1
+
 # Test channel
 - model: mediaplatform.Channel
   pk: channel1

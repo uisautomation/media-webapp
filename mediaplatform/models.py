@@ -809,12 +809,52 @@ class Playlist(models.Model):
         )
 
 
+class BillingAccountQuerySet(PermissionQuerySetMixin, models.QuerySet):
+    def annotate_can_create_channels(self, user, name='can_create_channels'):
+        """
+        Annotate the query set with a boolean indicating if the user can create channels.
+
+        """
+        return self.annotate(**{
+            name: models.Case(
+                models.When(
+                    Q(self._permission_condition('channel_create_permission', user)),
+                    then=models.Value(True)
+                ),
+                default=models.Value(False),
+                output_field=models.BooleanField()
+            ),
+        })
+
+    def channels_creatable_by_user(self, user):
+        """
+        Filter the queryset to only those items which can have channels created by the passed user.
+
+        """
+        return self.filter(Q(self._permission_condition('channel_create_permission', user)))
+
+
+class BillingAccountManager(models.Manager):
+    """
+    An object manager for :py:class:`~.BillingAccount` objects.
+
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def get_queryset(self):
+        return BillingAccountQuerySet(self.model, using=self._db)
+
+
 class BillingAccount(models.Model):
     """
     A billing account represents a billable entity which is responsible for paying for resources
     used by channels.
 
     """
+    #: Object manager. See :py:class:`~.BillingAccountManager`.
+    objects = BillingAccountManager()
+
     #: Primary key
     id = models.CharField(
         max_length=_TOKEN_LENGTH, primary_key=True, default=_make_token, editable=False)
