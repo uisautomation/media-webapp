@@ -443,6 +443,12 @@ class Permission(models.Model):
         null=True
     )
 
+    #: BillingAccount whose channel create permission is this object.
+    allows_create_channel_on_billing_account = models.OneToOneField(
+        'BillingAccount', on_delete=models.CASCADE, related_name='channel_create_permission',
+        editable=False, null=True
+    )
+
     #: List of crsids of users with this permission
     crsids = pgfields.ArrayField(models.TextField(), blank=True, default=_blank_array)
 
