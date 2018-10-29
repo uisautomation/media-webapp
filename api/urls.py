@@ -31,4 +31,7 @@ urlpatterns = [
     path('playlists/', views.PlaylistListView.as_view(), name='playlist_list'),
     path('playlists/<pk>', views.PlaylistView.as_view(), name='playlist'),
     path('profile/', views.ProfileView.as_view(), name='profile'),
+
+    path('billingAccounts/', views.BillingAccountListView.as_view(), name='billing_account_list'),
+    path('billingAccounts/<slug:pk>', views.BillingAccountView.as_view(), name='billing_account'),
 ]

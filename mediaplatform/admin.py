@@ -194,7 +194,7 @@ class ChannelAdminForm(forms.ModelForm):
 @admin.register(models.Channel)
 class ChannelAdmin(VersionAdmin):
     fields = (
-        'title', 'description', 'item_count', 'owning_lookup_inst', 'created_at', 'updated_at',
+        'title', 'description', 'item_count', 'created_at', 'updated_at',
         'deleted_at'
     )
     search_fields = ('id', 'title', 'description')
@@ -277,3 +277,31 @@ class PlaylistAdmin(admin.ModelAdmin):
 
     def item_count(self, obj):  # pragma: no cover
         return len(obj.media_items)
+
+
+class ChannelInlineForm(forms.ModelForm):
+    class Meta:
+        fields = '__all__'
+        model = models.Channel
+        widgets = {
+            'title': admin.widgets.AdminTextInputWidget,
+        }
+
+
+class ChannelInline(admin.TabularInline):
+    model = models.Channel
+    fields = ('title',)
+    readonly_fields = ()
+    can_delete = False
+    form = ChannelInlineForm
+    show_change_link = True
+
+
+@admin.register(models.BillingAccount)
+class BillingAccountAdmin(admin.ModelAdmin):
+    fields = ('description', 'lookup_instid', 'created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at')
+    search_fields = ('description', 'lookup_instid')
+    list_display = ('id', 'lookup_instid', 'description')
+    ordering = ('lookup_instid', 'id')
+    inlines = [ChannelInline]

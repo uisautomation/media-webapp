@@ -282,8 +282,10 @@ class MediaItem(models.Model):
         )
 
         indexes = (
+            models.Index(fields=['created_at']),
             models.Index(fields=['updated_at']),
             models.Index(fields=['published_at']),
+            models.Index(fields=['deleted_at']),
             pgindexes.GinIndex(fields=['text_search_vector']),
         )
 
@@ -622,14 +624,15 @@ class Channel(models.Model):
     #: Channel description
     description = models.TextField(help_text='Description of the channel', blank=True, default='')
 
-    #: "Owning" lookup institution id. We default to the blank string but, aside from "special"
-    #: internal channels, there should always be a lookup institution.
-    owning_lookup_inst = models.CharField(
-        max_length=255, blank=False, default='',
-        help_text='Lookup instid for institution which "owns" this channel')
-
     #: Full text search vector field
     text_search_vector = pgsearch.SearchVectorField()
+
+    #: Billing account associated with this channel. To avoid potential data loss, once a billing
+    #: account is associated with a channel we use the PROTECT argument to on_delete to prevent
+    #: deletion of the account until it has no channels.
+    billing_account = models.ForeignKey(
+        'BillingAccount', null=False, help_text='Billing account for the channel',
+        on_delete=models.PROTECT, related_name='channels')
 
     #: Creation time
     created_at = models.DateTimeField(auto_now_add=True)
@@ -646,7 +649,9 @@ class Channel(models.Model):
 
     class Meta:
         indexes = (
+            models.Index(fields=['created_at']),
             models.Index(fields=['updated_at']),
+            models.Index(fields=['deleted_at']),
             pgindexes.GinIndex(fields=['text_search_vector']),
         )
 
@@ -791,8 +796,43 @@ class Playlist(models.Model):
 
     class Meta:
         indexes = (
+            models.Index(fields=['created_at']),
             models.Index(fields=['updated_at']),
+            models.Index(fields=['deleted_at']),
             pgindexes.GinIndex(fields=['text_search_vector']),
+        )
+
+
+class BillingAccount(models.Model):
+    """
+    A billing account represents a billable entity which is responsible for paying for resources
+    used by channels.
+
+    """
+    #: Primary key
+    id = models.CharField(
+        max_length=_TOKEN_LENGTH, primary_key=True, default=_make_token, editable=False)
+
+    #: Human readable description of billing account. Required.
+    description = models.TextField(help_text='Human readable description', null=False, blank=False)
+
+    #: "Owning" lookup instid. Currently this is non-NULL because all billing accounts have an
+    #: associated institution. This may change in the future.
+    lookup_instid = models.CharField(
+        max_length=255, blank=False, null=False,
+        help_text='Lookup instid for institution which operates this billing account.')
+
+    #: Creation time
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    #: Last update time
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = (
+            models.Index(fields=['created_at']),
+            models.Index(fields=['updated_at']),
+            models.Index(fields=['lookup_instid']),
         )
 
 

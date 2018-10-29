@@ -1,5 +1,5 @@
 import datetime
-from unittest import mock
+from unittest import mock, skip
 
 from dateutil import parser as dateparser
 from django.contrib.auth import get_user_model
@@ -37,6 +37,9 @@ class ViewTestCase(TestCase):
         self.playlists_visibile_by_anon = (self.playlists.viewable_by_user(AnonymousUser()))
         self.playlists_visibile_by_user = (self.playlists.viewable_by_user(self.user))
         self.playlists_including_deleted = mpmodels.Playlist.objects_including_deleted.all()
+
+        # An unused billing account.
+        self.unused_billing_account = mpmodels.BillingAccount.objects.get(id='bacct_nu')
 
     def patch_get_jwplatform_client(self):
         self.get_jwplatform_client_patcher = mock.patch(
@@ -111,10 +114,11 @@ class ProfileViewTestCase(ViewTestCase):
 
     def test_authenticated_channels(self):
         """An authenticated user should get their channels back."""
-        c1 = mpmodels.Channel.objects.create(title='c1')
+        billing_account = self.channels[0].billing_account
+        c1 = mpmodels.Channel.objects.create(title='c1', billing_account=billing_account)
         c1.edit_permission.reset()
         c1.edit_permission.save()
-        c2 = mpmodels.Channel.objects.create(title='c2')
+        c2 = mpmodels.Channel.objects.create(title='c2', billing_account=billing_account)
         c2.edit_permission.crsids.append(self.user.username)
         c2.edit_permission.save()
 
@@ -482,7 +486,8 @@ class MediaItemViewTestCase(ViewTestCase):
         item.sms.delete()
         item.channel.edit_permission.crsids.append(self.user.username)
         item.channel.edit_permission.save()
-        new_channel = mpmodels.Channel.objects.create(title='new channel')
+        new_channel = mpmodels.Channel.objects.create(
+            title='new channel', billing_account=self.channels[0].billing_account)
         new_channel.edit_permission.crsids.append(self.user.username)
         new_channel.edit_permission.save()
         request = self.factory.patch('/', {'channelId': new_channel.id})
@@ -949,6 +954,26 @@ class ChannelListViewTestCase(ViewTestCase):
         results = self.get_search_results('Banana')
         self.assertEqual(results[0]['id'], channel2.id)
 
+    def test_create_with_billing_account_without_permission(self):
+        """Creation of a channel fails if the user does not have rights on the billing account."""
+        request = self.factory.post('/', {
+            'title': 'foo', 'billingAccountId': self.unused_billing_account.id
+        })
+        force_authenticate(request, user=self.user)
+        response = self.view(request)
+        # The missing field has an error message in the response
+        self.assertIn('billingAccountId', response.data)
+        self.assertEqual(response.status_code, 400)
+
+    def test_create_without_billing_account_fails(self):
+        """Creation of a channel requires billing account."""
+        request = self.factory.post('/', {'title': 'foo'})
+        force_authenticate(request, user=self.user)
+        response = self.view(request)
+        # The missing field has an error message in the response
+        self.assertIn('billingAccountId', response.data)
+        self.assertEqual(response.status_code, 400)
+
     def assert_search_result(self, channel, positive_query=None, negative_query=None):
         # Channels should appear in relevant query
         if positive_query is not None:
@@ -984,7 +1009,6 @@ class ChannelViewTestCase(ViewTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['id'], self.channel.id)
         self.assertEqual(response.data['title'], self.channel.title)
-        self.assertEqual(response.data['owningLookupInst'], self.channel.owning_lookup_inst)
 
     def test_not_found(self):
         """Check that a 404 is returned if no channel is found"""
@@ -1007,11 +1031,27 @@ class ChannelViewTestCase(ViewTestCase):
     def test_description_mutable(self):
         self.assert_field_mutable('description')
 
-    def test_owning_lookup_inst_mutable(self):
-        self.assert_field_mutable('owningLookupInst', 'ENG', 'owning_lookup_inst')
-
     def test_created_at_immutable(self):
         self.assert_field_immutable('createdAt', '2018-08-06T15:29:45.003231Z', 'created_at')
+
+    def test_billing_account_requires_permission(self):
+        """Attempting to change the billing account to one the user does not have channel manager
+        permission on will fail."""
+        request = self.factory.patch(
+            '/', {'billingAccountId': self.unused_billing_account.id}, format='json')
+        force_authenticate(request, user=self.user)
+
+        self.channel.edit_permission.crsids.append(self.user.username)
+        self.channel.edit_permission.save()
+        response = self.view(request, pk=self.channel.id)
+        self.assertEqual(response.status_code, 400)
+
+    # TODO: since there are currently no billing accounts which a user can associate channels
+    # with, this cannot currently be tested. It would look like this:
+    @skip("there are no channel create permissions for billing accounts")
+    def test_billing_account_immutable(self):
+        self.assert_field_immutable(
+            'billingAccountId', self.unused_billing_account.id, 'billing_account_id')
 
     def test_media_item_count(self):
         """Check that a count of media items are returned for the channel"""
@@ -1346,6 +1386,55 @@ class PlaylistViewTestCase(ViewTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             getattr(self.playlists.get(id=playlist.id), model_field_name), original_value)
+
+
+class BillingAccountListViewTestCase(ViewTestCase):
+    def setUp(self):
+        super().setUp()
+        self.view = views.BillingAccountListView().as_view()
+
+    def test_basic_list(self):
+        """A user should get expected accounts back."""
+        request = self.factory.get('/')
+        force_authenticate(request, user=self.user)
+        response_data = self.view(request).data
+        self.assertIn('results', response_data)
+
+        self.assertNotEqual(len(response_data['results']), 0)
+        self.assertEqual(
+            len(response_data['results']), mpmodels.BillingAccount.objects.count())
+
+
+class BillingAccountViewTestCase(ViewTestCase):
+    def setUp(self):
+        super().setUp()
+        self.view = views.BillingAccountView().as_view()
+        self.channel = mpmodels.Channel.objects.get(id='channel1')
+        self.billing_account = self.channel.billing_account
+
+    def test_success(self):
+        """A billing account item is successfully returned bu the api"""
+        response = self.view(self.get_request, pk=self.billing_account.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['id'], self.billing_account.id)
+        self.assertEqual(response.data['description'], self.billing_account.description)
+
+    def test_channel_list(self):
+        """A list of channels for the billing account is returned."""
+        channels = self.billing_account.channels
+        self.assertGreater(channels.count(), 0)
+        response = self.view(self.get_request, pk=self.billing_account.id)
+        self.assertEqual(response.status_code, 200)
+
+        expected_ids = {c.id for c in channels.all()}
+        self.assertEqual({c['id'] for c in response.data['channels']}, expected_ids)
+
+    def test_not_found(self):
+        """A 404 is returned if no billing account is found"""
+        response = self.view(self.get_request, pk='this-id-does-not-exist')
+        self.assertEqual(response.status_code, 404)
+
+    # TODO: test mutable/immutable fields when billing account becomes mutable.
 
 
 DELIVERY_VIDEO_FIXTURE = {
