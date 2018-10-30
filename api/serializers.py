@@ -19,7 +19,7 @@ LOG = logging.getLogger(__name__)
 # resources.
 
 
-class RelatedBillinaAccountIdField(serializers.PrimaryKeyRelatedField):
+class RelatedBillingAccountIdField(serializers.PrimaryKeyRelatedField):
     """
     Related field serializer which asserts that the billing account field can only be set to a
     billing account which allows the current user permission to create channels. If there is no
@@ -29,9 +29,8 @@ class RelatedBillinaAccountIdField(serializers.PrimaryKeyRelatedField):
         if self.context is None or 'request' not in self.context:
             return mpmodels.BillingAccount.objects.none()
 
-        # TODO: we have yet to implement channel-creation permissions for billing accounts so, for
-        # the moment, no-one can associate channels with billing acounts.
-        return mpmodels.BillingAccount.objects.none()
+        user = self.context['request'].user
+        return mpmodels.BillingAccount.objects.all().channels_creatable_by_user(user)
 
 
 class ChannelSerializer(serializers.HyperlinkedModelSerializer):
@@ -56,7 +55,7 @@ class ChannelSerializer(serializers.HyperlinkedModelSerializer):
             'title': {'allow_blank': False},
         }
 
-    billingAccountId = RelatedBillinaAccountIdField(
+    billingAccountId = RelatedBillingAccountIdField(
         source='billing_account', required=True, write_only=True,
         help_text='Unique id of owning billing account resource')
 
@@ -87,7 +86,7 @@ class ChannelSerializer(serializers.HyperlinkedModelSerializer):
         existing object.
         """
         # Note: channelId will already have been mapped into a channel object.
-        if 'billingAccountId' in validated_data:
+        if 'billing_account' in validated_data:
             raise serializers.ValidationError({
                 'billingAccountId': 'This field cannot be changed',
             })

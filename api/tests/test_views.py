@@ -1,5 +1,5 @@
 import datetime
-from unittest import mock, skip
+from unittest import mock
 
 from dateutil import parser as dateparser
 from django.contrib.auth import get_user_model
@@ -956,6 +956,9 @@ class ChannelListViewTestCase(ViewTestCase):
 
     def test_create_with_billing_account_without_permission(self):
         """Creation of a channel fails if the user does not have rights on the billing account."""
+        self.assertNotIn(
+            self.user.username,
+            self.unused_billing_account.channel_create_permission.crsids)
         request = self.factory.post('/', {
             'title': 'foo', 'billingAccountId': self.unused_billing_account.id
         })
@@ -973,6 +976,24 @@ class ChannelListViewTestCase(ViewTestCase):
         # The missing field has an error message in the response
         self.assertIn('billingAccountId', response.data)
         self.assertEqual(response.status_code, 400)
+
+    def test_create_with_billing_account_with_permission(self):
+        """Creation of a channel succeeds if the user *does* have rights on the billing account."""
+        self.unused_billing_account.channel_create_permission.crsids.append(self.user.username)
+        self.unused_billing_account.channel_create_permission.save()
+        request = self.factory.post('/', {
+            'title': 'foo', 'billingAccountId': self.unused_billing_account.id
+        })
+        force_authenticate(request, user=self.user)
+        response = self.view(request)
+        print(response.data)
+        self.assertEqual(response.status_code, 201)
+
+        # The created channel has the billing account set and edit permissions for the user.
+        self.assertIn('id', response.data)
+        channel = mpmodels.Channel.objects.get(id=response.data['id'])
+        self.assertEqual(channel.billing_account.id, self.unused_billing_account.id)
+        self.assertIn(self.user.username, channel.edit_permission.crsids)
 
     def assert_search_result(self, channel, positive_query=None, negative_query=None):
         # Channels should appear in relevant query
@@ -1002,6 +1023,12 @@ class ChannelViewTestCase(ViewTestCase):
         self.view = views.ChannelView().as_view()
         # A suitable test channel
         self.channel = self.channels.get(id='channel1')
+
+        # There needs to be at least one billing account that the user can create channels on. Give
+        # them rights on all of them.
+        for account in mpmodels.BillingAccount.objects.all():
+            account.channel_create_permission.crsids.append(self.user.username)
+            account.channel_create_permission.save()
 
     def test_success(self):
         """Check that a channel is successfully returned"""
@@ -1034,24 +1061,43 @@ class ChannelViewTestCase(ViewTestCase):
     def test_created_at_immutable(self):
         self.assert_field_immutable('createdAt', '2018-08-06T15:29:45.003231Z', 'created_at')
 
-    def test_billing_account_requires_permission(self):
-        """Attempting to change the billing account to one the user does not have channel manager
-        permission on will fail."""
-        request = self.factory.patch(
-            '/', {'billingAccountId': self.unused_billing_account.id}, format='json')
-        force_authenticate(request, user=self.user)
+    def test_billing_account_immutable_with_permission(self):
+        """Attempting to change the billing account to one user *has* channel create permission on
+        fails."""
+        accounts = mpmodels.BillingAccount.objects.all()
+        self.assertTrue(accounts.exists())
 
+        # Try setting account id to all accounts user has access to.
         self.channel.edit_permission.crsids.append(self.user.username)
         self.channel.edit_permission.save()
-        response = self.view(request, pk=self.channel.id)
-        self.assertEqual(response.status_code, 400)
+        for account in accounts:
+            self.assertIn(self.user.username, account.channel_create_permission.crsids)
+            request = self.factory.patch(
+                '/', {'billingAccountId': account.id}, format='json')
+            force_authenticate(request, user=self.user)
+            response = self.view(request, pk=self.channel.id)
+            self.assertEqual(response.status_code, 400)
 
-    # TODO: since there are currently no billing accounts which a user can associate channels
-    # with, this cannot currently be tested. It would look like this:
-    @skip("there are no channel create permissions for billing accounts")
-    def test_billing_account_immutable(self):
-        self.assert_field_immutable(
-            'billingAccountId', self.unused_billing_account.id, 'billing_account_id')
+    def test_billing_account_immutable_without_permission(self):
+        """Attempting to change the billing account to one user *does not have* channel create
+        permission on fails."""
+        accounts = mpmodels.BillingAccount.objects.all()
+        self.assertTrue(accounts.exists())
+
+        for account in accounts:
+            account.channel_create_permission.reset()
+            account.channel_create_permission.save()
+
+        # Try setting account id to all accounts user has access to.
+        self.channel.edit_permission.crsids.append(self.user.username)
+        self.channel.edit_permission.save()
+        for account in mpmodels.BillingAccount.objects.all():
+            self.assertNotIn(self.user.username, account.channel_create_permission.crsids)
+            request = self.factory.patch(
+                '/', {'billingAccountId': account.id}, format='json')
+            force_authenticate(request, user=self.user)
+            response = self.view(request, pk=self.channel.id)
+            self.assertEqual(response.status_code, 400)
 
     def test_media_item_count(self):
         """Check that a count of media items are returned for the channel"""
