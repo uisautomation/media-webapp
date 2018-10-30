@@ -1450,6 +1450,47 @@ class BillingAccountListViewTestCase(ViewTestCase):
         self.assertEqual(
             len(response_data['results']), mpmodels.BillingAccount.objects.count())
 
+    def test_can_create_channels_filter(self):
+        """One should be able to filter be billing accounts where the user has permission to
+        create channels."""
+        account = mpmodels.BillingAccount.objects.get(id='bacct1')
+        account.channel_create_permission.crsids.append(self.user.username)
+        account.channel_create_permission.save()
+
+        # Reset all other billing account permissions
+        for a in mpmodels.BillingAccount.objects.all():
+            if a.id == account.id:
+                continue
+            a.channel_create_permission.reset()
+            a.channel_create_permission.save()
+
+        can_create_accounts = (
+            mpmodels.BillingAccount.objects.all()
+            .annotate_can_create_channels(self.user)
+            .filter(can_create_channels=True)
+        )
+
+        # Note: cannot use .count() here because of a Django ORM bug giving rise the the dreaded
+        # "unhashable type: list" exception.
+        self.assertEqual(len(list(can_create_accounts)), 1)
+        self.assertIn(account.id, [a.id for a in can_create_accounts])
+
+        request = self.factory.get('/?canCreateChannels=true')
+        force_authenticate(request, user=self.user)
+        response_data = self.view(request).data
+        self.assertIn('results', response_data)
+        results = response_data['results']
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]['id'], account.id)
+
+        request = self.factory.get('/?canCreateChannels=false')
+        force_authenticate(request, user=self.user)
+        response_data = self.view(request).data
+        self.assertIn('results', response_data)
+        results = response_data['results']
+        self.assertGreater(len(results), 1)
+        self.assertNotIn(account.id, [a['id'] for a in results])
+
 
 class BillingAccountViewTestCase(ViewTestCase):
     def setUp(self):

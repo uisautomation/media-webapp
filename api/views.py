@@ -658,16 +658,31 @@ class BillingAccountMixin(BillingAccountListMixin):
     """
 
 
+class BillingAccountListFilterSet(df_filters.FilterSet):
+    class Meta:
+        model = mpmodels.BillingAccount
+        fields = ('canCreateChannels',)
+
+    canCreateChannels = df_filters.BooleanFilter(
+        field_name='can_create_channels',
+        label='Can create channels',
+        help_text=(
+            '"true" or "false". Filter by whether the user can create channels for '
+            'this billing account')
+    )
+
+
 class BillingAccountListView(BillingAccountListMixin, generics.ListAPIView):
     """
     Billing accounts.
 
     """
-    filter_backends = (filters.OrderingFilter,)
+    filter_backends = (filters.OrderingFilter, df_filters.DjangoFilterBackend)
     ordering = ('-updatedAt',)
     ordering_fields = ('updatedAt', 'createdAt', 'lookupInstid')
     pagination_class = ListPagination
     serializer_class = serializers.BillingAccountSerializer
+    filterset_class = BillingAccountListFilterSet
 
     def get_queryset(self):
         return (
@@ -676,6 +691,8 @@ class BillingAccountListView(BillingAccountListMixin, generics.ListAPIView):
             .annotate(updatedAt=models.F('updated_at'))
             .annotate(createdAt=models.F('created_at'))
             .annotate(lookupInstid=models.F('lookup_instid'))
+            # Required for canCreateChannels filter
+            .annotate_can_create_channels(self.request.user)
         )
 
 
