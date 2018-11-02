@@ -363,17 +363,29 @@ def update_related_models_from_cache(update_all_videos=False):
 
         channel.edit_permission.save()
 
-        # Update contents
+        # Update contents. We use the "sms_collection_media_ids" custom prop as that is always set
+        # to the media ids which "should" be in the collection unlike sms_{,failed_}media_ids which
+        # is used as part of the playlist synchronisation process.
         sms_collection_media_ids = [
             int(media_id.strip())
             for media_id in jwp.parse_custom_field(
-                'media_ids', custom.get('sms_media_ids', 'media_ids::')
+                'collection_media_ids',
+                custom.get('sms_collection_media_ids', 'collection_media_ids::')
             ).split(',') if media_id.strip() != ''
         ]
         collection_media_ids = (
-            mpmodels.MediaItem.objects.filter(sms__id__in=sms_collection_media_ids).only('id')
+            mpmodels.MediaItem.objects.filter(sms__id__in=sms_collection_media_ids)
+            .only('id', 'sms__id')
         )
         channel.items.set(collection_media_ids)
+
+        # Form a list of media item keys which is in the same order as sms_collection_media_ids.
+        item_map = {item.sms.id: item.id for item in collection_media_ids}
+        item_ids = [
+            item_id for item_id in (
+                item_map.get(media_id) for media_id in sms_collection_media_ids
+            ) if item_id is not None
+        ]
 
         # Update associated SMS collection (if any)
         sms_collection_id = channel_data.collection_id
@@ -406,7 +418,7 @@ def update_related_models_from_cache(update_all_videos=False):
             # Update the Playlist
             sms_channel.playlist.title = channel.title
             sms_channel.playlist.description = channel.description
-            sms_channel.playlist.media_items = [item.id for item in collection_media_ids]
+            sms_channel.playlist.media_items = item_ids
             sms_channel.playlist.save()
         else:
             # If there is no associated SMS collection, make sure that this channel doesn't have
