@@ -288,7 +288,7 @@ class SyncTestCase(TestCase):
         c = mpmodels.Channel.objects.filter(sms__id='3').first()
         self.assertIsNotNone(c)
         self.assertEqual(len(c.items.all()), 1)
-        channels[0]['custom']['sms_media_ids'] = 'media_ids:1,2:'
+        channels[0]['custom']['sms_collection_media_ids'] = 'collection_media_ids:1,2:'
         channels[0]['updated'] += 1
         set_resources_and_sync(videos, channels)
         self.assertEqual(len(c.items.all()), 2)
@@ -495,7 +495,8 @@ def make_channel(**kwargs):
     * instid - maps to custom.sms_instid. defaults to not being present
     * groupid - maps to custom.sms_groupid. defaults to not being present
     * updated - updated datetime, defaults to now()
-    * media_ids - SMS media ids, maps to custom.sms_media_ids. defaults to not being present
+    * media_ids - SMS media ids, maps to custom.sms_collection_media_ids. defaults to not being
+        present
     * acl - list of str. maps to custom.sms_acl. defaults to not being present
     * created_by - CRSid of creator. maps to custom.sms_created_by defaults to not being present
     * last_updated_at - last update datetime on SMS. maps to custom.sms_last_updated_at
@@ -506,7 +507,8 @@ def make_channel(**kwargs):
     custom = {}
 
     if 'media_ids' in kwargs:
-        custom['sms_media_ids'] = 'media_ids:{}:'.format(','.join(kwargs['media_ids']))
+        custom['sms_collection_media_ids'] = 'collection_media_ids:{}:'.format(
+                ','.join(kwargs['media_ids']))
 
     if 'acl' in kwargs:
         custom['sms_acl'] = 'acl:{}:'.format(','.join(kwargs['acl']))
