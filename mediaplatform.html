@@ -437,6 +437,12 @@ sources). Returns 0 if the size isn’t available.</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="mediaplatform.models.Permission.allows_create_channel_on_billing_account">
+<code class="descname">allows_create_channel_on_billing_account</code><a class="headerlink" href="#mediaplatform.models.Permission.allows_create_channel_on_billing_account" title="Permalink to this definition">¶</a></dt>
+<dd><p>BillingAccount whose channel create permission is this object.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="mediaplatform.models.Permission.crsids">
 <code class="descname">crsids</code><a class="headerlink" href="#mediaplatform.models.Permission.crsids" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of crsids of users with this permission</p>
@@ -795,10 +801,46 @@ visible.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="mediaplatform.models.BillingAccountQuerySet">
+<em class="property">class </em><code class="descclassname">mediaplatform.models.</code><code class="descname">BillingAccountQuerySet</code><span class="sig-paren">(</span><em>model=None</em>, <em>query=None</em>, <em>using=None</em>, <em>hints=None</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.BillingAccountQuerySet" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="mediaplatform.models.BillingAccountQuerySet.annotate_can_create_channels">
+<code class="descname">annotate_can_create_channels</code><span class="sig-paren">(</span><em>user</em>, <em>name='can_create_channels'</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.BillingAccountQuerySet.annotate_can_create_channels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate the query set with a boolean indicating if the user can create channels.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediaplatform.models.BillingAccountQuerySet.channels_creatable_by_user">
+<code class="descname">channels_creatable_by_user</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.BillingAccountQuerySet.channels_creatable_by_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter the queryset to only those items which can have channels created by the passed user.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mediaplatform.models.BillingAccountManager">
+<em class="property">class </em><code class="descclassname">mediaplatform.models.</code><code class="descname">BillingAccountManager</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.BillingAccountManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>An object manager for <a class="reference internal" href="#mediaplatform.models.BillingAccount" title="mediaplatform.models.BillingAccount"><code class="xref py py-class docutils literal notranslate"><span class="pre">BillingAccount</span></code></a> objects.</p>
+<dl class="method">
+<dt id="mediaplatform.models.BillingAccountManager.get_queryset">
+<code class="descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.BillingAccountManager.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new QuerySet object. Subclasses can override this method to
+customize the behavior of the Manager.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="mediaplatform.models.BillingAccount">
 <em class="property">class </em><code class="descclassname">mediaplatform.models.</code><code class="descname">BillingAccount</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.BillingAccount" title="Permalink to this definition">¶</a></dt>
 <dd><p>A billing account represents a billable entity which is responsible for paying for resources
 used by channels.</p>
+<dl class="attribute">
+<dt id="mediaplatform.models.BillingAccount.objects">
+<code class="descname">objects</code><em class="property"> = &lt;mediaplatform.models.BillingAccountManager object&gt;</em><a class="headerlink" href="#mediaplatform.models.BillingAccount.objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Object manager. See <a class="reference internal" href="#mediaplatform.models.BillingAccountManager" title="mediaplatform.models.BillingAccountManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">BillingAccountManager</span></code></a>.</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="mediaplatform.models.BillingAccount.id">
 <code class="descname">id</code><a class="headerlink" href="#mediaplatform.models.BillingAccount.id" title="Permalink to this definition">¶</a></dt>
