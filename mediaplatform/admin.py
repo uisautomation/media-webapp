@@ -297,6 +297,11 @@ class ChannelInline(admin.TabularInline):
     show_change_link = True
 
 
+class BillingAccountChannelCreatePermissionInline(PermissionInline):
+    fk_name = 'allows_create_channel_on_billing_account'
+    verbose_name_plural = 'Channel Create Permissions'
+
+
 @admin.register(models.BillingAccount)
 class BillingAccountAdmin(admin.ModelAdmin):
     fields = ('description', 'lookup_instid', 'created_at', 'updated_at')
@@ -304,4 +309,7 @@ class BillingAccountAdmin(admin.ModelAdmin):
     search_fields = ('description', 'lookup_instid')
     list_display = ('id', 'lookup_instid', 'description')
     ordering = ('lookup_instid', 'id')
-    inlines = [ChannelInline]
+    inlines = [
+        ChannelInline,
+        BillingAccountChannelCreatePermissionInline,
+    ]

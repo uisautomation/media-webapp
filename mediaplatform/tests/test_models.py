@@ -875,3 +875,62 @@ class PlaylistTest(ModelTestCase):
         playlist.channel.edit_permission.lookup_insts.extend(['X', 'Y', 'A', 'B', 'Z'])
         playlist.channel.edit_permission.save()
         self.assert_user_can_edit(self.user, playlist)
+
+
+class BillingAccountTest(ModelTestCase):
+
+    model = models.BillingAccount
+
+    def setUp(self):
+        super().setUp()
+        self.account = models.BillingAccount.objects.get(id='bacct1')
+
+    def test_no_user_create_channels(self):
+        """An empty create channel permissions disallows channel creation."""
+        self.account.channel_create_permission.reset()
+        self.account.channel_create_permission.save()
+        self.assert_user_cannot_create_channels(AnonymousUser(), self.account)
+        self.assert_user_cannot_create_channels(None, self.account)
+        self.assert_user_cannot_create_channels(self.user, self.account)
+
+    def test_user_create_channels(self):
+        """Naming an individual user on a channel create permission allows them to create
+        channels."""
+        self.account.channel_create_permission.reset()
+        self.account.channel_create_permission.crsids.append(self.user.username)
+        self.account.channel_create_permission.save()
+        self.assert_user_cannot_create_channels(AnonymousUser(), self.account)
+        self.assert_user_cannot_create_channels(None, self.account)
+        self.assert_user_can_create_channels(self.user, self.account)
+
+    def assert_user_cannot_create_channels(self, user, account_or_id):
+        if isinstance(account_or_id, str):
+            account_or_id = self.model.objects.get(id=account_or_id)
+        self.assertFalse(
+            self.model.objects.all()
+            .filter(id=account_or_id.id)
+            .channels_creatable_by_user(user)
+            .exists()
+        )
+        self.assertFalse(
+            self.model.objects.all()
+            .annotate_can_create_channels(user, name='TEST_create_channels')
+            .get(id=account_or_id.id)
+            .TEST_create_channels
+        )
+
+    def assert_user_can_create_channels(self, user, account_or_id):
+        if isinstance(account_or_id, str):
+            account_or_id = models.Channel.objects.get(id=account_or_id)
+        self.assertTrue(
+            self.model.objects.all()
+            .filter(id=account_or_id.id)
+            .channels_creatable_by_user(user)
+            .exists()
+        )
+        self.assertTrue(
+            self.model.objects.all()
+            .annotate_can_create_channels(user, name='TEST_create_channels')
+            .get(id=account_or_id.id)
+            .TEST_create_channels
+        )
