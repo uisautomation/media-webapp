@@ -427,6 +427,7 @@ class ProfileSerializer(serializers.Serializer):
     channels = ChannelDetailSerializer(
         help_text="List of channels which the user has edit rights on", many=True)
     displayName = serializers.CharField(source='person.displayName', required=False)
+    visibleName = serializers.CharField(source='person.visibleName', required=False)
     avatarImageUrl = serializers.SerializerMethodField()
 
     def get_avatarImageUrl(self, obj):
