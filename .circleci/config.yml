@@ -47,7 +47,9 @@ jobs:
       - run:
           name: Run tests
           command: |
-            ./compose.sh tox run -v $PWD:/tmp/workspace -e COVERAGE_FILE=/tmp/workspace/.coverage -e COVERAGE_XML_FILE=/tmp/workspace/coverage.xml -e TOXINI_ARTEFACT_DIR=/tmp/workspace/build --rm tox
+            # We need to run as root in order to be able to write inside the
+            # container to the workspace.
+            ./compose.sh tox run -u 0 -v $PWD:/tmp/workspace -e COVERAGE_FILE=/tmp/workspace/.coverage -e COVERAGE_XML_FILE=/tmp/workspace/coverage.xml -e TOXINI_ARTEFACT_DIR=/tmp/workspace/build --rm tox
             ./compose.sh tox down
 
       - store_artifacts:
