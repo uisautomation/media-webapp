@@ -24,6 +24,10 @@ services:
       - base.env
       - tox.env
 
+    # Required since we write to a volume and Docker creates volumes owned by
+    # root by default.
+    user: "0"
+
 volumes:
   # A persistent volume for tox to store its stuff. This allows caching of
   # virtualenvs between runs.

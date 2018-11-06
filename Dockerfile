@@ -45,6 +45,9 @@ ENV \
 # Collect static files. We provide placeholder values for required settings.
 RUN DJANGO_SECRET_KEY=placeholder ./manage.py collectstatic
 
+RUN addgroup -S app && adduser -S -G app app && chown -R app:app /usr/src/app
+USER app:app
+
 # Use gunicorn as a web-server after running migration command
 CMD gunicorn \
 	--name mediawebapp \
