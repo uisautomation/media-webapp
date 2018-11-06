@@ -20,6 +20,15 @@ import SignOutIcon from '@material-ui/icons/ExitToApp';
 
 import ChannelsMuiList from './ChannelsMuiList';
 
+/**
+ * Return a name for the user for use in display. Keeps going through profile fields until it
+ * finds a non-falsy one. As a last resort, or if the profile is itself falsy, the user is named
+ * "Anonymous".
+ */
+const profileDisplayName = profile => (
+  (profile && (profile.displayName || profile.visibleName || profile.username)) || 'Anonymous'
+);
+
 /** Side panel for the current user providing navigation links. */
 const NavigationPanel = ({ profile, classes }) => <div className={ classes.root }>
   {
@@ -28,13 +37,13 @@ const NavigationPanel = ({ profile, classes }) => <div className={ classes.root 
     <div>
       <div className={ classes.profileBar }>
         <Avatar
-          alt={ profile.displayName }
+          alt={ profileDisplayName(profile) }
           classes={{ root: classes.avatar }}
           src={ profile.avatarImageUrl }
         >
-          { profile.avatarImageUrl ? null : profile.displayName[0] }
+          { profile.avatarImageUrl ? null : profileDisplayName(profile)[0] }
         </Avatar>
-        <Typography variant='title'>{ profile.displayName }</Typography>
+        <Typography variant='title'>{ profileDisplayName(profile) }</Typography>
         <div className={ classes.profileUsernameContainer }>
           <Typography variant='caption' className={ classes.profileUsername }>
             { profile.username }
@@ -120,6 +129,7 @@ NavigationPanel.propTypes = {
     displayName: PropTypes.string,
     isAnonymous: PropTypes.bool.isRequired,
     username: PropTypes.string,
+    visibleName: PropTypes.string,
   }),
 };
 
