@@ -127,6 +127,7 @@ export interface IProfileResponse {
   username?: string;
   channels: IChannelResource[];
   displayName?: string;
+  visibleName?: string;
   avatarImageUrl?: string;
 };
 
