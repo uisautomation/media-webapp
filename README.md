@@ -72,6 +72,12 @@ $ ./manage_development.sh migrate
 $ ./compose.sh tox run -v $PWD:/tmp/workspace -e TOXINI_ARTEFACT_DIR=/tmp/workspace/build --rm tox
 ```
 
+## Developer guides
+
+The following developer guides have been written:
+
+* [guides/uploading.md](Uploading new media items).
+
 ## Dockerfile configuration
 
 The following environment variables need to be set when running the application
