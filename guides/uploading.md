@@ -60,7 +60,26 @@ the JSON document describing the new media item. The request body may be empty.
 The response will be a JSON document containing a one-time use upload URL in the
 ``url`` property.
 
-## Associating a media item with a playlist
+### Create playlist
+
+Perform an authenticated HTTP POST to ``${BASE}/playlists/`` with a JSON
+document as the request body. The document should have *at a minimum* the
+following schema:
+
+```js
+{
+  "title": "<human readable title for playlist>",
+  "channelId": "<id of channel>"
+}
+```
+
+The response body will be a JSON document describing the new playlist. The
+unique id for the playlist will be present as the ``id`` property.
+
+One may also include a ``mediaIds`` property in the request body document. The
+format is described below in the section on updating an existing playlist.
+
+## Associating a media item with an existing playlist
 
 Similarly to channels, playlists all have a unique id associated with them. This
 id appears in the URL of the playlist page on the media item and appears as the
