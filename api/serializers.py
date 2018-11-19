@@ -1,9 +1,11 @@
+import datetime
 import logging
 from urllib import parse as urlparse
 
 from django.conf import settings
 from django.http import QueryDict
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.http import urlencode
 from rest_framework import serializers
 
@@ -309,8 +311,31 @@ class MediaUploadSerializer(serializers.Serializer):
     expires_at = serializers.DateTimeField(source='upload_endpoint.expires_at', read_only=True)
 
     def update(self, instance, verified_data):
+        """
+        Ensure that the instance has an upload endpoint which has not expired. Delete it just
+        before returning it to the rest of the serialiser so that we are sure we only ever give an
+        upload URL back to a client once.
+
+        """
+        # If there is already a created upload endpoint which expires more than a day from now,
+        # we can use the instance as is.
+        if hasattr(instance, 'upload_endpoint'):
+            headroom = datetime.timedelta(days=1)
+            if instance.upload_endpoint.expires_at >= timezone.now() + headroom:
+                # Delete the endpoint because we're about to return it to the client
+                instance.upload_endpoint.delete()
+                return instance
+
+            # Otherwise, delete the existing endpoint; we'll create another
+            instance.upload_endpoint.delete()
+
+        # Create an upload endpoint and re-fetch the instance
         # TODO: abstract the creation of UploadEndpoint objects to be backend neutral
         management.create_upload_endpoint(instance)
+        instance.refresh_from_db()
+
+        # Delete the endpoint because we're about to return it to the client
+        instance.upload_endpoint.delete()
         return instance
 
 

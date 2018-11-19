@@ -7,10 +7,12 @@ from django.contrib.auth.models import AnonymousUser
 from django.http import QueryDict
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 import mediaplatform_jwp.api.delivery as api
+import mediaplatform_jwp.upload as jwp_upload
 import mediaplatform.models as mpmodels
 
 from . import create_stats_table, delete_stats_table, add_stat
@@ -784,49 +786,104 @@ class UploadEndpointTestCase(ViewTestCase):
         self.item.channel.edit_permission.reset()
         self.item.channel.edit_permission.save()
 
+        # The upload endpoint has not expired
+        self.item.upload_endpoint.expires_at = timezone.now() + datetime.timedelta(days=200)
+        self.item.upload_endpoint.save()
+
+        create_patch = mock.patch('mediaplatform_jwp.api.management.create_upload_endpoint')
+        self.mock_create_upload_endpoint = create_patch.start()
+        self.mock_create_upload_endpoint.side_effect = self.mock_create_upload_endpoint_side_effect
+        self.addCleanup(create_patch.stop)
+
+    def test_no_get(self):
+        """Get request is not supported."""
+        response = self.get_for_item()
+        self.assertEqual(response.status_code, 405)  # method not allowed
+
     def test_needs_view_permission(self):
         """Upload endpoint should 404 if user doesn't have view permission."""
-        response = self.get_for_item()
-        self.assertEqual(response.status_code, 404)
+        response = self.put_for_item()
+        self.assertEqual(response.status_code, 403)
 
         self.client.force_login(self.user)
-        response = self.get_for_item()
+        response = self.put_for_item()
         self.assertEqual(response.status_code, 404)
 
     def test_needs_edit_permission(self):
         """If user has view but not edit permission, endpoint should deny permission."""
         self.add_view_permission()
         self.client.force_login(self.user)
-        response = self.get_for_item()
+        response = self.put_for_item()
         self.assertEqual(response.status_code, 403)
 
     def test_allows_view_and_edit_permission(self):
         """If user has view *and* edit permission, endpoint should succeed."""
+        # Get a reference to the upload endpoint before it is deleted
+        upload_endpoint = self.item.upload_endpoint
+
         self.client.force_login(self.user)
         self.add_view_permission()
         self.add_edit_permission()
-        response = self.get_for_item()
+
+        response = self.put_for_item()
         self.assertEqual(response.status_code, 200)
+
         body = response.json()
-        self.assertEqual(body['url'], self.item.upload_endpoint.url)
+        self.assertEqual(body['url'], upload_endpoint.url)
         self.assertEqual(
             dateparser.parse(body['expires_at']),
-            self.item.upload_endpoint.expires_at
+            upload_endpoint.expires_at
         )
 
-    def test_create_upload_endpoint(self):
-        """PUT-ing endpoint creates a new upload endpoint."""
+        # The upload endpoint should no longer be in the DB now it has been retrieved
+        self.item.refresh_from_db()
+        self.assertFalse(hasattr(self.item, 'upload_endpoint'))
+
+    def test_existing_upload_endpoint(self):
+        """PUT-ing endpoint does not create a new upload endpoint if one exists."""
+        self.assertTrue(hasattr(self.item, 'upload_endpoint'))
         self.client.force_login(self.user)
         self.add_view_permission()
         self.add_edit_permission()
 
-        with mock.patch('mediaplatform_jwp.api.management.create_upload_endpoint'
-                        ) as mock_create:
-            response = self.put_for_item()
+        response = self.put_for_item()
 
         self.assertEqual(response.status_code, 200)
-        mock_create.assert_called_once()
-        item = mock_create.call_args[0][0]
+        self.mock_create_upload_endpoint.assert_not_called()
+
+    def test_existing_expired_upload_endpoint(self):
+        """PUT-ing endpoint *does* create a new upload endpoint if one exists but it has
+        expired or is close to expiring."""
+        # Expire the endpoint (or, rather, it expired in one hour)
+        self.item.upload_endpoint.expires_at = timezone.now() + datetime.timedelta(hours=1)
+        self.item.upload_endpoint.save()
+
+        self.assertTrue(hasattr(self.item, 'upload_endpoint'))
+        self.client.force_login(self.user)
+        self.add_view_permission()
+        self.add_edit_permission()
+
+        response = self.put_for_item()
+
+        self.assertEqual(response.status_code, 200)
+        self.mock_create_upload_endpoint.assert_called()
+        item = self.mock_create_upload_endpoint.call_args[0][0]
+        self.assertEqual(item.id, self.item.id)
+
+    def test_create_upload_endpoint(self):
+        """PUT-ing endpoint creates a new upload endpoint if one does not exist."""
+        self.item.upload_endpoint.delete()
+        self.item.refresh_from_db()
+        self.assertFalse(hasattr(self.item, 'upload_endpoint'))
+        self.client.force_login(self.user)
+        self.add_view_permission()
+        self.add_edit_permission()
+
+        response = self.put_for_item()
+
+        self.assertEqual(response.status_code, 200)
+        self.mock_create_upload_endpoint.assert_called_once()
+        item = self.mock_create_upload_endpoint.call_args[0][0]
         self.assertEqual(item.id, self.item.id)
 
     def get_for_item(self, **kwargs):
@@ -834,6 +891,18 @@ class UploadEndpointTestCase(ViewTestCase):
 
     def put_for_item(self, **kwargs):
         return self.client.put(reverse('api:media_upload', kwargs={'pk': self.item.pk}), **kwargs)
+
+    def mock_create_upload_endpoint_side_effect(self, item):
+        response = {
+            'protocol': 'https',
+            'address': 'mock.invalid',
+            'path': '/some/upload/endpoint',
+            'query': {
+                'key': 'some-key',
+                'token': 'some-token',
+            }
+        }
+        jwp_upload.record_link_response(response, item)
 
     def add_view_permission(self):
         self.item.view_permission.crsids.append(self.user.username)

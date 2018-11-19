@@ -76,7 +76,7 @@ $ ./compose.sh tox run -v $PWD:/tmp/workspace -e TOXINI_ARTEFACT_DIR=/tmp/worksp
 
 The following developer guides have been written:
 
-* [guides/uploading.md](Uploading new media items).
+* [Uploading new media items](guides/uploading.md).
 
 ## Dockerfile configuration
 

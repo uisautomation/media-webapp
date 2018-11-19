@@ -15,7 +15,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 import MediaDropzone from '../components/MediaDropzone';
 import ItemMetadataForm from '../components/ItemMetadataForm';
-import { mediaCreate, mediaPatch, mediaUploadGet, } from '../api';
+import { mediaCreate, mediaPatch, mediaUploadPut } from '../api';
 import ChannelSelect from "./ChannelSelect";
 
 /**
@@ -165,7 +165,7 @@ class UploadForm extends Component {
 
   /** Called when a new media item has been created to receive the upload. */
   setMediaItem(item) {
-    mediaUploadGet(item).then(({ url }) => this.setUploadUrl(url));
+    mediaUploadPut(item).then(({ url }) => this.setUploadUrl(url));
     this.setState({ item, draftItem: { ...item, ...this.state.draftItem } });
   }
 

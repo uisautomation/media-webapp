@@ -282,9 +282,11 @@ export const mediaPatch = (item: IMediaPatchResource) : Promise<IMediaResource> 
 };
 
 /** Retrieve upload endpoint for a media item. */
-export const mediaUploadGet = (item: IMediaResource) : Promise<IMediaUploadResource> => {
+export const mediaUploadPut = (item: IMediaResource) : Promise<IMediaUploadResource> => {
   // TODO: decide if we want to use the URL in @id rather than key here,
-  return apiFetch(API_ENDPOINTS.mediaList + item.id + '/upload');
+  return apiFetch(API_ENDPOINTS.mediaList + item.id + '/upload', {
+    method: 'PUT',
+  });
 };
 
 /** Retrieve a media resource's analytics. */

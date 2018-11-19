@@ -308,11 +308,11 @@ class MediaItemView(MediaItemMixin, generics.RetrieveUpdateAPIView):
     serializer_class = serializers.MediaItemDetailSerializer
 
 
-class MediaItemUploadView(MediaItemMixin, generics.RetrieveUpdateAPIView):
+class MediaItemUploadView(MediaItemMixin, generics.UpdateAPIView):
     """
     Endpoint for retrieving an upload URL for a media item. Requires that the user have the edit
-    permission for the media item. Should the upload URL be expired or otherwise unsuitable, a HTTP
-    POST/PUT to this endpoint refreshes the URL.
+    permission for the media item. A HTTP PUT to this endpoint can be used to retrieve an upload
+    URL which can then have the media file POST-ed to it.
 
     """
     # To access the upload API, the user must always have the edit permission.

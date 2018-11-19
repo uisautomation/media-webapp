@@ -53,7 +53,7 @@ URL which accepts a HTTP POST with the media item source file form encoded as
 the "file" field. **Uploading media via a HTTP POST to the upload URL does not
 require further authentication beyond knowing the URL.**
 
-To retrieve the upload URL, perform an authenticated HTTP POST to
+To retrieve the upload URL, perform an authenticated HTTP PUT to
 ``${BASE}/media/{id}/upload`` replacing ``{id}`` with the ``id`` property from
 the JSON document describing the new media item. The request body may be empty.
 
