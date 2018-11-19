@@ -100,7 +100,7 @@ export interface IMediaUploadResource {
 };
 
 /** A media list response. */
-type IMediaListResponse = IResourceListResponse<IMediaResource>;
+export type IMediaListResponse = IResourceListResponse<IMediaResource>;
 
 /** A query to the media list endpoint. */
 export interface IMediaQuery {
@@ -127,6 +127,7 @@ export interface IProfileResponse {
   username?: string;
   channels: IChannelResource[];
   displayName?: string;
+  visibleName?: string;
   avatarImageUrl?: string;
 };
 
@@ -152,7 +153,7 @@ export interface IChannelDetailResource extends IChannelResource {
 };
 
 /** A channel list response. */
-type IChannelListResponse = IResourceListResponse<IChannelResource>;
+export type IChannelListResponse = IResourceListResponse<IChannelResource>;
 
 /** A query to the playlist list endpoint. */
 export interface IPlaylistQuery {
@@ -188,7 +189,7 @@ export interface IPlaylistResource {
 };
 
 /** A playlist list response. */
-type IPlaylistListResponse = IResourceListResponse<IPlaylistResource>;
+export type IPlaylistListResponse = IResourceListResponse<IPlaylistResource>;
 
 export interface IAPIOptions {
   /** Endpoint to use instead of default. */
@@ -310,7 +311,7 @@ export const channelGet = (id: string) : Promise<IChannelDetailResource> => {
 
 /** List playlist resources. */
 export const playlistList = (
-  query: IChannelQuery = {}, { endpoint }: IAPIOptions = {}
+  query: IPlaylistQuery = {}, { endpoint }: IAPIOptions = {}
 ): Promise<IPlaylistListResponse> => {
   return apiFetch(appendQuery(endpoint || API_ENDPOINTS.playlistList, query));
 };
