@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'mediaplatform_jwp',
     'ui',
     'api',
+    'oaipmh',
 ]
 
 #: Installed middleware
