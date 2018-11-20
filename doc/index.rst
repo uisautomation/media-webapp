@@ -19,4 +19,5 @@ If you don't know where to start then :doc:`the getting started guide
     mediaplatform
     mediaplatform_jwp
     api
+    oaipmh
     legacy-sms
