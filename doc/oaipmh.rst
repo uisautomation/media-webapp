@@ -12,6 +12,13 @@ Application configuration
     :members:
     :member-order: bysource
 
+OAI-PMH Harvester client
+````````````````````````
+
+.. automodule:: oaipmh.client
+    :members:
+    :member-order: bysource
+
 Models
 ``````
 
@@ -23,5 +30,18 @@ Admin
 `````
 
 .. automodule:: oaipmh.admin
+    :member-order: bysource
+
+Tasks
+`````
+
+.. automodule:: oaipmh.tasks
+    :members:
+    :member-order: bysource
+
+Utilities
+`````````
+
+.. automodule:: oaipmh.timezone
     :members:
     :member-order: bysource
