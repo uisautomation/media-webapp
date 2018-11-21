@@ -249,3 +249,31 @@ class Series(models.Model):
             items.append(f'({self.title})')
 
         return ' '.join(items)
+
+
+class Track(models.Model):
+    class Meta:
+        unique_together = [
+            # A particular track is unique within a record
+            ('matterhorn_record', 'identifier')
+        ]
+
+    matterhorn_record = models.ForeignKey(
+        MatterhornRecord, on_delete=models.CASCADE, related_name='tracks',
+        help_text='Matterhorn record containing this track'
+    )
+
+    identifier = models.CharField(max_length=1024, help_text='Identifier for track')
+
+    url = models.URLField(max_length=1024, help_text='URL of track')
+
+    media_item = models.ForeignKey(
+        'mediaplatform.MediaItem', related_name='oaipmh_track', on_delete=models.SET_NULL,
+        null=True, blank=True, help_text='Media item for this track'
+    )
+
+    xml = models.TextField(help_text='Original XML representation of track')
+
+    created_at = models.DateTimeField(auto_now_add=True, help_text="Creation time")
+
+    updated_at = models.DateTimeField(auto_now=True, help_text="Last update time")
