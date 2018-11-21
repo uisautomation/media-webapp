@@ -5,6 +5,8 @@ Asynchronous tasks
 
 .. autofunction:: harvest_repository
 
+.. autofunction:: cleanup
+
 """
 import datetime
 import logging
@@ -19,6 +21,9 @@ from sickle.oaiexceptions import NoRecordsMatch
 from .client import client_for_repository
 from . import models
 from . import timezone
+
+from .namespaces import MATTERHORN_NAMESPACE
+
 
 LOG = logging.getLogger(__name__)
 
@@ -175,3 +180,49 @@ def _update_records(client, repository, fetch_from_datetime):
     LOG.info('Fetched %s record(s)', fetched)
     LOG.info('Added %s new record(s)', added)
     LOG.info('Updated %s existing record(s)', updated)
+
+
+@shared_task(name='oaipmh_cleanup')
+@transaction.atomic
+def cleanup(full=False):
+    """
+    Perform various cleanup tasks which help to keep the database tidy. This task performs the
+    following:
+
+    * Create/update MatterhornRecord objects based on the corresponding Record. (I.e. any changes
+      which was missed by the post_save hook.)
+
+    If "full" is True then a "fuller" cleanup is performed which is likely to touch most objects in
+    the database.
+
+    Usually these cleanup tasks need not be performed but it is safe to schedule the cleanup task
+    nightly to clear up any inconsistencies in the database.
+
+    """
+    _create_matterhorn_records(update_all=full)
+
+
+def _create_matterhorn_records(update_all=False):
+    """
+    Utility function which will create MatterhornRecord objects for any Record objects which need
+    one. Ordinarily, this would not need to be run except that after a database migration of code
+    change, the XML for existing record objects will not necessarily be re-parsed. Causing this
+    function to be called periodically will help keep the database consistent.
+
+    """
+    LOG.info('Creating MatterhornRecord objects')
+
+    # Get a list of all records which need an associated matterhorn record but don't have one at
+    # the moment.
+    filter_args = {'metadata_format__namespace': MATTERHORN_NAMESPACE}
+    if not update_all:
+        # If not updating *all* records, only update those which do not have a record already.
+        filter_args['matterhorn__isnull'] = True
+
+    for record in models.Record.objects.filter(**filter_args):
+        # Call save on the record, will fire the post-save handler to create the new record.
+        try:
+            record.save()
+        except Exception as e:
+            LOG.error('Exception when updating record')
+            LOG.exception(e)

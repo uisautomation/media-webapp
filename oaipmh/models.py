@@ -1,4 +1,14 @@
+import logging
+
 from django.db import models
+from django.dispatch import receiver
+from django.db.models.signals import post_save
+
+from .namespaces import MATTERHORN_NAMESPACE
+from .records import ensure_matterhorn_record
+
+
+LOG = logging.getLogger(__name__)
 
 
 class Repository(models.Model):
@@ -107,3 +117,50 @@ class Record(models.Model):
 
     def __str__(self):
         return f'{self.identifier}'
+
+
+class MatterhornRecord(models.Model):
+    """
+    Specialisation of Record used for storing Matterhorn records. We cannot directly use model
+    inheritance here since the harvester simply creates Record objects and we create the related
+    MatterhornRecord object via a post_save hook. This sort of "post-hoc" object inheritance breaks
+    some of Django's assumptions.
+
+    """
+    record = models.OneToOneField(
+        to=Record, related_name='matterhorn', on_delete=models.CASCADE
+    )
+
+    title = models.TextField(blank=True, help_text="Human-readable title")
+
+    description = models.TextField(blank=True, help_text="Human-readable description")
+
+    created_at = models.DateTimeField(auto_now_add=True, help_text="Creation time")
+
+    updated_at = models.DateTimeField(auto_now=True, help_text="Last update time")
+
+    def __str__(self):
+        fields = [self.record.identifier]
+        if self.title != '':
+            fields.append(f'("{self.title}")')
+        return ' '.join(fields)
+
+
+@receiver(post_save, sender=Record)
+def update_matterhorn_record(instance, raw, **kwargs):
+    """
+    A signal handler which is run when each record is updated to see if an associated
+    MatterhornRecord should be created.
+
+    """
+    # Never try to do anything if "raw" is set.
+    if raw:
+        return
+
+    # If this record's metadata is not of interest, do nothing
+    if instance.metadata_format.namespace != MATTERHORN_NAMESPACE:
+        return
+
+    _, created = ensure_matterhorn_record(instance)
+    if created:
+        LOG.info('Created new matterhorn record for %s', instance.identifier)

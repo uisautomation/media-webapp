@@ -39,6 +39,17 @@ Tasks
     :members:
     :member-order: bysource
 
+Record ingest
+`````````````
+
+.. automodule:: oaipmh.namespaces
+    :members:
+    :member-order: bysource
+
+.. automodule:: oaipmh.records
+    :members:
+    :member-order: bysource
+
 Utilities
 `````````
 
