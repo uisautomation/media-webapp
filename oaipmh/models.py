@@ -1,5 +1,6 @@
 import logging
 
+import django.contrib.postgres.fields as pgfields
 from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import post_save
@@ -9,6 +10,15 @@ from .records import ensure_matterhorn_record
 
 
 LOG = logging.getLogger(__name__)
+
+
+def _blank_array():
+    """
+    Return a new blank array. Used for the default in ArrayField-s below because Django's migration
+    system cannot handle serialising lambdas.
+
+    """
+    return []
 
 
 class Repository(models.Model):
@@ -135,6 +145,10 @@ class MatterhornRecord(models.Model):
 
     description = models.TextField(blank=True, help_text="Human-readable description")
 
+    series = models.ForeignKey(
+        'Series', blank=True, null=True, help_text="Associated series", on_delete=models.SET_NULL
+    )
+
     created_at = models.DateTimeField(auto_now_add=True, help_text="Creation time")
 
     updated_at = models.DateTimeField(auto_now=True, help_text="Last update time")
@@ -164,3 +178,74 @@ def update_matterhorn_record(instance, raw, **kwargs):
     _, created = ensure_matterhorn_record(instance)
     if created:
         LOG.info('Created new matterhorn record for %s', instance.identifier)
+
+
+class Series(models.Model):
+    """
+    Record of a Matterhoen (Opencast) series and the playlist things should be published to.
+
+    """
+    class Meta:
+        verbose_name_plural = "Series"
+        unique_together = [
+            # A particular series is unique within a repository
+            ('repository', 'identifier')
+        ]
+
+    identifier = models.CharField(
+        blank=True, max_length=1024,
+        help_text="Identifier for series. Blank for records with no series set"
+    )
+
+    repository = models.ForeignKey(
+        Repository, on_delete=models.CASCADE,
+        help_text="Repository this series was fetched from"
+    )
+
+    title = models.TextField(blank=True, max_length=1024, help_text="Human-readable title")
+
+    playlist = models.ForeignKey(
+        'mediaplatform.Playlist', null=True, blank=True, on_delete=models.SET_NULL,
+        help_text="Playlist associated with this series"
+    )
+
+    view_crsids = pgfields.ArrayField(
+        models.TextField(), blank=True, default=_blank_array,
+        help_text='Initial list of crsids of users allowed to view items in series'
+    )
+
+    view_lookup_groups = pgfields.ArrayField(
+        models.TextField(), blank=True, default=_blank_array,
+        help_text='Initial list of Lookup group numeric ids allowed to view items in series'
+    )
+
+    view_lookup_insts = pgfields.ArrayField(
+        models.TextField(), blank=True, default=_blank_array,
+        help_text='Initial list of Lookup institutions allowed to view items in series'
+    )
+
+    view_is_public = models.BooleanField(
+        default=False,
+        help_text='Initial flag indicating if media items are public'
+    )
+
+    view_is_signed_in = models.BooleanField(
+        default=False,
+        help_text='Initial flag indicating if media items are visible to all signed in users'
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True, help_text="Creation time")
+
+    updated_at = models.DateTimeField(auto_now=True, help_text="Last update time")
+
+    def __str__(self):
+        items = []
+        if self.identifier == '':
+            items.append('default series')
+        else:
+            items.append(f'{self.identifier}')
+
+        if self.title != '':
+            items.append(f'({self.title})')
+
+        return ' '.join(items)
