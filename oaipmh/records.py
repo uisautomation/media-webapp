@@ -58,6 +58,26 @@ def ensure_matterhorn_record(record):
     attrs['title'] = mediapackage.findtext('./m:title', namespaces=namespaces) or ''
     attrs['description'] = mediapackage.findtext('./m:description', namespaces=namespaces) or ''
 
+    # Pull out the series and the title of the series
+    series_id = mediapackage.findtext('./m:series', namespaces=namespaces) or ''
+    series_title = mediapackage.findtext('./m:seriestitle', namespaces=namespaces) or ''
+
+    # Create or update the series, setting it on the record
+    series, series_created = models.Series.objects.get_or_create(
+        identifier=series_id, repository=record.metadata_format.repository
+    )
+    if series_created:
+        LOG.info('Created new series "%s"', series_id)
+    attrs['series'] = series
+
+    # Update any attributes on the series we need to
+    series_attrs = {'title': series_title}
+    if any(getattr(series, k) != v for k, v in series_attrs.items()):
+        for k, v in series_attrs.items():
+            setattr(series, k, v)
+        LOG.info('Updated metadata for series "%s"', series_id)
+        series.save()
+
     # Update record if necessary
     if any(getattr(matterhorn_record, k) != v for k, v in attrs.items()):
         LOG.info('Updating record "%s"', record.identifier)
