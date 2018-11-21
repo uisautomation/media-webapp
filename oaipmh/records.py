@@ -4,6 +4,7 @@ Matterhorn record parsing
 """
 import logging
 
+from django.conf import settings
 from lxml import etree
 
 from . import models
@@ -77,6 +78,44 @@ def ensure_matterhorn_record(record):
             setattr(series, k, v)
         LOG.info('Updated metadata for series "%s"', series_id)
         series.save()
+
+    # Get track elements which should turn into media items. Currently we simply look for tracks
+    # with the correct type attribute.
+    track_types = set(getattr(settings, 'OAIPMH_TRACK_TYPES', ['presentation/delivery']))
+    tracks = [
+        t for t in mediapackage.findall(f'./m:media/m:track', namespaces=namespaces)
+        if t.get('type') in track_types
+    ]
+
+    if len(tracks) > 1:
+        LOG.warn(
+            'Record "%s" has more than one matching track. Choosing first one',
+            record.identifier
+        )
+
+    for track in tracks[:1]:
+        # Create or update track as appropriate.
+
+        # These attributes are "sensitive" in that, if they change, the track object will be
+        # updated.
+        track_attrs = {
+            'url': track.findtext('./m:url', namespaces=namespaces) or '',
+            'xml': etree.tostring(track).decode('utf8'),
+        }
+
+        track_obj, track_created = models.Track.objects.get_or_create(
+            matterhorn_record=matterhorn_record, identifier=track.get('id'),
+            defaults=track_attrs
+        )
+        if track_created:
+            LOG.info('Created track "%s"', track_obj.identifier)
+
+        # Update track if necessary
+        if any(getattr(track_obj, k) != v for k, v in track_attrs.items()):
+            LOG.info('Updating track "%s"', track_obj.identifier)
+            for k, v in track_attrs.items():
+                setattr(track_obj, k, v)
+            track_obj.save()
 
     # Update record if necessary
     if any(getattr(matterhorn_record, k) != v for k, v in attrs.items()):

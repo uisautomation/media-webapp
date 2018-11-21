@@ -50,6 +50,10 @@ Record ingest
     :members:
     :member-order: bysource
 
+.. automodule:: oaipmh.tracks
+    :members:
+    :member-order: bysource
+
 Utilities
 `````````
 

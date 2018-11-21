@@ -4,6 +4,8 @@ Django admin integration.
 """
 from django import forms
 from django.contrib import admin
+from django.urls import reverse
+from django.utils.html import format_html
 from reversion.admin import VersionAdmin
 
 from . import models
@@ -112,3 +114,38 @@ class SeriesAdmin(admin.ModelAdmin):
         return obj.title
     get_title.short_description = 'title'
     get_title.admin_order_field = 'title'
+
+
+@admin.register(models.Track)
+class TrackAdmin(admin.ModelAdmin):
+    fields = (
+        'identifier', 'matterhorn_record', 'url', 'media_item', 'xml', 'created_at', 'updated_at'
+    )
+    readonly_fields = ('updated_at', 'created_at')
+    list_display = (
+        'identifier', 'matterhorn_record', 'get_media_item', 'get_link', 'get_datestamp'
+    )
+    ordering = ('-matterhorn_record__record__datestamp', 'identifier')
+    autocomplete_fields = ('matterhorn_record', 'media_item')
+
+    # Since we use a deeply related object in the list, make sure we query it from the DB.
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('matterhorn_record__record')
+
+    def get_media_item(self, obj):
+        if not hasattr(obj, 'media_item') or obj.media_item is None:
+            return '\N{EM DASH}'
+        url = reverse('ui:media_item', kwargs={'pk': obj.media_item.id})
+        return format_html('<a href="{}" target="_blank">{}</a>', url, obj.media_item.id)
+    get_media_item.short_description = 'Media item'
+
+    def get_link(self, obj):
+        if obj.url == '':
+            return '\N{EM DASH}'
+        return format_html('<a href="{}" target="_blank">Link</a>', obj.url)
+    get_link.short_description = 'link'
+
+    def get_datestamp(self, obj):
+        return obj.matterhorn_record.record.datestamp
+    get_datestamp.short_description = 'Record datestamp'
+    get_datestamp.ordering = 'matterhorn_record__record__datestamp'
