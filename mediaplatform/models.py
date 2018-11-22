@@ -881,6 +881,13 @@ class BillingAccount(models.Model):
             models.Index(fields=['lookup_instid']),
         )
 
+    def __str__(self):
+        if self.description != '':
+            paren = self.lookup_instid
+        else:
+            paren = f'{self.lookup_instid}: {self.description}'
+        return f'{self.id} ({paren})'
+
 
 @receiver(post_save, sender=MediaItem)
 def _media_item_post_save_handler(*args, sender, instance, created, raw, **kwargs):
