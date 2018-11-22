@@ -277,3 +277,24 @@ class Track(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, help_text="Creation time")
 
     updated_at = models.DateTimeField(auto_now=True, help_text="Last update time")
+
+
+@receiver(post_save, sender=Track)
+def update_track(instance, raw, **kwargs):
+    """
+    Call ensure_track_media_item for a track when it is saved but no media item is set.
+
+    """
+    # Never try to do anything if "raw" is set.
+    if raw:
+        return
+
+    # If track already has a media item, we have nothing to do
+    if instance.media_item_id is not None:
+        return
+
+    # Required to avoid circular import
+    from . import tasks
+
+    # Add a 10 second countdown to give the database time to update itself.
+    tasks.ensure_track_media_item.apply_async(args=[instance.id], countdown=10)
