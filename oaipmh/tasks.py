@@ -23,6 +23,7 @@ from . import models
 from . import timezone
 
 from .namespaces import MATTERHORN_NAMESPACE
+from .tracks import ensure_track_media_item as _ensure_track_media_item
 
 
 LOG = logging.getLogger(__name__)
@@ -192,6 +193,9 @@ def cleanup(full=False):
     * Create/update MatterhornRecord objects based on the corresponding Record. (I.e. any changes
       which was missed by the post_save hook.)
 
+    * Create media items for any Track objects which are missing one and whose Series has an
+      associated playlist.
+
     If "full" is True then a "fuller" cleanup is performed which is likely to touch most objects in
     the database.
 
@@ -200,6 +204,7 @@ def cleanup(full=False):
 
     """
     _create_matterhorn_records(update_all=full)
+    _create_media_items_for_tracks()
 
 
 def _create_matterhorn_records(update_all=False):
@@ -226,3 +231,45 @@ def _create_matterhorn_records(update_all=False):
         except Exception as e:
             LOG.error('Exception when updating record')
             LOG.exception(e)
+
+
+def _create_media_items_for_tracks():
+    """
+    Create media items for all tracks which are lacking them but whose associated series has a
+    playlist set.
+
+    """
+    LOG.info('Creating track media items')
+
+    # Get list of tracks which should have media items created
+    tracks = models.Track.objects.filter(
+        matterhorn_record__series__playlist__isnull=False,
+        media_item__isnull=True
+    ).select_related('matterhorn_record__record', 'matterhorn_record__series')
+
+    for track in tracks:
+        LOG.info(
+            'Creating media item for track "%s" from record "%s"', track.identifier,
+            track.matterhorn_record.record.identifier
+        )
+        try:
+            _ensure_track_media_item(track)
+        except Exception as e:
+            LOG.error('Exception when creating media item')
+            LOG.exception(e)
+
+
+@shared_task(name='oaipmh_ensure_track_media_item')
+def ensure_track_media_item(track_or_id):
+    """
+    Task wrapper for oaipmh.tracks.ensure_track_media_item.
+
+    """
+    # Set or retrieve the track object
+    if not isinstance(track_or_id, models.Track):
+        track = models.Track.objects.get(id=track_or_id)
+    else:
+        track = track_or_id
+
+    # Call implementation
+    _ensure_track_media_item(track)
