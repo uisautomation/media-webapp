@@ -37,6 +37,10 @@ def _perform_item_update(item):
         },
     }
 
+    # Note: only has an effect if the item is being created
+    if item.initially_fetched_from_url != '':
+        video_resource['download_url'] = item.initially_fetched_from_url
+
     if item.published_at is not None:
         video_resource['date'] = int(item.published_at.timestamp())
 
@@ -67,6 +71,16 @@ def _perform_item_update(item):
         # Get/create the corresponding cached JWP resource
         resource_data = response.get('media', {})
         video_key = resource_data.get('key')
+
+        # For reasons best known to JWP, the response is different if download_url is set(!)
+        if video_key is None:
+            video_key = response.get('video', {}).get('key')
+
+            if video_key is not None:
+                # We need to fetch the resource again if download_url is set(!)
+                resource_data = jwp_client.videos.show(
+                    http_method='POST', video_key=video_key)['video']
+
         if video_key is None:
             raise RuntimeError('Unexpected response from JWP: {}'.format(repr(response)))
 
