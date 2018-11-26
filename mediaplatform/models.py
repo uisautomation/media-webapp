@@ -358,6 +358,13 @@ class MediaItem(models.Model):
     #: Full text search vector field
     text_search_vector = pgsearch.SearchVectorField()
 
+    #: A source URL for the media. Can only be set at creation time to have any effect. If set when
+    #: the media item is created, the URL will be fetched and transcoded.
+    initially_fetched_from_url = models.URLField(
+        max_length=2048, blank=True, default='',
+        help_text='If set at creation time, the media item contents will be fetched from this URL'
+    )
+
     #: Creation time
     created_at = models.DateTimeField(auto_now_add=True)
 
