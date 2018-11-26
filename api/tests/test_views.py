@@ -5,7 +5,7 @@ from dateutil import parser as dateparser
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.http import QueryDict
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.urls import reverse
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIRequestFactory, force_authenticate
@@ -544,62 +544,6 @@ class MediaItemViewTestCase(ViewTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             getattr(self.non_deleted_media.get(id='populated'), model_field_name), original_value)
-
-
-@override_settings(
-    JWPLATFORM_API_BASE_URL='http://jwp.invalid/',
-    JWPLATFORM_EMBED_PLAYER_KEY='mock-key',
-)
-class MediaItemEmbedTestCase(ViewTestCase):
-    def setUp(self):
-        super().setUp()
-        self.view = views.MediaItemEmbedView().as_view()
-        self.item = self.non_deleted_media.get(id='populated')
-
-    def test_basic_functionality(self):
-        with mock.patch('time.time') as time:
-            time.return_value = 123456
-            expected_embed_url = api.player_embed_url(self.item.jwp.key, 'mock-key', format='js')
-            response = self.view(self.get_request, pk=self.item.id)
-        self.assertContains(response, '<script src="%s"></script>' % expected_embed_url, html=True)
-
-    def test_visibility(self):
-        """If an item has no visibility, the embed view should 404."""
-        self.item.view_permission.reset()
-        self.item.view_permission.save()
-        self.item.channel.edit_permission.reset()
-        self.item.channel.edit_permission.save()
-        response = self.view(self.get_request, pk=self.item.id)
-        self.assertEqual(response.status_code, 404)
-
-    def test_no_jwp(self):
-        """If an item has no JWP video, the embed view should 404."""
-        self.item.jwp.delete()
-        response = self.view(self.get_request, pk=self.item.id)
-        self.assertEqual(response.status_code, 404)
-
-    def test_custom_404(self):
-        """For embed views, there is a custom 404 template."""
-        non_existent_id = self.item.id + 'with-non-existent-suffix'
-        login_url = '/mock/login/url'
-        with self.settings(LOGIN_URL=login_url):
-            response = self.client.get(
-                reverse('api:media_embed', kwargs={'pk': non_existent_id}))
-        self.assertEqual(response.status_code, 404)
-        self.assertTemplateUsed(response, 'api/embed_404.html')
-        self.assertIn(login_url, response.content.decode('utf8'))
-
-    def test_custom_404_hides_login_if_not_signed_in(self):
-        """For embed views, do not show the login link if the user is logged in."""
-        non_existent_id = self.item.id + 'with-non-existent-suffix'
-        login_url = '/mock/login/url'
-        with self.settings(LOGIN_URL=login_url):
-            self.client.force_login(self.user)
-            response = self.client.get(
-                reverse('api:media_embed', kwargs={'pk': non_existent_id}))
-        self.assertEqual(response.status_code, 404)
-        self.assertTemplateUsed(response, 'api/embed_404.html')
-        self.assertNotIn(login_url, response.content.decode('utf8'))
 
 
 class MediaItemSourceViewTestCase(ViewTestCase):

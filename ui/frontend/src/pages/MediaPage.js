@@ -66,12 +66,14 @@ const MediaPageContents = ({ resource: item, classes }) => {
       }
       <section className={ classes.playerSection }>
         <div className={ classes.playerWrapper }>
-          <iframe
-            src={ item ? item.embedUrl : '' }
-            className={ classes.player }
-            frameBorder="0"
-            allowFullScreen>
-          </iframe>
+          <div className={ classes.player }>
+            <iframe
+              src={ item ? `/media/${item.id}/embed` : '' }
+              className={ classes.iframe }
+              frameBorder="0"
+              allowFullScreen>
+            </iframe>
+          </div>
         </div>
       </section>
       <BodySection classes={{ root: classes.mediaDetails }}>
@@ -158,17 +160,18 @@ var styles = theme => ({
   playerSection: {
     backgroundColor: 'black',
     maxHeight: '67.5vh',
-    overflow: 'hidden',  // since the player wrapper below can sometimes overhang
   },
   playerWrapper: {
-    height: 0,
-    margin: [[0, 'auto']],
+    margin: 'auto',
     maxWidth: '120vh',
-    paddingTop: '56.25%', // 16:9
     position: 'relative',
     width: '100%',
   },
   player: {
+    height: 0,
+    paddingTop: '56.25%', // 16:9
+  },
+  iframe: {
     height: '100%',
     left: 0,
     position: 'absolute',

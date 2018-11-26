@@ -37,11 +37,11 @@ def embed(request, media_id):
     """
     item = _find_media_item(media_id, request)
 
-    # If we can't find the item, render the custom 404 error page from the api application.
+    # If we can't find the item, render a custom 404 error page.
     if item is None:
-        return render(request, 'api/embed_404.html', status=404)
+        return render(request, 'legacysms/embed_404.html', status=404)
 
-    return redirect(reverse('api:media_embed', kwargs={'pk': item.id}))
+    return redirect(reverse('ui:media_embed', kwargs={'pk': item.id}))
 
 
 def rss_media(request, media_id):

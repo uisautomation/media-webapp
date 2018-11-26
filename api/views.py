@@ -9,10 +9,10 @@ from django.conf import settings
 from django.contrib.postgres.search import SearchRank, SearchQuery
 from django.db import models
 from django.http import Http404
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from django_filters import rest_framework as df_filters
 from drf_yasg import inspectors, openapi
-from rest_framework import generics, pagination, filters, views
+from rest_framework import generics, pagination, filters
 from rest_framework.exceptions import ParseError
 import requests
 
@@ -324,35 +324,6 @@ class MediaItemUploadView(MediaItemMixin, generics.RetrieveUpdateAPIView):
     # Make sure that the related upload_endpoint is fetched by the queryset
     def get_queryset(self):
         return super().get_queryset().select_related('upload_endpoint')
-
-
-class MediaItemEmbedViewInspector(inspectors.ViewInspector):
-    def get_operation(self, operation_keys):
-        return openapi.Operation(
-            operation_id='media_embed',
-            responses=openapi.Responses(
-                {302: openapi.Response(description='Media embed page')}
-            ),
-            tags=['media'],
-        )
-
-
-class MediaItemEmbedView(MediaItemMixin, generics.RetrieveAPIView):
-    """
-    Endpoint to retrieve a media item as an embedded IFrame.
-
-    """
-    swagger_schema = MediaItemEmbedViewInspector
-
-    def retrieve(self, request, *args, **kwargs):
-        item = self.get_object()
-        if not hasattr(item, 'jwp'):
-            raise Http404()
-        return render(request, 'api/embed_js.html', {
-            'media_item': item,
-            'embed_code': item.jwp.embed_url(format='js'),
-            'player_id': settings.JWPLATFORM_EMBED_PLAYER_KEY
-        })
 
 
 class MediaItemSourceViewInspector(inspectors.ViewInspector):
@@ -710,21 +681,3 @@ class BillingAccountView(BillingAccountMixin, generics.RetrieveAPIView):
 
     """
     serializer_class = serializers.BillingAccountDetailSerializer
-
-
-def exception_handler(exc, context):
-    """
-    A custom exception handler which handles 404s on embed views by rendering a template which
-    suggests the user log in.
-
-    """
-    view = context['view'] if 'view' in context else None
-    if not isinstance(view, MediaItemEmbedView) or not isinstance(exc, Http404):
-        return views.exception_handler(exc, context)
-
-    new_context = {
-        'settings': settings,
-        'login_url': '%s?next=%s' % (settings.LOGIN_URL, context['request'].get_full_path()),
-    }
-    new_context.update(context)
-    return render(context['request'], 'api/embed_404.html', status=404, context=new_context)

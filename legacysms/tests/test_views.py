@@ -41,7 +41,7 @@ class EmbedTest(TestCaseWithFixtures):
         r = self.client.get(reverse('legacysms:embed', kwargs={'media_id': 34}))
         item = mpmodels.MediaItem.objects.get(sms__id=34)
         self.assertRedirects(
-            r, reverse('api:media_embed', kwargs={'pk': item.id}),
+            r, reverse('ui:media_embed', kwargs={'pk': item.id}),
             fetch_redirect_response=False)
 
     def test_no_media(self):
