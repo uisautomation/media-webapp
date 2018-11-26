@@ -1,0 +1,539 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>OAI-PMH Harvesting &mdash; Streaming Media Service Webapp  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Support for Legacy SMS" href="legacy-sms.html" />
+    <link rel="prev" title="REST API" href="api.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Streaming Media Service Webapp
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer’s guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mediawebapp.html">The Web App Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mediaplatform.html">Media Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mediaplatform_jwp.html">JWPlatform Integration Application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">REST API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">OAI-PMH Harvesting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#set-up">Set up</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#permissions">Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#track-types">Track types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-oaipmh.apps">Application configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-oaipmh.client">OAI-PMH Harvester client</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-oaipmh.models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-oaipmh.admin">Admin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-oaipmh.tasks">Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-oaipmh.namespaces">Record ingest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-oaipmh.timezone">Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="legacy-sms.html">Support for Legacy SMS</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Streaming Media Service Webapp</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>OAI-PMH Harvesting</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/oaipmh.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-oaipmh">
+<span id="oai-pmh-harvesting"></span><h1>OAI-PMH Harvesting<a class="headerlink" href="#module-oaipmh" title="Permalink to this headline">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">oaipmh</span></code> application adds support for ingesting media items from Opencast’s OAI-PMH
+repository.</p>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://www.openarchives.org/pmh/">OAI-PMH</a> is a standard for publishing “metadata” about
+objects. Matadata is hosted in OAI-PMH “repositories” which are accessible over the web. There is a
+good <a class="reference external" href="https://sickle.readthedocs.io/en/latest/oaipmh.html">primer</a> on OAI-PMH in the Sickle
+documentation.</p>
+<p>Our implementation relies on the OAI-PMH repository build into Opencast. Opencast publishes
+additional metadata about mediapackages using it’s own XML schema. Conventially, these are
+published under the “matterhorn” metadata prefix.</p>
+<p>Repositories are configured via the <a class="reference internal" href="#oaipmh.models.Repository" title="oaipmh.models.Repository"><code class="xref py py-class docutils literal notranslate"><span class="pre">oaipmh.models.Repository</span></code></a> model. A repository has
+at least a URL and may optionally have some authentication information.</p>
+<p>Once configured, new metadata records can be harvested using either the <code class="docutils literal notranslate"><span class="pre">oaipmh_harvest</span></code>
+management command or the <a class="reference internal" href="#oaipmh.tasks.harvest_all_repositories" title="oaipmh.tasks.harvest_all_repositories"><code class="xref py py-class docutils literal notranslate"><span class="pre">oaipmh.tasks.harvest_all_repositories</span></code></a> and
+<a class="reference internal" href="#oaipmh.tasks.harvest_repository" title="oaipmh.tasks.harvest_repository"><code class="xref py py-class docutils literal notranslate"><span class="pre">oaipmh.tasks.harvest_repository</span></code></a> Celery tasks.</p>
+<p>When new metadata is harvested, a <a class="reference internal" href="#oaipmh.models.Record" title="oaipmh.models.Record"><code class="xref py py-class docutils literal notranslate"><span class="pre">oaipmh.models.Record</span></code></a> object is created for each
+record in the repository. Additionally, a <a class="reference internal" href="#oaipmh.models.MatterhornRecord" title="oaipmh.models.MatterhornRecord"><code class="xref py py-class docutils literal notranslate"><span class="pre">oaipmh.models.MatterhornRecord</span></code></a> object is
+created for each Opencast media package.</p>
+<p>When a new <a class="reference internal" href="#oaipmh.models.MatterhornRecord" title="oaipmh.models.MatterhornRecord"><code class="xref py py-class docutils literal notranslate"><span class="pre">oaipmh.models.MatterhornRecord</span></code></a> object is created, any tracks which match the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">oaipmh.records.TRACK_TYPE</span></code> type will have <a class="reference internal" href="#oaipmh.models.Track" title="oaipmh.models.Track"><code class="xref py py-class docutils literal notranslate"><span class="pre">oaipmh.models.Track</span></code></a> objects
+created. Similarly, <a class="reference internal" href="#oaipmh.models.Series" title="oaipmh.models.Series"><code class="xref py py-class docutils literal notranslate"><span class="pre">oaipmh.models.Series</span></code></a> objects will be created for all Opencast
+series which have records.</p>
+<p>The <a class="reference internal" href="#oaipmh.models.Series" title="oaipmh.models.Series"><code class="xref py py-class docutils literal notranslate"><span class="pre">oaipmh.models.Series</span></code></a> model has a <code class="docutils literal notranslate"><span class="pre">playlist</span></code> field which points to the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">mediapackages.models.Playlist</span></code> associated with the series. This field has to be set
+manually at the moment. When a new <a class="reference internal" href="#oaipmh.models.Track" title="oaipmh.models.Track"><code class="xref py py-class docutils literal notranslate"><span class="pre">oaipmh.models.Track</span></code></a> object is added to the database
+and its associated series has a playlist, a new media item is created from the track’s content and
+added to the playlist. If the series has no associated playlist or if the track is of the wrong
+type, no media item is created.</p>
+<p>In order to handle cases where, for example, a series gains a playlist after tracks have already
+been harvested, there is a “cleanup” task which can be run via either the <code class="docutils literal notranslate"><span class="pre">cleanup</span></code> management
+command or the <a class="reference internal" href="#oaipmh.tasks.cleanup" title="oaipmh.tasks.cleanup"><code class="xref py py-class docutils literal notranslate"><span class="pre">oaipmh.tasks.cleanup</span></code></a> Celery task. This task will try to run the various
+object creation/media upload jobs which the database assert should be done but which have not. This
+is usually only required if the database is changed manually or if there is an error uploading a
+media item.</p>
+</div>
+<div class="section" id="set-up">
+<h2>Set up<a class="headerlink" href="#set-up" title="Permalink to this headline">¶</a></h2>
+<p>To set up the OAI-PMH harvester, follow the following steps:</p>
+<ol class="arabic simple">
+<li>Create a <a class="reference internal" href="#oaipmh.models.Repository" title="oaipmh.models.Repository"><code class="xref py py-class docutils literal notranslate"><span class="pre">oaipmh.models.Repository</span></code></a> object in the database representing the OAI-PMH
+repository which should be harvested from.</li>
+<li>Schedule harvesting either by having the <code class="docutils literal notranslate"><span class="pre">oaipmh_harvest</span></code> management command run via a cronjob
+or schedule the <a class="reference internal" href="#oaipmh.tasks.harvest_all_repositories" title="oaipmh.tasks.harvest_all_repositories"><code class="xref py py-class docutils literal notranslate"><span class="pre">oaipmh.tasks.harvest_all_repositories</span></code></a> Celery task. It is recommended
+that this job runs regularly, perhaps every minute. If you want to make sure you never miss any
+metadata updates, one can schedule a “fetch all records” harvest nightly.</li>
+<li>It is also worth scheduling the <code class="docutils literal notranslate"><span class="pre">oaipmh_cleanup</span></code> management command or
+<a class="reference internal" href="#oaipmh.tasks.cleanup" title="oaipmh.tasks.cleanup"><code class="xref py py-class docutils literal notranslate"><span class="pre">oaipmh.tasks.cleanup</span></code></a> Celery task to run every so often. (E.g. the basic cleanup
+every 5 minutes and the full cleanup nightly.)</li>
+<li>Optionally, pre-configure a series by creating a <a class="reference internal" href="#oaipmh.models.Series" title="oaipmh.models.Series"><code class="xref py py-class docutils literal notranslate"><span class="pre">oaipmh.models.Series</span></code></a> object for the
+repository. The value for “identifier” can be found in the Opencast admin UI. From the list of
+“series”, open the properties for a series. The “UID” at the bottom of the “Metadata” table is
+the value which should be added as an identifier.</li>
+<li>Run an initial harvest and create a playlist for any series you want syncing.</li>
+</ol>
+</div>
+<div class="section" id="permissions">
+<h2>Permissions<a class="headerlink" href="#permissions" title="Permalink to this headline">¶</a></h2>
+<p>Permissions on newly created media items are by default empty so that nobody can see the media
+items (apart from super users). The default permissions can be set per series in the
+<a class="reference internal" href="#oaipmh.models.Series" title="oaipmh.models.Series"><code class="xref py py-class docutils literal notranslate"><span class="pre">oaipmh.models.Series</span></code></a> object.</p>
+<p>Note that these permissions are <strong>only</strong> set on initial media creation. After that point,
+permissions can be changed as usual and will not be modified further by the harvesting process.
+These permissions do not override the usual behaviour that videos are invisible until the backend
+has confirmed processing is complete. (E.g. a <code class="docutils literal notranslate"><span class="pre">jwpfetch</span></code> has to have run for the JWPlayer
+backend.)</p>
+</div>
+<div class="section" id="track-types">
+<h2>Track types<a class="headerlink" href="#track-types" title="Permalink to this headline">¶</a></h2>
+<p>By default, any track with the type <code class="docutils literal notranslate"><span class="pre">presentation/delivery</span></code> will be ingested. If other tracks
+need to be added, the <code class="docutils literal notranslate"><span class="pre">OAIPMH_TRACK_TYPES</span></code> can be used. It is a list of track types which will be
+ingested by the harvest task. If this setting is changed a “fetch all records”-style harvest should
+be run via the <code class="docutils literal notranslate"><span class="pre">oaipmh_harvest</span></code> management command.</p>
+</div>
+<div class="section" id="module-oaipmh.apps">
+<span id="application-configuration"></span><h2>Application configuration<a class="headerlink" href="#module-oaipmh.apps" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="oaipmh.apps.Config">
+<em class="property">class </em><code class="descclassname">oaipmh.apps.</code><code class="descname">Config</code><span class="sig-paren">(</span><em>app_name</em>, <em>app_module</em><span class="sig-paren">)</span><a class="headerlink" href="#oaipmh.apps.Config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configuration for OAI-PMH application.</p>
+<dl class="attribute">
+<dt id="oaipmh.apps.Config.name">
+<code class="descname">name</code><em class="property"> = 'oaipmh'</em><a class="headerlink" href="#oaipmh.apps.Config.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The short name for this application.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="oaipmh.apps.Config.verbose_name">
+<code class="descname">verbose_name</code><em class="property"> = 'OAI-PMH harvesting'</em><a class="headerlink" href="#oaipmh.apps.Config.verbose_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The human-readable verbose name for this application.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-oaipmh.client">
+<span id="oai-pmh-harvester-client"></span><h2>OAI-PMH Harvester client<a class="headerlink" href="#module-oaipmh.client" title="Permalink to this headline">¶</a></h2>
+<p>Sickle client integration for repositories.</p>
+<dl class="function">
+<dt id="oaipmh.client.client_for_repository">
+<code class="descclassname">oaipmh.client.</code><code class="descname">client_for_repository</code><span class="sig-paren">(</span><em>repository</em><span class="sig-paren">)</span><a class="headerlink" href="#oaipmh.client.client_for_repository" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a sickle client object pre-configured for the passed repository.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-oaipmh.models">
+<span id="models"></span><h2>Models<a class="headerlink" href="#module-oaipmh.models" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="oaipmh.models.Repository">
+<em class="property">class </em><code class="descclassname">oaipmh.models.</code><code class="descname">Repository</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#oaipmh.models.Repository" title="Permalink to this definition">¶</a></dt>
+<dd><p>An OAI-PMH repository.</p>
+<dl class="exception">
+<dt id="oaipmh.models.Repository.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#oaipmh.models.Repository.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="oaipmh.models.Repository.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#oaipmh.models.Repository.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="oaipmh.models.MetadataFormat">
+<em class="property">class </em><code class="descclassname">oaipmh.models.</code><code class="descname">MetadataFormat</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#oaipmh.models.MetadataFormat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Metadata format supported by a repository. There is at least one format for each repository and
+each identifier must be unique within a repository.</p>
+<dl class="exception">
+<dt id="oaipmh.models.MetadataFormat.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#oaipmh.models.MetadataFormat.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="oaipmh.models.MetadataFormat.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#oaipmh.models.MetadataFormat.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="oaipmh.models.Record">
+<em class="property">class </em><code class="descclassname">oaipmh.models.</code><code class="descname">Record</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#oaipmh.models.Record" title="Permalink to this definition">¶</a></dt>
+<dd><p>A record from an OAI-PMH repository.</p>
+<dl class="exception">
+<dt id="oaipmh.models.Record.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#oaipmh.models.Record.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="oaipmh.models.Record.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#oaipmh.models.Record.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="oaipmh.models.MatterhornRecord">
+<em class="property">class </em><code class="descclassname">oaipmh.models.</code><code class="descname">MatterhornRecord</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#oaipmh.models.MatterhornRecord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specialisation of Record used for storing Matterhorn records. We cannot directly use model
+inheritance here since the harvester simply creates Record objects and we create the related
+MatterhornRecord object via a post_save hook. This sort of “post-hoc” object inheritance breaks
+some of Django’s assumptions.</p>
+<dl class="exception">
+<dt id="oaipmh.models.MatterhornRecord.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#oaipmh.models.MatterhornRecord.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="oaipmh.models.MatterhornRecord.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#oaipmh.models.MatterhornRecord.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="oaipmh.models.update_matterhorn_record">
+<code class="descclassname">oaipmh.models.</code><code class="descname">update_matterhorn_record</code><span class="sig-paren">(</span><em>instance</em>, <em>raw</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#oaipmh.models.update_matterhorn_record" title="Permalink to this definition">¶</a></dt>
+<dd><p>A signal handler which is run when each record is updated to see if an associated
+MatterhornRecord should be created.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="oaipmh.models.Series">
+<em class="property">class </em><code class="descclassname">oaipmh.models.</code><code class="descname">Series</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#oaipmh.models.Series" title="Permalink to this definition">¶</a></dt>
+<dd><p>Record of a Matterhoen (Opencast) series and the playlist things should be published to.</p>
+<dl class="exception">
+<dt id="oaipmh.models.Series.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#oaipmh.models.Series.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="oaipmh.models.Series.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#oaipmh.models.Series.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="oaipmh.models.Track">
+<em class="property">class </em><code class="descclassname">oaipmh.models.</code><code class="descname">Track</code><span class="sig-paren">(</span><em>id</em>, <em>matterhorn_record</em>, <em>identifier</em>, <em>url</em>, <em>media_item</em>, <em>xml</em>, <em>created_at</em>, <em>updated_at</em><span class="sig-paren">)</span><a class="headerlink" href="#oaipmh.models.Track" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="exception">
+<dt id="oaipmh.models.Track.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#oaipmh.models.Track.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="oaipmh.models.Track.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#oaipmh.models.Track.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="oaipmh.models.update_track">
+<code class="descclassname">oaipmh.models.</code><code class="descname">update_track</code><span class="sig-paren">(</span><em>instance</em>, <em>raw</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#oaipmh.models.update_track" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call ensure_track_media_item for a track when it is saved but no media item is set.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-oaipmh.admin">
+<span id="admin"></span><h2>Admin<a class="headerlink" href="#module-oaipmh.admin" title="Permalink to this headline">¶</a></h2>
+<p>Django admin integration.</p>
+</div>
+<div class="section" id="module-oaipmh.tasks">
+<span id="tasks"></span><h2>Tasks<a class="headerlink" href="#module-oaipmh.tasks" title="Permalink to this headline">¶</a></h2>
+<p>Asynchronous tasks</p>
+<dl class="function">
+<dt id="oaipmh.tasks.harvest_all_repositories">
+<code class="descclassname">oaipmh.tasks.</code><code class="descname">harvest_all_repositories</code><span class="sig-paren">(</span><em>*a</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#oaipmh.tasks.harvest_all_repositories" title="Permalink to this definition">¶</a></dt>
+<dd><p>Harvest records from all configured repositories. Keyword arguments are passed to
+harvest_repository.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="oaipmh.tasks.harvest_repository">
+<code class="descclassname">oaipmh.tasks.</code><code class="descname">harvest_repository</code><span class="sig-paren">(</span><em>*a</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#oaipmh.tasks.harvest_repository" title="Permalink to this definition">¶</a></dt>
+<dd><p>Harvest metadata from an individual repository. By default, only records which have changed
+since the last fetch date are updated. The “fetch_all_records” argument can be used to fetch
+all records from the server.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="oaipmh.tasks.cleanup">
+<code class="descclassname">oaipmh.tasks.</code><code class="descname">cleanup</code><span class="sig-paren">(</span><em>*a</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#oaipmh.tasks.cleanup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform various cleanup tasks which help to keep the database tidy. This task performs the
+following:</p>
+<ul class="simple">
+<li>Create/update MatterhornRecord objects based on the corresponding Record. (I.e. any changes
+which was missed by the post_save hook.)</li>
+<li>Create media items for any Track objects which are missing one and whose Series has an
+associated playlist.</li>
+</ul>
+<p>If “full” is True then a “fuller” cleanup is performed which is likely to touch most objects in
+the database.</p>
+<p>Usually these cleanup tasks need not be performed but it is safe to schedule the cleanup task
+nightly to clear up any inconsistencies in the database.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-oaipmh.namespaces">
+<span id="record-ingest"></span><h2>Record ingest<a class="headerlink" href="#module-oaipmh.namespaces" title="Permalink to this headline">¶</a></h2>
+<dl class="data">
+<dt id="oaipmh.namespaces.MATTERHORN_NAMESPACE">
+<code class="descclassname">oaipmh.namespaces.</code><code class="descname">MATTERHORN_NAMESPACE</code><em class="property"> = 'http://www.opencastproject.org/oai/matterhorn'</em><a class="headerlink" href="#oaipmh.namespaces.MATTERHORN_NAMESPACE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Namespace of matterhorn metadata format</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="oaipmh.namespaces.MEDIAPACKAGE_NAMESPACE">
+<code class="descclassname">oaipmh.namespaces.</code><code class="descname">MEDIAPACKAGE_NAMESPACE</code><em class="property"> = 'http://mediapackage.opencastproject.org'</em><a class="headerlink" href="#oaipmh.namespaces.MEDIAPACKAGE_NAMESPACE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Namespace of matterhorn media package</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="oaipmh.namespaces.OAI_NAMESPACE">
+<code class="descclassname">oaipmh.namespaces.</code><code class="descname">OAI_NAMESPACE</code><em class="property"> = 'http://www.openarchives.org/OAI/2.0/'</em><a class="headerlink" href="#oaipmh.namespaces.OAI_NAMESPACE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Namespace of OAI record</p>
+</dd></dl>
+
+<span class="target" id="module-oaipmh.records"></span><p>Matterhorn record parsing</p>
+<dl class="function">
+<dt id="oaipmh.records.ensure_matterhorn_record">
+<code class="descclassname">oaipmh.records.</code><code class="descname">ensure_matterhorn_record</code><span class="sig-paren">(</span><em>record</em><span class="sig-paren">)</span><a class="headerlink" href="#oaipmh.records.ensure_matterhorn_record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensure that a MatterhornRecord object exists for the passed Record. Like get_or_create, returns
+an object, created tuple.</p>
+</dd></dl>
+
+<span class="target" id="module-oaipmh.tracks"></span><dl class="data">
+<dt id="oaipmh.tracks.LECTURE_CAPTURE_TAGS">
+<code class="descclassname">oaipmh.tracks.</code><code class="descname">LECTURE_CAPTURE_TAGS</code><em class="property"> = ['Lecture capture']</em><a class="headerlink" href="#oaipmh.tracks.LECTURE_CAPTURE_TAGS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tags applied to media items created for lecture capture</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-oaipmh.timezone">
+<span id="utilities"></span><h2>Utilities<a class="headerlink" href="#module-oaipmh.timezone" title="Permalink to this headline">¶</a></h2>
+<p>Handling of timezone-aware date time objects.</p>
+<dl class="function">
+<dt id="oaipmh.timezone.datetime_as_utcdatetime">
+<code class="descclassname">oaipmh.timezone.</code><code class="descname">datetime_as_utcdatetime</code><span class="sig-paren">(</span><em>dt</em><span class="sig-paren">)</span><a class="headerlink" href="#oaipmh.timezone.datetime_as_utcdatetime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a timezone-aware datetime as a UTCdatetime as specified in
+<a class="reference external" href="https://www.openarchives.org/OAI/openarchivesprotocol.html#Dates">https://www.openarchives.org/OAI/openarchivesprotocol.html#Dates</a>, §3.3.</p>
+<p>Note that the OAI-PMH specifcation mandates that the “Z” (zulu) specifier be used for the
+timezone as opposed to the equally valid “+00.00”.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="legacy-sms.html" class="btn btn-neutral float-right" title="Support for Legacy SMS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="api.html" class="btn btn-neutral" title="REST API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, University of Cambridge Information Services
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

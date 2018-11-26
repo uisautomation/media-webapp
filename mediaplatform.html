@@ -90,6 +90,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="mediaplatform_jwp.html">JWPlatform Integration Application</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">REST API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oaipmh.html">OAI-PMH Harvesting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="legacy-sms.html">Support for Legacy SMS</a></li>
 </ul>
 
@@ -352,6 +353,13 @@ separate manager to avoid inadvertently including deleted objects in a query</p>
 <dt id="mediaplatform.models.MediaItem.text_search_vector">
 <code class="descname">text_search_vector</code><a class="headerlink" href="#mediaplatform.models.MediaItem.text_search_vector" title="Permalink to this definition">¶</a></dt>
 <dd><p>Full text search vector field</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.MediaItem.initially_fetched_from_url">
+<code class="descname">initially_fetched_from_url</code><a class="headerlink" href="#mediaplatform.models.MediaItem.initially_fetched_from_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>A source URL for the media. Can only be set at creation time to have any effect. If set when
+the media item is created, the URL will be fetched and transcoded.</p>
 </dd></dl>
 
 <dl class="attribute">

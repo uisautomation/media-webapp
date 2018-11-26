@@ -86,6 +86,7 @@
 <li class="toctree-l1"><a class="reference internal" href="mediaplatform.html">Media Platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mediaplatform_jwp.html">JWPlatform Integration Application</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">REST API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oaipmh.html">OAI-PMH Harvesting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="legacy-sms.html">Support for Legacy SMS</a></li>
 </ul>
 
@@ -320,10 +321,10 @@
 </li>
       <li><a href="api.html#api.serializers.ChannelOwnedResourceModelSerializer">ChannelOwnedResourceModelSerializer (class in api.serializers)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mediaplatform.html#mediaplatform.models.ChannelQuerySet">ChannelQuerySet (class in mediaplatform.models)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mediaplatform_jwp.html#mediaplatform_jwp.models.CachedResource.channels">channels (mediaplatform_jwp.models.CachedResource attribute)</a>
 </li>
       <li><a href="mediaplatform.html#mediaplatform.models.BillingAccountQuerySet.channels_creatable_by_user">channels_creatable_by_user() (mediaplatform.models.BillingAccountQuerySet method)</a>
@@ -332,10 +333,16 @@
 </li>
       <li><a href="api.html#api.views.ChannelView">ChannelView (class in api.views)</a>
 </li>
+      <li><a href="oaipmh.html#oaipmh.tasks.cleanup">cleanup() (in module oaipmh.tasks)</a>
+</li>
+      <li><a href="oaipmh.html#oaipmh.client.client_for_repository">client_for_repository() (in module oaipmh.client)</a>
+</li>
       <li><a href="legacy-sms.html#legacysms.apps.Config">Config (class in legacysms.apps)</a>
 
       <ul>
         <li><a href="mediaplatform_jwp.html#mediaplatform_jwp.apps.Config">(class in mediaplatform_jwp.apps)</a>
+</li>
+        <li><a href="oaipmh.html#oaipmh.apps.Config">(class in oaipmh.apps)</a>
 </li>
       </ul></li>
       <li><a href="legacy-sms.html#legacysms.views.CONTENT_TYPE_FOR_DOWNLOAD_EXTENSION">CONTENT_TYPE_FOR_DOWNLOAD_EXTENSION (in module legacysms.views)</a>
@@ -373,6 +380,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="configuration.html#mediawebapp.settings.base.DATABASES">DATABASES (in module mediawebapp.settings.base)</a>
+</li>
+      <li><a href="oaipmh.html#oaipmh.timezone.datetime_as_utcdatetime">datetime_as_utcdatetime() (in module oaipmh.timezone)</a>
 </li>
       <li><a href="configuration.html#mediawebapp.settings.base.DEBUG">DEBUG (in module mediawebapp.settings.base)</a>
 </li>
@@ -418,11 +427,13 @@
         <li><a href="mediaplatform.html#mediaplatform.models.PlaylistQuerySet.editable_by_user">(mediaplatform.models.PlaylistQuerySet method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="legacy-sms.html#legacysms.views.embed">embed() (in module legacysms.views)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mediaplatform_jwp.html#mediaplatform_jwp.models.Video.embed_url">embed_url() (mediaplatform_jwp.models.Video method)</a>
+</li>
+      <li><a href="oaipmh.html#oaipmh.records.ensure_matterhorn_record">ensure_matterhorn_record() (in module oaipmh.records)</a>
 </li>
       <li><a href="api.html#api.views.exception_handler">exception_handler() (in module api.views)</a>
 </li>
@@ -498,6 +509,10 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="oaipmh.html#oaipmh.tasks.harvest_all_repositories">harvest_all_repositories() (in module oaipmh.tasks)</a>
+</li>
+      <li><a href="oaipmh.html#oaipmh.tasks.harvest_repository">harvest_repository() (in module oaipmh.tasks)</a>
+</li>
       <li><a href="mediaplatform_jwp.html#mediaplatform_jwp.acl.AceCam.has_permission">has_permission() (mediaplatform_jwp.acl.AceCam static method)</a>
 
       <ul>
@@ -536,6 +551,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.initially_fetched_from_url">initially_fetched_from_url (mediaplatform.models.MediaItem attribute)</a>
+</li>
       <li><a href="configuration.html#mediawebapp.settings.base.INSTALLED_APPS">INSTALLED_APPS (in module mediawebapp.settings.base)</a>
 </li>
       <li><a href="mediaplatform.html#mediaplatform.models.Permission.is_public">is_public (mediaplatform.models.Permission attribute)</a>
@@ -614,6 +631,8 @@
 </li>
       <li><a href="configuration.html#mediawebapp.settings.base.LANGUAGE_CODE">LANGUAGE_CODE (in module mediawebapp.settings.base)</a>
 </li>
+      <li><a href="oaipmh.html#oaipmh.tracks.LECTURE_CAPTURE_TAGS">LECTURE_CAPTURE_TAGS (in module oaipmh.tracks)</a>
+</li>
       <li><a href="legacy-sms.html#legacysms.defaultsettings.LEGACY_SMS_DOWNLOADS_URL">LEGACY_SMS_DOWNLOADS_URL (in module legacysms.defaultsettings)</a>
 </li>
       <li><a href="legacy-sms.html#legacysms.defaultsettings.LEGACY_SMS_FRONTEND_URL">LEGACY_SMS_FRONTEND_URL (in module legacysms.defaultsettings)</a>
@@ -626,10 +645,10 @@
 </li>
       <li><a href="legacy-sms.html#module-legacysms.defaultsettings">legacysms.defaultsettings (module)</a>
 </li>
-      <li><a href="legacy-sms.html#module-legacysms.redirect">legacysms.redirect (module)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="legacy-sms.html#module-legacysms.redirect">legacysms.redirect (module)</a>
+</li>
       <li><a href="legacy-sms.html#module-legacysms.views">legacysms.views (module)</a>
 </li>
       <li><a href="api.html#api.views.ListPagination">ListPagination (class in api.views)</a>
@@ -654,6 +673,14 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="oaipmh.html#oaipmh.namespaces.MATTERHORN_NAMESPACE">MATTERHORN_NAMESPACE (in module oaipmh.namespaces)</a>
+</li>
+      <li><a href="oaipmh.html#oaipmh.models.MatterhornRecord">MatterhornRecord (class in oaipmh.models)</a>
+</li>
+      <li><a href="oaipmh.html#oaipmh.models.MatterhornRecord.DoesNotExist">MatterhornRecord.DoesNotExist</a>
+</li>
+      <li><a href="oaipmh.html#oaipmh.models.MatterhornRecord.MultipleObjectsReturned">MatterhornRecord.MultipleObjectsReturned</a>
+</li>
       <li><a href="legacy-sms.html#legacysms.views.media">media() (in module legacysms.views)</a>
 </li>
       <li><a href="legacy-sms.html#legacysms.redirect.media_download">media_download() (in module legacysms.redirect)</a>
@@ -706,6 +733,8 @@
 </li>
       <li><a href="api.html#api.views.MediaItemView">MediaItemView (class in api.views)</a>
 </li>
+      <li><a href="oaipmh.html#oaipmh.namespaces.MEDIAPACKAGE_NAMESPACE">MEDIAPACKAGE_NAMESPACE (in module oaipmh.namespaces)</a>
+</li>
       <li><a href="mediaplatform.html#module-mediaplatform">mediaplatform (module)</a>
 </li>
       <li><a href="mediaplatform.html#module-mediaplatform.models">mediaplatform.models (module)</a>
@@ -738,6 +767,12 @@
 </li>
       <li><a href="mediawebapp.html#module-mediawebapp.settings.tox">mediawebapp.settings.tox (module)</a>
 </li>
+      <li><a href="oaipmh.html#oaipmh.models.MetadataFormat">MetadataFormat (class in oaipmh.models)</a>
+</li>
+      <li><a href="oaipmh.html#oaipmh.models.MetadataFormat.DoesNotExist">MetadataFormat.DoesNotExist</a>
+</li>
+      <li><a href="oaipmh.html#oaipmh.models.MetadataFormat.MultipleObjectsReturned">MetadataFormat.MultipleObjectsReturned</a>
+</li>
       <li><a href="configuration.html#mediawebapp.settings.base.MIDDLEWARE">MIDDLEWARE (in module mediawebapp.settings.base)</a>
 </li>
       <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.Source.mime_type">mime_type (mediaplatform.models.MediaItem.Source attribute)</a>
@@ -753,6 +788,8 @@
       <ul>
         <li><a href="mediaplatform_jwp.html#mediaplatform_jwp.apps.Config.name">(mediaplatform_jwp.apps.Config attribute)</a>
 </li>
+        <li><a href="oaipmh.html#oaipmh.apps.Config.name">(oaipmh.apps.Config attribute)</a>
+</li>
       </ul></li>
   </ul></td>
 </tr></table>
@@ -760,8 +797,32 @@
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="oaipmh.html#oaipmh.namespaces.OAI_NAMESPACE">OAI_NAMESPACE (in module oaipmh.namespaces)</a>
+</li>
+      <li><a href="oaipmh.html#module-oaipmh">oaipmh (module)</a>
+</li>
+      <li><a href="oaipmh.html#module-oaipmh.admin">oaipmh.admin (module)</a>
+</li>
+      <li><a href="oaipmh.html#module-oaipmh.apps">oaipmh.apps (module)</a>
+</li>
+      <li><a href="oaipmh.html#module-oaipmh.client">oaipmh.client (module)</a>
+</li>
+      <li><a href="oaipmh.html#module-oaipmh.models">oaipmh.models (module)</a>
+</li>
+      <li><a href="oaipmh.html#module-oaipmh.namespaces">oaipmh.namespaces (module)</a>
+</li>
+      <li><a href="oaipmh.html#module-oaipmh.records">oaipmh.records (module)</a>
+</li>
+      <li><a href="oaipmh.html#module-oaipmh.tasks">oaipmh.tasks (module)</a>
+</li>
+      <li><a href="oaipmh.html#module-oaipmh.timezone">oaipmh.timezone (module)</a>
+</li>
+      <li><a href="oaipmh.html#module-oaipmh.tracks">oaipmh.tracks (module)</a>
+</li>
       <li><a href="mediaplatform_jwp.html#mediaplatform_jwp.defaultsettings.OAUTH2_CLIENT_ID">OAUTH2_CLIENT_ID (in module mediaplatform_jwp.defaultsettings)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mediaplatform_jwp.html#mediaplatform_jwp.defaultsettings.OAUTH2_CLIENT_SECRET">OAUTH2_CLIENT_SECRET (in module mediaplatform_jwp.defaultsettings)</a>
 </li>
       <li><a href="mediaplatform_jwp.html#mediaplatform_jwp.defaultsettings.OAUTH2_LOOKUP_SCOPES">OAUTH2_LOOKUP_SCOPES (in module mediaplatform_jwp.defaultsettings)</a>
@@ -782,8 +843,6 @@
         <li><a href="mediaplatform_jwp.html#mediaplatform_jwp.models.CachedResource.objects">(mediaplatform_jwp.models.CachedResource attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mediaplatform.html#mediaplatform.models.Channel.objects_including_deleted">objects_including_deleted (mediaplatform.models.Channel attribute)</a>
 
       <ul>
@@ -876,12 +935,24 @@
         <li><a href="mediaplatform_jwp.html#mediaplatform_jwp.apps.Config.ready">(mediaplatform_jwp.apps.Config method)</a>
 </li>
       </ul></li>
+      <li><a href="oaipmh.html#oaipmh.models.Record">Record (class in oaipmh.models)</a>
+</li>
+      <li><a href="oaipmh.html#oaipmh.models.Record.DoesNotExist">Record.DoesNotExist</a>
+</li>
+      <li><a href="oaipmh.html#oaipmh.models.Record.MultipleObjectsReturned">Record.MultipleObjectsReturned</a>
+</li>
       <li><a href="api.html#api.serializers.RelatedBillingAccountIdField">RelatedBillingAccountIdField (class in api.serializers)</a>
 </li>
       <li><a href="api.html#api.serializers.RelatedChannelIdField">RelatedChannelIdField (class in api.serializers)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="oaipmh.html#oaipmh.models.Repository">Repository (class in oaipmh.models)</a>
+</li>
+      <li><a href="oaipmh.html#oaipmh.models.Repository.DoesNotExist">Repository.DoesNotExist</a>
+</li>
+      <li><a href="oaipmh.html#oaipmh.models.Repository.MultipleObjectsReturned">Repository.MultipleObjectsReturned</a>
+</li>
       <li><a href="mediaplatform_jwp.html#mediaplatform_jwp.systemchecks.required_settings_check">required_settings_check() (in module mediaplatform_jwp.systemchecks)</a>
 </li>
       <li><a href="mediaplatform.html#mediaplatform.models.Permission.reset">reset() (mediaplatform.models.Permission method)</a>
@@ -928,6 +999,12 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="oaipmh.html#oaipmh.models.Series">Series (class in oaipmh.models)</a>
+</li>
+      <li><a href="oaipmh.html#oaipmh.models.Series.DoesNotExist">Series.DoesNotExist</a>
+</li>
+      <li><a href="oaipmh.html#oaipmh.models.Series.MultipleObjectsReturned">Series.MultipleObjectsReturned</a>
+</li>
       <li><a href="mediaplatform_jwp.html#mediaplatform_jwp.models.set_resources">set_resources() (in module mediaplatform_jwp.models)</a>
 </li>
       <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.sources">sources (mediaplatform.models.MediaItem attribute)</a>
@@ -962,10 +1039,10 @@
         <li><a href="mediaplatform.html#mediaplatform.models.Playlist.text_search_vector">(mediaplatform.models.Playlist attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="configuration.html#mediawebapp.settings.base.TIME_ZONE">TIME_ZONE (in module mediawebapp.settings.base)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mediaplatform.html#mediaplatform.models.Channel.title">title (mediaplatform.models.Channel attribute)</a>
 
       <ul>
@@ -974,6 +1051,12 @@
         <li><a href="mediaplatform.html#mediaplatform.models.Playlist.title">(mediaplatform.models.Playlist attribute)</a>
 </li>
       </ul></li>
+      <li><a href="oaipmh.html#oaipmh.models.Track">Track (class in oaipmh.models)</a>
+</li>
+      <li><a href="oaipmh.html#oaipmh.models.Track.DoesNotExist">Track.DoesNotExist</a>
+</li>
+      <li><a href="oaipmh.html#oaipmh.models.Track.MultipleObjectsReturned">Track.MultipleObjectsReturned</a>
+</li>
       <li><a href="mediaplatform.html#mediaplatform.models.MediaItem.type">type (mediaplatform.models.MediaItem attribute)</a>
 </li>
   </ul></td>
@@ -994,6 +1077,10 @@
         <li><a href="api.html#api.serializers.ChannelSerializer.update">(api.serializers.ChannelSerializer method)</a>
 </li>
       </ul></li>
+      <li><a href="oaipmh.html#oaipmh.models.update_matterhorn_record">update_matterhorn_record() (in module oaipmh.models)</a>
+</li>
+      <li><a href="oaipmh.html#oaipmh.models.update_track">update_track() (in module oaipmh.models)</a>
+</li>
       <li><a href="mediaplatform_jwp.html#mediaplatform_jwp.models.Channel.updated">updated (mediaplatform_jwp.models.Channel attribute)</a>
 
       <ul>
@@ -1040,6 +1127,8 @@
 
       <ul>
         <li><a href="mediaplatform_jwp.html#mediaplatform_jwp.apps.Config.verbose_name">(mediaplatform_jwp.apps.Config attribute)</a>
+</li>
+        <li><a href="oaipmh.html#oaipmh.apps.Config.verbose_name">(oaipmh.apps.Config attribute)</a>
 </li>
       </ul></li>
       <li><a href="mediaplatform_jwp.html#mediaplatform_jwp.models.Video">Video (class in mediaplatform_jwp.models)</a>
