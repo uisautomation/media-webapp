@@ -11,6 +11,7 @@ from reversion.admin import VersionAdmin
 from mediaplatform_jwp import models as jwpmodels
 from mediaplatform_jwp.api import delivery as api
 from legacysms import models as smsmodels
+from oaipmh import models as oaipmhmodels
 
 from . import models
 
@@ -80,6 +81,20 @@ class SMSMediaItemInline(admin.StackedInline):
     link.short_description = 'Legacy SMS media item'
 
 
+class OAIPMHTrackInline(admin.StackedInline):
+    model = oaipmhmodels.Track
+    verbose_name_plural = 'OAI-PMH Opencast Tracks'
+    readonly_fields = ('link', 'updated_at')
+
+    def link(self, obj):
+        return format_html(
+            '<a href="{}">{}</a>',
+            reverse('admin:oaipmh_track_change', args=(obj.id,)),
+            obj.identifier
+        )
+    link.short_description = 'Track'
+
+
 class UploadEndpointInline(admin.StackedInline):
     model = models.UploadEndpoint
     readonly_fields = ('url', 'expires_at')
@@ -117,6 +132,7 @@ class MediaItemAdmin(VersionAdmin):
         SMSMediaItemInline,
         JWPVideoInline,
         MediaItemViewPermissionInline,
+        OAIPMHTrackInline,
     ]
     readonly_fields = (
         'created_at', 'deleted', 'formatted_duration', 'preview', 'type',
