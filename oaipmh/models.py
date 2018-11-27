@@ -1,5 +1,6 @@
 import logging
 
+from django.conf import settings
 import django.contrib.postgres.fields as pgfields
 from django.db import models
 from django.dispatch import receiver
@@ -19,6 +20,14 @@ def _blank_array():
 
     """
     return []
+
+
+def _default_track_types():
+    """
+    Return a new list with the default set of track types for a series.
+
+    """
+    return list(getattr(settings, 'OAIPMH_TRACK_TYPES', ['composite/delivery']))
 
 
 class Repository(models.Model):
@@ -203,6 +212,14 @@ class Series(models.Model):
     )
 
     title = models.TextField(blank=True, max_length=1024, help_text="Human-readable title")
+
+    track_types = pgfields.ArrayField(
+        models.TextField(), blank=True, default=_default_track_types,
+        help_text=(
+            'List of track types which will be converted to media items for this series. If '
+            'changed, a full cleanup will need to be re-run'
+        )
+    )
 
     playlist = models.ForeignKey(
         'mediaplatform.Playlist', null=True, blank=True, on_delete=models.SET_NULL,

@@ -90,7 +90,7 @@ class RecordAdmin(admin.ModelAdmin):
 @admin.register(models.Series)
 class SeriesAdmin(admin.ModelAdmin):
     fields = (
-        'identifier', 'repository', 'title', 'playlist',
+        'identifier', 'repository', 'title', 'track_types', 'playlist',
         'view_crsids', 'view_lookup_groups', 'view_lookup_insts',
         'view_is_public', 'view_is_signed_in', 'updated_at', 'created_at'
     )

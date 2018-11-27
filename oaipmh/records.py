@@ -4,7 +4,6 @@ Matterhorn record parsing
 """
 import logging
 
-from django.conf import settings
 from lxml import etree
 
 from . import models
@@ -80,8 +79,8 @@ def ensure_matterhorn_record(record):
         series.save()
 
     # Get track elements which should turn into media items. Currently we simply look for tracks
-    # with the correct type attribute.
-    track_types = set(getattr(settings, 'OAIPMH_TRACK_TYPES', ['presentation/delivery']))
+    # with the correct type attribute as set on the series object.
+    track_types = set(series.track_types)
     tracks = [
         t for t in mediapackage.findall(f'./m:media/m:track', namespaces=namespaces)
         if t.get('type') in track_types
