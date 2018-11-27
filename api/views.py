@@ -637,6 +637,14 @@ class PlaylistView(PlaylistMixin, generics.RetrieveUpdateDestroyAPIView):
     """
     serializer_class = serializers.PlaylistDetailSerializer
 
+    def get_object(self):
+        obj = super().get_object()
+
+        # Add a list of all the media which is viewable by the current user. This is used by the
+        # detail serialiser.
+        obj.media = obj.ordered_media_item_queryset.viewable_by_user(self.request.user)
+        return obj
+
 
 class BillingAccountListMixin(ViewMixinBase):
     """

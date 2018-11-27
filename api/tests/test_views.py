@@ -1409,6 +1409,36 @@ class PlaylistViewTestCase(ViewTestCase):
         returned_media_ids = [m['id'] for m in response.data['media']]
         self.assertEqual(expected_ids, returned_media_ids)
 
+    def test_media_respects_view_permission(self):
+        """
+        Check that a playlist detail view does not include media the user has no view permission
+        on. (Even if the returned list of ids contains it.)
+        """
+        playlist = self.playlists.get(id='public')
+        self.assertGreater(len(playlist.ordered_media_item_queryset), 1)
+
+        # Make sure the anonymous user can see all media items
+        for item in playlist.ordered_media_item_queryset:
+            item.view_permission.is_public = True
+            item.view_permission.save()
+
+        # Except the second one
+        invisible_item = playlist.ordered_media_item_queryset[1]
+        invisible_item.view_permission.reset()
+        invisible_item.view_permission.save()
+
+        expected_ids = [
+            m.id for m in playlist.ordered_media_item_queryset
+            if m.id != invisible_item.id
+        ]
+
+        response = self.view(self.get_request, pk=playlist.id)
+        self.assertEqual(response.status_code, 200)
+
+        # Check that all expected media items appear in the detail view in the right order
+        returned_media_ids = [m['id'] for m in response.data['media']]
+        self.assertEqual(expected_ids, returned_media_ids)
+
     def assert_field_mutable(
             self, field_name, new_value='testvalue', model_field_name=None, expected_value=None):
         expected_value = expected_value or new_value
