@@ -1389,6 +1389,26 @@ class PlaylistViewTestCase(ViewTestCase):
     def test_created_at_immutable(self):
         self.assert_field_immutable('createdAt', '2018-08-06T15:29:45.003231Z', 'created_at')
 
+    def test_media_appears_in_response(self):
+        """
+        Check that a playlist detail view includes all of the media.
+        """
+        playlist = self.playlists.get(id='public')
+        self.assertGreater(len(playlist.ordered_media_item_queryset), 0)
+        expected_ids = [m.id for m in playlist.ordered_media_item_queryset]
+
+        # Make sure the anonymous user can see all media items
+        for item in playlist.ordered_media_item_queryset:
+            item.view_permission.is_public = True
+            item.view_permission.save()
+
+        response = self.view(self.get_request, pk=playlist.id)
+        self.assertEqual(response.status_code, 200)
+
+        # Check that all media items appear in the detail view in the right order
+        returned_media_ids = [m['id'] for m in response.data['media']]
+        self.assertEqual(expected_ids, returned_media_ids)
+
     def assert_field_mutable(
             self, field_name, new_value='testvalue', model_field_name=None, expected_value=None):
         expected_value = expected_value or new_value

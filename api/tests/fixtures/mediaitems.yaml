@@ -248,7 +248,7 @@
   pk: public
   fields:
     channel: channel1
-    media_items: ['public', 'signedin', 'deleted', 'notfound']
+    media_items: ['a', 'populated', 'deleted', 'useronly', 'notfound']
     created_at: 2010-09-15 14:40:45
     updated_at: 2010-09-15 14:40:45
 
