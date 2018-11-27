@@ -95,7 +95,7 @@ class SeriesAdmin(admin.ModelAdmin):
         'view_is_public', 'view_is_signed_in', 'updated_at', 'created_at'
     )
     readonly_fields = ('updated_at', 'created_at')
-    list_display = ('get_identifier', 'get_title', 'updated_at', 'created_at')
+    list_display = ('get_identifier', 'get_title', 'repository', 'updated_at', 'created_at')
     ordering = ('-updated_at', 'identifier')
     inlines = (MatterhornRecordInline,)
     autocomplete_fields = ('playlist', 'repository')
@@ -103,7 +103,7 @@ class SeriesAdmin(admin.ModelAdmin):
 
     def get_identifier(self, obj):
         if obj.identifier == '':
-            return '\N{EM DASH}'
+            return 'Default series'
         return obj.identifier
     get_identifier.short_description = 'identifier'
     get_identifier.admin_order_field = 'identifier'
