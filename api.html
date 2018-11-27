@@ -554,6 +554,15 @@ querysets depending on the incoming request.</p>
 <dd><p>alias of <a class="reference internal" href="#api.serializers.PlaylistDetailSerializer" title="api.serializers.PlaylistDetailSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.serializers.PlaylistDetailSerializer</span></code></a></p>
 </dd></dl>
 
+<dl class="method">
+<dt id="api.views.PlaylistView.get_object">
+<code class="descname">get_object</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#api.views.PlaylistView.get_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the object the view is displaying.</p>
+<p>You may want to override this if you need to provide non-standard
+queryset lookups.  Eg if objects are referenced using multiple
+keyword arguments in the url conf.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
