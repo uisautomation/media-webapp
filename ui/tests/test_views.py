@@ -315,3 +315,16 @@ class PlaylistRSSViewTestCase(ViewTestCase):
         self.assertEqual(r.status_code, 200)
         content = r.content.decode('utf8')
         self.assertNotIn(item.title, content)
+
+
+class PlayerLibraryViewTestCase(ViewTestCase):
+    def test_basic_functionality(self):
+        """
+        The player library endpoint redirects to a URL.
+
+        """
+        with mock.patch('time.time') as mock_time:
+            mock_time.return_value = 1234
+            expected_url = api.player_library_url()
+            r = self.client.get(reverse('ui:player_lib'))
+        self.assertRedirects(r, expected_url, fetch_redirect_response=False)

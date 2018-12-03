@@ -4,11 +4,13 @@ Views
 """
 import logging
 
+from django.views.generic.base import RedirectView
 from rest_framework import generics
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.serializers import Serializer as NullSerializer
 
 from api import views as apiviews
+from mediaplatform_jwp.api import delivery
 
 from . import renderers
 from . import serializers
@@ -91,3 +93,13 @@ class PlaylistRSSView(apiviews.PlaylistMixin, generics.RetrieveAPIView):
             .downloadable_by_user(self.request.user)
         )
         return obj
+
+
+class PlayerLibraryView(RedirectView):
+    """
+    Redirect to configured JWPlayer library.
+
+    """
+    def get_redirect_url(self, *args, **kwargs):
+        # The JWP player URL is signed and so, annoyingly, must be re-generated each time.
+        return delivery.player_library_url()
