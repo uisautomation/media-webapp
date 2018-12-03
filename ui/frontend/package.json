@@ -5,6 +5,7 @@
   "dependencies": {
     "@material-ui/core": "^1.4.1",
     "@material-ui/icons": "^1.1.0",
+    "@types/jwplayer": "0.0.35",
     "@types/react-helmet": "^5.0.7",
     "@types/react-router-dom": "^4.3.0",
     "deepmerge": "^2.1.1",
