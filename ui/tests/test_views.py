@@ -192,6 +192,31 @@ class PlaylistViewTestCase(ViewTestCase):
         self.assertEqual(r.status_code, 200)
 
 
+class PlaylistJWPlayerConfigurationViewTestCase(ViewTestCase):
+    def setUp(self):
+        super().setUp()
+        self.view = views.PlaylistJWPlayerConfigurationView().as_view()
+        self.playlist = mpmodels.Playlist.objects.get(id='public')
+
+        # Patch the JWP API URL patcher
+        pd_api_url_patcher = mock.patch('mediaplatform_jwp.api.delivery.pd_api_url')
+        self.pd_api_url = pd_api_url_patcher.start()
+        self.addCleanup(pd_api_url_patcher.stop)
+        self.pd_api_url.return_value = 'http://test.invalid/'
+
+    def test_basic_functionality(self):
+        response = self.view(self.get_request, pk=self.playlist.id)
+        expected_items = self.playlist.ordered_media_item_queryset.viewable_by_user(None)
+        expected_ids = [item.id for item in expected_items]
+        self.assertGreater(len(expected_items), 0)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('mediaItems', response.data)
+        for item in response.data['mediaItems']:
+            self.assertNotEqual(item['playlistUrl'], '')
+        received_ids = [item['id'] for item in response.data['mediaItems']]
+        self.assertEqual(received_ids, expected_ids)
+
+
 class MediaRSSViewTestCase(ViewTestCase):
     def setUp(self):
         self.lookup_groupids_and_instids_for_user_patcher = mock.patch(

@@ -49,6 +49,10 @@ urlpatterns = [
     path('playlists/<slug:pk>', views.PlaylistView.as_view(), name='playlist'),
     path('playlists/<slug:pk>.rss', views.PlaylistRSSView.as_view(), name='playlist_rss'),
     path('playlists/<slug:pk>/edit', views.PlaylistView.as_view(), name='playlist_edit'),
+    path(
+        'playlists/<slug:pk>/jwp', views.PlaylistJWPlayerConfigurationView.as_view(),
+        name='playlist_jwp'
+    ),
 
     # Static text page UI views. If many more static pages are added in future, we will want to
     # think about a helper function for creating these paths.

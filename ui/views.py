@@ -118,6 +118,30 @@ class PlaylistRSSView(apiviews.PlaylistMixin, generics.RetrieveAPIView):
         return obj
 
 
+class PlaylistJWPlayerConfigurationView(apiviews.PlaylistMixin, generics.RetrieveAPIView):
+    """
+    Endpoint to retrieve JWP configuration for a playlist.
+
+    """
+    serializer_class = serializers.JWPlayerConfigurationSerializer
+
+    def get_object(self):
+        # get_object will 404 if the object does not exist
+        playlist = super().get_object()
+
+        # Get the media items which the user can view and which have a JWP video.
+        items = (
+            playlist.ordered_media_item_queryset
+            .filter(jwp__isnull=False)
+            .viewable_by_user(self.request.user)
+        )
+
+        # Annotate the playlist with the items.
+        playlist.items_for_user = items
+
+        return playlist
+
+
 class PlayerLibraryView(RedirectView):
     """
     Redirect to configured JWPlayer library.
