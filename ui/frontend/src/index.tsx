@@ -14,6 +14,7 @@ import MediaEmbedPage from './pages/MediaEmbedPage';
 import MediaPage from './pages/MediaPage';
 import PlaylistCreatePage from './pages/PlaylistCreatePage';
 import PlaylistEditPage from './pages/PlaylistEditPage';
+import PlaylistEmbedPage from './pages/PlaylistEmbedPage';
 import PlaylistPage from './pages/PlaylistPage';
 import SearchPage from './pages/SearchPage';
 import StaticTextPage from './pages/StaticTextPage';
@@ -45,6 +46,7 @@ ReactDOM.render(
         <Switch>
           <Route exact={true} path="/playlists/new" component={PlaylistCreatePage} />
           <Route exact={true} path="/playlists/:pk" component={PlaylistPage} />
+          <Route exact={true} path="/playlists/:pk/embed" component={PlaylistEmbedPage} />
         </Switch>
         <Route exact={true} path="/playlists/:pk/edit" component={PlaylistEditPage} />
         <Route exact={true} path="/about" component={StaticTextPage} />
