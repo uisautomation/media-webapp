@@ -55,6 +55,10 @@ urlpatterns = [
     path('playlists/<slug:pk>.rss', views.PlaylistRSSView.as_view(), name='playlist_rss'),
     path('playlists/<slug:pk>/edit', views.PlaylistView.as_view(), name='playlist_edit'),
     path(
+        'playlists/<slug:pk>/embed', TemplateView.as_view(template_name="index.html"),
+        name='playlist_embed'
+    ),
+    path(
         'playlists/<slug:pk>/jwp', views.PlaylistJWPlayerConfigurationView.as_view(),
         name='playlist_jwp'
     ),
