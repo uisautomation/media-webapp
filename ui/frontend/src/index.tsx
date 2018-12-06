@@ -10,6 +10,7 @@ import AnalyticsPage from './pages/AnalyticsPage';
 import ChannelPage from './pages/ChannelPage';
 import IndexPage from './pages/IndexPage';
 import MediaEditPage from './pages/MediaEditPage';
+import MediaEmbedPage from './pages/MediaEmbedPage';
 import MediaPage from './pages/MediaPage';
 import PlaylistCreatePage from './pages/PlaylistCreatePage';
 import PlaylistEditPage from './pages/PlaylistEditPage';
@@ -36,6 +37,7 @@ ReactDOM.render(
         <Switch>
           <Route exact={true} path="/media/new" component={UploadPage} />
           <Route exact={true} path="/media/:pk" component={MediaPage} />
+          <Route exact={true} path="/media/:pk/embed" component={MediaEmbedPage} />
         </Switch>
         <Route exact={true} path="/media/:pk/analytics" component={AnalyticsPage} />
         <Route exact={true} path="/media/:pk/edit" component={MediaEditPage} />
