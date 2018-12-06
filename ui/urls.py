@@ -40,6 +40,11 @@ urlpatterns = [
     path(
         'media/<slug:pk>/jwp', views.MediaItemJWPlayerConfigurationView.as_view(), name='media_jwp'
     ),
+    # The embed view has no 404 - it simply displays an error if the media cannot be found.
+    path(
+        'media/<slug:pk>/embed', TemplateView.as_view(template_name="index.html"),
+        name='media_embed'
+    ),
     path('channels/<pk>', views.ChannelView.as_view(), name='channel'),
     path(
         'playlists/new',
