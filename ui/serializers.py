@@ -1,4 +1,5 @@
 import logging
+import urllib.parse
 
 from django.urls import reverse
 from rest_framework import serializers
@@ -177,3 +178,40 @@ class PlaylistRSSSerializer(serializers.Serializer):
     title = serializers.CharField()
     description = serializers.CharField()
     entries = MediaItemRSSEntitySerializer(many=True, source='downloadable_media_items')
+
+
+class JWPlayerMediaItemSerializer(serializers.Serializer):
+    """
+    Serialize information required to configure a JWPlayer player to play a single media item along
+    with details on the item itself.
+
+    """
+    id = serializers.CharField(help_text='Unique id of media item')
+
+    title = serializers.CharField(help_text='Title of media item')
+
+    description = serializers.CharField(help_text='Description for media item')
+
+    playlistUrl = serializers.SerializerMethodField(
+        help_text='JWP playlist URL for this media item'
+    )
+
+    def get_playlistUrl(self, obj):
+        """
+        Playlist URL as expected by JWPlayer for the media item. The URL has its scheme stripped so
+        that https://foo.invalid becomes //foo.invalid. This is required because IE11 seems to Have
+        Ideas about whether a player served from http://localhost/ can access https URLs.
+
+        """
+        url = urllib.parse.urlparse(
+            jwplatform.pd_api_url(f'/v2/media/{obj.jwp.key}', format='json')
+        )
+        return urllib.parse.ParseResult('', *url[1:]).geturl()
+
+
+class JWPlayerConfigurationSerializer(serializers.Serializer):
+    """
+    Configuration for passing to JWPlayer for one or more media items.
+
+    """
+    mediaItems = JWPlayerMediaItemSerializer(many=True, source='items_for_user')
