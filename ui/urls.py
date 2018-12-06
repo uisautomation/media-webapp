@@ -37,6 +37,9 @@ urlpatterns = [
     path('media/<slug:pk>/edit', views.MediaView.as_view(), name='media_item_edit'),
     path('media/<slug:pk>', views.MediaView.as_view(), name='media_item'),
     path('media/<slug:pk>.rss', views.MediaItemRSSView.as_view(), name='media_item_rss'),
+    path(
+        'media/<slug:pk>/jwp', views.MediaItemJWPlayerConfigurationView.as_view(), name='media_jwp'
+    ),
     path('channels/<pk>', views.ChannelView.as_view(), name='channel'),
     path(
         'playlists/new',

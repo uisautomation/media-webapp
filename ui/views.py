@@ -4,6 +4,7 @@ Views
 """
 import logging
 
+from django.http import Http404
 from django.views.generic.base import RedirectView
 from rest_framework import generics
 from rest_framework.renderers import TemplateHTMLRenderer
@@ -63,6 +64,28 @@ class MediaItemRSSView(apiviews.MediaItemMixin, generics.RetrieveAPIView):
         # a bit of a hacky way of doing this but it works.
         obj.self_list = [obj]
         return obj
+
+
+class MediaItemJWPlayerConfigurationView(apiviews.MediaItemMixin, generics.RetrieveAPIView):
+    """
+    Endpoint to retrieve JWP configuration for a media item.
+
+    """
+    serializer_class = serializers.JWPlayerConfigurationSerializer
+
+    def get_object(self):
+        # get_object will 404 if the object does not exist
+        item = super().get_object()
+
+        # if there is no equivalent JWP video, 404
+        if not hasattr(item, 'jwp'):
+            raise Http404()
+
+        # Annotate item with a list containing itself. This somewhat odd construction is required
+        # to allow the same schema for playlists as well as individual media items.
+        item.items_for_user = [item]
+
+        return item
 
 
 class ChannelView(ResourcePageMixin, apiviews.ChannelMixin, generics.RetrieveAPIView):

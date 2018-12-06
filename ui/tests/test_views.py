@@ -2,6 +2,7 @@
 Tests for views.
 
 """
+import re
 from unittest import mock
 
 from django.conf import settings
@@ -13,6 +14,8 @@ from django.urls import reverse
 from mediaplatform import models as mpmodels
 import mediaplatform_jwp.api.delivery as api
 from api.tests.test_views import ViewTestCase as _ViewTestCase, DELIVERY_VIDEO_FIXTURE
+
+from ui import views
 
 
 class ViewTestCase(_ViewTestCase):
@@ -79,6 +82,53 @@ class MediaViewTestCase(ViewTestCase):
         self.assertTemplateUsed(r, 'ui/media.html')
         content = r.content.decode('utf8')
         self.assertNotIn('<some-tag>', content)
+
+
+class MediaItemJWPlayerConfigurationViewTestCase(ViewTestCase):
+    def setUp(self):
+        super().setUp()
+        self.view = views.MediaItemJWPlayerConfigurationView().as_view()
+        self.item = self.non_deleted_media.get(id='populated')
+
+        # Make sure item is public
+        self.item.view_permission.reset()
+        self.item.view_permission.is_public = True
+        self.item.view_permission.save()
+
+        # Patch the JWP API URL patcher
+        pd_api_url_patcher = mock.patch('mediaplatform_jwp.api.delivery.pd_api_url')
+        self.pd_api_url = pd_api_url_patcher.start()
+        self.addCleanup(pd_api_url_patcher.stop)
+        self.pd_api_url.return_value = 'http://test.invalid/'
+
+    def test_basic_functionality(self):
+        expected_pd_api_args = [f'/v2/media/{self.item.jwp.key}']
+        expected_pd_api_kwargs = {'format': 'json'}
+
+        # The expected URL is the URL returned by pd_api_url but with the scheme removed for IE11.
+        expected_url = self.pd_api_url(*expected_pd_api_args, **expected_pd_api_kwargs)
+        expected_url = re.sub(r'^https?:', '', expected_url)
+
+        response = self.view(self.get_request, pk=self.item.id)
+        self.pd_api_url.assert_called_with(*expected_pd_api_args, **expected_pd_api_kwargs)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('mediaItems', response.data)
+        self.assertIn(expected_url, response.data['mediaItems'][0]['playlistUrl'])
+
+    def test_visibility(self):
+        """If an item has no visibility, the configuration view should 404."""
+        self.item.view_permission.reset()
+        self.item.view_permission.save()
+        self.item.channel.edit_permission.reset()
+        self.item.channel.edit_permission.save()
+        response = self.view(self.get_request, pk=self.item.id)
+        self.assertEqual(response.status_code, 404)
+
+    def test_no_jwp(self):
+        """If an item has no JWP video, the configuration view should 404."""
+        self.item.jwp.delete()
+        response = self.view(self.get_request, pk=self.item.id)
+        self.assertEqual(response.status_code, 404)
 
 
 class UploadViewTestCase(ViewTestCase):
