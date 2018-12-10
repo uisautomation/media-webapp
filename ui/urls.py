@@ -18,6 +18,7 @@ import os
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.urls import path
+from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic import TemplateView
 
 from . import views
@@ -42,7 +43,8 @@ urlpatterns = [
     ),
     # The embed view has no 404 - it simply displays an error if the media cannot be found.
     path(
-        'media/<slug:pk>/embed', TemplateView.as_view(template_name="index.html"),
+        'media/<slug:pk>/embed',
+        xframe_options_exempt(TemplateView.as_view(template_name="index.html")),
         name='media_embed'
     ),
     path('channels/<pk>', views.ChannelView.as_view(), name='channel'),
@@ -55,7 +57,8 @@ urlpatterns = [
     path('playlists/<slug:pk>.rss', views.PlaylistRSSView.as_view(), name='playlist_rss'),
     path('playlists/<slug:pk>/edit', views.PlaylistView.as_view(), name='playlist_edit'),
     path(
-        'playlists/<slug:pk>/embed', TemplateView.as_view(template_name="index.html"),
+        'playlists/<slug:pk>/embed',
+        xframe_options_exempt(TemplateView.as_view(template_name="index.html")),
         name='playlist_embed'
     ),
     path(
