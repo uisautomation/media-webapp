@@ -6,6 +6,7 @@ import logging
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.views.decorators.clickjacking import xframe_options_exempt
 import requests
 
 from mediaplatform import models as mpmodels
@@ -20,6 +21,7 @@ LOG = logging.getLogger(__name__)
 DEFAULT_REQUESTS_SESSION = requests.Session()
 
 
+@xframe_options_exempt
 def embed(request, media_id):
     """
     :param request: the current request
