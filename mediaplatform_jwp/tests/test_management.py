@@ -24,6 +24,10 @@ class ItemSyncTestCase(TestCase):
 
         self.jwp_client.videos.create.return_value = {'media': {'key': 'newvideo'}}
         self.jwp_client.videos.update.return_value = {}
+        self.existing_tags = ['one', 'two']
+        self.jwp_client.videos.show.return_value = {
+            'video': {'key': 'existingvideo', 'tags': ','.join(self.existing_tags)},
+        }
 
     def test_create_if_necessary(self):
         management._perform_item_update(self.no_jwp_item)
@@ -147,6 +151,53 @@ class ItemSyncTestCase(TestCase):
     def test_create_upload_endpoint_requires_jwp_video(self):
         with self.assertRaises(ValueError):
             management.create_upload_endpoint(self.no_jwp_item)
+
+    def test_site_tags_and_props_created(self):
+        """A new video has media id custom props set and sitedomain tag"""
+        management._perform_item_update(self.no_jwp_item)
+        self.jwp_client.videos.create.assert_called_once()
+        _, kwargs = self.jwp_client.videos.create.call_args
+        self.assertIn('tags', kwargs)
+
+        # A site tag should be created
+        site_tags = [t for t in kwargs['tags'].split(',') if t.startswith('sitedomain:')]
+        self.assertEqual(len(site_tags), 1)
+        _, site = site_tags[0].split(':')
+
+        # Custom props for the site should include media id
+        self.assertIn('custom.site.' + site.replace('.', '_') + '.name', kwargs)
+        self.assertIn('custom.site.' + site.replace('.', '_') + '.media_id', kwargs)
+        self.assertEqual(
+            kwargs['custom.site.' + site.replace('.', '_') + '.media_id'],
+            self.no_jwp_item.id)
+
+    def test_site_tags_and_props_added(self):
+        """
+        An existing video has media id custom props set and sitedomain tag set but existing
+        tags preserved.
+
+        """
+        management._perform_item_update(self.jwp_item)
+        self.jwp_client.videos.update.assert_called_once()
+        _, kwargs = self.jwp_client.videos.update.call_args
+        self.assertIn('tags', kwargs)
+        all_tags = kwargs['tags'].split(',')
+
+        # All existing tags should be preserved
+        for t in self.existing_tags:
+            self.assertIn(t, all_tags)
+
+        # A site tag should be created
+        site_tags = [t for t in all_tags if t.startswith('sitedomain:')]
+        self.assertEqual(len(site_tags), 1)
+        _, site = site_tags[0].split(':')
+
+        # Custom props for the site should include media id
+        self.assertIn('custom.site.' + site.replace('.', '_') + '.name', kwargs)
+        self.assertIn('custom.site.' + site.replace('.', '_') + '.media_id', kwargs)
+        self.assertEqual(
+            kwargs['custom.site.' + site.replace('.', '_') + '.media_id'],
+            self.jwp_item.id)
 
     def assert_video_updated(self, key, **kwargs):
         self.jwp_client.videos.update.assert_called_once()
