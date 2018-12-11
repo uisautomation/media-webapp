@@ -8,7 +8,7 @@
  *
  * The arguments to pass to ``setup()`` are documented in the JWPlayer API reference[1].
  *
- * Behind the scenes, this function will determine if the JWPlayer library hasl aready been loaded
+ * Behind the scenes, this function will determine if the JWPlayer library has already been loaded
  * and, if not, add a new script tag to the end of the document body doing so. The script tag is
  * only added once and so it is safe to call this function from within any component which needs
  * the JWPlayer library loaded.
