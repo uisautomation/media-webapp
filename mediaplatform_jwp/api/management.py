@@ -2,6 +2,8 @@
 Interactions with the JWP management API.
 
 """
+from django.contrib.sites.models import Site
+
 from mediaplatform_jwp.api import delivery as jwp
 
 from mediaplatform_jwp import models
@@ -23,19 +25,37 @@ def _perform_item_update(item):
     # Get a JWPlatform client
     jwp_client = jwp.get_jwplatform_client()
 
+    # Form a key for the current site replacing "."s with "_"s since JWP interprets "." specially.
+    # NOTE: using get_current() here will use the SITE_ID setting so that must be set.
+    current_site = Site.objects.get_current()
+    safe_site_name = current_site.domain.replace('.', '_')
+
     video_resource = {
         'title': item.title,
         # HACK: JWP does not allow a blank description(!)
         'description': item.description if item.description != '' else ' ',
 
-        # We need to populate the SMS fields so that jwpfetch does not overwrite this item
         'custom': {
+            # We need to populate the SMS fields so that jwpfetch does not overwrite this item
             'sms_downloadable': 'downloadable:{}:'.format(item.downloadable),
             'sms_language': 'language:{}:'.format(item.language),
             'sms_copyright': 'copyright:{}:'.format(item.copyright),
             'sms_keywords': 'keywords:{}:'.format('|'.join(item.tags)),
+
+            # Add custom props to the video to specify which site it is available on and which
+            # media id it corresponds to.
+            'site': {
+                safe_site_name: {
+                    'name': current_site.name,
+                    'media_id': item.id,
+                },
+            }
         },
     }
+
+    # Additional tags which should be set on the video. These tags are added in addition to any
+    # existing tags.
+    additional_tags = [f'sitedomain:{current_site.domain}']
 
     # Note: only has an effect if the item is being created
     if item.initially_fetched_from_url != '':
@@ -56,6 +76,18 @@ def _perform_item_update(item):
         # Get/create the corresponding cached JWP resource
         video_key = item.jwp.key
 
+        # Merge the tags in. JWP seems somewhat cavalier in whitespace surrounding tags and whether
+        # the tags field comes back as null or "" so we have to be quite defensive.
+        # See: RFC 1122 §1.2.2 and https://en.wikipedia.org/wiki/Robustness_principle
+        existing_video = jwp_client.videos.show(video_key=video_key).get('video', {})
+        existing_tags = [
+            t.strip()
+            for t in (existing_video.get('tags') or '').strip().split(',')
+        ]
+        for t in set(additional_tags) - set(existing_tags):
+            existing_tags.append(t)
+        video_resource['tags'] = ','.join(existing_tags)
+
         # Update the video using the JWP management API
         response = jwp_client.videos.update(
             http_method='POST', video_key=video_key, **_flatten_dict(video_resource))
@@ -65,6 +97,7 @@ def _perform_item_update(item):
         item.jwp.save()
     else:
         # Create the video using the JWP management API
+        video_resource['tags'] = ','.join(additional_tags)
         response = jwp_client.videos.create(
             http_method='POST', **_flatten_dict(video_resource))
 
