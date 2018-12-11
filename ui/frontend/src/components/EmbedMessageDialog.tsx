@@ -72,7 +72,7 @@ export const EmbedMessageDialog = withStyles(styles)((
         <Divider classes={{ root: classes.dividerRoot }} />
 
         <div className={classes.buttonContainer}>
-          <Button variant="contained" color="primary" component="a" href={ getSignInURL() }>
+          <Button variant="contained" color="primary" component="a" target="_blank" href={ getSignInURL() }>
             Sign in
           </Button>
         </div>
