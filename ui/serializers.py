@@ -1,4 +1,5 @@
 import logging
+import urllib.parse
 
 from django.urls import reverse
 from rest_framework import serializers
@@ -86,7 +87,7 @@ class MediaItemJSONLDSerializer(JSONLDSerializer):
         ]
 
     def get_embedUrl(self, obj):
-        return self._reverse('api:media_embed', kwargs={'pk': obj.id})
+        return self._reverse('ui:media_embed', kwargs={'pk': obj.id})
 
     def get_contentUrl(self, obj):
         if not obj.downloadable_by_user:
@@ -177,3 +178,45 @@ class PlaylistRSSSerializer(serializers.Serializer):
     title = serializers.CharField()
     description = serializers.CharField()
     entries = MediaItemRSSEntitySerializer(many=True, source='downloadable_media_items')
+
+
+class JWPlayerMediaItemSerializer(serializers.Serializer):
+    """
+    Serialize information required to configure a JWPlayer player to play a single media item along
+    with details on the item itself.
+
+    """
+    id = serializers.CharField(help_text='Unique id of media item')
+
+    title = serializers.CharField(help_text='Title of media item')
+
+    description = serializers.CharField(help_text='Description for media item')
+
+    playlistUrl = serializers.SerializerMethodField(
+        help_text='JWP playlist URL for this media item'
+    )
+
+    def get_playlistUrl(self, obj):
+        """
+        Playlist URL as expected by JWPlayer for the media item. The URL has its scheme stripped so
+        that https://foo.invalid becomes //foo.invalid. This is required because IE11 seems to Have
+        Ideas about whether a player served from http://localhost/ can access https URLs.
+
+        """
+        url = urllib.parse.urlparse(
+            jwplatform.pd_api_url(f'/v2/media/{obj.jwp.key}', format='json')
+        )
+        return urllib.parse.ParseResult('', *url[1:]).geturl()
+
+
+class JWPlayerConfigurationSerializer(serializers.Serializer):
+    """
+    The JWPlayer API requires some specific configuration for media items and playlists. This
+    configuration is available through the JWPlayer delivery API but the frontend needs to be given
+    the appropriate signed deliver API URLs.
+
+    The delivery API URLs are provided by the JWPlayerConfigurationSerializer and
+    JWPlayerMediaItemSerializer together.
+
+    """
+    mediaItems = JWPlayerMediaItemSerializer(many=True, source='items_for_user')

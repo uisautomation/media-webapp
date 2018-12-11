@@ -4,11 +4,14 @@ Views
 """
 import logging
 
+from django.http import Http404
+from django.views.generic.base import RedirectView
 from rest_framework import generics
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.serializers import Serializer as NullSerializer
 
 from api import views as apiviews
+from mediaplatform_jwp.api import delivery
 
 from . import renderers
 from . import serializers
@@ -63,6 +66,28 @@ class MediaItemRSSView(apiviews.MediaItemMixin, generics.RetrieveAPIView):
         return obj
 
 
+class MediaItemJWPlayerConfigurationView(apiviews.MediaItemMixin, generics.RetrieveAPIView):
+    """
+    Endpoint to retrieve JWP configuration for a media item.
+
+    """
+    serializer_class = serializers.JWPlayerConfigurationSerializer
+
+    def get_object(self):
+        # get_object will 404 if the object does not exist
+        item = super().get_object()
+
+        # if there is no equivalent JWP video, 404
+        if not hasattr(item, 'jwp'):
+            raise Http404()
+
+        # Annotate item with a list containing itself. This somewhat odd construction is required
+        # to allow the same schema for playlists as well as individual media items.
+        item.items_for_user = [item]
+
+        return item
+
+
 class ChannelView(ResourcePageMixin, apiviews.ChannelMixin, generics.RetrieveAPIView):
     """A channel."""
 
@@ -91,3 +116,37 @@ class PlaylistRSSView(apiviews.PlaylistMixin, generics.RetrieveAPIView):
             .downloadable_by_user(self.request.user)
         )
         return obj
+
+
+class PlaylistJWPlayerConfigurationView(apiviews.PlaylistMixin, generics.RetrieveAPIView):
+    """
+    Endpoint to retrieve JWP configuration for a playlist.
+
+    """
+    serializer_class = serializers.JWPlayerConfigurationSerializer
+
+    def get_object(self):
+        # get_object will 404 if the object does not exist
+        playlist = super().get_object()
+
+        # Get the media items which the user can view and which have a JWP video.
+        items = (
+            playlist.ordered_media_item_queryset
+            .filter(jwp__isnull=False)
+            .viewable_by_user(self.request.user)
+        )
+
+        # Annotate the playlist with the items.
+        playlist.items_for_user = items
+
+        return playlist
+
+
+class PlayerLibraryView(RedirectView):
+    """
+    Redirect to configured JWPlayer library.
+
+    """
+    def get_redirect_url(self, *args, **kwargs):
+        # The JWP player URL is signed and so, annoyingly, must be re-generated each time.
+        return delivery.player_library_url()

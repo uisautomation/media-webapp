@@ -89,7 +89,6 @@ export interface IMediaResource {
   tags: string[];
   posterImageUrl: string;
   sources?: IMediaSource[];
-  embedUrl?: string;
   legacyStatisticsUrl?: string;
 };
 

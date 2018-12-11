@@ -184,7 +184,7 @@ class MediaItemSerializer(ChannelOwnedResourceModelSerializer):
         fields = (
             'url', 'id', 'title', 'description', 'duration', 'type', 'publishedAt',
             'downloadable', 'language', 'copyright', 'tags', 'createdAt',
-            'updatedAt', 'posterImageUrl', 'channelId', 'embedUrl', 'downloadableByUser',
+            'updatedAt', 'posterImageUrl', 'channelId', 'downloadableByUser',
         )
 
         read_only_fields = (
@@ -200,9 +200,6 @@ class MediaItemSerializer(ChannelOwnedResourceModelSerializer):
 
     posterImageUrl = serializers.SerializerMethodField(
         help_text='A URL of a thumbnail/poster image for the media', read_only=True)
-
-    embedUrl = serializers.SerializerMethodField(
-        help_text='A URL suitable for embedding this media item in an IFrame', read_only=True)
 
     downloadableByUser = serializers.BooleanField(
         source='downloadable_by_user',
@@ -236,10 +233,6 @@ class MediaItemSerializer(ChannelOwnedResourceModelSerializer):
             'api:media_poster',
             kwargs={'pk': obj.id, 'width': 720, 'extension': 'jpg'}
         ))
-
-    def get_embedUrl(self, obj):
-        return self._build_absolute_uri(
-            reverse('api:media_embed', kwargs={'pk': obj.id}))
 
     def _build_absolute_uri(self, uri):
         if 'request' in self.context:

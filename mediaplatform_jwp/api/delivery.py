@@ -446,3 +446,13 @@ def pd_api_url(resource, now_timestamp=None, **parameters):
     )
 
     return url
+
+
+def player_library_url(player_id=None, **pd_api_url_args):
+    """
+    Return a signed URL to a JWPlayer player library. If ``player_id`` is None, the default embed
+    player is used. Remaining keyword arguments are passwd to ``pd_api_url``.
+
+    """
+    player_id = player_id or settings.JWPLATFORM_EMBED_PLAYER_KEY
+    return pd_api_url(f'/libraries/{player_id}.js', **pd_api_url_args)

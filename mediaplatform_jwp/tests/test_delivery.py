@@ -33,6 +33,24 @@ class SourcesTestCase(TestCase):
         self.assertEqual(source_urls, expected_urls)
 
 
+class PlayerLibraryURLTestCase(TestCase):
+    def test_default_player(self):
+        """With no player specified, a URL for the default player is returned."""
+        player_id = 'So5taiQuig'  # fake player id
+        with self.settings(JWPLATFORM_EMBED_PLAYER_KEY=player_id):
+            url = jwplatform.player_library_url()
+        self.assertIn(player_id, url)
+
+    def test_player_override(self):
+        """With player specified, that is put in the URL."""
+        default_player_id = 'quuMaek2no'  # fake player id
+        player_id = 'IeShaeWie1'  # fake player id
+        with self.settings(JWPLATFORM_EMBED_PLAYER_KEY=default_player_id):
+            url = jwplatform.player_library_url(player_id=player_id)
+        self.assertNotIn(default_player_id, url)
+        self.assertIn(player_id, url)
+
+
 DELIVERY_VIDEO_FIXTURE = {
     'key': 'mock1',
     'title': 'Mock 1',
