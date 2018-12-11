@@ -51,6 +51,7 @@ export const EmbedPlaylist = withStyles(embedPlaylistStyles)((
 const embedPlaylistItemStyles = (theme: Theme) => createStyles({
   root: {
     margin: 0,
+    minHeight: theme.spacing.unit * 11,
     padding: 0,
     width: '100%',
   },
