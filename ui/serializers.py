@@ -211,7 +211,12 @@ class JWPlayerMediaItemSerializer(serializers.Serializer):
 
 class JWPlayerConfigurationSerializer(serializers.Serializer):
     """
-    Configuration for passing to JWPlayer for one or more media items.
+    The JWPlayer API requires some specific configuration for media items and playlists. This
+    configuration is available through the JWPlayer delivery API but the frontend needs to be given
+    the appropriate signed deliver API URLs.
+
+    The delivery API URLs are provided by the JWPlayerConfigurationSerializer and
+    JWPlayerMediaItemSerializer together.
 
     """
     mediaItems = JWPlayerMediaItemSerializer(many=True, source='items_for_user')
