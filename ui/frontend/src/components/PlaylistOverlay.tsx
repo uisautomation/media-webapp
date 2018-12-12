@@ -163,7 +163,12 @@ export const PlaylistOverlay = withStyles(styles)(
           <JWPlayerPlaylistProvider>{
             ({ playlist, index, setIndex }) => (
               <EmbedPlaylist classes={{ root: classes.playlist }}>{
-                playlist.filter(filterPlaylistItem).map((item, itemIndex) => (
+                playlist.map((item, itemIndex) => (
+                  // We can't use playlist.filter() before .map() because the index of the item
+                  // must match the index in the JWP playlist for the selected highlight to be
+                  // correct and for clicking on the playlist item to work.
+                  filterPlaylistItem(item)
+                  ?
                   <EmbedPlaylistItem
                     onClick={() => setIndex(itemIndex)}
                     selected={ itemIndex === index }
@@ -172,6 +177,8 @@ export const PlaylistOverlay = withStyles(styles)(
                     <EmbedPlaylistImage selected={ itemIndex === index } url={ item.image }/>
                     <EmbedPlaylistCaption title={ item.title } />
                   </EmbedPlaylistItem>
+                  :
+                  null
                 ))
               }</EmbedPlaylist>
             )
