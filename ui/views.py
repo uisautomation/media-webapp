@@ -4,8 +4,9 @@ Views
 """
 import logging
 
-from django.http import Http404
-from django.views.generic.base import RedirectView
+from django.http import Http404, HttpResponse
+from django.views.decorators.cache import cache_page
+import requests
 from rest_framework import generics
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.serializers import Serializer as NullSerializer
@@ -142,11 +143,17 @@ class PlaylistJWPlayerConfigurationView(apiviews.PlaylistMixin, generics.Retriev
         return playlist
 
 
-class PlayerLibraryView(RedirectView):
+# We cache this view for 15 minutes since it introduces a round trip JWP API latency for each
+# uncached request.
+@cache_page(60 * 15)
+def jwplayer_library_js(request):
     """
-    Redirect to configured JWPlayer library.
+    Render configured JWPlayer JS library. The library is proxied rather than being redirected
+    because the player URL is protetcted by a relatively weak signing process which runs the risk
+    of the API secret being exposed.
 
     """
-    def get_redirect_url(self, *args, **kwargs):
-        # The JWP player URL is signed and so, annoyingly, must be re-generated each time.
-        return delivery.player_library_url()
+    # The JWP player URL is signed and so, annoyingly, must be re-generated each time.
+    response = requests.get(delivery.player_library_url())
+    response.raise_for_status()
+    return HttpResponse(response.text, 'text/javascript; charset=utf-8')

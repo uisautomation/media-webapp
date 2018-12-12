@@ -85,5 +85,5 @@ urlpatterns = [
     path('search', TemplateView.as_view(template_name="index.html"), name='search'),
 
     # A pre-configured JWPlayer library.
-    path('lib/player.js', views.PlayerLibraryView.as_view(), name='player_lib'),
+    path('lib/player.js', views.jwplayer_library_js, name='player_lib'),
 ]
