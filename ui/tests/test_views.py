@@ -409,7 +409,7 @@ class PlayerLibraryViewTestCase(ViewTestCase):
 
     def test_caching(self):
         """
-        Multiple calls to the same view cache the result and only call requests.ge tonce.
+        Multiple calls to the same view cache the result and only call requests.get once.
 
         """
         mock_js = 'THIS IS A MOCK LIBRARY'
