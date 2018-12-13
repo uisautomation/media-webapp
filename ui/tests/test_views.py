@@ -398,8 +398,23 @@ class PlayerLibraryViewTestCase(ViewTestCase):
         The player library endpoint redirects to a URL.
 
         """
-        with mock.patch('time.time') as mock_time:
+        mock_js = 'THIS IS A MOCK LIBRARY'
+        with mock.patch('time.time') as mock_time, mock.patch('requests.get') as mock_get:
+            mock_get.return_value.text = mock_js
             mock_time.return_value = 1234
             expected_url = api.player_library_url()
             r = self.client.get(reverse('ui:player_lib'))
-        self.assertRedirects(r, expected_url, fetch_redirect_response=False)
+        mock_get.assert_called_with(expected_url)
+        self.assertEqual(r.content.decode('utf8'), mock_js)
+
+    def test_caching(self):
+        """
+        Multiple calls to the same view cache the result and only call requests.get once.
+
+        """
+        mock_js = 'THIS IS A MOCK LIBRARY'
+        with mock.patch('requests.get') as mock_get:
+            mock_get.return_value.text = mock_js
+            for _ in range(10):
+                self.client.get(reverse('ui:player_lib'))
+        mock_get.assert_called_once()
