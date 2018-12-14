@@ -448,6 +448,58 @@ def pd_api_url(resource, now_timestamp=None, **parameters):
     return url
 
 
+def legacy_pd_api_url(resource, now_timestamp=None, **parameters):
+    """
+    Return a JWPlatform Platform Delivery API URL with the request has the appropriate signature
+    and expiry parameters attached.
+
+    :param str resource: path to resource, e.g. ``/libraries/abcdef.js``. Must start with a slash.
+    :param int now_timestamp: the current UTC timestamp as returned by :py:func:`time.time`.
+    :param dict parameters: remaining keyword arguments are passed as URL parameters
+    :return: signed delivery API URL
+    :rtype: str
+
+    If *now_timestamp* is ``None``, the value returned by :py:func:`time.time` is used.
+
+    :raises ValueError: if the resource name does not start with a slash.
+
+    .. seealso::
+
+        Platform Delivery API reference at
+        https://developer.jwplayer.com/jw-platform/docs/delivery-api-reference/.
+    """
+    # Validate the resource parameter
+    if not resource.startswith('/'):
+        raise ValueError('Resource name must have leading slash')
+
+    # The content path is the resource without the leading slash
+    path = resource[1:]
+
+    # The JWPlatform API secret
+    secret = settings.JWPLATFORM_API_SECRET
+
+    # Get the Unix timestamp for "now"
+    now_timestamp = now_timestamp if now_timestamp is not None else time.time()
+
+    # URL expires in one hour
+    exp = math.ceil(now_timestamp + 3600)
+
+    # Construct parameters for URL including signature and expiry
+    url_params = {
+        'exp': exp,
+        'sig': hashlib.md5(f'{path}:{exp}:{secret}'.encode('ascii')).hexdigest(),
+    }
+    url_params.update(parameters)
+
+    # Construct GET URL
+    url = urllib.parse.urljoin(
+        settings.JWPLATFORM_API_BASE_URL,
+        resource + '?' + urllib.parse.urlencode(url_params)
+    )
+
+    return url
+
+
 def player_library_url(player_id=None, **pd_api_url_args):
     """
     Return a signed URL to a JWPlayer player library. If ``player_id`` is None, the default embed
@@ -455,4 +507,4 @@ def player_library_url(player_id=None, **pd_api_url_args):
 
     """
     player_id = player_id or settings.JWPLATFORM_EMBED_PLAYER_KEY
-    return pd_api_url(f'/libraries/{player_id}.js', **pd_api_url_args)
+    return legacy_pd_api_url(f'/libraries/{player_id}.js', **pd_api_url_args)
