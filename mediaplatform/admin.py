@@ -329,3 +329,27 @@ class BillingAccountAdmin(admin.ModelAdmin):
         ChannelInline,
         BillingAccountChannelCreatePermissionInline,
     ]
+
+
+@admin.register(models.TranscriptionRequest)
+class TranscriptionRequestAdmin(admin.ModelAdmin):
+    fields = (
+        'media_item', 'state', 'created_at', 'updated_at',
+    )
+    search_fields = ('id', 'media_item__title', 'media_item__description', 'state')
+    list_display = ('media_item_title', 'media_item_id', 'state', 'updated_at')
+    ordering = ('state', 'media_item__id')
+    readonly_fields = (
+        'created_at', 'updated_at'
+    )
+    autocomplete_fields = ['media_item']
+
+    def media_item_id(self, obj):
+        return obj.media_item.id
+
+    def media_item_title(self, obj):
+        return obj.media_item.title
+
+    def get_queryset(self, request):
+        """Ensure that related items are also fetched by the queryset."""
+        return super().get_queryset(request).select_related('media_item')
