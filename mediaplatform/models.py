@@ -906,8 +906,14 @@ class TranscriptionRequest(models.Model):
     * A "running" request is one which is currently underway.
     * A "resolved" request is one which finished and resulted in a caption track.
     * A "rejected" request is one which finished and resulted in some problem.
-    * A "cancelled" request is one which should not be picked up by a transcription service but was
-        not attempted.
+    * The "cancelled" state is used to prevent a request from being picked up by a transcription
+      service. For example, a user may upload a caption track after the initial upload. In this
+      case, we do not need to automatically transcribe the video and so the request can be
+      cancelled.
+
+    The difference between a "rejected" request and a "cancelled" request is that, in the former
+    case, a transcription was attempted but failed and, in the latter case, a transcription was
+    never attempted and is no-longer required.
 
     """
     PENDING = 'pending'
