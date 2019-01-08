@@ -892,6 +892,70 @@ associated institution. This may change in the future.</p>
 
 </dd></dl>
 
+<dl class="class">
+<dt id="mediaplatform.models.TranscriptionRequest">
+<em class="property">class </em><code class="descclassname">mediaplatform.models.</code><code class="descname">TranscriptionRequest</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#mediaplatform.models.TranscriptionRequest" title="Permalink to this definition">¶</a></dt>
+<dd><p>A transcription request represents a request that a media item have a caption track appended. A
+request may be in one of five states.</p>
+<ul class="simple">
+<li><dl class="first docutils">
+<dt>A “pending” request is one which is outstanding and may be picked up by some transcription</dt>
+<dd>service.</dd>
+</dl>
+</li>
+<li>A “running” request is one which is currently underway.</li>
+<li>A “resolved” request is one which finished and resulted in a caption track.</li>
+<li>A “rejected” request is one which finished and resulted in some problem.</li>
+<li>The “cancelled” state is used to prevent a request from being picked up by a transcription
+service. For example, a user may upload a caption track after the initial upload. In this
+case, we do not need to automatically transcribe the video and so the request can be
+cancelled.</li>
+</ul>
+<p>The difference between a “rejected” request and a “cancelled” request is that, in the former
+case, a transcription was attempted but failed and, in the latter case, a transcription was
+never attempted and is no-longer required.</p>
+<dl class="attribute">
+<dt id="mediaplatform.models.TranscriptionRequest.id">
+<code class="descname">id</code><a class="headerlink" href="#mediaplatform.models.TranscriptionRequest.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Primary key</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.TranscriptionRequest.state">
+<code class="descname">state</code><a class="headerlink" href="#mediaplatform.models.TranscriptionRequest.state" title="Permalink to this definition">¶</a></dt>
+<dd><p>State of the request</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.TranscriptionRequest.media_item">
+<code class="descname">media_item</code><a class="headerlink" href="#mediaplatform.models.TranscriptionRequest.media_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Media item for the request</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.TranscriptionRequest.created_at">
+<code class="descname">created_at</code><a class="headerlink" href="#mediaplatform.models.TranscriptionRequest.created_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creation time</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediaplatform.models.TranscriptionRequest.updated_at">
+<code class="descname">updated_at</code><a class="headerlink" href="#mediaplatform.models.TranscriptionRequest.updated_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Last update time</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="mediaplatform.models.TranscriptionRequest.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mediaplatform.models.TranscriptionRequest.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mediaplatform.models.TranscriptionRequest.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mediaplatform.models.TranscriptionRequest.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 </div>
 
@@ -940,6 +1004,7 @@ associated institution. This may change in the future.</p>
         <script type="text/javascript" src="_static/jquery.js"></script>
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
     
 
   
