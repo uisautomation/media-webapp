@@ -934,3 +934,30 @@ class BillingAccountTest(ModelTestCase):
             .get(id=account_or_id.id)
             .TEST_create_channels
         )
+
+
+class TranscriptionRequestTestCase(ModelTestCase):
+    model = models.TranscriptionRequest
+
+    def setUp(self):
+        # Get some item from database.
+        self.item = models.MediaItem.objects.first()
+
+        # Create some request with defaults for the item.
+        self.request = models.TranscriptionRequest.objects.create(media_item=self.item)
+
+    def test_default_state(self):
+        """The default state of a request is "pending"."""
+        self.assertEqual(self.request.state, models.TranscriptionRequest.PENDING)
+
+    def test_item_required(self):
+        """The media item field is required."""
+        self.request.media_item = None
+        with self.assertRaises(IntegrityError):
+            self.request.save()
+
+    def test_state_required(self):
+        """The state field is required."""
+        self.request.state = None
+        with self.assertRaises(IntegrityError):
+            self.request.save()

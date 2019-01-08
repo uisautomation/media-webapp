@@ -896,6 +896,76 @@ class BillingAccount(models.Model):
         return f'{self.id} ({paren})'
 
 
+class TranscriptionRequest(models.Model):
+    """
+    A transcription request represents a request that a media item have a caption track appended. A
+    request may be in one of five states.
+
+    * A "pending" request is one which is outstanding and may be picked up by some transcription
+        service.
+    * A "running" request is one which is currently underway.
+    * A "resolved" request is one which finished and resulted in a caption track.
+    * A "rejected" request is one which finished and resulted in some problem.
+    * The "cancelled" state is used to prevent a request from being picked up by a transcription
+      service. For example, a user may upload a caption track after the initial upload. In this
+      case, we do not need to automatically transcribe the video and so the request can be
+      cancelled.
+
+    The difference between a "rejected" request and a "cancelled" request is that, in the former
+    case, a transcription was attempted but failed and, in the latter case, a transcription was
+    never attempted and is no-longer required.
+
+    """
+    PENDING = 'pending'
+    RUNNING = 'running'
+    RESOLVED = 'resolved'
+    REJECTED = 'rejected'
+    CANCELLED = 'cancelled'
+    STATE_CHOICES = (
+        (PENDING, 'Pending'),
+        (RUNNING, 'Running'),
+        (RESOLVED, 'Resolved'),
+        (REJECTED, 'Rejected'),
+        (CANCELLED, 'Cancelled'),
+    )
+
+    #: Primary key
+    id = models.CharField(
+        max_length=_TOKEN_LENGTH, primary_key=True, default=_make_token, editable=False)
+
+    #: State of the request
+    state = models.CharField(
+        max_length=32, choices=STATE_CHOICES, default=PENDING, null=False, blank=False,
+        help_text="Request state")
+
+    #: Media item for the request
+    media_item = models.ForeignKey(
+        'MediaItem', null=False, blank=False, on_delete=models.CASCADE,
+        help_text='Media item related to transcription request')
+
+    #: Creation time
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    #: Last update time
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = (
+            # The most common query will be for all requests in a particular state, requests
+            # associated with a media item or those associated with a media item with a particular
+            # state. Indexing state and media item separately should allow Postgres to use a bitmap
+            # index scan to combine searches.
+            models.Index(fields=['state']),
+            models.Index(fields=['media_item']),
+        )
+
+    def __str__(self):
+        return (
+            f'{self.state} transcription request for media item {self.media_item.id} '
+            f'("{self.media_item.title}")'
+        )
+
+
 @receiver(post_save, sender=MediaItem)
 def _media_item_post_save_handler(*args, sender, instance, created, raw, **kwargs):
     """
