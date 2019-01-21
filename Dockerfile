@@ -26,6 +26,9 @@ ADD ./requirements/* ./requirements/
 RUN pip install --upgrade --no-cache-dir -r requirements/base.txt && \
 	pip install --upgrade --no-cache-dir -r requirements/docker.txt
 
+# Clean up after the installation and delete non-required packages
+RUN apk del postgresql-dev libffi-dev gcc g++ musl-dev libxml2-dev libxslt-dev
+
 # Copy the remaining files over
 ADD . .
 COPY --from=frontend-builder /usr/src/app/build/ /usr/src/build/frontend/
