@@ -18,7 +18,7 @@ phase and what we need to build in that phase.
 
 The Government Digital Services team has put together a [document describing the
 alpha phase in more
-detail](https://www.gov.uk/service-manual/agile-delivery/how-the-alpha-phase-works").
+detail](https://www.gov.uk/service-manual/agile-delivery/how-the-alpha-phase-works).
 
 ## How you can give us feedback
 
