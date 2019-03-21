@@ -1,3 +1,5 @@
+> This repository has moved to https://gitlab.developers.cam.ac.uk/uis/devops/media/webapp/
+
 # Streaming Media Service Webapp
 
 [![CircleCI](https://circleci.com/gh/uisautomation/media-webapp.svg?style=svg)](https://circleci.com/gh/uisautomation/media-webapp)
